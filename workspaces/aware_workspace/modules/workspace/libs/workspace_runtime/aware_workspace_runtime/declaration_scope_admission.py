@@ -25,6 +25,9 @@ from aware_code_semantic_contract_runtime import (
     SemanticDependencyTargetConstraint,
     encode_semantic_candidate_listing,
 )
+from aware_code_semantic_contract_runtime import (
+    retained_declaration_scope_codec as _declaration_codec,
+)
 from aware_code_semantic_contract_runtime.contracts import (
     ContentDigest,
     SemanticContractRef,
@@ -159,6 +162,77 @@ class WorkspaceSelectedPackageSource:
 
 
 @dataclass(frozen=True, slots=True)
+class WorkspaceSelectedSourceInputV1:
+    """Borrow an original Code selection; construction grants no admission."""
+
+    selected: WorkspaceSelectedPackageSource
+    host: SemanticInputProducerHost
+    registration: AdmittedSemanticInputProducerRegistration
+    selection_expected: SemanticInputProductionExpectation
+    result: SemanticBody
+    source_contracts: tuple[SemanticInputSourceContract, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class WorkspaceSelectedDependencyInputV1:
+    """Compare an original declared edge and target under their owner's lifetime."""
+
+    owner: WorkspaceSelectedPackageSource
+    target: WorkspaceSelectedPackageSource
+    inventory_admission: WorkspaceDeclarationInventoryAdmission
+    expected: RetainedTargetExpectation
+    dependency_kind: str
+    dependency_ref: str
+
+
+_GROUP_MEMBER_FIELDS = (
+    "selected",
+    "host",
+    "registration",
+    "selection_expected",
+    "result",
+    "source_contracts",
+)
+_GROUP_EDGE_FIELDS = (
+    "owner",
+    "target",
+    "inventory_admission",
+    "expected",
+    "dependency_kind",
+    "dependency_ref",
+)
+_GROUP_MEMBER_SLOTS = tuple(
+    inspect.getattr_static(WorkspaceSelectedSourceInputV1, name)
+    for name in _GROUP_MEMBER_FIELDS
+)
+_GROUP_EDGE_SLOTS = tuple(
+    inspect.getattr_static(WorkspaceSelectedDependencyInputV1, name)
+    for name in _GROUP_EDGE_FIELDS
+)
+
+
+def _group_fields(value, kind, names, descriptors):
+    # Recognize exact nominal inputs before accessing fields. Never dispatch a
+    # substituted slot, foreign property, iteration or equality implementation.
+    if type(value) is not kind or any(
+        inspect.getattr_static(kind, name, None) is not descriptor
+        for name, descriptor in zip(names, descriptors, strict=True)
+    ):
+        raise SourceObservationUnavailable("grouped_input_exact_type_required")
+    try:
+        return tuple(descriptor.__get__(value, kind) for descriptor in descriptors)
+    except AttributeError as exc:
+        raise SourceObservationUnavailable("grouped_input_fields_required") from exc
+
+
+@dataclass(slots=True)
+class _GroupedInputOrigin:
+    members: tuple[tuple[WorkspaceSelectedSourceInputV1, tuple[Any, ...]], ...]
+    edges: tuple[tuple[WorkspaceSelectedDependencyInputV1, tuple[Any, ...]], ...]
+    declaration_requested: bool = False
+    declaration_handle: WorkspaceDeclarationScope | None = None
+    declaration_record: _DeclarationRecord | None = None
+@dataclass(frozen=True, slots=True)
 class _DeclarationRecord:
     observation: WorkspaceRetainedDeclarationObservation
     source_record: WorkspaceObservedDeclarationEvidence
@@ -212,6 +286,7 @@ class _PreRequestInputRecord:
     thread_id: int
     live: bool = True
     selection_origin: _SelectedInputOrigin | None = None
+    grouped_origin: _GroupedInputOrigin | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -1232,6 +1307,8 @@ class WorkspaceDeclarationScopeRuntime:
         binding: CodeSelectedPackageSourceBinding, contract: SemanticContractRef,
         selection: SemanticSourceSelection | None = None,
         source_origin: SemanticInputSourceOrigin | None = None,
+        grouped_body: SemanticBody | None = None,
+        declaration_body: SemanticBody | None = None,
     ) -> bytes:
         """Only existing Code projections have an original source here.
 
@@ -1249,6 +1326,10 @@ class WorkspaceDeclarationScopeRuntime:
             return encode_source_selection(selection)
         if contract == SOURCE_ORIGIN_REF and source_origin is not None:
             return encode_source_origin(source_origin)
+        if grouped_body is not None and contract == grouped_body.coordinate.contract:
+            return grouped_body.canonical_body
+        if declaration_body is not None and contract == declaration_body.coordinate.contract:
+            return declaration_body.canonical_body
         raise SourceObservationUnavailable("original_pre_request_context_unavailable")
 
     @contextmanager
@@ -1275,10 +1356,17 @@ class WorkspaceDeclarationScopeRuntime:
         stage: str, source_coordinates: tuple[SemanticInputSourceCoordinate, ...],
         context_contracts: tuple[SemanticInputContextContract, ...],
         selection_origin: _SelectedInputOrigin | None = None,
+        grouped_origin: _GroupedInputOrigin | None = None,
     ) -> Iterator[SemanticInputProductionExpectation]:
-        selection, source_origin = self._selection_context_values(
-            selected, selection_origin, context_contracts,
-        )
+        grouped_body = declaration_body = None
+        if grouped_origin is None:
+            selection, source_origin = self._selection_context_values(
+                selected, selection_origin, context_contracts,
+            )
+        else:
+            grouped_body, selection, source_origin, source_coordinates, declaration_body = (
+                _original_group_projection(self, grouped_origin)
+            )
         with self._lock:
             record = self._selected_record(selected)
             values = self._source_projection_values(selected)
@@ -1295,10 +1383,21 @@ class WorkspaceDeclarationScopeRuntime:
                 raise SourceObservationUnavailable("pre_request_context_contracts_invalid")
             bodies: list[SemanticBody] = []
             for item in context_contracts:
+                if grouped_body is not None and item.contract == grouped_body.coordinate.contract:
+                    if item.role != grouped_body.coordinate.role:
+                        raise SourceObservationUnavailable("grouped_context_role_differs")
+                    bodies.append(copy.deepcopy(grouped_body))
+                    continue
+                if declaration_body is not None and item.contract == declaration_body.coordinate.contract:
+                    if item.role != declaration_body.coordinate.role:
+                        raise SourceObservationUnavailable("declaration_context_role_differs")
+                    bodies.append(copy.deepcopy(declaration_body))
+                    continue
                 body = self._pre_request_context_bytes(
                     context=values[0], inventory=values[1], binding=values[3],
                     contract=item.contract,
                     selection=selection, source_origin=source_origin,
+                    grouped_body=grouped_body, declaration_body=declaration_body,
                 )
                 digest = ContentDigest.of_bytes(body)
                 bodies.append(SemanticBody(SemanticValueCoordinate(
@@ -1324,6 +1423,7 @@ class WorkspaceDeclarationScopeRuntime:
             retained = _PreRequestInputRecord(
                 selected, record, expected, expected.input_digest.value, threading.get_ident(),
                 selection_origin=selection_origin,
+                grouped_origin=grouped_origin,
             )
         with self._exclusion.mutation(), self._lock:
             if key in self._pre_request_inputs or key in self._retired_pre_request_inputs:
@@ -1339,6 +1439,7 @@ class WorkspaceDeclarationScopeRuntime:
         finally:
             retained.live = False
             retained.selection_origin = None
+            retained.grouped_origin = None
             with self._exclusion.mutation(retiring=True), self._lock:
                 self._pre_request_inputs.pop(key, None)
 
@@ -1521,24 +1622,460 @@ class WorkspaceDeclarationScopeRuntime:
             self.validate_semantic_input_source(selected, expected=expected)
             yield expected
 
+    def _grouped_declaration_body(
+        self,
+        family: _GroupedInputOrigin,
+        records: tuple[_SelectedRecord, ...],
+    ) -> SemanticBody:
+        """Read the original complete declaration; never accept a caller scope."""
+        _check_group_methods(self)
+        _check_declaration_codec()
+        _GROUP_ORIGINAL_ORIGIN(self)
+        if not records or any(type(item) is not _SelectedRecord for item in records):
+            raise SourceObservationUnavailable("grouped_declaration_members_required")
+        with self._lock:
+            root = records[0]
+            handle = root.declaration
+            original = _original_group_method(self, "_declaration_record", handle)
+            if any(
+                item.declaration is not handle or item.declaration_record is not original
+                for item in records
+            ):
+                raise SourceObservationUnavailable("grouped_declaration_member_differs")
+            if family.declaration_handle is None:
+                family.declaration_handle = handle
+                family.declaration_record = original
+            if (
+                family.declaration_handle is not handle
+                or family.declaration_record is not original
+            ):
+                raise SourceObservationUnavailable("grouped_declaration_origin_changed")
+        # Full declaration/source work stays outside parent publication exclusion.
+        # The existing reader authenticates its own original expectation/digest.
+        closure = _original_group_method(self, "read_declaration_scope", handle)
+        _check_declaration_codec()
+        raw = _DECLARATION_ENCODER(closure)
+        _check_declaration_codec()
+        with self._lock:
+            if (
+                _original_group_method(self, "_declaration_record", handle) is not original
+                or closure.closure_digest != original.digest
+                or any(
+                    item.declaration is not handle
+                    or item.declaration_record is not original
+                    for item in records
+                )
+            ):
+                raise SourceObservationUnavailable("grouped_declaration_origin_changed")
+        digest = ContentDigest.of_bytes(raw)
+        return SemanticBody(
+            SemanticValueCoordinate(
+                "declaration_scope",
+                cast(SemanticContractRef, _DECLARATION_CONTEXT_REF),
+                f"workspace-context:{digest.value}",
+                digest,
+                len(raw),
+            ),
+            raw,
+        )
+
+    def _grouped_selected_values(self, family: _GroupedInputOrigin):
+        """Project original member results and edges outside parent exclusion."""
+        # The Code owner supplies the only portable group codec. Existing
+        # single-package callers do not need to import this additive surface.
+        from aware_code_semantic_contract_runtime.grammar_source_group import (
+            CodeGrammarSourceBodyV1,
+            CodeGrammarSourceEdgeV1,
+            CodeGrammarSourceGroupV1,
+            CodeGrammarSourceMemberV1,
+            grammar_source_group_body,
+        )
+
+        _check_group_methods(self)
+        _GROUP_ORIGINAL_ORIGIN(self)  # Reject inherited process state before any lock.
+        members = []
+        selected_records = []
+        handles = []
+        refs = []
+        root_values = None
+        for carrier, retained_fields in family.members:
+            current = _group_fields(
+                carrier,
+                WorkspaceSelectedSourceInputV1,
+                _GROUP_MEMBER_FIELDS,
+                _GROUP_MEMBER_SLOTS,
+            )
+            if any(a is not b for a, b in zip(current, retained_fields, strict=True)):
+                raise SourceObservationUnavailable("grouped_member_binding_changed")
+            selected, host, registration, expected, result, contracts = current
+            if (
+                type(selected) is not WorkspaceSelectedPackageSource
+                or type(host) is not SemanticInputProducerHost
+                or type(registration) is not AdmittedSemanticInputProducerRegistration
+                or type(expected) is not SemanticInputProductionExpectation
+                or type(result) is not SemanticBody
+            ):
+                raise SourceObservationUnavailable("grouped_member_origin_required")
+            _original_group_contracts(self, contracts)
+            origin = _SelectedInputOrigin(host, registration, expected, result, contracts)
+            selection, coordinates = _original_group_method(
+                self, "_selected_input_values", selected, origin
+            )
+            selection, occurrence = _original_group_method(
+                self,
+                "_selection_context_values",
+                selected,
+                origin,
+                (SemanticInputContextContract("source_origin", SOURCE_ORIGIN_REF),),
+                selected_values=(selection, coordinates),
+            )
+            if selection is None or occurrence is None:
+                raise SourceObservationUnavailable("grouped_member_origin_unavailable")
+            occurrence_body = encode_source_origin(occurrence)
+            digest = ContentDigest.of_bytes(occurrence_body)
+            occurrence_coordinate = SemanticValueCoordinate(
+                "source_origin",
+                SOURCE_ORIGIN_REF,
+                f"workspace-context:{digest.value}",
+                digest,
+                len(occurrence_body),
+            )
+            with self._lock:
+                record = _original_group_method(
+                    self, "_pre_request_record", selected, expected
+                )
+                selected_records.append(record.selected_record)
+                sources = tuple(
+                    CodeGrammarSourceBodyV1(
+                        item.relative_path,
+                        copy.deepcopy(item.coordinate),
+                        cast(
+                            bytes,
+                            _original_group_method(
+                                self,
+                                "_call",
+                                "read_selected_package",
+                                record.selected_record.observation,
+                                relative_path=item.relative_path,
+                            ),
+                        ).hex(),
+                    )
+                    for item in coordinates
+                )
+            members.append(
+                CodeGrammarSourceMemberV1(
+                    occurrence.occurrence.occurrence_ref,
+                    copy.deepcopy(result.coordinate),
+                    result.canonical_body.hex(),
+                    occurrence_coordinate,
+                    occurrence_body.hex(),
+                    sources,
+                )
+            )
+            # Every member keeps the original predecessor result, not a portable
+            # body supplied by a caller. Check again after retained source reads.
+            _original_group_method(self, "_selected_input_values", selected, origin)
+            handles.append(selected)
+            refs.append(occurrence.occurrence.occurrence_ref)
+            if root_values is None:
+                root_values = selection, occurrence, coordinates
+        if root_values is None or len(set(refs)) != len(refs):
+            raise SourceObservationUnavailable("grouped_members_not_unique")
+        edges = []
+        for carrier, retained_fields in family.edges:
+            current = _group_fields(
+                carrier,
+                WorkspaceSelectedDependencyInputV1,
+                _GROUP_EDGE_FIELDS,
+                _GROUP_EDGE_SLOTS,
+            )
+            if any(a is not b for a, b in zip(current, retained_fields, strict=True)):
+                raise SourceObservationUnavailable("grouped_edge_binding_changed")
+            owner, target, inventory, expected, kind, ref = current
+            if (
+                type(owner) is not WorkspaceSelectedPackageSource
+                or type(target) is not WorkspaceSelectedPackageSource
+                or type(inventory) is not WorkspaceDeclarationInventoryAdmission
+                or type(expected) is not RetainedTargetExpectation
+                or type(kind) is not str
+                or type(ref) is not str
+            ):
+                raise SourceObservationUnavailable("grouped_edge_origin_required")
+            owner_indices = [i for i, handle in enumerate(handles) if handle is owner]
+            target_indices = [i for i, handle in enumerate(handles) if handle is target]
+            if len(owner_indices) != 1 or len(target_indices) != 1:
+                raise SourceObservationUnavailable("grouped_edge_endpoint_unavailable")
+            _original_group_method(
+                self,
+                "validate_dependency_target_admission",
+                target,
+                inventory_admission=inventory,
+                expected=expected,
+            )
+            with self._lock:
+                original = _original_group_method(
+                    self,
+                    "_validate_semantic_admission",
+                    inventory,
+                    expected=expected.source_planning,
+                    kind=WorkspaceDeclarationInventoryAdmission,
+                )
+                if original.selected is not owner:
+                    raise SourceObservationUnavailable("grouped_edge_owner_differs")
+                declared = tuple(
+                    item
+                    for item in original.inventory.entries
+                    if (item.dependency_kind, item.dependency_ref) == (kind, ref)
+                )
+                target_record = _original_group_method(
+                    self, "_target_record", inventory, expected
+                )
+                target_roots = _original_group_method(
+                    self, "_semantic_values", target_record.membership
+                )[3]
+                if len(declared) != 1 or not any(
+                    item.package == target_record.context.package
+                    and item.semantic_root_refs == target_roots
+                    for item in declared[0].targets
+                ):
+                    raise SourceObservationUnavailable("grouped_edge_declaration_differs")
+            edges.append(
+                CodeGrammarSourceEdgeV1(
+                    refs[owner_indices[0]],
+                    refs[target_indices[0]],
+                    kind,
+                    ref,
+                )
+            )
+        members.sort(key=lambda item: item.occurrence_ref.encode("utf-8"))
+        edges.sort(
+            key=lambda item: tuple(
+                text.encode("utf-8")
+                for text in (
+                    item.owner_occurrence_ref,
+                    item.target_occurrence_ref,
+                    item.dependency_kind,
+                    item.dependency_ref,
+                )
+            )
+        )
+        group = CodeGrammarSourceGroupV1(refs[0], tuple(members), tuple(edges))
+        body = grammar_source_group_body(group)
+        declaration_body = None
+        if family.declaration_requested:
+            declaration_body = _original_group_method(
+                self, "_grouped_declaration_body", family, tuple(selected_records),
+            )
+        return body, *root_values, declaration_body
+
+
+    @staticmethod
+    def _check_group_source_contracts(
+        contracts,
+        kind: type[
+            SemanticInputSourceContract | SemanticInputContextContract
+        ] = SemanticInputSourceContract,
+    ):
+        if type(contracts) is not tuple or not contracts:
+            raise SourceObservationUnavailable("grouped_source_contracts_invalid")
+        roles = []
+        for item in contracts:
+            if type(item) is not kind or type(item.role) is not str:
+                raise SourceObservationUnavailable("grouped_source_contracts_invalid")
+            if type(item.contract) is not SemanticContractRef:
+                raise SourceObservationUnavailable("grouped_source_contracts_invalid")
+            # Revalidate the exact neutral contract before hashing/comparison.
+            if (
+                type(item.contract.key) is not str
+                or type(item.contract.version) is not str
+                or type(item.contract.schema_digest) is not ContentDigest
+                or type(item.contract.schema_digest.value) is not str
+            ):
+                raise SourceObservationUnavailable("grouped_source_contracts_invalid")
+            SemanticContractRef.__post_init__(item.contract)
+            roles.append(item.role)
+        if len(set(roles)) != len(roles):
+            raise SourceObservationUnavailable("grouped_source_contracts_invalid")
+
+
+    @contextmanager
+    def original_grouped_selected_source_input(
+        self,
+        *,
+        root: WorkspaceSelectedSourceInputV1,
+        participants: tuple[WorkspaceSelectedSourceInputV1, ...],
+        dependency_edges: tuple[WorkspaceSelectedDependencyInputV1, ...],
+        use_ref: str,
+        stage: str,
+        source_contracts: tuple[SemanticInputSourceContract, ...],
+        context_contracts: tuple[SemanticInputContextContract, ...],
+    ) -> Iterator[SemanticInputProductionExpectation]:
+        """Borrow original selections and edges for one neutral grouped use."""
+        family = None
+        root_fields = origin = expected = None
+        try:
+            from aware_code_semantic_contract_runtime.grammar_source_group import (
+                GRAMMAR_SOURCE_GROUP_REF,
+            )
+
+            _check_group_methods(self)
+            _GROUP_ORIGINAL_ORIGIN(self)
+            if (
+                type(participants) is not tuple
+                or len(participants) >= 128
+                or type(dependency_edges) is not tuple
+                or len(dependency_edges) > 256
+            ):
+                raise SourceObservationUnavailable("grouped_input_bounds_invalid")
+            _original_group_contracts(self, source_contracts)
+            if type(context_contracts) is not tuple or any(
+                type(item) is not SemanticInputContextContract for item in context_contracts
+            ):
+                raise SourceObservationUnavailable("grouped_context_contracts_invalid")
+            _original_group_contracts(self, context_contracts, SemanticInputContextContract)
+            if (
+                sum(
+                    item.role == "grammar_source_group"
+                    and item.contract == GRAMMAR_SOURCE_GROUP_REF
+                    for item in context_contracts
+                )
+                != 1
+            ):
+                raise SourceObservationUnavailable("original_grouped_context_required")
+            declaration_requested = any(
+                item.role == "declaration_scope"
+                or item.contract.key == "aware.code.retained-dependency-scope-closure.v3"
+                for item in context_contracts
+            )
+            if declaration_requested:
+                _check_declaration_codec()
+                matches = tuple(
+                    item
+                    for item in context_contracts
+                    if (
+                        item.role == "declaration_scope"
+                        or item.contract.key
+                        == "aware.code.retained-dependency-scope-closure.v3"
+                    )
+                )
+                if (
+                    len(matches) != 1
+                    or matches[0].role != "declaration_scope"
+                    or matches[0].contract != _DECLARATION_CONTEXT_REF
+                ):
+                    raise SourceObservationUnavailable(
+                        "original_declaration_context_required"
+                    )
+            family = _GroupedInputOrigin(
+                tuple(
+                    (
+                        item,
+                        _group_fields(
+                            item,
+                            WorkspaceSelectedSourceInputV1,
+                            _GROUP_MEMBER_FIELDS,
+                            _GROUP_MEMBER_SLOTS,
+                        ),
+                    )
+                    for item in (root, *participants)
+                ),
+                tuple(
+                    (
+                        item,
+                        _group_fields(
+                            item,
+                            WorkspaceSelectedDependencyInputV1,
+                            _GROUP_EDGE_FIELDS,
+                            _GROUP_EDGE_SLOTS,
+                        ),
+                    )
+                    for item in dependency_edges
+                ),
+                declaration_requested=declaration_requested,
+            )
+            root_fields = family.members[0][1]
+            _original_group_contracts(self, root_fields[5])
+            if root_fields[5] != source_contracts:
+                raise SourceObservationUnavailable("grouped_root_contracts_differ")
+            origin = _SelectedInputOrigin(*root_fields[1:])
+            with _original_group_method(
+                self,
+                "_original_pre_request_input",
+                root_fields[0],
+                use_ref=use_ref,
+                stage=stage,
+                source_coordinates=(),
+                context_contracts=context_contracts,
+                selection_origin=origin,
+                grouped_origin=family,
+            ) as expected:
+                yield expected
+        except BaseException as error:
+            _clear_group_failure_frames(error)
+            raise
+        finally:
+            if family is not None:
+                family.members = ()
+                family.edges = ()
+                family.declaration_handle = None
+                family.declaration_record = None
+            del (
+                self,
+                root,
+                participants,
+                dependency_edges,
+                source_contracts,
+                context_contracts,
+            )
+            del family, root_fields, origin, expected
+
     def validate_semantic_input_source(
         self, source_admission: object, *, expected: SemanticInputProductionExpectation,
     ) -> None:
         """Revalidate the original pre-request source, context and parent."""
+        if os.getpid() != self._pid:
+            raise SourceObservationUnavailable("declaration_process_changed")
         with self._lock:
             original = next((item for item in self._pre_request_inputs.values()
                              if item.expected is expected), None)
+        grouped_values = None
         try:
+            # Borrowing an expectation does not admit a foreign source handle.
+            if (original is not None and original.grouped_origin is not None
+                and source_admission is not original.selected):
+                original = None
+                raise SourceObservationUnavailable("original_pre_request_input_required")
+            if original is not None and original.grouped_origin is not None:
+                if original.thread_id != threading.get_ident():
+                    raise SourceObservationUnavailable("original_pre_request_input_required")
+                # Each original member's Code validation can reenter this issuer.
+                # Do not carry the root's synchronous window into another member.
+                grouped_values = _original_group_projection(self, original.grouped_origin)
             # Only synchronous original-result validation runs inside this
             # window. It never encloses producer execution, await or yield to
             # a semantic owner. Recursive callbacks still check every original
             # input/result; detached source projections are reused locally.
-            with self._original_semantic_source_window(source_admission, expected):
-                self._validate_semantic_input_source(source_admission, expected=expected)
-        except BaseException:
+            window = (
+                self._original_semantic_source_window(source_admission, expected)
+                if grouped_values is None else _original_group_method(
+                    self, "_original_semantic_source_window", source_admission, expected,
+                )
+            )
+            with window:
+                if grouped_values is None:
+                    self._validate_semantic_input_source(source_admission, expected=expected)
+                else:
+                    _original_group_method(
+                        self, "_validate_semantic_input_source", source_admission,
+                        expected=expected, grouped_values=grouped_values,
+                    )
+        except BaseException as error:
             if original is not None:
                 original.live = False
                 original.selection_origin = None
+                original.grouped_origin = None
+            _clear_group_failure_frames(error)
+            del self, source_admission, expected, original, grouped_values
             raise
 
     @contextmanager
@@ -1583,6 +2120,7 @@ class WorkspaceDeclarationScopeRuntime:
 
     def _validate_semantic_input_source(
         self, source_admission: object, *, expected: SemanticInputProductionExpectation,
+        grouped_values=None,
     ) -> None:
         with self._lock:
             original = next((item for item in self._pre_request_inputs.values()
@@ -1590,7 +2128,12 @@ class WorkspaceDeclarationScopeRuntime:
         try:
             selection = None
             source_origin = None
-            if original is not None and original.selection_origin is not None:
+            grouped_body = declaration_body = None
+            if grouped_values is not None:
+                grouped_body, selection, source_origin, coordinates, declaration_body = grouped_values
+                if coordinates != expected.source_coordinates:
+                    raise SourceObservationUnavailable("grouped_root_coordinates_changed")
+            elif original is not None and original.selection_origin is not None:
                 with self._lock:
                     self._pre_request_record(source_admission, expected)
                 selection, coordinates = self._selected_input_values(
@@ -1608,6 +2151,7 @@ class WorkspaceDeclarationScopeRuntime:
             if original is not None:
                 original.live = False
                 original.selection_origin = None
+                original.grouped_origin = None
             raise
         with self._lock:
             # Find a registered expectation by identity before rejecting changed
@@ -1648,6 +2192,7 @@ class WorkspaceDeclarationScopeRuntime:
                         context=values[0], inventory=values[1], binding=values[3],
                         contract=body.coordinate.contract,
                         selection=selection, source_origin=source_origin,
+                        grouped_body=grouped_body, declaration_body=declaration_body,
                     ):
                         raise SourceObservationUnavailable("pre_request_context_differs")
                 self.validate_selected_package_source(
@@ -1658,12 +2203,18 @@ class WorkspaceDeclarationScopeRuntime:
                 if retained is not None:
                     retained.live = False
                     retained.selection_origin = None
+                    retained.grouped_origin = None
                 raise
 
     def validate_semantic_input_context(
         self, source_admission: object, *, expected: SemanticInputProductionExpectation,
     ) -> None:
-        self.validate_semantic_input_source(source_admission, expected=expected)
+        try:
+            self.validate_semantic_input_source(source_admission, expected=expected)
+        except BaseException as error:
+            _clear_group_failure_frames(error)
+            del self, source_admission, expected
+            raise
 
     def read_semantic_input_sources(
         self, source_admission: object, *, expected: SemanticInputProductionExpectation,
@@ -1673,14 +2224,19 @@ class WorkspaceDeclarationScopeRuntime:
             retained = self._pre_request_record(source_admission, expected)
             try:
                 bodies = tuple(SemanticInputSourceBody(
-                    copy.deepcopy(source), cast(bytes, self._call(
-                        "read_selected_package", retained.selected_record.observation,
-                        relative_path=source.relative_path,
-                    )),
+                    copy.deepcopy(source), cast(bytes,
+                        self._call("read_selected_package", retained.selected_record.observation,
+                                   relative_path=source.relative_path)
+                        if retained.grouped_origin is None else _original_group_method(
+                            self, "_call", "read_selected_package", retained.selected_record.observation,
+                            relative_path=source.relative_path,
+                        )
+                    ),
                 ) for source in expected.source_coordinates)
             except BaseException:
                 retained.live = False
                 retained.selection_origin = None
+                retained.grouped_origin = None
                 raise
         self.validate_semantic_input_source(source_admission, expected=expected)
         return bodies
@@ -2141,6 +2697,7 @@ class WorkspaceDeclarationScopeRuntime:
                         self._pre_request_inputs.pop(key)
                         retained.live = False
                         retained.selection_origin = None
+                        retained.grouped_origin = None
 
     def release_declaration_scope(self, handle: WorkspaceDeclarationScope) -> None:
         self._check_origin(retiring=True)
@@ -2172,6 +2729,7 @@ class WorkspaceDeclarationScopeRuntime:
                 for record in self._pre_request_inputs.values():
                     record.live = False
                     record.selection_origin = None
+                    record.grouped_origin = None
                 self._pre_request_inputs.clear()
                 self._retired_pre_request_inputs.clear()
                 self._semantic.clear()
@@ -2179,3 +2737,123 @@ class WorkspaceDeclarationScopeRuntime:
                 self._issued_semantic.clear()
                 self._declarations.clear()
                 self._closed = True
+
+
+# Capture original Code codec entrances once; older Code packages may omit the
+# additive reference, in which case only the new context refuses.
+_DECLARATION_ENCODER = _declaration_codec.encode_retained_declaration_scope
+_DECLARATION_CONTEXT_REF = getattr(
+    _declaration_codec, "RETAINED_DECLARATION_SCOPE_V3_REF", None
+)
+
+
+# Bind new helper dispatch once, as the original issuer is defined. A copied or
+# self-restoring attribute must never execute before a later identity check.
+_GROUP_ORIGINAL_ORIGIN = WorkspaceDeclarationScopeRuntime._check_origin
+_GROUP_ORIGINAL_PROJECTION = WorkspaceDeclarationScopeRuntime._grouped_selected_values
+_GROUP_ORIGINAL_CONTRACTS = (
+    WorkspaceDeclarationScopeRuntime._check_group_source_contracts
+)
+_GROUP_METHOD_DESCRIPTORS = tuple(
+    (name, inspect.getattr_static(WorkspaceDeclarationScopeRuntime, name))
+    for name in (
+        "_check_origin",
+        "_grouped_selected_values",
+        "_check_group_source_contracts",
+        "_selected_input_values",
+        "_selection_context_values",
+        "_pre_request_record",
+        "_call",
+        "validate_dependency_target_admission",
+        "_validate_semantic_admission",
+        "_target_record",
+        "_semantic_values",
+        "_original_pre_request_input",
+        "_validate_semantic_input_source",
+        "_original_semantic_source_window",
+        "_pre_request_context_bytes",
+        "_grouped_declaration_body",
+        "read_declaration_scope",
+        "_declaration_record",
+        "_selected_record",
+    )
+)
+
+_GROUP_METHOD_FUNCTIONS = {
+    name: getattr(WorkspaceDeclarationScopeRuntime, name)
+    for name, _ in _GROUP_METHOD_DESCRIPTORS
+}
+
+
+def _check_group_methods(issuer):
+    if type(issuer) is not WorkspaceDeclarationScopeRuntime:
+        raise SourceObservationUnavailable("original_grouped_issuer_required")
+    if any(
+        inspect.getattr_static(issuer, name, None) is not original
+        for name, original in _GROUP_METHOD_DESCRIPTORS
+    ):
+        raise SourceObservationUnavailable("grouped_issuer_method_substituted")
+
+
+def _original_group_contracts(
+    issuer,
+    contracts,
+    kind: type[
+        SemanticInputSourceContract | SemanticInputContextContract
+    ] = SemanticInputSourceContract,
+):
+    _check_group_methods(issuer)
+    _GROUP_ORIGINAL_CONTRACTS(contracts, kind)
+    _check_group_methods(issuer)
+
+
+def _original_group_projection(issuer, family):
+    _check_group_methods(issuer)
+    value = _GROUP_ORIGINAL_PROJECTION(issuer, family)
+    _check_group_methods(issuer)
+    return value
+
+
+def _clear_group_failure_frames(error: BaseException) -> None:
+    """Release inactive Workspace frames without clearing foreign owner frames."""
+    # Read the built-in exception slot without dispatching a foreign attribute.
+    trace = BaseException.__dict__["__traceback__"].__get__(error, type(error))
+    frame = None
+    try:
+        while trace is not None:
+            frame = trace.tb_frame
+            if frame.f_globals is globals():
+                try:
+                    frame.clear()
+                except RuntimeError:
+                    # Still-active caller frames clear their arguments explicitly.
+                    pass
+            trace = trace.tb_next
+    finally:
+        del error, trace, frame
+
+
+def _original_group_method(issuer, name: str, *args, **kwargs):
+    """Call a retained issuer entrance, checking bindings before each dispatch."""
+    _check_group_methods(issuer)
+    method = _GROUP_METHOD_FUNCTIONS[name]
+    value = method(issuer, *args, **kwargs)
+    _check_group_methods(issuer)
+    return value
+
+
+def _check_declaration_codec() -> None:
+    if (
+        _DECLARATION_CONTEXT_REF is None
+        or inspect.getattr_static(
+            _declaration_codec, "encode_retained_declaration_scope", None
+        )
+        is not _DECLARATION_ENCODER
+        or inspect.getattr_static(
+            _declaration_codec, "RETAINED_DECLARATION_SCOPE_V3_REF", None
+        )
+        is not _DECLARATION_CONTEXT_REF
+    ):
+        raise SourceObservationUnavailable(
+            "original_declaration_context_codec_unavailable"
+        )

@@ -1,6 +1,6 @@
 [project]
 name = "aware-protocol-sdk"
-version = "0.3.1"
+version = "0.3.2"
 description = "Typed SDK boundary for canonical Aware Protocol target admission."
 authors = [{ name = "AWARE Team" }]
 readme = "README.md"

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+from .syntax_declaration import AwareModuleSyntaxDeclarationSpec
 
 
 @dataclass(frozen=True, slots=True)
@@ -90,6 +92,15 @@ class AwareModulePackageSemanticContractSpec:
 
 
 @dataclass(frozen=True, slots=True)
+class AwareModulePackageSemanticContractSyntaxSpec(
+    AwareModulePackageSemanticContractSpec
+):
+    """Explicit owned variant; absent syntax preserves the original base model."""
+
+    syntax: AwareModuleSyntaxDeclarationSpec = field(kw_only=True)
+
+
+@dataclass(frozen=True, slots=True)
 class AwareModuleSpec:
     aware: int
     structure_root: str = "structure"
@@ -127,6 +138,7 @@ class AwareModuleSpec:
 __all__ = [
     "AwareModulePackageSemanticContractBindingSpec",
     "AwareModulePackageSemanticContractSpec",
+    "AwareModulePackageSemanticContractSyntaxSpec",
     "AwareModulePackageSpec",
     "AwareModulePluginCapabilityPolicySpec",
     "AwareModulePluginSpec",

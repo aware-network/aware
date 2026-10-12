@@ -1,3 +1,4 @@
+from . import specification_target_fit as _target_fit
 from .admission_error import (
     PROTOCOL_TARGET_ADMISSION_ERROR_CONTRACT,
     ProtocolTargetAdmissionError,
@@ -43,6 +44,9 @@ __all__ = [
     "ProtocolTargetAdmissionRequest",
     "ProtocolTargetAdmissionResult",
 ]
+__all__.extend(_target_fit.__all__)
+for _name in _target_fit.__all__:
+    globals()[_name] = getattr(_target_fit, _name)
 
 _BOOTSTRAP_EXPORTS = (
     "ProtocolBootstrapAdmission",

@@ -1,16 +1,17 @@
 [project]
 name = "aware-workspace-sdk"
-version = "0.2.3"
+version = "0.2.7"
 description = "Neutral Workspace SDK with explicitly selected original authority providers."
 license = "Apache-2.0"
 authors = [{ name = "AWARE Team" }]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "aware-workspace-runtime>=0.2.3,<0.3.0",
+  "aware-workspace-runtime>=0.2.10,<0.3.0",
 ]
 
 [project.optional-dependencies]
+setup = ["aware-workspace-fs-adapter>=0.1.5,<0.2.0"]
 filesystem_delta_capture = ["aware-workspace-fs-adapter>=0.1.3,<0.2.0"]
 source_projection = [
   "aware-workspace-runtime[source_projection]>=0.2.2,<0.3.0",
@@ -32,8 +33,9 @@ test = [
 ]
 
 [tool.uv.sources]
-aware-workspace-runtime = { workspace = true }
+aware-issue-sdk = { path = "../../../../../../../aware_coordination/modules/workflow/sdks/issue/python", editable = true }
 aware-workspace-fs-adapter = { workspace = true }
+aware-workspace-runtime = { workspace = true }
 
 [build-system]
 requires = ["hatchling>=1.27.0"]

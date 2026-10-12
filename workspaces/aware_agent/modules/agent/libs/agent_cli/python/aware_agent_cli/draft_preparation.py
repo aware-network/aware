@@ -21,7 +21,7 @@ def _configure(parser: argparse.ArgumentParser) -> None:
         ),
         (
             "spec-manifest",
-            "Explicit intended SPEC manifest, using the original draft command's convention.",
+            "Explicit repository-relative SPEC manifest; must fit the configured root/<spec-key>/aware.spec.toml layout.",
         ),
         (
             "snapshot-json",
@@ -48,7 +48,7 @@ def _configure(parser: argparse.ArgumentParser) -> None:
 def register_draft_preparation_command(registry: AwareCommandRegistry) -> None:
     registry.register_command(
         name="prepare-draft",
-        help="Observe SDK guards and render draft review; never preview admissions or apply.",
+        help="Observe SDK guards and configured target fit; render draft review without write admission or apply.",
         configure_parser=_configure,
         handle=_handle,
         source="aware_agent_cli",
@@ -83,9 +83,20 @@ def _suppliers():
                 "ProtocolSdkClient",
                 "ProtocolTargetAdmissionRequest",
                 "ProtocolTargetAdmissionError",
+                "ProtocolSpecificationTargetFitClient",
+                "ProtocolSpecificationTargetFitRequest",
+                "ProtocolSpecificationTargetFitOutcome",
+                "ProtocolSpecificationTargetFitError",
+                "protocol_specification_target_fit_value_to_payload",
             ),
         ),
-        (protocol_fs, ("FilesystemProtocolSdkProvider",)),
+        (
+            protocol_fs,
+            (
+                "FilesystemProtocolSdkProvider",
+                "FilesystemProtocolSpecificationTargetFitProvider",
+            ),
+        ),
         (protocol_values, ("ProtocolAuthorityMode", "ProtocolAdmissionOutcomeKind")),
         (
             spec,
@@ -114,6 +125,11 @@ def _suppliers():
         (issue_fs.FilesystemIssueOperationProvider, "resolve_read_projection"),
         (protocol.ProtocolSdkClient, "admit_target"),
         (protocol_fs.FilesystemProtocolSdkProvider, "admit_target"),
+        (protocol.ProtocolSpecificationTargetFitClient, "observe"),
+        (
+            protocol_fs.FilesystemProtocolSpecificationTargetFitProvider,
+            "observe_specification_target_fit",
+        ),
         (spec.SpecificationInputObservationClient, "observe_draft_input"),
         (spec_fs.SpecificationFsInputObservationProvider, "observe_draft_input"),
     ):
@@ -133,6 +149,36 @@ def _suppliers():
     )
 
 
+def _print_target_fit(observation: dict) -> None:
+    request = observation.get("request") or {}
+    print("Supplied SPEC target:", request.get("supplied_spec_manifest_locator"))
+    print("Configured SPEC root:", observation.get("configured_root"))
+    print("Configured template:", observation.get("path_template"))
+    print("Expected target shape:", observation.get("expected_shape"))
+    print("Target fit:", observation.get("fit", observation.get("observed_fit")))
+    print("Target-fit reason:", observation.get("reason", observation.get("code")))
+    print("Target-fit cleanup:", observation.get("cleanup"))
+    print(
+        "Layout observation only; not Issue eligibility, destination availability, semantic approval or future apply success."
+    )
+
+
+def _emit_refusal(output: dict, format: str) -> int:
+    if format == "summary":
+        print("Draft preparation refused — no executable preview/apply guidance.")
+        observation = output["owner_observations"].get("target_fit")
+        if observation is None and output.get("stage") == "target_fit_observation":
+            observation = output.get("owner_error")
+        if observation is not None:
+            _print_target_fit(observation)
+        print("Reason:", output.get("error"))
+        if "next_action" in output:
+            print(output["next_action"])
+        print("Original observation and failure evidence:")
+    print(json.dumps(output, sort_keys=True))
+    return 2
+
+
 def _handle(invocation: AwareCommandInvocation) -> int:
     args = invocation.args
     output = {
@@ -148,9 +194,12 @@ def _handle(invocation: AwareCommandInvocation) -> int:
     try:
         suppliers = _suppliers()
     except (ImportError, AttributeError) as error:
-        output.update(error="draft_preparation_supplier_unavailable", detail=str(error))
-        print(json.dumps(output, sort_keys=True))
-        return 2
+        output.update(
+            error="draft_preparation_supplier_unavailable",
+            detail=str(error),
+            next_action="Use the qualified complete installation; do not substitute a private matcher, provider or environment.",
+        )
+        return _emit_refusal(output, args.format)
     issue, issue_fs, protocol, protocol_fs, pv, spec, spec_fs, sv = suppliers
     stage = "selection"
     try:
@@ -173,8 +222,27 @@ def _handle(invocation: AwareCommandInvocation) -> int:
             is not pv.ProtocolAdmissionOutcomeKind.CANONICAL_V1
         ):
             output["error"] = "protocol_observation_not_canonical"
-            print(json.dumps(output, sort_keys=True))
-            return 2
+            return _emit_refusal(output, args.format)
+        stage = "target_fit_request"
+        target_fit_request = protocol.ProtocolSpecificationTargetFitRequest(
+            args.repository_root,
+            args.protocol_manifest,
+            args.spec_manifest,
+            protocol_result.admission.source_sha256,
+        )
+        stage = "target_fit_observation"
+        target_fit = protocol.ProtocolSpecificationTargetFitClient(
+            protocol_fs.FilesystemProtocolSpecificationTargetFitProvider()
+        ).observe(target_fit_request)
+        output["owner_observations"]["target_fit"] = (
+            protocol.protocol_specification_target_fit_value_to_payload(target_fit)
+        )
+        if target_fit.fit is not protocol.ProtocolSpecificationTargetFitOutcome.MATCH:
+            output.update(
+                error=target_fit.reason,
+                next_action="Choose a target explicitly using the configured root and expected shape, then prepare and review again. No target has been corrected or inferred; no executable guidance is available.",
+            )
+            return _emit_refusal(output, args.format)
         stage = "issue_observation"
         issue_result = issue.IssueSdkOperationClient(
             issue_fs.FilesystemIssueOperationProvider(
@@ -187,8 +255,7 @@ def _handle(invocation: AwareCommandInvocation) -> int:
         output["owner_observations"]["issue"] = issue_result.to_wire()
         if issue_result.outcome is not issue.IssueReadProjectionResolveOutcome.FOUND:
             output["error"] = "issue_observation_not_found"
-            print(json.dumps(output, sort_keys=True))
-            return 2
+            return _emit_refusal(output, args.format)
         stage = "input_observation"
         observed = spec.SpecificationInputObservationClient(
             spec_fs.SpecificationFsInputObservationProvider()
@@ -243,31 +310,42 @@ def _handle(invocation: AwareCommandInvocation) -> int:
             guards=guards,
             preview_argv=argv,
             apply_argv=[*argv, "--apply"],
-            next_action="Review input, intended members and selections; then explicitly invoke the original preview or apply command with these guards unchanged. Staleness requires new preparation and review, never guard refresh or automatic retry.",
+            next_action="Layout matched only; review input, intended members, Issue eligibility and selections, then explicitly invoke the original preview or apply command with these guards unchanged. Destination availability, semantic validation and write admission are checked by that original command. Staleness requires new preparation and review, never guard refresh or automatic retry.",
         )
     except Exception as error:  # noqa: BLE001 - preserve original owner error data, without retry
         output.update(
             stage=stage,
             error=getattr(error, "code", str(error)),
             effect=getattr(
-                error, "effect", "none" if stage == "selection" else "unknown"
+                error,
+                "effect",
+                "none" if stage in ("selection", "target_fit_request") else "unknown",
             ),
         )
         if isinstance(error, spec.SpecificationInputObservationError):
             output["owner_error"] = json.loads(
                 spec.encode_specification_input_value(error)
             )
+        elif isinstance(error, protocol.ProtocolSpecificationTargetFitError):
+            output["owner_error"] = (
+                protocol.protocol_specification_target_fit_value_to_payload(
+                    getattr(error, "evidence")  # noqa: B009 - lazy owner class prevents static narrowing
+                )
+            )
+            output["next_action"] = (
+                "Inspect original target-fit refusal and cleanup evidence. No command is provided; do not correct a target, refresh a guard or retry automatically. Any new preparation requires explicit selection and review."
+            )
         elif isinstance(
             error,
             (issue.IssueProviderResultError, protocol.ProtocolTargetAdmissionError),
         ):
             output["owner_error"] = getattr(error, "to_wire")()  # noqa: B009 - lazy owner class prevents static narrowing
-        print(json.dumps(output, sort_keys=True))
-        return 2
+        return _emit_refusal(output, args.format)
     if args.format == "json":
         print(json.dumps(output, sort_keys=True))
     else:
         print("Draft preparation only — no write admission or effects.")
+        _print_target_fit(output["owner_observations"]["target_fit"])
         print("Issue:", args.issue_ref, "at", issue_result.projection.source_path)
         print("Observed Issue status:", issue_result.projection.status)
         print("Observed Issue execution:", issue_result.projection.owner_ref)

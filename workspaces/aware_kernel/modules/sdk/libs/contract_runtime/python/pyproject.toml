@@ -1,0 +1,32 @@
+[project]
+name = "aware-sdk-contract-runtime"
+version = "0.1.1"
+description = "Materialization-independent operation contract runtime for Aware SDKs."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.12"
+authors = [{ name = "AWARE Team" }]
+dependencies = ["aware-meta-type-schema>=0.1.1,<0.2.0"]
+
+[tool.uv.sources]
+aware-meta-type-schema = { workspace = true }
+
+[project.optional-dependencies]
+test = ["pytest>=8.4.2,<10.0.0"]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_sdk_contract_runtime"]
+include = ["aware_sdk_contract_runtime/py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+extraPaths = ["../../../../meta/libs/type_schema/python"]

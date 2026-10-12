@@ -30,6 +30,5 @@ include = ["README.md", "aware_issue_cli/py.typed"]
 testpaths = ["tests"]
 
 [tool.uv.sources]
-aware-command-runtime = { path = "../../../../../../../aware_kernel/libs/command_runtime/python", editable = true }
 aware-issue-fs-adapter = { workspace = true }
 aware-issue-sdk = { workspace = true }

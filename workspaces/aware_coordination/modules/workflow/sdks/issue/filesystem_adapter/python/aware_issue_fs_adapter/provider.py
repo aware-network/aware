@@ -8,9 +8,11 @@ import re
 import tempfile
 from collections.abc import Callable
 from dataclasses import dataclass, replace
+from datetime import UTC, datetime
 from importlib import metadata
 from pathlib import Path
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 if TYPE_CHECKING:
     from aware_issue_sdk.draft_package import (
@@ -85,6 +87,12 @@ from aware_issue_sdk import (
     set_ownership_scope,
     set_verified_by,
 )
+from aware_issue_sdk.reading_operation import (
+    SOURCE_LIMIT,
+    IssueReadingProviderBinding,
+    IssueReadingResolveRequest,
+    IssueReadingResolveResult,
+)
 from aware_protocol_fs_adapter import (
     MANIFEST_FILENAME,
     FilesystemProtocolProfile,
@@ -112,6 +120,7 @@ _INVALID_ISSUE_REF_DIAGNOSTICS = (
 @dataclass(frozen=True, slots=True)
 class FilesystemIssueOperationLimits:
     """Optional composition-bound limits; ordinary direct FS defaults stay unchanged."""
+
     source_bytes: int = 262_144
     result_preflight: Callable[[IssueMutationResult], None] | None = None
 
@@ -129,6 +138,7 @@ class FilesystemIssueOperationProvider:
         repository_root: str | Path,
         protocol_source_ref: str = MANIFEST_FILENAME,
         limits: FilesystemIssueOperationLimits | None = None,
+        reading_binding: IssueReadingProviderBinding | None = None,
     ) -> None:
         if not isinstance(repository_root, (str, Path)):
             raise TypeError("repository_root must be text or pathlib.Path")
@@ -141,35 +151,157 @@ class FilesystemIssueOperationProvider:
         if limits is not None and type(limits) is not FilesystemIssueOperationLimits:
             raise TypeError("original filesystem limit policy required")
         self._limits = limits
+        if reading_binding is not None:
+            if type(reading_binding) is not IssueReadingProviderBinding:
+                raise TypeError("original rich installation binding required")
+            if (
+                reading_binding.provider_ref != FILESYSTEM_ISSUE_PROVIDER_REF
+                or reading_binding.distribution != FILESYSTEM_ISSUE_DISTRIBUTION
+                or reading_binding.version
+                != _distribution_version(FILESYSTEM_ISSUE_DISTRIBUTION)
+            ):
+                raise ValueError("rich binding does not select this original provider")
+        self._reading_binding = reading_binding
 
-    def _read_source(self, path):
-        if self._limits is None:
+    def _read_source(self, path, *, source_limit=None):
+        if self._limits is None and source_limit is None:
             return path.read_bytes()
+        ceiling = source_limit if self._limits is None else self._limits.source_bytes
+        assert ceiling is not None
+        if source_limit is not None:
+            ceiling = min(ceiling, source_limit)
         with path.open("rb") as stream:
-            source = stream.read(self._limits.source_bytes + 1)
-        if len(source) > self._limits.source_bytes:
+            source = stream.read(ceiling + 1)
+        if len(source) > ceiling:
             raise OSError("issue source limit exceeded")
         return source
 
-    def _planned_result(self, *, request, profile, relative_path, rendered, before=None):
+    def _planned_result(
+        self, *, request, profile, relative_path, rendered, before=None
+    ):
         if self._limits is None:
             return None
         if len(rendered) > self._limits.source_bytes:
             raise ValueError("planned issue source limit exceeded")
-        result = self._mutation_result(operation_ref=request.operation_ref,
-            issue_ref=request.issue_ref, outcome=IssueMutationOutcome.APPLIED,
-            projection=parse_issue_projection(text=rendered.decode("utf-8"), source_path=relative_path),
-            source_sha256_before=before, source_sha256_after=_source_digest(rendered),
-            evidence=self._mutation_evidence(profile=profile, relative_path=relative_path,
-                source_sha256=_source_digest(rendered), projection_effect="applied"))
+        result = self._mutation_result(
+            operation_ref=request.operation_ref,
+            issue_ref=request.issue_ref,
+            outcome=IssueMutationOutcome.APPLIED,
+            projection=parse_issue_projection(
+                text=rendered.decode("utf-8"), source_path=relative_path
+            ),
+            source_sha256_before=before,
+            source_sha256_after=_source_digest(rendered),
+            evidence=self._mutation_evidence(
+                profile=profile,
+                relative_path=relative_path,
+                source_sha256=_source_digest(rendered),
+                projection_effect="applied",
+            ),
+        )
         if self._limits.result_preflight is not None:
             self._limits.result_preflight(result)
         return result
+
+    def resolve_reading(
+        self, request: IssueReadingResolveRequest
+    ) -> IssueReadingResolveResult:
+        """Capture once through the original admission/path/parser rail."""
+        from aware_issue_sdk import build_issue_development_read_projection_v2
+
+        if type(request) is not IssueReadingResolveRequest:
+            raise TypeError("original rich reading request required")
+        request.__post_init__()
+
+        def refuse(outcome, diagnostics):
+            return IssueReadingResolveResult(
+                request.request_ref,
+                request.issue_ref,
+                outcome,
+                request.binding,
+                diagnostics=tuple(diagnostics),
+            )
+
+        selected = self._reading_binding
+        if selected is None or request.binding != selected:
+            return refuse(
+                IssueReadProjectionResolveOutcome.UNSUPPORTED_PROFILE,
+                ("rich_reading_installation_unavailable",),
+            )
+
+        def admits(profile):
+            return (
+                isinstance(profile, FilesystemProtocolProfile)
+                and profile.protocol_manifest.protocol.profile == selected.profile_ref
+            )
+
+        def current_manifest():
+            observed = []
+            profile = self._admit_manifest(
+                source_limit=SOURCE_LIMIT, manifest_capture=observed.append
+            )
+            return (
+                admits(profile)
+                and len(observed) == 1
+                and _source_digest(observed[0]) == selected.manifest_digest
+            )
+
+        if not current_manifest():
+            return refuse(
+                IssueReadProjectionResolveOutcome.AUTHORITY_UNAVAILABLE,
+                ("rich_protocol_binding_not_current",),
+            )
+        captured = []
+
+        def capture(profile, path, source, observed_at):
+            if not admits(profile):
+                raise ValueError("rich protocol moved during source capture")
+            captured.append((path, source, observed_at))
+
+        try:
+            result = self._resolve_read_projection(
+                IssueReadProjectionResolveRequest(request.issue_ref),
+                capture=capture,
+                source_limit=SOURCE_LIMIT,
+                manifest_expected_digest=selected.manifest_digest,
+            )
+            if result.outcome is not IssueReadProjectionResolveOutcome.FOUND:
+                return refuse(result.outcome, result.diagnostics)
+            if len(captured) != 1 or not current_manifest():
+                return refuse(
+                    IssueReadProjectionResolveOutcome.AUTHORITY_UNAVAILABLE,
+                    ("rich_capture_binding_moved",),
+                )
+            path, source, observed_at = captured[0]
+            projection = build_issue_development_read_projection_v2(
+                content_text=source.decode("utf-8"),
+                source_path=path,
+                source_observed_at=observed_at,
+            )
+            return IssueReadingResolveResult(
+                request.request_ref,
+                request.issue_ref,
+                result.outcome,
+                selected,
+                projection,
+                "issue-source-observation:" + str(uuid4()),
+                "issue-completed-snapshot:" + str(uuid4()),
+            )
+        except (TypeError, ValueError, UnicodeError) as error:
+            return refuse(
+                IssueReadProjectionResolveOutcome.MALFORMED,
+                (f"rich_capture_invalid:{type(error).__name__}",),
+            )
 
     def resolve_read_projection(
         self,
         request: IssueReadProjectionResolveRequest,
     ) -> IssueReadProjectionResolveResult:
+        return self._resolve_read_projection(request)
+
+    def _resolve_read_projection(
+        self, request, *, capture=None, source_limit=None, manifest_expected_digest=None
+    ):
         if type(request) is not IssueReadProjectionResolveRequest:
             raise TypeError("request must be IssueReadProjectionResolveRequest")
         match = _ISSUE_REF.fullmatch(request.issue_ref)
@@ -179,7 +311,21 @@ class FilesystemIssueOperationProvider:
                 outcome=IssueReadProjectionResolveOutcome.MALFORMED,
                 diagnostics=_INVALID_ISSUE_REF_DIAGNOSTICS,
             )
-        admission = self._admit_manifest()
+
+        def require_manifest(source):
+            if _source_digest(source) != manifest_expected_digest:
+                raise ValueError("rich manifest source moved")
+
+        admission = (
+            self._admit_manifest()
+            if source_limit is None
+            else self._admit_manifest(
+                source_limit=source_limit,
+                manifest_capture=require_manifest
+                if manifest_expected_digest is not None
+                else None,
+            )
+        )
         if not isinstance(admission, FilesystemProtocolProfile):
             outcome, evidence, diagnostics = admission
             return self._result(
@@ -223,7 +369,21 @@ class FilesystemIssueOperationProvider:
                 diagnostics=resolution.diagnostics,
             )
         try:
-            source = self._read_source(resolution.path)
+            source = (
+                self._read_source(resolution.path)
+                if source_limit is None
+                else self._read_source(resolution.path, source_limit=source_limit)
+            )
+            if capture is not None:
+                capture(
+                    admission,
+                    relative_path,
+                    source,
+                    datetime.now(UTC)
+                    .replace(microsecond=0)
+                    .isoformat()
+                    .replace("+00:00", "Z"),
+                )
         except FileNotFoundError:
             return self._result(
                 request=request,
@@ -248,6 +408,7 @@ class FilesystemIssueOperationProvider:
             profile=admission,
             expected_issue_ref=request.issue_ref,
             selected_path=resolution.path,
+            source_limit=source_limit,
         )
         if duplicates:
             return self._result(
@@ -534,11 +695,19 @@ class FilesystemIssueOperationProvider:
         )
         rendered = render_issue_document(document=document).encode("utf-8")
         try:
-            planned = self._planned_result(request=request, profile=profile,
-                relative_path=relative_path, rendered=rendered)
+            planned = self._planned_result(
+                request=request,
+                profile=profile,
+                relative_path=relative_path,
+                rendered=rendered,
+            )
         except ValueError:
-            return self._mutation_result(operation_ref=request.operation_ref, issue_ref=request.issue_ref,
-                outcome=IssueMutationOutcome.UNSUPPORTED_PROFILE, diagnostics=("issue_result_limit_exceeded",))
+            return self._mutation_result(
+                operation_ref=request.operation_ref,
+                issue_ref=request.issue_ref,
+                outcome=IssueMutationOutcome.UNSUPPORTED_PROFILE,
+                diagnostics=("issue_result_limit_exceeded",),
+            )
         write_result = self._create_source(
             relative_path=relative_path,
             path=path,
@@ -1061,12 +1230,21 @@ class FilesystemIssueOperationProvider:
         document_mutator(document)
         rendered = render_issue_document(document=document).encode("utf-8")
         try:
-            planned = self._planned_result(request=request, profile=profile,
-                relative_path=relative_path, rendered=rendered, before=before)
+            planned = self._planned_result(
+                request=request,
+                profile=profile,
+                relative_path=relative_path,
+                rendered=rendered,
+                before=before,
+            )
         except ValueError:
-            return self._mutation_result(operation_ref=request.operation_ref, issue_ref=request.issue_ref,
-                outcome=IssueMutationOutcome.UNSUPPORTED_PROFILE, source_sha256_before=before,
-                diagnostics=("issue_result_limit_exceeded",))
+            return self._mutation_result(
+                operation_ref=request.operation_ref,
+                issue_ref=request.issue_ref,
+                outcome=IssueMutationOutcome.UNSUPPORTED_PROFILE,
+                source_sha256_before=before,
+                diagnostics=("issue_result_limit_exceeded",),
+            )
         write_outcome = self._replace_source(
             relative_path=relative_path,
             path=path,
@@ -1382,6 +1560,9 @@ class FilesystemIssueOperationProvider:
 
     def _admit_manifest(
         self,
+        *,
+        source_limit=None,
+        manifest_capture=None,
     ) -> (
         FilesystemProtocolProfile
         | tuple[
@@ -1393,9 +1574,10 @@ class FilesystemIssueOperationProvider:
         manifest_path = Path(self._protocol_source_ref)
         if not manifest_path.is_absolute():
             manifest_path = self._repository_root / manifest_path
-        if self._limits is None:
-            admission = admit_protocol_manifest(manifest_path=manifest_path,
-                                                repository_root=self._repository_root)
+        if self._limits is None and source_limit is None:
+            admission = admit_protocol_manifest(
+                manifest_path=manifest_path, repository_root=self._repository_root
+            )
         else:
             try:
                 root = self._repository_root.resolve(strict=True)
@@ -1403,10 +1585,18 @@ class FilesystemIssueOperationProvider:
                 manifest_path.relative_to(root)
                 if manifest_path.name != MANIFEST_FILENAME:
                     raise ValueError("manifest filename mismatch")
-                source = self._read_source(manifest_path)
+                source = self._read_source(manifest_path, source_limit=source_limit)
+                if manifest_capture is not None:
+                    manifest_capture(source)
             except (OSError, ValueError, RuntimeError):
-                return IssueReadProjectionResolveOutcome.AUTHORITY_UNAVAILABLE, (), ("bounded_manifest_unavailable",)
-            admission = admit_protocol_manifest_bytes(source=source, repository_root=root)
+                return (
+                    IssueReadProjectionResolveOutcome.AUTHORITY_UNAVAILABLE,
+                    (),
+                    ("bounded_manifest_unavailable",),
+                )
+            admission = admit_protocol_manifest_bytes(
+                source=source, repository_root=root
+            )
         if admission.outcome is ProtocolAdmissionOutcomeKind.CANONICAL_V1:
             if admission.filesystem_profile is None:
                 raise AssertionError("canonical Protocol admission omitted its profile")
@@ -1438,6 +1628,7 @@ class FilesystemIssueOperationProvider:
         profile: FilesystemProtocolProfile,
         expected_issue_ref: str,
         selected_path: Path,
+        source_limit=None,
     ) -> tuple[str, ...]:
         binding = next(
             item for item in profile.record_bindings if item.record_key == "issue"
@@ -1474,12 +1665,14 @@ class FilesystemIssueOperationProvider:
                 try:
                     source = (
                         candidate_resolution.path.read_text(encoding="utf-8")
-                        if self._limits is None
-                        else self._read_source(candidate_resolution.path).decode("utf-8")
+                        if self._limits is None and source_limit is None
+                        else self._read_source(
+                            candidate_resolution.path, source_limit=source_limit
+                        ).decode("utf-8")
                     )
                     document = parse_issue_source(source)
                 except (OSError, UnicodeError) as error:
-                    if self._limits is not None:
+                    if self._limits is not None or source_limit is not None:
                         # An unreadable candidate may conceal the same identity.
                         # Refuse before writing; overflow is never a safe skip.
                         return (

@@ -410,3 +410,21 @@ dependencies; neutral SPEC runtime, source values and public SDK remain independ
 Package-manager projection/lock synchronization, public source projection,
 build/installation, setup and public delivery remain separate cuts. No dependency
 or evaluator is duplicated here, and no supported a6 interface changes.
+## Read-only Specification target fit provider
+
+FS adapter 0.6.5 provides `FilesystemProtocolSpecificationTargetFitProvider` for
+the dedicated Protocol SDK 0.3.2 client. It shares the original selection owner's
+locator and binding policy; it reads only the Protocol manifest, not SPEC content.
+Both relative-to-repository and explicit absolute Protocol-manifest coordinates
+retain the existing owner rules. SPEC coordinates remain canonical repository-relative.
+
+Observation returns match/mismatch only after original-byte/physical-currentness
+checks and confirmed once-only cleanup. It never creates directories/documents,
+issues a draft target or checks destination availability. File and parent close
+attempts are independent; ambiguous completion remains unknown and is not retried.
+
+Its scope is observed state under cooperative descriptor confinement, not every-write
+detection, continuous confinement or guaranteed later apply. Default dependencies
+add no supplier; only the SDK floor changes to `>=0.3.2,<0.4.0`. Existing optional
+bootstrap/draft dependencies and original selection refusal behavior are preserved.
+Agent guidance and checkout-independent installed qualification remain separate.

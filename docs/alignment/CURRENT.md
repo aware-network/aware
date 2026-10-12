@@ -1,19 +1,15 @@
 # Current collaboration alignment
 
-The [published software entrance](../../README.md) composes explicit init, Issue work,
-SPEC setup, draft preparation/review and separately invoked draft preview/apply.
+The [prepared entrance](../../README.md) composes explicit init, Issue work,
+SPEC setup, target-fit preparation/review and separately invoked preview/apply.
 Coherence is shared rules and recoverable evidence, not conflict-free execution.
 Readable protocols, tooling installation, repository configuration and service
-startup are distinct. This composition starts no service.
+startup are distinct. This filesystem composition starts no service.
 
-The successor is publicly delivered at `2b0194bcde2643f04886e309d08587cde71dfd24`;
-the original instruction freeze has independent acceptance. Status-only guidance
-alignment and any further publication remain separately governed.
-See [delivery status](../../releases/canonical-draft-preparation-fs-v1/PUBLIC-STATUS.md).
-The [delivery pointer](../../releases/SELECTED.json) binds its exact artifacts,
-not another package catalog or operation authority. Contributor a6 and root
-governance remain unchanged. [Whole-envelope carriage](../../releases/canonical-draft-preparation-fs-v1/README.md)
-is required. Preparation supplies observed guards, not authority or an atomic
-snapshot. Stale input requires preparation and review again; never automatic
-refresh, mutation retry or inferred rollback. Materialization, objects and
-service elevation remain separate lanes sharing evidence, not prerequisites.
+This is private layout preparation, not integrated, selected, frozen or published.
+The [delivery pointer](../../releases/SELECTED.json), contributor a6 and root
+governance remain unchanged. [Whole-envelope carriage](../../releases/canonical-target-fit-fs-v1/README.md)
+is required. Layout fit is not Issue eligibility, semantic approval or guaranteed
+publication. Stale input requires preparation and review again; never automatic
+refresh or mutation retry. Workspace mounting, materialization, objects, native
+receiving and service elevation stay separately governed.

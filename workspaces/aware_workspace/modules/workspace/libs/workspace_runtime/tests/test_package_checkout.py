@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 from pathlib import Path
 
 import pytest
+from aware_workspace_runtime.composition import (
+    LocalCheckoutWorkspaceCompositionProvider,
+    WorkspaceCompositionFailure,
+)
 from aware_workspace_runtime.package_checkout import (
     PackageCheckoutError,
     PackageSourceCheckout,
@@ -83,6 +88,215 @@ def change_dependencies(root: Path, name: str, requirements: list[str]) -> None:
             "dependencies=[]", f"dependencies={json.dumps(requirements)}"
         )
     )
+
+
+def declare_sdk_target(
+    root: Path, *, layout: str = "aware", public_root: str = "."
+) -> tuple[Path, Path]:
+    """Existing SDK target fixture; no compiler or fake Code registration."""
+    module = root / "workspaces/main/modules/family"
+    declaration = module / "aware.module.toml"
+    source = module / "sdk" / layout
+    source.mkdir(parents=True)
+    sdk_manifest = source / "aware.sdk.toml"
+    sdk_manifest.write_text(
+        'aware_sdk=1\n[sdk]\npackage_name="sample-sdk"\n'
+        'fqn_prefix="sample_sdk"\n[build]\nsources_dir="."\n'
+        '[targets.python]\nroot_dir="contract/python"\n'
+        '[targets.python.public_package]\npackage_dir="sample_sdk_contract"\n'
+        f'root_dir="{public_root}"\n'
+    )
+    declaration.write_text(
+        declaration.read_text()
+        + f'[[packages]]\nid="sdk"\nkind="sdk"\nmanifest="sdk/{layout}/aware.sdk.toml"\n'
+    )
+    sdk_root = source.parent if source.name == "aware" else source
+    target = sdk_root / "contract/python" / public_root
+    target.mkdir(parents=True)
+    pyproject = target / "pyproject.toml"
+    pyproject.write_text(
+        '[project]\nname="sample-sdk-contract"\nversion="0.1.0"\n'
+        'dependencies=[]\n[build-system]\nrequires=["hatchling>=1.27"]\n'
+        'build-backend="hatchling.build"\n'
+    )
+    (target / "contract.py").write_text('VALUE="existing contract"\n')
+    change_dependencies(root, "a", ["sample-sdk-contract==0.1.0"])
+    package = manifest(root, "a")
+    package.write_text(
+        package.read_text()
+        + "[tool.uv.sources]\nsample-sdk-contract={workspace=true}\n"
+    )
+    commit_fixture(root)
+    return sdk_manifest, pyproject
+
+
+@pytest.mark.parametrize(
+    "layout,public_root", [("aware", "."), ("inline", "."), ("aware", "public")]
+)
+def test_declared_sdk_python_target_is_distinct_read_only_membership(
+    repository: Path, tmp_path: Path, layout: str, public_root: str
+) -> None:
+    sdk_manifest, pyproject = declare_sdk_target(
+        repository, layout=layout, public_root=public_root
+    )
+    before = (sdk_manifest.read_bytes(), pyproject.read_bytes())
+    with PackageSourceCheckout(repository) as checkout:
+        plan = checkout.resolve(["sample-a"])
+        target = next(p for p in plan["packages"] if p["name"] == "sample-sdk-contract")
+        membership = target["memberships"][0]
+        assert membership["kind"] == "sdk_python_target"
+        assert membership["semantic_manifest_digest"] == (
+            "sha256:" + hashlib.sha256(before[0]).hexdigest()
+        )
+        assert membership["target_language"] == "python"
+        assert membership["target_role"] == "public_package"
+        assert (
+            membership["semantic_manifest_path"]
+            == sdk_manifest.relative_to(repository).as_posix()
+        )
+        assert (
+            membership["manifest_path"] == pyproject.relative_to(repository).as_posix()
+        )
+        assert not plan["registry_requirements"]
+        destination = tmp_path / "sdk-checkout"
+        checkout.write(destination)
+        receipt = verify_package_checkout(destination)
+        assert not any(receipt["claims"].values())
+        assert (destination / pyproject.relative_to(repository)).read_bytes() == before[
+            1
+        ]
+    assert (sdk_manifest.read_bytes(), pyproject.read_bytes()) == before
+
+
+@pytest.mark.parametrize("change", ["absent", "wrong_target", "no_python_target"])
+def test_unavailable_sdk_target_cannot_rescue_an_owner_local_source(
+    repository: Path, change: str
+) -> None:
+    sdk_manifest, pyproject = declare_sdk_target(repository)
+    if change == "absent":
+        pyproject.unlink()
+    elif change == "wrong_target":
+        sdk_manifest.write_text(
+            sdk_manifest.read_text().replace(
+                'root_dir="contract/python"', 'root_dir="other"'
+            )
+        )
+    else:
+        sdk_manifest.write_text(sdk_manifest.read_text().split("[targets.python]")[0])
+    with (
+        PackageSourceCheckout(repository) as checkout,
+        pytest.raises(PackageCheckoutError, match="canonical local/artifact admission"),
+    ):
+        checkout.resolve(["sample-a"])
+
+
+@pytest.mark.parametrize(
+    "old,new",
+    [
+        ("aware_sdk=1", "aware_sdk=true"),
+        ('root_dir="contract/python"', 'root_dir="../../escape"'),
+        ("[sdk]", "[sdk]\nforeign=true"),
+    ],
+)
+def test_sdk_target_uses_original_owner_strict_grammar(
+    repository: Path, old: str, new: str
+) -> None:
+    sdk_manifest, _ = declare_sdk_target(repository)
+    sdk_manifest.write_text(sdk_manifest.read_text().replace(old, new))
+    with (
+        PackageSourceCheckout(repository) as checkout,
+        pytest.raises(WorkspaceCompositionFailure),
+    ):
+        checkout.resolve(["sample-a"])
+
+
+@pytest.mark.parametrize("change", ["target_metadata", "sdk_declaration"])
+def test_sdk_target_and_origin_declaration_drift_fence_copy(
+    repository: Path, tmp_path: Path, change: str
+) -> None:
+    sdk_manifest, pyproject = declare_sdk_target(repository)
+    with PackageSourceCheckout(repository) as checkout:
+        checkout.resolve(["sample-a"])
+        path = pyproject if change == "target_metadata" else sdk_manifest
+        path.write_text(path.read_text() + "\n# changed captured source\n")
+        destination = tmp_path / "drifted-sdk"
+        with pytest.raises(PackageCheckoutError):
+            checkout.write(destination)
+        assert not destination.exists()
+
+
+def test_sdk_target_symlink_and_untracked_body_fail_closed(repository: Path) -> None:
+    _, pyproject = declare_sdk_target(repository)
+    (pyproject.parent / "untracked.py").write_text("not repository-admitted")
+    with (
+        PackageSourceCheckout(repository) as checkout,
+        pytest.raises(PackageCheckoutError, match="repository admission"),
+    ):
+        checkout.resolve(["sample-a"])
+    body = pyproject.read_text()
+    pyproject.unlink()
+    foreign = repository / "foreign.toml"
+    foreign.write_text(body)
+    pyproject.symlink_to(foreign)
+    with (
+        PackageSourceCheckout(repository) as checkout,
+        pytest.raises(WorkspaceCompositionFailure),
+    ):
+        checkout.resolve(["sample-a"])
+
+
+def test_sdk_target_distribution_collision_remains_ambiguous(repository: Path) -> None:
+    declare_sdk_target(repository)
+    path = manifest(repository, "b")
+    path.write_text(path.read_text().replace("sample-b", "sample-sdk-contract"))
+    with (
+        PackageSourceCheckout(repository) as checkout,
+        pytest.raises(PackageCheckoutError, match="ambiguous package name"),
+    ):
+        checkout.resolve(["sample-a"])
+
+
+def test_non_code_pyproject_is_not_promoted_to_a_sdk_target(repository: Path) -> None:
+    module_manifest = repository / "workspaces/main/modules/family/aware.module.toml"
+    module_manifest.write_text(
+        module_manifest.read_text().replace('id="b"\nkind="code"', 'id="b"\nkind="sdk"')
+    )
+    with (
+        PackageSourceCheckout(repository) as checkout,
+        pytest.raises(
+            PackageCheckoutError, match="owner-declared Code leaf or SDK Python target"
+        ),
+    ):
+        checkout.resolve(["sample-b"])
+
+
+def test_sdk_grammar_interpretation_is_bound_to_the_captured_manifest(
+    repository: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sdk_manifest, _ = declare_sdk_target(repository)
+    original = LocalCheckoutWorkspaceCompositionProvider._sdk_python_target
+    changed = False
+
+    def replace_after_parse(self, manifest_path):
+        nonlocal changed
+        result = original(self, manifest_path)
+        if not changed:
+            sdk_manifest.write_text(sdk_manifest.read_text() + "\n# source replaced\n")
+            changed = True
+        return result
+
+    monkeypatch.setattr(
+        LocalCheckoutWorkspaceCompositionProvider,
+        "_sdk_python_target",
+        replace_after_parse,
+    )
+    with (
+        PackageSourceCheckout(repository) as checkout,
+        pytest.raises(
+            PackageCheckoutError, match="SDK declaration changed before capture"
+        ),
+    ):
+        checkout.resolve(["sample-a"])
 
 
 def test_direct_and_module_membership_deduplicate_one_physical_leaf(

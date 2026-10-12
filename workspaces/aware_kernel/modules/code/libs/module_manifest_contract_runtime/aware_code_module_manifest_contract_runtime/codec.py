@@ -7,7 +7,16 @@ import types
 from dataclasses import fields, is_dataclass
 from typing import cast, get_args, get_origin, get_type_hints
 
-from .models import AwareModuleSpec
+from .models import (
+    AwareModulePackageSemanticContractSpec,
+    AwareModulePackageSemanticContractSyntaxSpec,
+    AwareModuleSpec,
+)
+from .syntax_declaration import (
+    AwareModuleSyntaxDeclarationSpec,
+    SyntaxDeclarationError,
+    syntax_declaration_wire,
+)
 
 CONTRACT = "aware.code.module-manifest-meaning.v1"
 
@@ -29,20 +38,44 @@ def _convert(value: object, expected: object, *, decode: bool, aware: bool = Fal
         items = [_convert(v, get_args(expected)[0], decode=decode) for v in value]
         return tuple(items) if decode else items
     if isinstance(expected, type) and is_dataclass(expected):
+        if expected is AwareModulePackageSemanticContractSpec:
+            if (decode and type(value) is dict and "syntax" in value) or (
+                not decode
+                and type(value) is AwareModulePackageSemanticContractSyntaxSpec
+            ):
+                expected = AwareModulePackageSemanticContractSyntaxSpec
+        if not decode and expected is AwareModuleSyntaxDeclarationSpec:
+            try:
+                _ = syntax_declaration_wire(
+                    cast(AwareModuleSyntaxDeclarationSpec, value)
+                )
+            except SyntaxDeclarationError as exc:
+                raise ModuleManifestMeaningError(str(exc)) from exc
         schema = get_type_hints(expected)
         if decode:
             if type(value) is not dict or set(value) != set(schema):
                 raise ModuleManifestMeaningError("meaning field set differs")
-            return expected(**{
-                key: _convert(value[key], kind, decode=True,
-                              aware=expected is AwareModuleSpec and key == "aware")
-                for key, kind in schema.items()
-            })
+            converted = expected(
+                **{
+                    key: _convert(
+                        value[key],
+                        kind,
+                        decode=True,
+                        aware=expected is AwareModuleSpec and key == "aware",
+                    )
+                    for key, kind in schema.items()
+                }
+            )
+            return converted
         if type(value) is not expected:
             raise ModuleManifestMeaningError("exact meaning model required")
         return {
-            f.name: _convert(getattr(value, f.name), schema[f.name], decode=False,
-                             aware=expected is AwareModuleSpec and f.name == "aware")
+            f.name: _convert(
+                getattr(value, f.name),
+                schema[f.name],
+                decode=False,
+                aware=expected is AwareModuleSpec and f.name == "aware",
+            )
             for f in fields(expected)
         }
     # Legacy grammar admits bool for aware through isinstance(value, int).
@@ -53,17 +86,27 @@ def _convert(value: object, expected: object, *, decode: bool, aware: bool = Fal
 
 def encode_module_manifest_meaning(value: AwareModuleSpec) -> bytes:
     from .v3_models import AwareModuleSpecV3
+
     if type(value) is AwareModuleSpecV3:
         from .v3_codec import encode_module_manifest_meaning_v3
+
         return encode_module_manifest_meaning_v3(value)
     from .v2_models import AwareModuleSpecV2
+
     if type(value) is AwareModuleSpecV2:
         from .v2_codec import encode_module_manifest_meaning_v2
+
         return encode_module_manifest_meaning_v2(value)
     try:
         return json.dumps(
-            {"contract": CONTRACT, "meaning": _convert(value, AwareModuleSpec, decode=False)},
-            ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False,
+            {
+                "contract": CONTRACT,
+                "meaning": _convert(value, AwareModuleSpec, decode=False),
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
         ).encode("utf-8")
     except (TypeError, UnicodeError, RecursionError) as exc:
         raise ModuleManifestMeaningError("invalid module meaning") from exc
@@ -83,15 +126,29 @@ def decode_module_manifest_meaning(body: bytes) -> AwareModuleSpec:
         raise ModuleManifestMeaningError("exact meaning bytes required")
     try:
         raw = json.loads(body.decode("utf-8"), object_pairs_hook=_pairs)
-        if type(raw) is dict and raw.get("contract") == "aware.code.module-manifest-meaning.v3":
+        if (
+            type(raw) is dict
+            and raw.get("contract") == "aware.code.module-manifest-meaning.v3"
+        ):
             from .v3_codec import decode_module_manifest_meaning_v3
+
             return decode_module_manifest_meaning_v3(body)
-        if type(raw) is dict and raw.get("contract") == "aware.code.module-manifest-meaning.v2":
+        if (
+            type(raw) is dict
+            and raw.get("contract") == "aware.code.module-manifest-meaning.v2"
+        ):
             from .v2_codec import decode_module_manifest_meaning_v2
+
             return decode_module_manifest_meaning_v2(body)
-        if type(raw) is not dict or set(raw) != {"contract", "meaning"} or raw["contract"] != CONTRACT:
+        if (
+            type(raw) is not dict
+            or set(raw) != {"contract", "meaning"}
+            or raw["contract"] != CONTRACT
+        ):
             raise ModuleManifestMeaningError("meaning envelope differs")
-        value = cast(AwareModuleSpec, _convert(raw["meaning"], AwareModuleSpec, decode=True))
+        value = cast(
+            AwareModuleSpec, _convert(raw["meaning"], AwareModuleSpec, decode=True)
+        )
         if encode_module_manifest_meaning(value) != body:
             raise ModuleManifestMeaningError("noncanonical module meaning")
         return value

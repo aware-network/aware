@@ -9,7 +9,12 @@ from __future__ import annotations
 import json
 from dataclasses import fields
 
-from .contracts import ContentDigest, ContractViolation, canonical_json_bytes
+from .contracts import (
+    ContentDigest,
+    ContractViolation,
+    SemanticContractRef,
+    canonical_json_bytes,
+)
 from .dependency_scope_closure import (
     MAX_BODY_BYTES,
     MAX_CANONICAL_BYTES,
@@ -43,11 +48,118 @@ from .retained_declaration_scope import (
     CodeSelectedPackageSourceBinding,
     CodeSelectedPackageSourceExpectation,
 )
-from .retained_scope_interfaces import CodeRetainedScopeModule, MAX_SCOPE_BODY_BYTES
+from .retained_scope_interfaces import MAX_SCOPE_BODY_BYTES, CodeRetainedScopeModule
 from .semantic_candidates import decode_semantic_candidate_listing
 
+# Immutable schema publication for the original V3 wire, not admission or a
+# second codec. Keep these exact bytes aligned with the accepted Code context
+# contract. Original Workspace membership and lifetime checks remain separate.
+RETAINED_DECLARATION_SCOPE_V3_DESCRIPTOR = canonical_json_bytes(
+    {
+        "contract": "aware.code.retained-dependency-scope-closure.v3",
+        "version": 3,
+        "encoding": "Code canonical UTF-8 JSON; exact fields; duplicate keys refused; canonical roundtrip required",
+        "fields": {
+            "closure": [
+                "contract",
+                "consumer_scope_key",
+                "repository_binding_ref",
+                "repository_manifest",
+                "scopes",
+                "edges",
+                "local_profiles",
+                "profile_associations",
+                "closure_digest",
+            ],
+            "scope": ["scope_key", "workspace_handle", "projection"],
+            "projection": [
+                "contract",
+                "repository_binding_ref",
+                "observation_digest",
+                "workspace_manifest",
+                "modules",
+                "packages",
+            ],
+            "module": ["module_id", "manifest"],
+            "package": [
+                "module_id",
+                "package_id",
+                "package_kind",
+                "module_manifest_path",
+                "package_root",
+                "manifest_relative_path",
+                "manifest",
+            ],
+            "body": [
+                "relative_path",
+                "body_ref",
+                "content_digest",
+                "size_bytes",
+                "body_hex",
+            ],
+            "edge": [
+                "declaring_scope_key",
+                "target_scope_key",
+                "declaration",
+                "dependency_id",
+                "dependency_kind",
+                "dependency_source",
+                "channel",
+                "revision",
+                "profile_package_ref",
+                "profile_key",
+                "semantic_contract_provider_keys",
+            ],
+            "declaration": [
+                "manifest_relative_path",
+                "manifest_content_digest",
+                "dependency_index",
+                "profile_package_index",
+            ],
+            "restriction": ["state", "value"],
+            "local_profile": ["owning_scope_key", "profile_key", "manifest"],
+            "association": [
+                "declaring_scope_key",
+                "declaration",
+                "target_scope_key",
+                "manifest",
+            ],
+        },
+        "projection_contract": "aware.code.retained-declaration-scope.v2",
+        "values": {
+            "digest": "sha256:<64 lowercase hex>",
+            "body_hex": "lowercase even-length exact raw bytes; size and digest agree",
+            "restriction": "state unavailable|absent|present; nonpresent value null; present channel/revision/profile_key text; present provider keys unique ordered array",
+            "indices": "nonnegative exact integers; booleans refused",
+            "paths": "existing Code candidate path grammar; package_root may be dot",
+            "workspace_handle": "[A-Za-z][A-Za-z0-9_-]{0,127}",
+        },
+        "bounds": {
+            "scopes": 32,
+            "edges": 256,
+            "modules": 4096,
+            "packages": 16384,
+            "paths": 65536,
+            "individual_body_bytes": 16777216,
+            "aggregate_raw_body_bytes": 67108864,
+            "canonical_wire_bytes": 134217728,
+        },
+        "order": "existing V3 unique UTF-8 scopes/modules/package pairs/local profiles and original edge ordering; one imported association per edge",
+        "correspondence": "complete original V3 model/codec laws: repository across scopes; module/package paths; edge declaration and endpoints; local/imported profile publication; body refs and scoped paths; full closure digest",
+        "closure_digest": "SHA-256 of canonical original closure payload before closure_digest insertion",
+        "authority": "portable values only; original Workspace declaration/group/edge/lifetime authentication remains separate",
+    }
+)
+RETAINED_DECLARATION_SCOPE_V3_REF = SemanticContractRef(
+    "aware.code.retained-dependency-scope-closure.v3",
+    "3",
+    ContentDigest.of_bytes(RETAINED_DECLARATION_SCOPE_V3_DESCRIPTOR),
+)
 
-def declaration_closure_payload_bytes(value: CodeRetainedDependencyScopeClosureV3) -> bytes:
+
+def declaration_closure_payload_bytes(
+    value: CodeRetainedDependencyScopeClosureV3,
+) -> bytes:
     if type(value) is not CodeRetainedDependencyScopeClosureV3:
         raise ContractViolation("exact declaration closure required")
     value.__post_init__()
@@ -57,7 +169,9 @@ def declaration_closure_payload_bytes(value: CodeRetainedDependencyScopeClosureV
     return body
 
 
-def encode_retained_declaration_scope(value: CodeRetainedDependencyScopeClosureV3) -> bytes:
+def encode_retained_declaration_scope(
+    value: CodeRetainedDependencyScopeClosureV3,
+) -> bytes:
     payload = declaration_closure_payload_bytes(value)
     wire = json.loads(payload)
     wire["closure_digest"] = ContentDigest.of_bytes(payload).to_wire()
@@ -75,8 +189,12 @@ def _preflight(wire: dict[str, object]) -> None:
         projection = _exact(
             scope["projection"],
             (
-                "contract", "repository_binding_ref", "observation_digest",
-                "workspace_manifest", "modules", "packages",
+                "contract",
+                "repository_binding_ref",
+                "observation_digest",
+                "workspace_manifest",
+                "modules",
+                "packages",
             ),
         )
         if projection["contract"] != DECLARATION_SCOPE_CONTRACT:
@@ -90,7 +208,9 @@ def _preflight(wire: dict[str, object]) -> None:
             bodies.append(_exact(row, ("module_id", "manifest"))["manifest"])
         for row in rows_p:
             bodies.append(
-                _exact(row, (f.name for f in fields(CodeRetainedDeclarationPackage)))["manifest"]
+                _exact(row, (f.name for f in fields(CodeRetainedDeclarationPackage)))[
+                    "manifest"
+                ]
             )
     if modules > MAX_MODULES or packages > MAX_PACKAGES:
         raise ContractViolation("declaration aggregate member bound")
@@ -124,16 +244,24 @@ def _preflight(wire: dict[str, object]) -> None:
             raise ContractViolation("declaration aggregate raw body bound")
 
 
-def decode_retained_declaration_scope(body: bytes) -> CodeRetainedDependencyScopeClosureV3:
+def decode_retained_declaration_scope(
+    body: bytes,
+) -> CodeRetainedDependencyScopeClosureV3:
     if type(body) is not bytes or len(body) > MAX_CANONICAL_BYTES:
         raise ContractViolation("bounded exact declaration closure bytes required")
     try:
         wire = _exact(
             json.loads(body.decode("utf-8"), object_pairs_hook=_pairs),
             (
-                "contract", "consumer_scope_key", "repository_binding_ref",
-                "repository_manifest", "scopes", "edges", "local_profiles",
-                "profile_associations", "closure_digest",
+                "contract",
+                "consumer_scope_key",
+                "repository_binding_ref",
+                "repository_manifest",
+                "scopes",
+                "edges",
+                "local_profiles",
+                "profile_associations",
+                "closure_digest",
             ),
         )
         if wire["contract"] != DEPENDENCY_CLOSURE_CONTRACT_V3:
@@ -153,12 +281,14 @@ def decode_retained_declaration_scope(body: bytes) -> CodeRetainedDependencyScop
                 packages.append(CodeRetainedDeclarationPackage(**args))
             scopes.append(
                 CodeRetainedDeclarationScopeEntry(
-                    row["scope_key"], row["workspace_handle"],
+                    row["scope_key"],
+                    row["workspace_handle"],
                     CodeRetainedDeclarationScopeProjection(
                         projection["repository_binding_ref"],
                         _digest(projection["observation_digest"]),
                         _body(projection["workspace_manifest"]),
-                        modules, tuple(packages),
+                        modules,
+                        tuple(packages),
                     ),
                 )
             )
@@ -166,8 +296,15 @@ def decode_retained_declaration_scope(body: bytes) -> CodeRetainedDependencyScop
         for row in wire["edges"]:
             args = dict(_exact(row, (f.name for f in fields(DependencyScopeEdge))))
             args["declaration"] = _declaration(args["declaration"])
-            for key in ("channel", "revision", "profile_key", "semantic_contract_provider_keys"):
-                args[key] = _tag(args[key], providers=key == "semantic_contract_provider_keys")
+            for key in (
+                "channel",
+                "revision",
+                "profile_key",
+                "semantic_contract_provider_keys",
+            ):
+                args[key] = _tag(
+                    args[key], providers=key == "semantic_contract_provider_keys"
+                )
             edges.append(DependencyScopeEdge(**args))
         local_profiles = tuple(
             CodeRetainedLocalProfilePublication(
@@ -177,27 +314,37 @@ def decode_retained_declaration_scope(body: bytes) -> CodeRetainedDependencyScop
         )
         associations = tuple(
             DependencyScopeProfileAssociation(
-                row["declaring_scope_key"], _declaration(row["declaration"]),
-                row["target_scope_key"], _body(row["manifest"]),
+                row["declaring_scope_key"],
+                _declaration(row["declaration"]),
+                row["target_scope_key"],
+                _body(row["manifest"]),
             )
             for row in wire["profile_associations"]
         )
         result = CodeRetainedDependencyScopeClosureV3(
-            wire["consumer_scope_key"], wire["repository_binding_ref"],
-            _body(wire["repository_manifest"]), tuple(scopes), tuple(edges),
-            local_profiles, associations,
+            wire["consumer_scope_key"],
+            wire["repository_binding_ref"],
+            _body(wire["repository_manifest"]),
+            tuple(scopes),
+            tuple(edges),
+            local_profiles,
+            associations,
         )
         if (
             _digest(wire["closure_digest"]) != result.closure_digest
             or encode_retained_declaration_scope(result) != body
         ):
-            raise ContractViolation("declaration closure digest or canonical bytes differ")
+            raise ContractViolation(
+                "declaration closure digest or canonical bytes differ"
+            )
         return result
     except (ValueError, TypeError, KeyError, RecursionError) as error:
         raise ContractViolation("invalid declaration closure encoding") from error
 
 
-def encode_selected_package_source_binding(value: CodeSelectedPackageSourceBinding) -> bytes:
+def encode_selected_package_source_binding(
+    value: CodeSelectedPackageSourceBinding,
+) -> bytes:
     if type(value) is not CodeSelectedPackageSourceBinding:
         raise ContractViolation("exact selected source binding required")
     value.__post_init__()
@@ -207,7 +354,9 @@ def encode_selected_package_source_binding(value: CodeSelectedPackageSourceBindi
     return body
 
 
-def decode_selected_package_source_binding(body: bytes) -> CodeSelectedPackageSourceBinding:
+def decode_selected_package_source_binding(
+    body: bytes,
+) -> CodeSelectedPackageSourceBinding:
     if type(body) is not bytes or len(body) > MAX_CANONICAL_BYTES:
         raise ContractViolation("bounded selected binding bytes required")
     try:
@@ -220,8 +369,13 @@ def decode_selected_package_source_binding(body: bytes) -> CodeSelectedPackageSo
         expected = _exact(
             wire["expectation"],
             (
-                "declaration", "closure_digest", "scope_key", "module_id",
-                "package_id", "manifest_relative_path", "manifest_content_digest",
+                "declaration",
+                "closure_digest",
+                "scope_key",
+                "module_id",
+                "package_id",
+                "manifest_relative_path",
+                "manifest_content_digest",
                 "source_identity_digest",
             ),
         )
@@ -229,14 +383,20 @@ def decode_selected_package_source_binding(body: bytes) -> CodeSelectedPackageSo
             **_exact(
                 expected["declaration"],
                 (
-                    "repository_binding_ref", "parent_identity", "process_id",
-                    "operation_identity", "epoch_identity",
+                    "repository_binding_ref",
+                    "parent_identity",
+                    "process_id",
+                    "operation_identity",
+                    "epoch_identity",
                 ),
             )
         )
         expectation = CodeSelectedPackageSourceExpectation(
-            declaration, _digest(expected["closure_digest"]),
-            expected["scope_key"], expected["module_id"], expected["package_id"],
+            declaration,
+            _digest(expected["closure_digest"]),
+            expected["scope_key"],
+            expected["module_id"],
+            expected["package_id"],
             expected["manifest_relative_path"],
             _digest(expected["manifest_content_digest"]),
             _digest(expected["source_identity_digest"]),
@@ -253,6 +413,8 @@ def decode_selected_package_source_binding(body: bytes) -> CodeSelectedPackageSo
 
 
 __all__ = [
+    "RETAINED_DECLARATION_SCOPE_V3_DESCRIPTOR",
+    "RETAINED_DECLARATION_SCOPE_V3_REF",
     "decode_retained_declaration_scope",
     "decode_selected_package_source_binding",
     "encode_retained_declaration_scope",

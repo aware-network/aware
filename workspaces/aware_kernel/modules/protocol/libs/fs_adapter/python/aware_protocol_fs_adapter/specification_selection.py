@@ -26,6 +26,7 @@ from .manifest import (
     COLLABORATION_FS_PROFILE,
     FilesystemProtocolAdmissionResult,
     FilesystemProtocolProfile,
+    FilesystemRecordBinding,
     admit_protocol_manifest_bytes,
 )
 
@@ -275,9 +276,27 @@ def _manifest_source(
             parents,
         )
     finally:
-        if file_fd is not None:
-            os.close(file_fd)
-        os.close(parent)
+        cleanup_error: BaseException | None = None
+        diagnostics: tuple[str, ...] = ()
+        # Each original descriptor has one close attempt, even if another close
+        # is interrupted. An ambiguous close is never retried by numeric id.
+        for descriptor in (file_fd, parent):
+            if descriptor is None:
+                continue
+            try:
+                os.close(descriptor)
+            except BaseException as error:  # noqa: BLE001 -- finish independent cleanup and preserve unknown outcome
+                diagnostics = (
+                    *diagnostics,
+                    f"manifest_cleanup_failed:{type(error).__name__}",
+                )
+                if cleanup_error is None:
+                    cleanup_error = error
+        if cleanup_error is not None:
+            raise SpecificationSelectionError(
+                "specification_selection_manifest_cleanup_unverified",
+                diagnostics=diagnostics,
+            ) from cleanup_error
 
 
 def _selected_topology(base_fd: int, roots: tuple[str, ...]) -> dict[str, _Identity]:
@@ -550,14 +569,8 @@ class SpecificationSelectionAdmission:
     selection: SpecificationSourceSelection | None
 
 
-def admit_specification_selection(
-    *,
-    repository_root: Path,
-    manifest_path: Path,
-    selected_manifest_paths: tuple[str, ...],
-    expected_manifest_sha256: str | None = None,
-) -> SpecificationSelectionAdmission:
-    """Fresh on-disk issuer. Paths are locators, not SPEC identity or authority."""
+def _validate_specification_locators(selected_manifest_paths: tuple[str, ...]) -> None:
+    """Original pre-read locator rules, shared with read-only fit observation."""
     if (
         type(selected_manifest_paths) is not tuple
         or not 1 <= len(selected_manifest_paths) <= MAX_SELECTED_SPECIFICATIONS
@@ -566,6 +579,57 @@ def admit_specification_selection(
         != tuple(sorted(set(selected_manifest_paths), key=lambda p: p.encode("utf-8")))
     ):
         raise SpecificationSelectionError("specification_selection_paths_invalid")
+
+
+def _specification_binding_layout(
+    profile: FilesystemProtocolProfile, selected_manifest_paths: tuple[str, ...]
+) -> tuple[FilesystemRecordBinding, tuple[str, ...]]:
+    """Original policy only; no source read, topology check or authority issuance."""
+    if (
+        profile.protocol_manifest.protocol.profile != COLLABORATION_FS_PROFILE
+        or profile.protocol_manifest.protocol.semantic_version != 1
+    ):
+        raise SpecificationSelectionError("specification_selection_profile_unsupported")
+    record = next(
+        item
+        for item in profile.protocol_manifest.records
+        if item.record_key == "specification"
+    )
+    if record.role.value != "authority" or record.profile != "specification_fs_v1":
+        raise SpecificationSelectionError("specification_selection_authority_required")
+    binding = next(
+        item for item in profile.record_bindings if item.record_key == "specification"
+    )
+    if (
+        not _canonical(binding.root)
+        or binding.path_template != SPECIFICATION_PATH_TEMPLATE
+    ):
+        raise SpecificationSelectionError("specification_selection_binding_unsupported")
+    roots: list[str] = []
+    for path in selected_manifest_paths:
+        prefix = binding.root + "/"
+        tail = path.removeprefix(prefix).split("/")
+        if (
+            not path.startswith(prefix)
+            or len(tail) != 2
+            or tail[-1] != "aware.spec.toml"
+        ):
+            raise SpecificationSelectionError(
+                "specification_selection_target_outside_binding"
+            )
+        roots.append(path.removesuffix("/aware.spec.toml"))
+    return binding, tuple(roots)
+
+
+def admit_specification_selection(
+    *,
+    repository_root: Path,
+    manifest_path: Path,
+    selected_manifest_paths: tuple[str, ...],
+    expected_manifest_sha256: str | None = None,
+) -> SpecificationSelectionAdmission:
+    """Fresh on-disk issuer. Paths are locators, not SPEC identity or authority."""
+    _validate_specification_locators(selected_manifest_paths)
     try:
         root = repository_root.resolve(strict=True)
     except (OSError, RuntimeError, ValueError) as error:
@@ -608,48 +672,9 @@ def admit_specification_selection(
         profile = admission.filesystem_profile
         if profile is None:
             return SpecificationSelectionAdmission(admission, None)
-        if (
-            profile.protocol_manifest.protocol.profile != COLLABORATION_FS_PROFILE
-            or profile.protocol_manifest.protocol.semantic_version != 1
-        ):
-            raise SpecificationSelectionError(
-                "specification_selection_profile_unsupported"
-            )
-        record = next(
-            item
-            for item in profile.protocol_manifest.records
-            if item.record_key == "specification"
+        _, ordered_roots = _specification_binding_layout(
+            profile, selected_manifest_paths
         )
-        if record.role.value != "authority" or record.profile != "specification_fs_v1":
-            raise SpecificationSelectionError(
-                "specification_selection_authority_required"
-            )
-        binding = next(
-            item
-            for item in profile.record_bindings
-            if item.record_key == "specification"
-        )
-        if (
-            not _canonical(binding.root)
-            or binding.path_template != SPECIFICATION_PATH_TEMPLATE
-        ):
-            raise SpecificationSelectionError(
-                "specification_selection_binding_unsupported"
-            )
-        roots: list[str] = []
-        for path in selected_manifest_paths:
-            prefix = binding.root + "/"
-            tail = path.removeprefix(prefix).split("/")
-            if (
-                not path.startswith(prefix)
-                or len(tail) != 2
-                or tail[-1] != "aware.spec.toml"
-            ):
-                raise SpecificationSelectionError(
-                    "specification_selection_target_outside_binding"
-                )
-            roots.append(path.removesuffix("/aware.spec.toml"))
-        ordered_roots = tuple(roots)
         topology = _selected_topology(descriptor, ordered_roots)
         topology.update(manifest_parents)
         selection = object.__new__(SpecificationSourceSelection)

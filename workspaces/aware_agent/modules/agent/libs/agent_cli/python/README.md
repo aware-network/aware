@@ -1,6 +1,6 @@
 # Neutral Agent CLI composition
 
-Source preview **0.2.0a3** supplies one `aware` entrance over the accepted family
+Source preview **0.2.0a4** supplies one `aware` entrance over the accepted family
 registrars and Kernel's command runtime. It is a composition library with a CLI
 entrypoint, not a new Agent SDK, evaluator or authority provider.
 
@@ -33,9 +33,9 @@ than retaining a standalone Repository implementation.
 
 ## Initializer source command
 
-This command is an unreleased source composition; installation and onboarding
-acceptance require a newly pinned candidate. For an explicitly selected
-qualified successor installation, the intended forms are:
+Earlier installed candidates qualify initialization independently. This source
+successor requires a newly pinned candidate; source changes do not update an
+existing installation. For an explicitly selected qualified installation:
 
 ```bash
 # Validate prospective input and preview; the parent must already exist.
@@ -92,10 +92,11 @@ unknown/applied effect evidence remain unchanged.
 
 ## Draft guard preparation
 
-`aware spec prepare-draft` composes the existing Issue read projection, Protocol
-manifest admission and SPEC input-observation SDK ports. It decodes and renders
-through the original SPEC functions. It does not construct draft custody, obtain
-write admission, run governed preview, create a package or apply anything.
+`aware spec prepare-draft` composes Protocol manifest admission and its read-only
+target-fit SDK observation, then the existing Issue read projection and SPEC
+input-observation ports. It decodes and renders through the original SPEC
+functions. It does not construct draft custody, obtain write admission, run
+governed preview, create a package or apply anything.
 
 For a separately qualified successor installation:
 
@@ -117,14 +118,30 @@ input; preparation does not fabricate it. Relative input paths use the invocatio
 directory; generated command arguments use the original observer's absolute
 input coordinate so a later invocation need not share that directory.
 
-The default summary labels the Issue, exact Protocol-manifest and snapshot-input
-byte guards, shows observed execution/status/scope and intended member paths,
-and supplies complete original `create-draft` preview/apply commands. Review the
+The supplied SPEC manifest must be repository-relative and fit the configured
+root and template. For the illustrative `docs/specs` binding, the expected shape
+is `docs/specs/<spec-key>/aware.spec.toml`; omitting the key is a mismatch. The
+owner supplies the actual configured root, template, expected shape and reason;
+Agent does not infer a key or correct a target.
+
+Both summary and JSON show the original target-fit observation. A mismatch,
+invalid locator, unavailable binding, stale manifest, unvalidated result or
+uncertain cleanup refuses with **no executable preview/apply guidance**. Issue
+and input observation do not follow a refused fit. Summary explains the refusal
+and retains the original structured evidence; JSON is the complete receipt.
+Choose any replacement target explicitly, then prepare and review again.
+
+A match establishes observed binding layout only—not Issue eligibility,
+destination availability, semantic approval or future apply success. The default
+summary labels the Issue, exact Protocol-manifest and snapshot-input byte guards,
+shows observed execution/status/scope and intended member paths, and supplies
+complete original `create-draft` preview/apply commands after a match. Review the
 authored input, selections and intended members before explicitly choosing either
 command. **The printed apply command is never executed by preparation.**
 No manual hash calculation or individual digest-copy step is needed.
 
-`--format json` exposes original owner observations, the original SDK-encoded
+`--format json` exposes original owner observations, including request-correlated
+target fit and verified cleanup, the original SDK-encoded
 draft request, member digests and exact argv. This is a presentation of data,
 not a saved-plan import API, package catalog, write capability or authorization
 receipt. Separate observations are not an atomic repository snapshot or an
@@ -137,8 +154,9 @@ prepare and review again. Never refresh a guard to bypass a refusal or retry a
 known publication. Unknown cleanup retains owner evidence and yields no apply
 command. Existing family commands and their full mutation receipts are unchanged.
 
-The source composition requires SPEC SDK 0.3.3 and FS/CLI 0.4.3 or compatible
-successors within their finite bounds. Missing ports refuse before observation;
+The source composition requires Protocol SDK >=0.3.2,<0.4.0 and FS
+>=0.6.5,<0.7.0, and SPEC SDK 0.3.3 and FS/CLI 0.4.3 or compatible successors
+within their finite bounds. Missing ports refuse before observation;
 there is no private-reader or provider fallback. Source tests do not update an
 installed consumer. Bundle must refresh `portable_protocols` and qualify a fresh
 offline, checkout-hidden candidate before customer adoption. Assisted setup,

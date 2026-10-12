@@ -68,6 +68,7 @@ from .specification_selection import (
     release_specification_selection,
     require_specification_selection,
 )
+from .specification_target_fit import FilesystemProtocolSpecificationTargetFitProvider
 
 __all__ = [
     "COLLABORATION_FS_PROFILE",
@@ -85,6 +86,7 @@ __all__ = [
     "FilesystemProtocolAdmissionResult",
     "FilesystemProtocolProfile",
     "FilesystemProtocolSdkProvider",
+    "FilesystemProtocolSpecificationTargetFitProvider",
     "FilesystemRecordBinding",
     "NativeGoalLocation",
     "NativeGoalResolverAdmission",

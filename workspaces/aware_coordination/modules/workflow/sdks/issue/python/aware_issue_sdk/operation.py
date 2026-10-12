@@ -1211,6 +1211,12 @@ class IssueSdkOperationClient:
     provider: IssueOperationProvider
     repository_client: IssueRepositoryPublicationClient | None = None
 
+    def resolve_reading(self, request):
+        """Optional explicit rich operation; ordinary provider contract is unchanged."""
+        from .reading_operation import invoke_reading
+
+        return invoke_reading(self.provider, request)
+
     def observe_specification_iteration_binding(
         self, request: IssueSpecificationIterationBindingObserveRequest
     ) -> IssueSpecificationIterationBindingObservation:

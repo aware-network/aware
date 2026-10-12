@@ -1,0 +1,24 @@
+[project]
+name = "aware-meta-type-schema"
+version = "0.1.1"
+description = "OCG-free semantic type schema values for Aware Meta."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.12"
+authors = [{ name = "AWARE Team" }]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8.4.2,<10.0.0"]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_meta_type_schema"]
+include = ["aware_meta_type_schema/py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

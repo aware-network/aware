@@ -128,23 +128,97 @@ class LocalCheckoutWorkspaceCompositionProvider:
                 raise _shape_failure("Workspace requires schema version 1 or 2")
             codes(
                 _mapping(raw["workspace"], "workspace"),
-                cast(str, workspace["relative_path"]), origin,
+                cast(str, workspace["relative_path"]),
+                origin,
             )
             for module in cast(list[dict[str, object]], workspace["modules"]):
                 for package in cast(list[dict[str, object]], module["packages"]):
                     path = cast(str, package["manifest_path"])
                     if PurePosixPath(path).name == "pyproject.toml":
-                        rows.append({
-                            "manifest_path": path,
-                            "declaration_path": cast(str, module["manifest_path"]),
-                            "workspace": handle,
-                            "module": cast(str, module["module_id"]),
-                            "package": cast(str, package["package_id"]),
-                            "kind": cast(str, package["package_kind"]),
-                        })
+                        rows.append(
+                            {
+                                "manifest_path": path,
+                                "declaration_path": cast(str, module["manifest_path"]),
+                                "workspace": handle,
+                                "module": cast(str, module["module_id"]),
+                                "package": cast(str, package["package_id"]),
+                                "kind": cast(str, package["package_kind"]),
+                            }
+                        )
+                    elif package["package_kind"] == "sdk":
+                        target = self._sdk_python_target(path)
+                        if target is not None:
+                            rows.append(
+                                {
+                                    "manifest_path": target,
+                                    "declaration_path": cast(
+                                        str, module["manifest_path"]
+                                    ),
+                                    "workspace": handle,
+                                    "module": cast(str, module["module_id"]),
+                                    "package": cast(str, package["package_id"]),
+                                    "kind": "sdk_python_target",
+                                    "target_language": "python",
+                                    "target_role": "public_package",
+                                    "semantic_manifest_path": path,
+                                    "semantic_manifest_digest": "sha256:"
+                                    + self._manifest_digests[path],
+                                }
+                            )
         if len(rows) > _MAXIMUM_PACKAGES:
             raise _budget_failure("Python package membership")
-        return tuple(sorted(rows, key=lambda row: (row["manifest_path"], row["declaration_path"])))
+        return tuple(
+            sorted(
+                rows, key=lambda row: (row["manifest_path"], row["declaration_path"])
+            )
+        )
+
+    def _sdk_python_target(self, manifest_path: str) -> str | None:
+        """Observe an existing declared SDK target, never generate/admit it.
+
+        SDK owns the grammar. The SDK layout places targets beside ``aware``
+        when the manifest lives there, otherwise beneath its manifest root.
+        An absent target stays absent; it cannot become a registry fallback
+        for an owner-selected local source.
+        """
+        from aware_sdk_contract_runtime.manifest import (
+            AwareSdkTomlError,
+            parse_sdk_manifest_bytes,
+        )
+
+        if PurePosixPath(manifest_path).name != "aware.sdk.toml":
+            raise _shape_failure("SDK declaration requires aware.sdk.toml")
+        try:
+            spec = parse_sdk_manifest_bytes(
+                self._manifest_bytes(manifest_path), path_label=manifest_path
+            )
+        except AwareSdkTomlError as error:
+            raise _shape_failure(str(error)) from error
+        target = spec.targets.python
+        if target is None:
+            return None
+        source_root = PurePosixPath(manifest_path).parent
+        sdk_root = source_root.parent if source_root.name == "aware" else source_root
+        language_root = _join_relative(
+            str(sdk_root),
+            _relative_path(target.root_dir or "python", "SDK Python root"),
+        )
+        package_root = _join_relative(
+            language_root,
+            _relative_path(
+                target.public_package.root_dir or ".", "SDK public package root"
+            ),
+        )
+        pyproject = _join_relative(package_root, "pyproject.toml")
+        path = self._root / pyproject
+        if path.is_symlink():
+            self._require_file(pyproject)
+        if not path.exists():
+            return None
+        self._require_file(pyproject)
+        # Include the target metadata in the same bounded declaration capture.
+        self._manifest_bytes(pyproject)
+        return pyproject
 
     def _repository(self) -> dict[str, object]:
         payload = self._manifest("aware.repo.toml")
@@ -489,18 +563,20 @@ class RetainedWorkspaceCompositionProvider(LocalCheckoutWorkspaceCompositionProv
 
         workspace = _mapping(self._manifest(path).get("workspace"), "workspace")
         return selections(
-            workspace, path=path, digest="sha256:" + self._manifest_digests[path], targets=targets
+            workspace,
+            path=path,
+            digest="sha256:" + self._manifest_digests[path],
+            targets=targets,
         )
 
     def _manifest(self, relative_path: str) -> Mapping[str, object]:
         value = self._parse_manifest(relative_path, self._manifest_bytes(relative_path))
         if relative_path == "aware.repo.toml":
             if type(value.get("aware_repo")) is not int or value["aware_repo"] != 1:
-                raise _shape_failure("retained repository requires exact schema version 1")
-        elif (
-            type(value.get("aware")) is not int
-            or value["aware"] not in (1, 2)
-        ):
+                raise _shape_failure(
+                    "retained repository requires exact schema version 1"
+                )
+        elif type(value.get("aware")) is not int or value["aware"] not in (1, 2):
             raise _shape_failure("retained Workspace requires schema version 1 or 2")
         return value
 

@@ -3,6 +3,12 @@ from importlib import import_module
 # Canonical neutral operations and retained filesystem compatibility surfaces.
 # Service/view facades live in the sibling internal Service adapter, not here.
 _EXPORT_MODULES = {
+    "IssueReadingProviderBinding": "aware_issue_sdk.reading_operation",
+    "IssueReadingResolveRequest": "aware_issue_sdk.reading_operation",
+    "IssueReadingResolveResult": "aware_issue_sdk.reading_operation",
+    "ISSUE_READING_OPERATION_REF": "aware_issue_sdk.reading_operation",
+    "ISSUE_READING_PROVIDER_OPERATION_REF": "aware_issue_sdk.reading_operation",
+    "ISSUE_READING_EXPOSURE_PROFILE": "aware_issue_sdk.reading_operation",
     "IssueRepositoryOperationResult": "aware_issue_sdk.repository_publication",
     "IssueCloseAdmission": "aware_issue_sdk.repository_publication",
     "IssueRepositoryPublicationAdmission": "aware_issue_sdk.repository_publication",

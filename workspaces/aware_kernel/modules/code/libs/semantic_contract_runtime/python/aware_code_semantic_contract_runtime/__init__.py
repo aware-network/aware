@@ -36,6 +36,20 @@ from .contracts import (
     canonical_json_bytes,
     canonical_json_text,
 )
+from .grammar_profile_join import validate_grammar_source_group_input
+from .grammar_source_group import (
+    GRAMMAR_SOURCE_GROUP_CODEC_IMPLEMENTATION,
+    GRAMMAR_SOURCE_GROUP_DESCRIPTOR,
+    GRAMMAR_SOURCE_GROUP_REF,
+    CodeGrammarSourceBodyV1,
+    CodeGrammarSourceEdgeV1,
+    CodeGrammarSourceGroupCodec,
+    CodeGrammarSourceGroupV1,
+    CodeGrammarSourceMemberV1,
+    decode_grammar_source_group,
+    encode_grammar_source_group,
+    grammar_source_group_body,
+)
 from .materialization_catalog import (
     CODE_SEMANTIC_CONTRACT_CATALOG,
     CODE_SEMANTIC_CONTRACT_MATCH,
@@ -122,22 +136,22 @@ from .prepared_effect_renderer import (
     register_prepared_effect_renderer,
     validate_prepared_effect_renderer_coverage,
 )
-from .profile import (
-    ProfileInputDeclaration,
-    ProfileStepDeclaration,
-    RoleBinding,
-    SemanticContractProfileDeclaration,
-    resolve_profile,
-)
 from .product_contribution import (
-    SelectedProviderProductCatalogInput,
     SelectedProviderProductCatalogContribution,
+    SelectedProviderProductCatalogInput,
     SelectedProviderProductContribution,
     close_selected_provider_product_contribution,
     issue_selected_provider_product_contribution,
     produce_selected_provider_product_catalog_contribution,
     read_selected_provider_product_catalog_contribution,
     read_selected_provider_product_contribution,
+)
+from .profile import (
+    ProfileInputDeclaration,
+    ProfileStepDeclaration,
+    RoleBinding,
+    SemanticContractProfileDeclaration,
+    resolve_profile,
 )
 from .retained_admission_interfaces import (
     DeclarationInventoryAdmissionValidator,
@@ -214,11 +228,11 @@ from .semantic_input_producer import (
     SemanticDependencyInputProductionExpectation,
     SemanticDependencyInputProductionInput,
     SemanticInputDependencyContract,
+    SemanticInputPackageIdentity,
     SemanticInputProducerDeclaration,
     SemanticInputProducerHost,
-    SemanticInputPackageIdentity,
-    SemanticInputProductionInput,
     SemanticInputProductionExpectation,
+    SemanticInputProductionInput,
     SemanticInputSourceBody,
     SemanticInputSourceContract,
     SemanticInputSourceCoordinate,
@@ -233,6 +247,18 @@ from .semantic_input_producer import (
 )
 
 __all__ = [
+    "validate_grammar_source_group_input",
+    "GRAMMAR_SOURCE_GROUP_CODEC_IMPLEMENTATION",
+    "GRAMMAR_SOURCE_GROUP_DESCRIPTOR",
+    "GRAMMAR_SOURCE_GROUP_REF",
+    "CodeGrammarSourceBodyV1",
+    "CodeGrammarSourceEdgeV1",
+    "CodeGrammarSourceGroupCodec",
+    "CodeGrammarSourceGroupV1",
+    "CodeGrammarSourceMemberV1",
+    "decode_grammar_source_group",
+    "encode_grammar_source_group",
+    "grammar_source_group_body",
     "SelectedProviderProductCatalogInput",
     "SelectedProviderProductCatalogContribution",
     "SelectedProviderProductContribution",

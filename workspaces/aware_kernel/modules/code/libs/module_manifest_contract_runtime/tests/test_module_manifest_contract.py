@@ -31,10 +31,19 @@ def test_boolean_aware_quirk_preserved_losslessly():
     assert decode_module_manifest_meaning(encode_module_manifest_meaning(value)).aware is True
 
 
-@pytest.mark.parametrize("body", [b"", b"aware=2\npackages=[]", b"aware=1\npackages=[]", b"aware=1\nunknown=0\npackages=[]", b"aware=1\naware=1", b"\xff"])
+@pytest.mark.parametrize("body", [b"", b"aware=2\npackages=[]", b"aware=1\nunknown=0\npackages=[]", b"aware=1\naware=1", b"\xff"])
 def test_invalid_source_refuses(body):
     with pytest.raises(AwareModuleTomlError):
         parse_module_manifest(body)
+
+
+def test_authored_module_can_precede_its_first_package():
+    value = parse_module_manifest(b"aware=1\npackages=[]\n")
+    assert value.packages == ()
+    assert value.plugins == ()
+    assert decode_module_manifest_meaning(encode_module_manifest_meaning(value)) == value
+    with pytest.raises(AwareModuleTomlError):
+        parse_module_manifest(b"aware=1\n")
 
 
 def test_diagnostic_label_does_not_change_meaning():

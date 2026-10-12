@@ -10,6 +10,7 @@ from typing import cast
 from .models import (
     AwareModulePackageSemanticContractBindingSpec,
     AwareModulePackageSemanticContractSpec,
+    AwareModulePackageSemanticContractSyntaxSpec,
     AwareModulePackageSpec,
     AwareModulePluginCapabilityPolicySpec,
     AwareModulePluginSpec,
@@ -17,6 +18,7 @@ from .models import (
     AwareModuleServiceSpec,
     AwareModuleSpec,
 )
+from .syntax_declaration import SyntaxDeclarationError, parse_syntax_declaration_table
 
 
 class AwareModuleTomlError(ValueError):
@@ -65,7 +67,9 @@ def _as_table_list(value: object, *, ctx: str) -> list[dict[str, object]]:
     return tables
 
 
-def parse_module_manifest(body: bytes, *, source_label: str = "<bytes>") -> AwareModuleSpec:
+def parse_module_manifest(
+    body: bytes, *, source_label: str = "<bytes>"
+) -> AwareModuleSpec:
     """Parse retained bytes; source_label affects diagnostics only."""
     if type(body) is not bytes:
         raise TypeError("module manifest body must be exact bytes")
@@ -76,13 +80,16 @@ def parse_module_manifest(body: bytes, *, source_label: str = "<bytes>") -> Awar
         text = body.decode("utf-8").replace("\r\n", "\n").replace("\r", "\n")
         raw_obj = cast(object, tomllib.loads(text))
     except Exception as exc:
-        raise AwareModuleTomlError(f"Failed to parse TOML at {source_label}: {exc}") from exc
+        raise AwareModuleTomlError(
+            f"Failed to parse TOML at {source_label}: {exc}"
+        ) from exc
     raw = _as_table(raw_obj, ctx=f"TOML root at {source_label}")
 
     if raw.get("aware") == 3:
         from .v2_parser import MAX_BODY
         from .v3_codec import encode_module_manifest_meaning_v3
         from .v3_parser import parse_v3_table
+
         if len(body) > MAX_BODY:
             raise AwareModuleTomlError("v3 raw manifest exceeds bound")
         result_v3 = parse_v3_table(raw)
@@ -91,16 +98,20 @@ def parse_module_manifest(body: bytes, *, source_label: str = "<bytes>") -> Awar
 
     if raw.get("aware") == 2:
         from .v2_parser import MAX_BODY, parse_v2_table
+
         if len(body) > MAX_BODY:
             raise AwareModuleTomlError("v2 raw manifest exceeds bound")
         result = parse_v2_table(raw)
         from .v2_codec import encode_module_manifest_meaning_v2
+
         encode_module_manifest_meaning_v2(result)
         return result
-    return _parse_module_table(raw)
+    return _parse_module_table(raw, allow_empty=True)
 
 
-def _parse_module_table(raw: dict[str, object]) -> AwareModuleSpec:
+def _parse_module_table(
+    raw: dict[str, object], *, allow_empty: bool = False
+) -> AwareModuleSpec:
     _expect_keys(
         raw,
         required={"aware", "packages"},
@@ -512,9 +523,8 @@ def _parse_module_table(raw: dict[str, object]) -> AwareModuleSpec:
                     "^([a-z_][a-z0-9_]*)(\\.[a-z_][a-z0-9_]*)*$ "
                     f"when kind='{_CODE_MODULE_PLUGIN_KIND}': {capability_execution_module!r}"
                 )
-            if (
-                semantic_contract_module is not None
-                and not _PYTHON_MODULE_RE.fullmatch(semantic_contract_module)
+            if semantic_contract_module is not None and not _PYTHON_MODULE_RE.fullmatch(
+                semantic_contract_module
             ):
                 raise AwareModuleTomlError(
                     f"plugins[{i}].semantic_contract_module must match "
@@ -685,7 +695,11 @@ def _parse_module_table(raw: dict[str, object]) -> AwareModuleSpec:
             )
         )
 
-    if not packages:
+    # Authored setup creates a Module before its first package. An explicit
+    # empty package list has valid manifest meaning and grants no package or
+    # semantic execution authority. Missing/malformed lists still refuse.
+    # v2/v3 use the strict internal parser and retain their nonempty rule.
+    if not packages and not allow_empty:
         raise AwareModuleTomlError(
             "aware.module.toml requires at least one [[packages]] entry"
         )
@@ -837,6 +851,7 @@ def _parse_package_semantic_contract(
             "bindings",
             "owns_manifest_kinds",
             "capabilities",
+            "syntax",
         },
         ctx=ctx,
     )
@@ -921,7 +936,13 @@ def _parse_package_semantic_contract(
             )
         )
 
-    return AwareModulePackageSemanticContractSpec(
+    syntax = None
+    if "syntax" in contract_tbl:
+        try:
+            syntax = parse_syntax_declaration_table(contract_tbl["syntax"])
+        except SyntaxDeclarationError as exc:
+            raise AwareModuleTomlError(f"{ctx}.syntax: {exc}") from exc
+    parsed = AwareModulePackageSemanticContractSpec(
         role=role,
         contract=contract,
         provider_key=provider_key,
@@ -930,6 +951,18 @@ def _parse_package_semantic_contract(
         capabilities=capabilities or (),
         bindings=tuple(bindings),
     )
+    if syntax is not None:
+        return AwareModulePackageSemanticContractSyntaxSpec(
+            role=parsed.role,
+            contract=parsed.contract,
+            provider_key=parsed.provider_key,
+            module=parsed.module,
+            owns_manifest_kinds=parsed.owns_manifest_kinds,
+            capabilities=parsed.capabilities,
+            bindings=parsed.bindings,
+            syntax=syntax,
+        )
+    return parsed
 
 
 def _validate_package_semantic_contracts_have_registered_plugins(

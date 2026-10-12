@@ -18,7 +18,22 @@ from .models import (
 )
 from .parser import AwareModuleTomlError, parse_module_manifest
 
-__all__ = ['CONTRACT', 'AwareModulePackageSemanticContractBindingSpec', 'AwareModulePackageSemanticContractSpec', 'AwareModulePackageSpec', 'AwareModulePluginCapabilityPolicySpec', 'AwareModulePluginSpec', 'AwareModuleRuntimeSpec', 'AwareModuleServiceSpec', 'AwareModuleSpec', 'AwareModuleTomlError', 'ModuleManifestMeaningError', 'decode_module_manifest_meaning', 'encode_module_manifest_meaning', 'parse_module_manifest']
+__all__ = [
+    "CONTRACT",
+    "AwareModulePackageSemanticContractBindingSpec",
+    "AwareModulePackageSemanticContractSpec",
+    "AwareModulePackageSpec",
+    "AwareModulePluginCapabilityPolicySpec",
+    "AwareModulePluginSpec",
+    "AwareModuleRuntimeSpec",
+    "AwareModuleServiceSpec",
+    "AwareModuleSpec",
+    "AwareModuleTomlError",
+    "ModuleManifestMeaningError",
+    "decode_module_manifest_meaning",
+    "encode_module_manifest_meaning",
+    "parse_module_manifest",
+]
 
 from .v2_codec import (
     CONTRACT_V2,
@@ -33,7 +48,16 @@ from .v2_models import (
     PackageOccurrenceDeclaration,
 )
 
-__all__ += ["CONTRACT_V2", "AwareModuleSpecV2", "DeclarationTable", "DeclarationTag", "PackageDeclarationV2", "PackageOccurrenceDeclaration", "decode_module_manifest_meaning_v2", "encode_module_manifest_meaning_v2"]
+__all__ += [
+    "CONTRACT_V2",
+    "AwareModuleSpecV2",
+    "DeclarationTable",
+    "DeclarationTag",
+    "PackageDeclarationV2",
+    "PackageOccurrenceDeclaration",
+    "decode_module_manifest_meaning_v2",
+    "encode_module_manifest_meaning_v2",
+]
 
 from .v3_codec import (
     CONTRACT_V3,
@@ -42,4 +66,27 @@ from .v3_codec import (
 )
 from .v3_models import AwareModuleSpecV3
 
-__all__ += ["CONTRACT_V3", "AwareModuleSpecV3", "decode_module_manifest_meaning_v3", "encode_module_manifest_meaning_v3"]
+__all__ += [
+    "CONTRACT_V3",
+    "AwareModuleSpecV3",
+    "decode_module_manifest_meaning_v3",
+    "encode_module_manifest_meaning_v3",
+]
+
+from .models import AwareModulePackageSemanticContractSyntaxSpec
+from .syntax_declaration import (
+    AwareModuleSyntaxAnchorSpec,
+    AwareModuleSyntaxContractRefSpec,
+    AwareModuleSyntaxDeclarationSpec,
+    SyntaxDeclarationError,
+    syntax_declaration_digest,
+)
+
+__all__ += [
+    "AwareModulePackageSemanticContractSyntaxSpec",
+    "AwareModuleSyntaxAnchorSpec",
+    "AwareModuleSyntaxContractRefSpec",
+    "AwareModuleSyntaxDeclarationSpec",
+    "SyntaxDeclarationError",
+    "syntax_declaration_digest",
+]

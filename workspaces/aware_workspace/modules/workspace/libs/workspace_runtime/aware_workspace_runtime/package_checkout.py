@@ -185,6 +185,13 @@ class PackageSourceCheckout:
                 self._fd, tuple(sorted(set(structural) | set(paths))), _LIMITS
             )
         )
+        if any(
+            row.get("kind") == "sdk_python_target"
+            and _sha(captured[row["semantic_manifest_path"]])
+            != row["semantic_manifest_digest"]
+            for row in memberships
+        ):
+            raise PackageCheckoutError("SDK declaration changed before capture")
         repeated = LocalCheckoutWorkspaceCompositionProvider()
         repeated_description = repeated.describe(self.root)
         if (
@@ -296,12 +303,12 @@ class PackageSourceCheckout:
                 )
             path = candidates[0]
             if any(
-                row.get("kind", "code") != "code"
+                row.get("kind", "code") not in {"code", "sdk_python_target"}
                 for row in memberships
                 if row["manifest_path"] == path
             ):
                 raise PackageCheckoutError(
-                    f"Python checkout requires an owner-declared Code leaf: {path}"
+                    f"Python checkout requires an owner-declared Code leaf or SDK Python target: {path}"
                 )
             if source is not None and "path" in source:
                 assert parent is not None

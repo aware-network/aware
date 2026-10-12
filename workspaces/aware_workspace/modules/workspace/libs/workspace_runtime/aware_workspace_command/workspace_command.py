@@ -87,7 +87,7 @@ def register_workspace_parser(
 ) -> argparse.ArgumentParser:
     parser = subparsers.add_parser(
         "workspace",
-        help="Workspace materialization and optional product helpers.",
+        help="Workspace setup, checkout and materialization.",
     )
     workspace_subparsers = parser.add_subparsers(dest="workspace_command")
     workspace_subparsers.required = True
@@ -98,6 +98,10 @@ def register_workspace_parser(
     )
     if selected in ("-h", "--help"):
         selected = None
+    if selected in (None, "setup"):
+        from .architecture_setup_command import register_workspace_setup_parser
+
+        register_workspace_setup_parser(workspace_subparsers)
     if selected in (None, "materialize"):
         from .materialize_command import register_workspace_materialize_parser
 
@@ -106,7 +110,7 @@ def register_workspace_parser(
         from .checkout_command import register_workspace_checkout_parser
 
         register_workspace_checkout_parser(workspace_subparsers)
-    if selected is not None and selected not in ("materialize", "checkout"):
+    if selected is not None and selected not in ("setup", "materialize", "checkout"):
         _register_selected_legacy_parser(
             selected=selected,
             subparsers=workspace_subparsers,
@@ -120,6 +124,10 @@ def handle_workspace_command(
     ctx: Any,
 ) -> int:
     command = str(getattr(args, "workspace_command", "") or "")
+    if command == "setup":
+        from .architecture_setup_command import handle_workspace_setup_command
+
+        return handle_workspace_setup_command(args)
     if command == "checkout":
         from .checkout_command import handle_workspace_checkout_command
 

@@ -87,3 +87,25 @@ automatic rollback. Source setup and repository publication are separate.
 SDK 0.3.0 is an authored source version, not an installed release receipt.
 No service selection, Issue policy, physical writer, SPEC parser or approval
 implementation is added to this neutral package.
+## Read-only Specification target fit
+
+SDK 0.3.2 adds `ProtocolSpecificationTargetFitClient` with an explicitly supplied
+`ProtocolSpecificationTargetFitProvider`. `observe(request)` binds the repository,
+Protocol-manifest coordinate, supplied SPEC-manifest coordinate and reviewed exact
+`sha256:<hex>` guard. It does not acquire selection/write authority or refresh guards.
+
+The original admission client/provider remains unchanged. A `match` is only
+binding-layout fit, not destination availability, semantic validity or permission
+to publish. A `mismatch` carries the configured root/template/display shape and an
+owner explanation. Consumers must stop executable preview/apply guidance on any
+mismatch or typed error; they must not silently correct coordinates.
+
+The three immutable values and four enums have strict complete-field payload/JSON
+codecs. Local uninvoked failures are `local_not_observed`/`not_acquired`/`none`.
+Malformed invoked returns preserve bounded, explicitly unvalidated reports with
+unknown cleanup/effects and no retry permission. Unknown cleanup never becomes a
+successful observation. FS construction is explicit in the FS package; importing
+this SDK does not import it or Service, Issue or SPEC suppliers.
+
+This is source support, not installed consumer readiness. Protocol SDK 0.3.2 and
+FS 0.6.5 require a separately pinned candidate, installed proof and Agent adoption.

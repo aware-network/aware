@@ -191,8 +191,8 @@ def test_successor_metadata_and_guidance_membership():
     runtime_metadata = tomllib.loads(
         (HOME / "libs/runtime/python/pyproject.toml").read_text()
     )
-    assert fs_metadata["project"]["version"] == "0.6.4"
-    assert sdk_metadata["project"]["version"] == "0.3.1"
+    assert fs_metadata["project"]["version"] == "0.6.5"
+    assert sdk_metadata["project"]["version"] == "0.3.2"
     assert runtime_metadata["project"]["version"] == "0.1.1"
     assert runtime_metadata["project"]["dependencies"] == []
     assert sdk_metadata["project"]["dependencies"] == [
@@ -200,7 +200,7 @@ def test_successor_metadata_and_guidance_membership():
     ]
     assert fs_metadata["project"]["dependencies"] == [
         "aware-protocol-runtime>=0.1.1,<0.2.0",
-        "aware-protocol-sdk>=0.3.1,<0.4.0",
+        "aware-protocol-sdk>=0.3.2,<0.4.0",
         "jsonschema>=4.23.0,<5.0.0",
     ]
     assert fs_metadata["project"]["optional-dependencies"]["draft"] == [

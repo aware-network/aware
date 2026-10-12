@@ -198,7 +198,7 @@ def test_original_public_handler_identities_are_mounted(family):
 def test_owned_metadata_is_finite_neutral_and_explicit():
     project = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())
     assert project["project"]["name"] == "aware-agent-cli"
-    assert project["project"]["version"] == "0.2.0a3"
+    assert project["project"]["version"] == "0.2.0a4"
     assert project["project"]["scripts"] == {"aware": "aware_agent_cli.main:main"}
     dependencies = [Requirement(raw) for raw in project["project"]["dependencies"]]
     assert {r.name for r in dependencies} == {

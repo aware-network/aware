@@ -2,25 +2,18 @@
 
 Coherent work between agents in your Git repository.
 
-Aware provides shared rules and tooling so agents can understand the same work,
+Aware provides shared rules and tooling so agents understand the same work,
 make bounded changes and leave evidence another execution can continue from.
 Issues coordinate work; Specifications describe its intended shape. Coherence
 is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-The reviewed draft-preparation distribution is publicly delivered at
-[revision 2b0194bcde26](https://github.com/aware-network/aware/tree/2b0194bcde2643f04886e309d08587cde71dfd24).
-One installation supplies the SDK-backed operations below. The
-[delivery pointer](releases/SELECTED.json) binds the exact whole envelope;
-[delivery status](releases/canonical-draft-preparation-fs-v1/PUBLIC-STATUS.md)
-distinguishes the published software from this status-only guidance alignment.
+This is a **prepared, unselected target-fit successor**. Instructions remain
+draft, not a claim about software currently delivered on public main. The
+unchanged [delivery pointer](releases/SELECTED.json) selects draft preparation.
+Integration, selection, instruction freeze and publication require separate cuts.
 Do not overlay installations or silently migrate contributor commands.
-[Instruction pins](releases/canonical-draft-preparation-fs-v1/PUBLIC-INSTRUCTIONS.json)
-bind exact guidance/examples, not operation authority. The
-[historical freeze](releases/canonical-draft-preparation-fs-v1/INSTRUCTIONS.json)
-and its independent acceptance remain preserved. Remote operations still require
-their own explicit authorization.
 
 ## Understand the shared rules
 
@@ -33,12 +26,12 @@ are different decisions. This filesystem composition starts no service.
 ## Inspect terms and install once
 
 Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Read
-[complete distribution terms and source](releases/canonical-draft-preparation-fs-v1/README.md)
+[complete distribution terms and source](releases/canonical-target-fit-fs-v1/README.md)
 before installing. Keep LICENSE, NOTICE, corresponding source, upstream inputs
 and raw audit with the software. Six package-local legal gaps remain unresolved;
 detached wheels, stripped bundles and registry publication are unaccepted.
 
-From this reviewed checkout root:
+From this prepared checkout root:
 
 ```sh
 set -eu
@@ -53,10 +46,10 @@ AWARE="$aware_init_env/bin/aware"
 ```
 
 After acquisition installation is offline. The original installer verifies and
-retains the whole envelope, including terms and source, then delegates to its
+retains the whole envelope, including terms and source, before delegating to its
 payload installer. It returns the absolute `retained_source_and_notices` directory.
-Keep it; set `aware_envelope_root` to that exact directory when using the typed
-input example. Reuse refuses. No editable checkout or development source is needed.
+Keep it; set `aware_envelope_root` to that exact directory for the typed example.
+Reuse refuses. No editable checkout or development source is required.
 
 ## Initialize and admit work
 
@@ -72,9 +65,9 @@ Use your genuine harness with exactly one nonblank `CODEX_THREAD_ID` or
 ```
 
 New targets must be absent or empty. For existing Git repositories omit
-`--create-repository`. Preview provides a Workspace preparation preview and
-prospective Protocol inputs, not two admitted plans. Apply obtains fresh Protocol
-admission after repository preparation. Existing configuration/guidance refuses.
+`--create-repository`. Preview supplies Workspace preparation and prospective
+Protocol inputs, not two admitted plans. Apply obtains fresh Protocol admission
+after repository preparation. Existing configuration/guidance refuses.
 Init normally prepares Issue directories, `aware.protocol.toml` and readable
 `AGENTS.md`; read them. It stages nothing, creates no seed commit or remote,
 opens no Issue, approves no SPEC and starts no service. Preserve both owner
@@ -84,28 +77,37 @@ receipts, effects and cleanup. Nonzero exit is not rollback or permission to ret
 Markdown path. Follow [the first-Issue example](protocols/issues/FIRST-ISSUE.md)
 to create the record, observe its exact bytes, bind scope and start progress.
 Choose outcome and scope first. Missing identity, invalid references and stale
-guards refuse; retain diagnostics instead of guessing or silently refreshing.
+guards refuse; retain diagnostics rather than guessing or silently refreshing.
 
-## Prepare, review, explicitly invoke
+## Check target fit then review and invoke
 
 Use [the complete workflow](protocols/WORKFLOW.md) for Issue-governed SPEC setup,
-typed snapshot input creation, draft preparation, preview/apply and observation.
-No prequalified package or approved iteration is needed. All families use one
-installation: `aware issue`, `aware protocol`, `aware spec`.
+typed input preparation, draft preview/apply and observation. No prequalified
+package or approved iteration is needed. One 42-package installation supports
+`aware issue`, `aware protocol`, `aware spec` and explicit `aware init`.
 
-`aware spec prepare-draft` consumes explicit existing Issue, manifest, snapshot,
-author and intent coordinates through the original SDKs. It labels the observed
-Issue bytes, Protocol-manifest bytes and input bytes, shows intended members,
-and prints separate original preview/apply commands carrying those guards.
+`aware spec prepare-draft` first asks the original Protocol SDK whether the
+supplied SPEC manifest fits the configured layout. Review the configured root,
+template, expected shape, supplied target and owner reason. For an illustrative
+`docs/specs` root, `docs/specs/json-checker/aware.spec.toml` includes `<spec-key>`;
+`docs/specs/aware.spec.toml` omits it. Your observed binding governs, not the example.
+
+A mismatch refuses without preview/apply guidance or subsequent Issue/input
+observations. No key is inferred or target repaired. A match establishes observed
+layout only—not Issue eligibility, destination availability, semantic approval
+or guaranteed publication. Do not interpret `prepared` as write admission.
+
+For a matching request, preparation labels Issue bytes, Protocol-manifest bytes
+and input bytes, shows observed owner/lifecycle/scope and intended members, and
+prints separate original preview/apply commands carrying unchanged guards.
 Add `--format json` for full observations and exact vectors.
 
 Preparation is read-only assistance, **not write authority or an atomic snapshot**.
-Review the outcome, coordinates, owner/lifecycle/scope and intended members.
-Explicitly invoke the original preview, review it, then separately decide on apply.
-Use your installed absolute executable in place of the printed leading `aware`;
-preserve every other argument and guard. Never `eval` the lines, automatically
-execute vectors, refresh guards while copying or retry a mutation. Stale state
-requires preparation and review again. Manifests are repository-relative;
+Review the evidence, explicitly invoke preview, review its result, then separately
+decide on apply. Use the installed absolute executable instead of printed leading
+`aware`; preserve every other argument and guard. Never `eval` the lines, execute
+vectors automatically, refresh guards while copying or retry a mutation. Stale
+state requires preparation and review again. Manifests are repository-relative;
 explicit absolute snapshot paths avoid cwd ambiguity. The three guards identify
 different bytes; normalized semantics cannot replace exact-byte currentness.
 
@@ -122,11 +124,12 @@ recreate spent authority or assume rollback. Remote push is separately authorize
 
 Issues → Specifications → Goals → shared map. Approval, approved iterations,
 durable binding, Goals tooling, service elevation and object/materialization
-bridges are not supplied here. Workspace deltas are change evidence, not meaning
-or authority. Currentness is observed state, not every-write detection or
-continuous confinement. This successor still needs unassisted evaluation;
-earlier U does not automatically qualify these instructions.
+bridges are not supplied here. Workspace's standalone script is carried, not
+admitted as an Agent mount or governed workflow; `aware workspace` is unavailable.
+Workspace deltas are change evidence, not meaning or authority. Currentness is
+observed state, not every-write detection or continuous confinement. This
+successor still needs fresh unassisted evaluation.
 
-[Sources](workspaces/README.md) are one canonical `portable_protocols` snapshot,
+[Sources](workspaces/README.md) are the canonical `portable_protocols` snapshot,
 not another package catalog. Historical source READMEs are not customer guidance.
 Contributor governance and its command selection remain separate and unchanged.

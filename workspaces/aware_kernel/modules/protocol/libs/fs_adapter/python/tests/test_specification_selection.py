@@ -97,6 +97,37 @@ def fd_count():
     return len(tuple(Path("/proc/self/fd").iterdir()))
 
 
+def test_original_manifest_cleanup_attempts_parent_after_file_interruption(
+    tmp_path, monkeypatch
+):
+    import stat
+
+    manifest = tmp_path / "aware.protocol.toml"
+    manifest.write_text(source())
+    original_close = os.close
+    count = fd_count()
+    interrupted = []
+
+    def closed(descriptor):
+        regular = stat.S_ISREG(os.fstat(descriptor).st_mode)
+        original_close(descriptor)
+        if regular and not interrupted:
+            interrupted.append(descriptor)
+            raise KeyboardInterrupt("original manifest close interrupted")
+
+    monkeypatch.setattr(implementation.os, "close", closed)
+    with pytest.raises(
+        SpecificationSelectionError, match="manifest_cleanup_unverified"
+    ):
+        admit_specification_selection(
+            repository_root=tmp_path,
+            manifest_path=manifest,
+            selected_manifest_paths=(TARGET,),
+        )
+    assert len(interrupted) == 1
+    assert fd_count() == count
+
+
 def test_fresh_selection_never_reads_or_parses_spec_content(tmp_path, monkeypatch):
     target = tmp_path / TARGET
     target.parent.mkdir(parents=True)

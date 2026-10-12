@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import subprocess
 import sys
+import tomllib
+from pathlib import Path
 
 from aware_workspace_command.workspace_command import register_workspace_parser
 
@@ -30,6 +32,17 @@ def test_checkout_command_import_does_not_load_ontology_or_service() -> None:
         text=True,
     )
     assert result.returncode == 0, result.stderr
+
+
+def test_sdk_target_grammar_dependency_is_the_original_neutral_contract() -> None:
+    project = tomllib.loads(
+        (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text()
+    )["project"]
+    assert "aware-sdk-contract-runtime>=0.1.0,<0.2.0" in project["dependencies"]
+    assert not any(
+        requirement.startswith("aware-sdk-runtime")
+        for requirement in project["dependencies"]
+    )
 
 
 def test_named_profiles_and_overlays_are_repeatable_command_selections() -> None:

@@ -10,7 +10,7 @@ def get_command_specs() -> dict[str, dict[str, object]]:
             "module": "aware_workspace_command.workspace_command",
             "register": "register_workspace_parser",
             "handle": "handle_workspace_command",
-            "help": "Workspace materialization and optional product helpers.",
+            "help": "Workspace setup, checkout and materialization.",
             "pass_parser": True,
             "source": "workspace-runtime-pack",
         }

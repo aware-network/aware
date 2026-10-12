@@ -15,7 +15,6 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-aware-file-system = { path = "../../../../../../aware_kernel/modules/filesystem/libs/file_system/python", editable = true }
 aware-issue-runtime = { workspace = true }
 
 [project.optional-dependencies]

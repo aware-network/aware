@@ -1,5 +1,52 @@
 # Aware Workspace Runtime
 
+## Original grouped selected sources
+
+`WorkspaceDeclarationScopeRuntime.original_grouped_selected_source_input(...)`
+adds an occurrence-qualified context to the existing pre-request entrance. Its
+submodule-only inputs are `WorkspaceSelectedSourceInputV1` for the root and each
+participant, and `WorkspaceSelectedDependencyInputV1` for each declared edge.
+Constructing these carriers grants no admission: the issuer validates original
+Code registrations, retained selection results, Workspace sources and target
+admissions under the same command lifetime.
+
+Code's `grammar_source_group` module owns the only portable codec. The issuer
+retains the root's original source identity and package-local source coordinates;
+participant bytes, source origins and edges remain qualified by their complete
+occurrence in the `grammar_source_group` context. Equal names, paths or bytes do
+not merge occurrences. The group uses the existing aggregate context budget,
+with at most 128 members including the root and 256 edges.
+
+Each source/context validation reproduces the complete group. Mutation, changed
+bindings, expired original results, replay and wrong-thread validation retire
+the grouped use. Restoration cannot resume it; unknown sources preserve other
+uses. Forked processes refuse before an inherited lock. Synchronous validation
+windows never enclose owner execution or await. Exiting the scope releases its
+borrowed references without closing original hosts, results or admissions.
+
+This is a neutral source supplier, with no Language parser, Code SDK or Service
+dependency. Registered producer tests establish original Workspace/Code source
+conformance; public SDK generation and native parser qualification remain
+separate. The additive entrance is dormant until its genuine Code codec and
+selected caller are supplied. Feature dependency/version projection and consumer
+locks require their own exact admission before publication.
+
+The same entrance accepts the declared `declaration_scope` context using Code's
+`RETAINED_DECLARATION_SCOPE_V3_REF`. Workspace derives the scope from the original
+root; every grouped member must retain that identical nominal scope and record.
+Its original `read_declaration_scope(...)` supplies the complete V3 closure,
+encoded by Code's existing codec. This includes enclosing module and profile
+bodies outside the package-local source list. No caller supplies a scope, module
+body or digest override.
+
+Declaration and group bodies share the existing aggregate context budget and
+complete input digest. Each validation checks their original association and
+reproduces both bodies; changed module/profile evidence or substituted readers
+retire the grouped use. Exit clears borrowed declaration references without
+closing the original scope. This source projection supplies Code's receiving
+join; authored Language contribution matching and canonical SDK generation
+remain its separate execution proof.
+
 ## Repository preparation neutral lifecycle
 
 `repository_preparation` orchestrates original plans, single-use admissions and

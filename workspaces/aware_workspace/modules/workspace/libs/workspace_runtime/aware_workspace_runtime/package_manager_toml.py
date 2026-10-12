@@ -1,0 +1,452 @@
+"""Original package-manager TOML renderer; no physical or legacy imports."""
+
+from __future__ import annotations
+
+import hashlib
+import re
+import tomllib
+from collections.abc import Mapping
+from dataclasses import dataclass
+
+_TOML_BARE_KEY_RE = re.compile(r"^[A-Za-z0-9_-]+$")
+
+
+@dataclass(frozen=True, slots=True)
+class _WorkspacePackageManagerSourceSpec:
+    name: str
+    value: Mapping[str, object]
+
+def _uv_workspace_payload(
+    payload: Mapping[str, object],
+) -> Mapping[str, object] | None:
+    tool = payload.get("tool")
+    if not isinstance(tool, Mapping):
+        return None
+    uv = tool.get("uv")
+    if not isinstance(uv, Mapping):
+        return None
+    workspace = uv.get("workspace")
+    if not isinstance(workspace, Mapping):
+        return None
+    return workspace
+
+def _uv_sources_payload(
+    payload: Mapping[str, object],
+) -> Mapping[str, object] | None:
+    tool = payload.get("tool")
+    if not isinstance(tool, Mapping):
+        return None
+    uv = tool.get("uv")
+    if not isinstance(uv, Mapping):
+        return None
+    sources = uv.get("sources")
+    if not isinstance(sources, Mapping):
+        return None
+    return sources
+
+def _uv_workspace_source_names(
+    payload: Mapping[str, object],
+) -> tuple[str, ...]:
+    sources = _uv_sources_payload(payload)
+    if sources is None:
+        return ()
+    return tuple(
+        sorted(
+            key
+            for key, value in sources.items()
+            if isinstance(key, str) and _uv_source_is_workspace(value)
+        )
+    )
+
+def _uv_source_is_workspace(value: object) -> bool:
+    return isinstance(value, Mapping) and value.get("workspace") is True
+
+def _uv_managed_source_specs(
+    payload: Mapping[str, object],
+    *,
+    desired_source_names: tuple[str, ...],
+) -> tuple[_WorkspacePackageManagerSourceSpec, ...]:
+    sources = _uv_sources_payload(payload)
+    if sources is None:
+        return ()
+    desired = {re.sub(r"[-_.]+", "-", name).lower() for name in desired_source_names}
+    specs: list[_WorkspacePackageManagerSourceSpec] = []
+    for source_name, source_value in sources.items():
+        if not isinstance(source_name, str):
+            continue
+        if not (
+            re.sub(r"[-_.]+", "-", source_name).lower() in desired
+            or _uv_source_is_workspace(source_value)
+        ):
+            continue
+        normalized_value = _source_value_payload(source_value)
+        if normalized_value is None:
+            continue
+        specs.append(
+            _WorkspacePackageManagerSourceSpec(
+                name=source_name,
+                value=normalized_value,
+            )
+        )
+    return tuple(sorted(specs, key=lambda item: item.name))
+
+def _source_value_payload(value: object) -> dict[str, object] | None:
+    if not isinstance(value, Mapping):
+        return None
+    return {
+        str(key): item_value
+        for key, item_value in sorted(value.items(), key=lambda item: str(item[0]))
+        if isinstance(key, str)
+    }
+
+def _source_spec_names(
+    source_specs: tuple[_WorkspacePackageManagerSourceSpec, ...],
+) -> tuple[str, ...]:
+    return tuple(spec.name for spec in source_specs)
+
+def _source_spec_payloads(
+    source_specs: tuple[_WorkspacePackageManagerSourceSpec, ...],
+) -> dict[str, dict[str, object]]:
+    return {spec.name: dict(spec.value) for spec in source_specs}
+
+def _source_specs_from_payload(
+    payload: Mapping[str, Mapping[str, object]],
+) -> tuple[_WorkspacePackageManagerSourceSpec, ...]:
+    specs: list[_WorkspacePackageManagerSourceSpec] = []
+    for source_name, source_value in payload.items():
+        if not isinstance(source_name, str) or not isinstance(source_value, Mapping):
+            continue
+        normalized_value = _source_value_payload(source_value)
+        if normalized_value is None:
+            continue
+        specs.append(
+            _WorkspacePackageManagerSourceSpec(
+                name=source_name,
+                value=normalized_value,
+            )
+        )
+    return tuple(sorted(specs, key=lambda item: item.name))
+
+def _uv_sources_table_needs_spacing_normalization(*, existing_text: str) -> bool:
+    lines = existing_text.splitlines()
+    section_start, section_end = _toml_table_range(
+        lines=lines,
+        table_name="tool.uv.sources",
+    )
+    if section_start is None or section_end is None or section_end >= len(lines):
+        return False
+    return bool(lines[section_end - 1].strip())
+
+def _minimal_package_manager_pyproject_content(
+    *,
+    workspace_members: tuple[str, ...],
+    workspace_sources: tuple[str, ...],
+    workspace_source_specs: (
+        tuple[_WorkspacePackageManagerSourceSpec, ...] | None
+    ) = None,
+) -> str:
+    source_specs = _coerce_workspace_source_specs(
+        workspace_sources=workspace_sources,
+        workspace_source_specs=workspace_source_specs,
+    )
+    lines = [
+        "# Generated by Aware Workspace package-manager projection.",
+        "",
+    ]
+    source_lines = _render_uv_workspace_sources_lines(
+        workspace_source_specs=source_specs,
+        preserved_sources={},
+    )
+    if source_lines:
+        lines.extend(("[tool.uv.sources]", *source_lines, ""))
+    lines.extend(
+        [
+            "[tool.uv.workspace]",
+            *_render_uv_workspace_members_lines(workspace_members=workspace_members),
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+def _merge_uv_workspace(
+    *,
+    existing_text: str,
+    workspace_members: tuple[str, ...],
+    workspace_source_specs: tuple[_WorkspacePackageManagerSourceSpec, ...],
+) -> str:
+    return _merge_uv_workspace_sources(
+        existing_text=_merge_uv_workspace_members(
+            existing_text=existing_text,
+            workspace_members=workspace_members,
+        ),
+        workspace_source_specs=workspace_source_specs,
+    )
+
+def _merge_uv_workspace_members(
+    *,
+    existing_text: str,
+    workspace_members: tuple[str, ...],
+) -> str:
+    lines = existing_text.splitlines()
+    section_start, section_end = _toml_table_range(
+        lines=lines,
+        table_name="tool.uv.workspace",
+    )
+    members_lines = _render_uv_workspace_members_lines(
+        workspace_members=workspace_members
+    )
+    if section_start is None:
+        merged_lines = list(lines)
+        if merged_lines and merged_lines[-1].strip():
+            merged_lines.append("")
+        merged_lines.append("[tool.uv.workspace]")
+        merged_lines.extend(members_lines)
+        return "\n".join(merged_lines) + "\n"
+
+    assert section_end is not None
+    members_start, members_end = _toml_key_range(
+        lines=lines,
+        section_start=section_start,
+        section_end=section_end,
+        key="members",
+    )
+    if members_start is None:
+        merged_lines = (
+            lines[: section_start + 1] + members_lines + lines[section_start + 1 :]
+        )
+        return "\n".join(merged_lines) + "\n"
+
+    assert members_end is not None
+    merged_lines = lines[:members_start] + members_lines + lines[members_end:]
+    return "\n".join(merged_lines) + "\n"
+
+def _merge_uv_workspace_sources(
+    *,
+    existing_text: str,
+    workspace_source_specs: tuple[_WorkspacePackageManagerSourceSpec, ...],
+) -> str:
+    try:
+        payload = tomllib.loads(existing_text)
+    except tomllib.TOMLDecodeError:
+        payload = {}
+    preserved_sources = _preserved_uv_sources(payload)
+    source_lines = _render_uv_workspace_sources_lines(
+        workspace_source_specs=workspace_source_specs,
+        preserved_sources=preserved_sources,
+    )
+    lines = _without_uv_source_subtables(existing_text.splitlines())
+    section_start, section_end = _toml_table_range(
+        lines=lines,
+        table_name="tool.uv.sources",
+    )
+    if section_start is not None:
+        assert section_end is not None
+        if source_lines:
+            suffix = lines[section_end:]
+            merged_lines = lines[: section_start + 1] + source_lines
+            if suffix:
+                merged_lines.append("")
+            merged_lines.extend(suffix)
+        else:
+            merged_lines = lines[:section_start] + lines[section_end:]
+        return _normalize_toml_text_lines(merged_lines)
+
+    if not source_lines:
+        return existing_text if existing_text.endswith("\n") else existing_text + "\n"
+
+    workspace_start, _workspace_end = _toml_table_range(
+        lines=lines,
+        table_name="tool.uv.workspace",
+    )
+    if workspace_start is None:
+        merged_lines = list(lines)
+        if merged_lines and merged_lines[-1].strip():
+            merged_lines.append("")
+        merged_lines.extend(("[tool.uv.sources]", *source_lines))
+        return _normalize_toml_text_lines(merged_lines)
+
+    prefix = lines[:workspace_start]
+    suffix = lines[workspace_start:]
+    if prefix and prefix[-1].strip():
+        prefix.append("")
+    merged_lines = prefix + ["[tool.uv.sources]", *source_lines, ""] + suffix
+    return _normalize_toml_text_lines(merged_lines)
+
+def _preserved_uv_sources(
+    payload: Mapping[str, object],
+) -> Mapping[str, object]:
+    sources = _uv_sources_payload(payload)
+    if sources is None:
+        return {}
+    return {
+        key: value
+        for key, value in sources.items()
+        if isinstance(key, str) and not _uv_source_is_workspace(value)
+    }
+
+def _without_uv_source_subtables(lines: list[str]) -> list[str]:
+    """Remove source child tables whose parsed values are rendered inline."""
+    result: list[str] = []
+    in_source_child = False
+    for line in lines:
+        table_name = _toml_table_name(line)
+        if table_name is not None:
+            in_source_child = table_name.startswith("tool.uv.sources.")
+        if not in_source_child:
+            result.append(line)
+    return result
+
+def _render_uv_workspace_members_lines(
+    *,
+    workspace_members: tuple[str, ...],
+) -> list[str]:
+    if not workspace_members:
+        return ["members = []"]
+    lines = ["members = ["]
+    for member in workspace_members:
+        lines.append(f'    "{_toml_string(member)}",')
+    lines.append("]")
+    return lines
+
+def _render_uv_workspace_sources_lines(
+    *,
+    workspace_source_specs: tuple[_WorkspacePackageManagerSourceSpec, ...],
+    preserved_sources: Mapping[str, object],
+) -> list[str]:
+    lines: list[str] = []
+    workspace_sources = {
+        re.sub(r"[-_.]+", "-", name).lower()
+        for name in _source_spec_names(workspace_source_specs)
+    }
+    for source_spec in workspace_source_specs:
+        lines.append(
+            f"{_toml_key(source_spec.name)} = "
+            f"{_toml_uv_source_value(source_spec.value)}"
+        )
+    for source_name in sorted(preserved_sources):
+        if re.sub(r"[-_.]+", "-", source_name).lower() in workspace_sources:
+            continue
+        lines.append(
+            f"{_toml_key(source_name)} = "
+            f"{_toml_value(preserved_sources[source_name])}"
+        )
+    return lines
+
+def _coerce_workspace_source_specs(
+    *,
+    workspace_sources: tuple[str, ...],
+    workspace_source_specs: tuple[_WorkspacePackageManagerSourceSpec, ...] | None,
+) -> tuple[_WorkspacePackageManagerSourceSpec, ...]:
+    if workspace_source_specs is not None:
+        return tuple(sorted(workspace_source_specs, key=lambda item: item.name))
+    return tuple(
+        _WorkspacePackageManagerSourceSpec(
+            name=source_name,
+            value={"workspace": True},
+        )
+        for source_name in workspace_sources
+    )
+
+def _normalize_toml_text_lines(lines: list[str]) -> str:
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    while lines and not lines[-1].strip():
+        lines.pop()
+    return "\n".join(lines) + "\n"
+
+def _toml_table_range(
+    *,
+    lines: list[str],
+    table_name: str,
+) -> tuple[int | None, int | None]:
+    start: int | None = None
+    for index, line in enumerate(lines):
+        header = _toml_table_name(line)
+        if header is None:
+            continue
+        if start is None:
+            if header == table_name:
+                start = index
+            continue
+        return start, index
+    if start is None:
+        return None, None
+    return start, len(lines)
+
+def _toml_table_name(line: str) -> str | None:
+    stripped = line.strip()
+    if not stripped.startswith("[") or not stripped.endswith("]"):
+        return None
+    if stripped.startswith("[["):
+        return stripped.strip("[]").strip()
+    inner = stripped[1:-1].strip()
+    if not inner:
+        return None
+    return inner
+
+def _toml_key_range(
+    *,
+    lines: list[str],
+    section_start: int,
+    section_end: int,
+    key: str,
+) -> tuple[int | None, int | None]:
+    for index in range(section_start + 1, section_end):
+        if not _toml_line_assigns_key(line=lines[index], key=key):
+            continue
+        return index, _toml_value_end(lines=lines, start=index, limit=section_end)
+    return None, None
+
+def _toml_line_assigns_key(*, line: str, key: str) -> bool:
+    stripped = line.strip()
+    if not stripped or stripped.startswith("#") or "=" not in stripped:
+        return False
+    candidate = stripped.split("=", 1)[0].strip()
+    return candidate == key
+
+def _toml_value_end(*, lines: list[str], start: int, limit: int) -> int:
+    line = lines[start]
+    if "[" not in line or "]" in line:
+        return start + 1
+    for index in range(start + 1, limit):
+        if "]" in lines[index]:
+            return index + 1
+    return start + 1
+
+def _toml_string(value: str) -> str:
+    return value.replace("\\", "\\\\").replace('"', '\\"')
+
+def _toml_key(value: str) -> str:
+    if _TOML_BARE_KEY_RE.fullmatch(value):
+        return value
+    return f'"{_toml_string(value)}"'
+
+def _toml_value(value: object) -> str:
+    if isinstance(value, str):
+        return f'"{_toml_string(value)}"'
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, int | float):
+        return str(value)
+    if isinstance(value, Mapping):
+        items = [
+            f"{_toml_key(str(key))} = {_toml_value(item_value)}"
+            for key, item_value in sorted(value.items(), key=lambda item: str(item[0]))
+        ]
+        return "{ " + ", ".join(items) + " }"
+    if isinstance(value, list | tuple):
+        return "[" + ", ".join(_toml_value(item) for item in value) + "]"
+    return f'"{_toml_string(str(value))}"'
+
+def _toml_uv_source_value(value: Mapping[str, object]) -> str:
+    ordered_keys: list[str] = []
+    for key in ("workspace", "path", "editable"):
+        if key in value:
+            ordered_keys.append(key)
+    ordered_keys.extend(key for key in sorted(value) if key not in set(ordered_keys))
+    items = [f"{_toml_key(key)} = {_toml_value(value[key])}" for key in ordered_keys]
+    return "{ " + ", ".join(items) + " }"
+
+def _sha256_text(text: str) -> str:
+    return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+__all__ = ['_WorkspacePackageManagerSourceSpec', '_coerce_workspace_source_specs', '_merge_uv_workspace', '_merge_uv_workspace_members', '_merge_uv_workspace_sources', '_minimal_package_manager_pyproject_content', '_normalize_toml_text_lines', '_preserved_uv_sources', '_render_uv_workspace_members_lines', '_render_uv_workspace_sources_lines', '_sha256_text', '_source_spec_names', '_source_spec_payloads', '_source_specs_from_payload', '_source_value_payload', '_toml_key', '_toml_key_range', '_toml_line_assigns_key', '_toml_string', '_toml_table_name', '_toml_table_range', '_toml_uv_source_value', '_toml_value', '_toml_value_end', '_uv_managed_source_specs', '_uv_source_is_workspace', '_uv_sources_payload', '_uv_sources_table_needs_spacing_normalization', '_uv_workspace_payload', '_uv_workspace_source_names', '_without_uv_source_subtables']

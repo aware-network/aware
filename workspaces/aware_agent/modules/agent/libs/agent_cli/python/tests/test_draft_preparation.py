@@ -86,6 +86,15 @@ def test_original_guard_sources_and_no_write_admission(inputs, capsys, monkeypat
         "snapshot_input_bytes": digest(source.read_bytes()),
     }
     assert len(result["members"]) == 6
+    fit = result["owner_observations"]["target_fit"]
+    assert fit["fit"] == "match"
+    assert fit["scope"] == "binding_layout_only"
+    assert fit["cleanup"] == "closed"
+    assert fit["source_sha256"] == result["guards"]["protocol_manifest_bytes"]
+    assert (
+        fit["request"]["supplied_spec_manifest_locator"]
+        == original[original.index("--spec-manifest") + 1]
+    )
     assert bodies(root) == before
     assert fds() == descriptors
 
@@ -154,6 +163,9 @@ def test_summary_is_readable_and_json_remains_available(inputs, capsys):
     assert "no write admission" in summary
     assert "Explicit apply only after review:" in summary
     assert "no atomic snapshot" in summary
+    assert "Expected target shape: customer/specs/<spec-key>/aware.spec.toml" in summary
+    assert "Target fit: match" in summary
+    assert "not Issue eligibility" in summary
     assert (
         len(summary.encode()) < 8192
     )  # Ordinary fixture measurement, not a truncation rule.
@@ -180,6 +192,394 @@ def test_missing_input_supplier_refuses_before_any_owner_observation(
     assert bodies(root) == before
 
 
+def forbid_later_observation(monkeypatch):
+    from aware_specification_sdk import SpecificationInputObservationClient
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("refused target fit reached Issue/input observation")
+
+    monkeypatch.setattr(
+        FilesystemIssueOperationProvider, "resolve_read_projection", forbidden
+    )
+    monkeypatch.setattr(
+        SpecificationInputObservationClient, "observe_draft_input", forbidden
+    )
+
+
+def refusal(original, capsys, *, format="json"):
+    assert main(arguments(original, format=format)) == 2
+    streams = capsys.readouterr()
+    assert streams.err == ""
+    # Summary retains the original structured failure after its explanation.
+    result = json.loads(streams.out.splitlines()[-1])
+    assert result["status"] == "refused"
+    assert result["write_admission_issued"] is result["apply_invoked"] is False
+    assert result["authorizes_retry"] is False
+    assert "preview_argv" not in result and "apply_argv" not in result
+    assert "issue" not in result["owner_observations"]
+    assert "input" not in result["owner_observations"]
+    return result, streams.out
+
+
+@pytest.mark.parametrize("format", ["json", "summary"])
+@pytest.mark.parametrize(
+    "target",
+    [
+        "customer/specs/aware.spec.toml",
+        "other/widget/aware.spec.toml",
+        "customer/specs/a/b/aware.spec.toml",
+        "customer/specs/widget/other.toml",
+    ],
+)
+def test_layout_mismatch_explains_original_shape_without_guidance(
+    inputs, monkeypatch, capsys, format, target
+):
+    root, manifest, _, _, original = inputs
+    original = list(original)
+    original[original.index("--spec-manifest") + 1] = target
+    before, descriptors = bodies(root), fds()
+    forbid_later_observation(monkeypatch)
+    result, text = refusal(original, capsys, format=format)
+    fit = result["owner_observations"]["target_fit"]
+    assert (
+        result["error"]
+        == fit["reason"]
+        == "specification_selection_target_outside_binding"
+    )
+    assert fit["fit"] == "mismatch"
+    assert fit["request"]["supplied_spec_manifest_locator"] == target
+    assert fit["configured_root"] == "customer/specs"
+    assert fit["path_template"] == "<spec-key>/aware.spec.toml"
+    assert fit["expected_shape"] == "customer/specs/<spec-key>/aware.spec.toml"
+    assert fit["cleanup"] == "closed" and result["effect"] == "none"
+    assert fit["source_sha256"] == digest(manifest.read_bytes())
+    assert "create-draft" not in text and "prepared" not in text
+    if format == "summary":
+        assert "Supplied SPEC target: " + target in text
+        assert "Expected target shape: " + fit["expected_shape"] in text
+        assert "Target fit: mismatch" in text
+    assert bodies(root) == before and fds() == descriptors
+
+
+@pytest.mark.parametrize(
+    "target",
+    [
+        "/absolute/aware.spec.toml",
+        "../widget/aware.spec.toml",
+        "customer//specs/widget/aware.spec.toml",
+    ],
+)
+def test_invalid_target_retains_original_typed_refusal(
+    inputs, monkeypatch, capsys, target
+):
+    root, _, _, _, original = inputs
+    original = list(original)
+    original[original.index("--spec-manifest") + 1] = target
+    before, descriptors = bodies(root), fds()
+    forbid_later_observation(monkeypatch)
+    result, _ = refusal(original, capsys)
+    error = result["owner_error"]
+    assert error["code"] == result["error"] == "specification_selection_paths_invalid"
+    assert error["request"]["supplied_spec_manifest_locator"] == target
+    assert error["cleanup"] == "not_acquired"
+    assert error["evidence_grade"] == "provider_observation"
+    assert error["observed_fit"] is None and result["effect"] == "none"
+    assert bodies(root) == before and fds() == descriptors
+
+
+@pytest.mark.parametrize("role", ["projection", "unavailable"])
+def test_unavailable_binding_is_not_prepared_or_repaired(
+    inputs, monkeypatch, capsys, role
+):
+    from test_specification_selection import source
+
+    root, manifest, _, _, original = inputs
+    manifest.write_text(source(role=role))
+    before, descriptors = bodies(root), fds()
+    forbid_later_observation(monkeypatch)
+    result, _ = refusal(original, capsys)
+    assert result["owner_error"]["code"] == "specification_selection_authority_required"
+    assert result["owner_error"]["observed_fit"] is None
+    assert bodies(root) == before and fds() == descriptors
+
+
+@pytest.mark.parametrize("format", ["json", "summary"])
+def test_changed_manifest_between_observations_retains_reviewed_guard(
+    inputs, monkeypatch, capsys, format
+):
+    from aware_protocol_sdk import ProtocolSdkClient
+
+    root, manifest, _, _, original = inputs
+    guard = digest(manifest.read_bytes())
+    admit = ProtocolSdkClient.admit_target
+
+    def intervening_change(self, request):
+        result = admit(self, request)
+        manifest.write_bytes(manifest.read_bytes() + b"\n# byte drift\n")
+        return result
+
+    monkeypatch.setattr(ProtocolSdkClient, "admit_target", intervening_change)
+    forbid_later_observation(monkeypatch)
+    descriptors = fds()
+    result, _ = refusal(original, capsys, format=format)
+    error = result["owner_error"]
+    assert error["code"] == "specification_selection_manifest_changed"
+    assert error["request"]["expected_manifest_sha256"] == guard
+    assert (
+        result["owner_observations"]["protocol"]["admission"]["source_sha256"] == guard
+    )
+    assert error["observed_source_sha256"] == digest(manifest.read_bytes()) != guard
+    assert error["cleanup"] == "closed" and fds() == descriptors
+    assert manifest.read_bytes().endswith(b"# byte drift\n")
+    assert not (root / "customer/specs/widget").exists()
+
+
+@pytest.mark.parametrize("missing", ["client", "provider", "method"])
+def test_missing_target_fit_ports_refuse_before_observation(
+    inputs, monkeypatch, capsys, missing
+):
+    import aware_protocol_fs_adapter as protocol_fs
+    import aware_protocol_sdk as protocol
+
+    root, _, _, _, original = inputs
+    before = bodies(root)
+    if missing == "client":
+        monkeypatch.delattr(protocol, "ProtocolSpecificationTargetFitClient")
+    elif missing == "provider":
+        monkeypatch.delattr(
+            protocol_fs, "FilesystemProtocolSpecificationTargetFitProvider"
+        )
+    else:
+        monkeypatch.setattr(
+            protocol_fs.FilesystemProtocolSpecificationTargetFitProvider,
+            "observe_specification_target_fit",
+            None,
+        )
+    result, _ = refusal(original, capsys)
+    assert result["error"] == "draft_preparation_supplier_unavailable"
+    assert result["owner_observations"] == {} and result["effect"] == "none"
+    assert bodies(root) == before
+
+
+@pytest.mark.parametrize("format", ["json", "summary"])
+def test_unknown_target_fit_cleanup_retains_observation_without_guidance(
+    inputs, monkeypatch, capsys, format
+):
+    from aware_protocol_fs_adapter import (
+        FilesystemProtocolSpecificationTargetFitProvider as Provider,
+    )
+    from aware_protocol_fs_adapter import specification_target_fit as owner
+
+    root, _, _, _, original = inputs
+    before, descriptors = bodies(root), fds()
+    close = owner.os.close
+    interrupted = []
+    active = []
+    observe = Provider.observe_specification_target_fit
+    version = owner.version
+    fit_observed = []
+
+    def after_fit(distribution):
+        fit_observed.append(True)
+        return version(distribution)
+
+    def observed(self, request):
+        active.append(True)
+        try:
+            return observe(self, request)
+        finally:
+            active.pop()
+
+    def original_close_interrupted(fd):
+        selected = os.readlink(f"/proc/self/fd/{fd}") == str(root)
+        close(fd)
+        if active and fit_observed and selected and not interrupted:
+            interrupted.append(fd)
+            raise KeyboardInterrupt("original root close outcome unavailable")
+
+    monkeypatch.setattr(owner.os, "close", original_close_interrupted)
+    monkeypatch.setattr(Provider, "observe_specification_target_fit", observed)
+    monkeypatch.setattr(owner, "version", after_fit)
+    forbid_later_observation(monkeypatch)
+    result, text = refusal(original, capsys, format=format)
+    error = result["owner_error"]
+    assert interrupted and error["observed_fit"] == "match"
+    assert error["cleanup"] == "unknown" and result["effect"] == "unknown"
+    assert "target_fit" not in result["owner_observations"]
+    assert "create-draft" not in text
+    assert bodies(root) == before and fds() == descriptors
+
+
+def test_unvalidated_provider_result_cannot_become_prepared(
+    inputs, monkeypatch, capsys
+):
+    from aware_protocol_fs_adapter import (
+        FilesystemProtocolSpecificationTargetFitProvider as Provider,
+    )
+
+    root, _, _, _, original = inputs
+    before, descriptors = bodies(root), fds()
+    observe = Provider.observe_specification_target_fit
+
+    def malformed(self, request):
+        return observe(self, request).to_wire()
+
+    monkeypatch.setattr(Provider, "observe_specification_target_fit", malformed)
+    forbid_later_observation(monkeypatch)
+    result, _ = refusal(original, capsys)
+    error = result["owner_error"]
+    assert error["code"] == "target_fit_provider_return_unverified"
+    assert error["evidence_grade"] == "unvalidated_provider_report"
+    assert error["reported_result"]["fit"] == "match"
+    assert error["cleanup"] == result["effect"] == "unknown"
+    assert bodies(root) == before and fds() == descriptors
+
+
+def test_target_fit_local_predispatch_failure_has_no_effects(
+    inputs, monkeypatch, capsys
+):
+    from aware_protocol_sdk import specification_target_fit as owner
+
+    root, _, _, _, original = inputs
+    before, descriptors = bodies(root), fds()
+
+    detach = owner._detached
+    failures = []
+
+    def interrupted(value):
+        if not failures:
+            failures.append(True)
+            raise KeyboardInterrupt("request snapshot interrupted")
+        return detach(value)
+
+    monkeypatch.setattr(owner, "_detached", interrupted)
+    forbid_later_observation(monkeypatch)
+    result, _ = refusal(original, capsys)
+    error = result["owner_error"]
+    assert error["code"] == "target_fit_dispatch_preparation_failed"
+    assert error["provider_invoked"] is False
+    assert error["cleanup"] == "not_acquired" and result["effect"] == "none"
+    assert bodies(root) == before and fds() == descriptors
+
+
+def test_uncorrelated_provider_result_retains_report_without_guidance(
+    inputs, monkeypatch, capsys
+):
+    from dataclasses import replace
+
+    from aware_protocol_fs_adapter import (
+        FilesystemProtocolSpecificationTargetFitProvider as Provider,
+    )
+
+    root, _, _, _, original = inputs
+    before, descriptors = bodies(root), fds()
+    observe = Provider.observe_specification_target_fit
+
+    def foreign(self, request):
+        result = observe(self, request)
+        return replace(
+            result,
+            request=replace(
+                request,
+                supplied_spec_manifest_locator="customer/specs/other/aware.spec.toml",
+            ),
+        )
+
+    monkeypatch.setattr(Provider, "observe_specification_target_fit", foreign)
+    forbid_later_observation(monkeypatch)
+    result, _ = refusal(original, capsys)
+    error = result["owner_error"]
+    assert error["code"] == "target_fit_provider_return_unverified"
+    assert (
+        error["request"]["supplied_spec_manifest_locator"]
+        == "customer/specs/widget/aware.spec.toml"
+    )
+    assert (
+        error["reported_result"]["request"]["supplied_spec_manifest_locator"]
+        == "customer/specs/other/aware.spec.toml"
+    )
+    assert result["effect"] == "unknown" and error["cleanup"] == "unknown"
+    assert bodies(root) == before and fds() == descriptors
+
+
+def test_late_manifest_change_does_not_turn_observed_match_into_guidance(
+    inputs, monkeypatch, capsys
+):
+    from aware_protocol_fs_adapter import specification_target_fit as owner
+
+    root, manifest, _, _, original = inputs
+    version = owner.version
+    initial = digest(manifest.read_bytes())
+
+    def late_change(distribution):
+        manifest.write_bytes(manifest.read_bytes() + b"\n# late byte drift\n")
+        return version(distribution)
+
+    monkeypatch.setattr(owner, "version", late_change)
+    forbid_later_observation(monkeypatch)
+    descriptors = fds()
+    result, _ = refusal(original, capsys)
+    error = result["owner_error"]
+    assert error["code"] == "specification_selection_manifest_changed"
+    assert error["observed_fit"] == "match" and error["cleanup"] == "closed"
+    assert error["request"]["expected_manifest_sha256"] == initial
+    assert "target_fit" not in result["owner_observations"]
+    assert fds() == descriptors and not (root / "customer/specs/widget").exists()
+
+
+def test_layout_match_does_not_admit_symlink_destination(inputs, capsys):
+    root, _, _, _, original = inputs
+    foreign = root / "foreign"
+    foreign.mkdir()
+    (foreign / "preserved.txt").write_text("foreign work\n")
+    target = root / "customer/specs/widget"
+    target.symlink_to(foreign, target_is_directory=True)
+    before, descriptors = bodies(root), fds()
+    result = prepare(original, capsys)
+    assert result["owner_observations"]["target_fit"]["fit"] == "match"
+    assert "Destination availability" in result["next_action"]
+    assert main(result["preview_argv"][1:]) == 2
+    assert json.loads(capsys.readouterr().out)["error"]
+    assert target.is_symlink() and bodies(root) == before and fds() == descriptors
+
+
+@pytest.mark.parametrize("absolute", [False, True])
+def test_original_nested_protocol_coordinate_and_guard_are_preserved(
+    inputs, capsys, absolute
+):
+    root, manifest, _, _, original = inputs
+    original = list(original)
+    if absolute:
+        original[original.index("--protocol-manifest") + 1] = str(manifest)
+    result = prepare(original, capsys)
+    selected = original[original.index("--protocol-manifest") + 1]
+    fit = result["owner_observations"]["target_fit"]
+    assert fit["request"]["protocol_manifest_locator"] == selected
+    assert fit["request"]["expected_manifest_sha256"] == digest(manifest.read_bytes())
+    assert (
+        result["preview_argv"][result["preview_argv"].index("--protocol-manifest") + 1]
+        == selected
+    )
+    assert fit["request"]["repository_root"] == str(root)
+
+
+def test_target_fit_dependency_floors_exclude_portless_predecessors():
+    import tomllib
+
+    from packaging.requirements import Requirement
+
+    project = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())[
+        "project"
+    ]
+    deps = {r.name: r for r in map(Requirement, project["dependencies"])}
+    for name, accepted, old, ceiling in (
+        ("aware-protocol-sdk", "0.3.2", "0.3.1", "0.4.0"),
+        ("aware-protocol-fs-adapter", "0.6.5", "0.6.4", "0.7.0"),
+    ):
+        assert accepted in deps[name].specifier
+        assert old not in deps[name].specifier and ceiling not in deps[name].specifier
+
+
 def test_unknown_input_cleanup_is_preserved_and_yields_no_apply_command(
     inputs, monkeypatch, capsys
 ):
@@ -191,8 +591,10 @@ def test_unknown_input_cleanup_is_preserved_and_yields_no_apply_command(
     descriptors = fds()
 
     def interrupted(fd):
+        selected = os.readlink(f"/proc/self/fd/{fd}") == str(source)
         close(fd)
-        raise KeyboardInterrupt("close observation unavailable")
+        if selected:
+            raise KeyboardInterrupt("close observation unavailable")
 
     monkeypatch.setattr(owner.os, "close", interrupted)
     assert main(arguments(original)) == 2
