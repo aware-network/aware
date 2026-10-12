@@ -74,3 +74,31 @@ refuses while private-parent mode remains `0700`.
 These receipts verify local integration before publication. Actual commit,
 original Issue-byte guard, reference-update and index outcomes are recorded in
 the subsequent local handoff; no publication success is inferred from a dry-run.
+
+## Original publication evidence and review handoff
+
+The 173-path implementation is locally committed at
+`8fb3710a4e310b8049ce92024b4132b0913a909a` through unchanged contributor a6,
+after the identical dry-run. The actual commit delta matches all 173 admitted
+paths. Original Issue-byte guard:
+`sha256:9bb110a9aa46f06ceaa906cc1b1bfb15e93747e707f87627553a27d0f8a8b3f2`.
+Publication receipt: `git:8fb3710a4e310b8049ce92024b4132b0913a909a`.
+Apply reports `reference_update=cas_applied`, `shared_index_projection=applied`,
+`index_reconciliation_pending=false`, transaction
+`isolated_index_atomic_ref_v1`. No saved plan or dry-run is presented as authority.
+
+| Original evidence | SHA256 |
+| --- | --- |
+| Contributor dry-run | `d0c6bf53422b0f11c1674ec66061f80901524cfbbf1fda17795220b78035948e` |
+| Contributor apply | `fb75d55846075d9a4eaab20f669032a635b92f562b95d4a2d831bed883f3280d` |
+| Eight integration tests | `b4e4b1e74f29400980392c765fbde90038e457613ff2150de92908238a7a1d60` |
+| Fresh installed receipt | `9326aeec460216863ff28aaada644467b3fe665753801a9a7b26f00302ac0466` |
+
+The committed full-range whitespace check returns no findings. Exact software,
+sources/notices, installer logic, predecessor selection and contributor bootstrap
+remain preserved. The subsequent Issue/report handoff changes only those two
+admitted paths. Independent integration review remains next before closeout.
+These are local commits, not proof of remote availability. Selection, instruction
+freeze, explicitly authorized push/acquisition and fresh unassisted evaluation
+remain separate. The accepted preparation cases and runtime matrix are not
+rerun by this integration handoff.
