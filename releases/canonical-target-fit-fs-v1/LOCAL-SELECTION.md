@@ -67,3 +67,26 @@ These are selection/installation checks, not the preparation workflow,
 2,505-case matrix or unassisted customer evaluation. Original Issue/publication
 receipts and actual commit deltas complete the subsequent local handoff;
 independent selection acceptance remains pending.
+
+## Original local publication and review handoff
+
+The exact eight-path implementation is locally committed at
+`c139fec37024bdce295a5dc13eaee02eb51feaa7`, using the unchanged contributor a6
+after identical dry-run/apply. Original Issue-byte guard:
+`sha256:f49485bc9edde69cf44a03e50db44ea490ab00e024016f053fb10c311c8d1a44`.
+The actual commit delta matches all eight paths. Apply reports
+`reference_update=cas_applied`, `shared_index_projection=applied`,
+`index_reconciliation_pending=false`, transaction
+`isolated_index_atomic_ref_v1`. A local commit grants no remote-delivery authority.
+
+| Original publication evidence | SHA256 |
+| --- | --- |
+| Contributor dry-run | `7a0b84e5c1f6d70f9266bca9620c4ac692b96648211be5eaefd98fd919dc7197` |
+| Contributor apply | `28944023ce432c217f13277a0538a6839940fdcd629bc7195bb551fcca6c4f99` |
+
+The subsequent handoff changes only this ledger and its genuine Issue, through
+a separately observed guard and original publication owner. Accepted software,
+commands, source/notice bodies, installer and contributor selection stay exact.
+Both selection Issues remain In Progress for independent review. After acceptance,
+close them through their respective owners; instruction freeze, explicitly
+authorized pinned publication and fresh unassisted evaluation remain next.
