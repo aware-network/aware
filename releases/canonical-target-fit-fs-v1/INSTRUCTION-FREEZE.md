@@ -127,7 +127,17 @@ The owner reports `reference_update=cas_applied`,
 `transaction_mode=isolated_index_atomic_ref_v1`,
 `operator_ref=aware_workspace_operator.run_workspace_commit.v1`,
 `shared_index_projection=applied`, `index_reconciliation_pending=false`.
-Six overlapping post-commit checks pass with installation explicitly deselected;
-these are a subset, not additional workflow coverage. The evidence handoff changes
+The initial post-commit replay passed five checks and failed the exact-file-set
+check because the maintainer's Ruff command created an ignored `.ruff_cache`.
+Its three files are retained outside the public checkout, without deletion or
+changing the test. The corrected replay passes six overlapping checks with
+installation explicitly deselected; these are a subset, not additional workflow
+coverage. Its receipt is `post-commit-corrected.xml` under the private proof root.
+Corrected XML SHA-256:
+`fb825483f65e67a32f0a07f561fe25bd15db68bad6e2d9feea820f0cd8732f8f`.
+The initial evidence handoff `b43f8ccaf8e31f7a01f81ff63cebaba0e1c70145` stated
+the six-pass result before that replay completed. This correction supersedes that
+statement; the failed XML and original handoff remain retained history.
+The evidence handoff changes
 only this ledger and its governing Issue, leaving all twelve pins unchanged.
 Independent instruction review remains pending before owner closeout.
