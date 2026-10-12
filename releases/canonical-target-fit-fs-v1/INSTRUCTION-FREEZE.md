@@ -141,3 +141,34 @@ statement; the failed XML and original handoff remain retained history.
 The evidence handoff changes
 only this ledger and its governing Issue, leaving all twelve pins unchanged.
 Independent instruction review remains pending before owner closeout.
+
+## Independent freeze acceptance
+
+The Human supplied independent PASS against producer `d411f7026a52`, public
+implementation `c842d67722a4` and corrected handoff `ae6b8f2c5a28`.
+Seven checks passed, zero skipped, including fresh offline, checkout-hidden
+installation of forty-two packages and eleven help entrances. All twelve pins,
+whole-envelope installation guidance, unchanged operational commands and guards,
+actual ten-path implementation and two-path handoffs match the original receipts.
+CAS/index completed without debt; failed diagnostics remain retained and the
+corrective evidence explicitly supersedes the premature pass statement.
+
+Independent installed typed-example execution round-trips exactly and renders
+six intended members; cleanup is `closed`, with no documents or authority created.
+Independent receipts:
+
+| Receipt | SHA256 |
+| --- | --- |
+| `/tmp/aware-target-freeze-review.0MQ3T41P/instructions.xml` | `d7f5a65a8cd206285151bcd764d1c44c5fc9176b418fd127f7f6425d289eba68` |
+| `/tmp/aware-target-freeze-review.0MQ3T41P/typed-roundtrip.json` | `488c720fc2c7ee68b103a1588e1f1be5c07a34dc97523828d4843c5650e7f6d7` |
+
+This supersedes pending-review statements above without rewriting their history.
+Preparation-time record labels remain unchanged; this ledger records the later
+independent acceptance. Acceptance recording does not rerun tests or installation,
+alter the twelve instruction pins or grant operation/publication authority.
+
+Close through the original Issue owner using the actual acceptance publication
+receipt. Whole-envelope carriage and all capability limits remain in force.
+Next: explicit authorization for the publication target and outgoing range,
+then revision-pinned acquisition verification and fresh unassisted evaluation.
+No push or customer evaluation is performed by this acceptance/closeout cut.
