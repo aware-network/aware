@@ -1,6 +1,7 @@
 # Target fit whole distribution
 
-Prepared unselected successor; instructions remain draft. Envelope `canonical-target-fit-source-notice-review-v1.tar.gz`
+Selected locally; instructions remain draft and public delivery is not yet authorized.
+Read [local selection](LOCAL-SELECTION.md). Envelope `canonical-target-fit-source-notice-review-v1.tar.gz`
 has SHA-256 `4823b609938c7d748bfc113ae2a54d7af697e6ca88e698716f538b3460f6b79e`; payload SHA-256 is `e789f1016795098c094162c99766497700da10b182b36911daa8aa2e7c56b7fe`.
 Read the terms before using the [whole-envelope installer](../../protocols/install.py)
 through [the entrance](../../README.md). Six package-local legal gaps remain
