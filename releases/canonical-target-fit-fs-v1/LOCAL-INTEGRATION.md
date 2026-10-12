@@ -102,3 +102,25 @@ These are local commits, not proof of remote availability. Selection, instructio
 freeze, explicitly authorized push/acquisition and fresh unassisted evaluation
 remain separate. The accepted preparation cases and runtime matrix are not
 rerun by this integration handoff.
+
+## Independent integration acceptance
+
+Luis supplied independent bounded PASS for `8fb3710a4e31` / `a275a229cf17`:
+28 producer guards and eight integration checks passed, zero skipped. Fresh
+offline, checkout-hidden installation verifies all 42 packages against the lock,
+clean dependencies and no editable/direct-URL records. Actual 173-path
+implementation and two-path handoff match original receipts and committed Issue
+guards; CAS and shared-index projection completed without reconciliation debt.
+Accepted layout bytes/modes, sources/notices, predecessor selection and
+contributor governance remain exact. Missing-harness initialization has no
+effect; installer reuse and the unadmitted Workspace mount refuse.
+
+Independent receipt SHA-256:
+`ff0b9003d0c386d74b0996715ae5e048e276b9e0db3c99a0ce4b16bb82693ce5`.
+Recording acceptance and Issue closeout rerun no tests and change no software,
+source/notice attachment, installer or selection. The full 2,505-case matrix
+and customer usage were not replayed by this review. Close this bounded Issue
+through its original contributor lifecycle owner. Selection, instruction
+alignment/freeze, explicitly authorized publication and fresh unassisted
+evaluation remain separate cuts. Whole-envelope delivery remains required;
+six legal gaps and twelve findings remain visible.
