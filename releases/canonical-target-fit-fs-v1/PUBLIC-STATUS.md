@@ -121,3 +121,27 @@ checks pass with installation explicitly deselected; no additional workflow
 coverage is claimed. The two-path handoff touches only this unpinned ledger and
 its governing Issue, leaving all twelve successor pins unchanged.
 Both status-alignment Issues remain In Progress for independent review.
+
+## Independent status alignment acceptance
+
+The Human supplied bounded PASS against producer `bec258dfbb31`, public
+implementation `e84a2c74959b` and handoff `1fd3db4e9ff5`. Eight checks passed,
+zero skipped, including fresh offline, checkout-hidden installation of forty-two
+packages and eleven help entrances. All twelve successor pins, stale-wording
+and missing-revision controls pass. Historical freeze, software, command blocks,
+guards and sources/notices remain unchanged. Actual ten/two-path publications
+match original Issue-byte guards and receipts; CAS/index completed without debt.
+
+Independent receipt: `/tmp/aware-target-status-review.p2LEFM4d/status.xml`, SHA256
+`131dac675651c4636f9379bb63d9ebc6082cc061e5d5ae9d290daae3a3ba2333`.
+Acceptance recording reruns no tests or installations and changes no instruction
+pin or artifact. This acceptance supersedes historical pending-review statements
+without rewriting their evidence or preparation-time metadata.
+
+The Human also supplied “Approved GO” for the additional publication step.
+Close through the original owners first; the publication receipt will bind the
+exact additional range, verified target and observed remote result separately.
+Approval does not authorize extra product changes, a force push or evaluation.
+Whole-envelope delivery and existing capability limits remain required.
+After pinned acquisition verification, fresh unassisted evaluation is separately
+admitted. No customer evaluation is performed by this acceptance record.
