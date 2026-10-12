@@ -2,7 +2,7 @@
 
 - Slug: canonical-target-fit-public-integration-v0
 - Tag: fb/2026-10-12/canonical-target-fit-public-integration-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -189,6 +189,7 @@
 
 
 
+
 ## Problem
 1. Accepted target-fit layout is not yet integrated against the exact incoming public revision.
 
@@ -197,8 +198,10 @@
 
 
 
+
 ## Goal
 1. Project the reviewed 169-path delta with complete source/notice carriage, preserving contributor governance and predecessor selection.
+
 
 
 
@@ -215,9 +218,18 @@
 
 
 
+
+## Verified-by
+- Independent28guards+8integration passes zero skips;receipt SHAff0b9003d0c386d74b0996715ae5e048e276b9e0db3c99a0ce4b16bb82693ce5;source implementation8fb3710a4e31/handoff a275a229cf17;no tests rerun for recording.
+- git:7b9ef9f54ff8b5559702d3e9dfd66bfe7cba5f49
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Reviewed169-path projection plus4governance extras matches accepted1332-file layout;28 producer guards and8 public maintainer checks pass,zero skips,fresh offline hidden-checkout42-package installation. Complete envelope/source/notice/mode mappings,predecessor selection and contributor a6 preserved. Missing identity,reuse and aware workspace refuse. No broad workflow/matrix,U,selection,freeze or push. Local publication dry-run/apply then independent integration review next. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Implementation8fb3710a4e310b8049ce92024b4132b0913a909a matches actual173-path admitted delta;original contributor dry-run/apply guard9bb110a9aa46 preserved,CAS/shared-index applied,no debt.28 guards+8 integration checks passed with fresh offline42-package install. Final two-path Issue/report handoff only;independent review remains before closeout. Successor unselected,instructions draft,contributor a6 and predecessor unchanged. No broadmatrix/workflow,U,selection,freeze or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Record supplied independent PASS8fb3710a4e31/a275a229cf17:28guards+8integration passes zero skips,fresh offline checkout-hidden42packages;actual173/two-path deltas,original guards,CAS/index no debt,exact sources/notices/modes/predecessor/contributor preserved. Receipt SHAff0b9003d0c386d74b0996715ae5e048e276b9e0db3c99a0ce4b16bb82693ce5. No validation rerun/artifact changes to record. Bounded closeout next through original owner;selection,freeze,push,U separate. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Bounded local target-fit integration independently accepted:exact173/two-path deltas,whole-envelope carriage,42-package fresh install and contributor governance preserved. Successor unselected,instructions draft;selection,freeze,push and U separate.
