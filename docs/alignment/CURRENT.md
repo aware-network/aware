@@ -6,7 +6,9 @@ Coherence is shared rules and recoverable evidence, not conflict-free execution.
 Readable protocols, tooling installation, repository configuration and service
 startup are distinct. This filesystem composition starts no service.
 
-The reviewed integration is selected locally, not frozen or publicly delivered.
+The reviewed integration is selected locally. Instructions are frozen locally,
+pending independent review, not publicly delivered. Read
+[the instruction freeze](../../releases/canonical-target-fit-fs-v1/INSTRUCTION-FREEZE.md).
 The [delivery pointer](../../releases/SELECTED.json) binds the accepted target-fit
 envelope; it does not select packages or admit operations. Contributor a6 and
 root governance remain unchanged. [Whole-envelope carriage](../../releases/canonical-target-fit-fs-v1/README.md)
