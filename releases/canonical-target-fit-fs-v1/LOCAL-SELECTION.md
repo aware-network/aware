@@ -90,3 +90,25 @@ commands, source/notice bodies, installer and contributor selection stay exact.
 Both selection Issues remain In Progress for independent review. After acceptance,
 close them through their respective owners; instruction freeze, explicitly
 authorized pinned publication and fresh unassisted evaluation remain next.
+
+## Independent local selection acceptance
+
+Luis supplied independent bounded PASS for `c139fec37024` / `fe11735cb594`:
+seven checks passed, zero skipped, including a fresh offline, checkout-hidden
+installation of all 42 packages. The actual eight-path implementation and
+two-path handoff match original receipts and committed Issue guards; CAS/index
+completed without debt. All 1,331 unaffected baseline files and baseline
+executable modes remain exact. The delivery pointer matches accepted artifact
+coordinates, not a package catalog or authority issuer; `portable_protocols`
+remains the sole package selector. Software, commands, installer, sources/notices,
+predecessors and contributor a6 remain unchanged.
+
+Independent receipt SHA-256:
+`bc2077bc278505c40b6581f6d87e9fe2b0f21dbe64c9617d759a932e3b5b4e00`.
+This accepts local selection only, not public availability or unassisted
+onboarding. Recording acceptance and owner closeout rerun no tests and change
+only this ledger and the genuine Issue. Pointer bytes and instructions stay
+unchanged; preparation-time pointer labels do not replace this later acceptance.
+Close through the original contributor lifecycle owner, then separately govern
+instruction alignment/freeze, preserving whole-envelope carriage and all
+capability limits. No push or customer evaluation is authorized by this closeout.
