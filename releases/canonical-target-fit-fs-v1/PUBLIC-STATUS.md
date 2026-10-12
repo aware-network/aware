@@ -109,3 +109,15 @@ installed receipt SHA256:
 Lint/format and authored whitespace pass without creating public cache files.
 No typed-example probe, preparation/preview/apply workflow, domain matrix or
 customer evaluation is repeated by this status-only proof.
+
+Original implementation `e84a2c74959b1ae91f6265d457609ba4709f76b4` changes
+exactly the ten admitted paths. Identical original contributor dry-run/apply use
+Issue-byte guard
+`sha256:0d843dac1adebb1b6a53d413fd424214662d18091737d8be9e96f3aeb69966d6`.
+Applied receipt is `git:e84a2c74959b1ae91f6265d457609ba4709f76b4`;
+`reference_update=cas_applied`, `shared_index_projection=applied`,
+`index_reconciliation_pending=false`. Seven overlapping post-commit accounting
+checks pass with installation explicitly deselected; no additional workflow
+coverage is claimed. The two-path handoff touches only this unpinned ledger and
+its governing Issue, leaving all twelve successor pins unchanged.
+Both status-alignment Issues remain In Progress for independent review.
