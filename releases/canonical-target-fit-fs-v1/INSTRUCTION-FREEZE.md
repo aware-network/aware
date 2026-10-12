@@ -118,3 +118,16 @@ These are retained review coordinates, not customer acquisition prerequisites.
 No software, archive, source/notice envelope, operation contract, guard or
 contributor command is changed or rebuilt. The 2,505-case installed domain matrix
 is not replayed, and no unassisted evaluation or remote publication is performed.
+
+Original implementation publication:
+`git:c842d67722a47036917b1c09f88ce0677ef7121f`, exactly the ten admitted paths.
+Identical original dry-run/apply use observed Issue-byte guard
+`sha256:1d31b1eef2b551594bc7111e0b136b0b952f2673c8a26bbc07cc368352c32c5f`.
+The owner reports `reference_update=cas_applied`,
+`transaction_mode=isolated_index_atomic_ref_v1`,
+`operator_ref=aware_workspace_operator.run_workspace_commit.v1`,
+`shared_index_projection=applied`, `index_reconciliation_pending=false`.
+Six overlapping post-commit checks pass with installation explicitly deselected;
+these are a subset, not additional workflow coverage. The evidence handoff changes
+only this ledger and its governing Issue, leaving all twelve pins unchanged.
+Independent instruction review remains pending before owner closeout.

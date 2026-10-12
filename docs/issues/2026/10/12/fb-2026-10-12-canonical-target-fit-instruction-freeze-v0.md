@@ -24,14 +24,17 @@
 
 
 
+
 ## Problem
 1. Locally selected target-fit guidance remains draft and the workflow still describes inner-bundle installation.
 
 
 
 
+
 ## Goal
 1. Align root and workflow with whole-envelope installation and pin twelve customer instruction/example files without software or authority changes.
+
 
 
 
@@ -44,7 +47,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Seven instruction checks passed, zero skipped, including fresh offline checkout-hidden 42-package installation and eleven help entrances. Exact twelve instruction pins, ten-path scope, original install guards and baseline preservation pass. Separate typed-input/decoder rendering probe passes with cleanup closed; wrong-attribute diagnostic retained. Whole-envelope carriage required; target-fit layout only, no Workspace Agent mount or automatic execution/refresh. No software rebuild, domain-matrix replay, customer evaluation or push. Independent freeze review remains pending. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Implementation c842d67722a47036917b1c09f88ce0677ef7121f matches exact ten-path scope; original dry-run/apply guard and CAS/index receipts preserved without debt. Six overlapping accounting checks pass with installation explicitly deselected. Evidence-only handoff changes Issue and unpinned freeze ledger; twelve instruction pins, software and sources/notices unchanged. Independent review pending; no push or customer evaluation. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
