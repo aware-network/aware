@@ -20,14 +20,17 @@ review the owner plan before explicitly applying; help is discovery, not
 authority. Init prepares a repository and protocol guidance/configuration; it
 does not automatically create or register a Workspace package.
 
-Governed A1 requires explicit `--governed`, an owner-configured setup-admission
-authority manifest, current Issue/authority-manifest byte guards, client intent,
-actor/evidence coordinates and exact `--allowed-path` scope. Apply additionally
-requires the reviewed `--expected-plan-sha256`. Init does not provision that
-Workspace admission configuration. These are prepared inputs, not an admission
-inferred from a help command, SDK import or preview. If those owner inputs are
-unavailable, stop; do not fabricate authority records or omit `--governed` to
-bypass the governed workflow. Unassisted A1 onboarding remains unproved.
+For the qualified fresh-repository path, init's `aware.protocol.toml` supplies
+the authority-manifest binding. It does not admit an Issue or authorize apply.
+Governed A1 still requires explicit `--governed`, a genuine In Progress Issue,
+reviewed complete effect scope, current Issue/manifest byte guards, client intent
+and actor/evidence coordinates. Apply uses the unchanged reviewed plan digest
+and the final-file `--allowed-path` list; that list is not the full effect scope.
+Follow [first governed repository setup](FIRST-SETUP.md) for the explicit
+preview → review → scope → preview → review → apply sequence. A completed preview
+is not Issue admission. Missing or stale inputs mean stop, not fabricated
+records, automatic refresh or omission of `--governed`. Unassisted A1 onboarding
+remains unproved.
 
 `portable_protocols` remains the sole producer-side package selector.
 Workspace setup writes or aligns authored repository/workspace/module/package

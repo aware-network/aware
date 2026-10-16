@@ -93,7 +93,7 @@ a service. Tool installation, readable guidance and configuration are distinct.
 
 ## Issue reference versus record path
 
-`--issue-ref` uses `fb/YYYY-MM-DD/lowercase-hyphenated-slug`, with four-digit year,
+For `aware issue`, `--issue-ref` uses `fb/YYYY-MM-DD/lowercase-hyphenated-slug`, with four-digit year,
 two-digit month/day and lowercase letters/digits separated by single hyphens.
 Example: `fb/2026-10-11/json-checker-draft`. No `.md` suffix; do not pass a UUID,
 title, URL or filesystem path. With the default `docs/issues` root, it maps to:
@@ -102,7 +102,11 @@ title, URL or filesystem path. With the default `docs/issues` root, it maps to:
 docs/issues/2026/10/11/fb-2026-10-11-json-checker-draft.md
 ```
 
-That repository-relative record path is a `--scope-path`, not an Issue reference.
+For Issue-family commands, that record path is a `--scope-path`, not the
+`--issue-ref` identifier. Governed `aware workspace setup` instead requires
+that Markdown record path as its `--issue-ref`; obtain it from the original
+Issue read projection's `projection.source.path`. See [first governed Workspace
+setup](workspace/FIRST-SETUP.md).
 If you configured a different Issue root, use its mapped record path instead.
 The installed help and owner refusal diagnostics now explain this distinction;
 `issue_ref_invalid` is still a refusal, not permission to guess and retry.
@@ -437,14 +441,17 @@ review the owner plan before explicitly applying; help is discovery, not
 authority. Init prepares a repository and protocol guidance/configuration; it
 does not automatically create or register a Workspace package.
 
-Governed A1 requires explicit `--governed`, an owner-configured setup-admission
-authority manifest, current Issue/authority-manifest byte guards, client intent,
-actor/evidence coordinates and exact `--allowed-path` scope. Apply additionally
-requires the reviewed `--expected-plan-sha256`. Init does not provision that
-Workspace admission configuration. These are prepared inputs, not an admission
-inferred from a help command, SDK import or preview. If those owner inputs are
-unavailable, stop; do not fabricate authority records or omit `--governed` to
-bypass the governed workflow. Unassisted A1 onboarding remains unproved.
+For the qualified fresh-repository path, init's `aware.protocol.toml` supplies
+the authority-manifest binding. It does not admit an Issue or authorize apply.
+Governed A1 still requires explicit `--governed`, a genuine In Progress Issue,
+reviewed complete effect scope, current Issue/manifest byte guards, client intent
+and actor/evidence coordinates. Apply uses the unchanged reviewed plan digest
+and the final-file `--allowed-path` list; that list is not the full effect scope.
+Follow [first governed repository setup](workspace/FIRST-SETUP.md) for the explicit
+preview → review → scope → preview → review → apply sequence. A completed preview
+is not Issue admission. Missing or stale inputs mean stop, not fabricated
+records, automatic refresh or omission of `--governed`. Unassisted A1 onboarding
+remains unproved.
 
 `portable_protocols` remains the sole producer-side package selector.
 Workspace setup writes or aligns authored repository/workspace/module/package

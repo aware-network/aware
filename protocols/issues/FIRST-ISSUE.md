@@ -7,7 +7,7 @@ does not admit an Issue, and this example does not grant task authorization.
 
 ## Reference versus record path
 
-For this filesystem profile, `--issue-ref` is an identifier:
+For the `aware issue` family in this filesystem profile, `--issue-ref` is an identifier:
 
 ```text
 fb/YYYY-MM-DD/lowercase-hyphenated-slug
@@ -23,8 +23,12 @@ default `docs/issues` root, this example becomes:
 docs/issues/2026/10/11/fb-2026-10-11-json-checker-draft.md
 ```
 
-The reference is used by `--issue-ref`; the repository-relative record path is
-used by `--scope-path`. They are not interchangeable. If you initialized a
+The Issue-family `--issue-ref` uses the identifier; `--scope-path` uses a
+repository-relative path. In contrast, governed `aware workspace setup` uses
+the Markdown record path for its `--issue-ref`. Obtain that original path from
+`resolve-read-projection` (`projection.source.path`); do not guess it or pass
+the identifier to Workspace. See [first governed Workspace setup](../workspace/FIRST-SETUP.md).
+These coordinate forms are not interchangeable. If you initialized a
 different `--issue-root`, use that configured root for the record path below.
 The installed help and owner diagnostics explain this syntax. On
 `issue_ref_invalid`, stop and inspect the exact diagnostic; do not guess or retry.

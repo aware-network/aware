@@ -14,8 +14,10 @@ at `8dc511505151e5e23a5d50478b2e1f00194f2c05` on `aware-network/aware/main`.
 Use that full revision for acquisition. The [delivery pointer](releases/SELECTED.json)
 binds the exact whole envelope; [status alignment](releases/canonical-workspace-a1-fs-v1/PUBLIC-STATUS.md)
 tracks the separate review and delivery of this wording correction.
-[Successor instruction pins](releases/canonical-workspace-a1-fs-v1/PUBLIC-INSTRUCTIONS.json)
+[Onboarding instruction pins](releases/canonical-workspace-a1-fs-v1/ONBOARDING-INSTRUCTIONS.json)
 preserve the [historical freeze](releases/canonical-workspace-a1-fs-v1/INSTRUCTIONS.json).
+The [onboarding integration](releases/canonical-workspace-a1-fs-v1/ONBOARDING-INTEGRATION.md)
+tracks this guidance successor's separate review and delivery status.
 Do not overlay installations or silently migrate contributor commands.
 
 ## Understand the shared rules
@@ -138,6 +140,10 @@ Read [Workspace A1](protocols/workspace/README.md) before invoking
 `aware workspace setup`. The original Workspace SDK/runtime/FS owners handle
 repository/workspace/module/Python-package creation and alignment. This is not
 another package-selection engine or a hand-authored JSON catalog.
+
+For a qualified fresh repository, follow [first governed repository setup](protocols/workspace/FIRST-SETUP.md).
+Init supplies its configuration binding; explicit Issue scope review and fresh
+apply admission remain separate. The example creates only `aware.repo.toml`.
 
 **Governed A1 requires prepared owner-admission inputs.** Use explicit
 `--governed`, the configured setup-admission authority manifest, current
