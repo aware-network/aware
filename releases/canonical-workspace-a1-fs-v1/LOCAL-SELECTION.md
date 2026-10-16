@@ -48,3 +48,26 @@ The report/Issue-only handoff is separately published through fresh original
 observation and identical dry-run/apply. Independent bounded review is next;
 the Issue remains In Progress. No public delivery or instruction freeze follows
 from local selection. Historical layout receipt flags describe their own stage.
+
+## Independent bounded acceptance
+
+Luis supplied PASS for `5983f6ba274d` / `5e7b41b42b8c`, producer `b65aab2851e9`.
+Seven independent checks passed, zero skipped, including fresh offline,
+checkout-hidden installation of 42 locked packages with clean dependencies and
+no editable/direct-URL installs. Actual eight-path implementation and two-path
+handoff match original receipts and committed Issue guards; CAS/index completed
+without debt. All 1,496 unaffected baseline files and executable modes remain
+preserved. Delivery coordinates derive accepted artifacts; `portable_protocols`
+remains the sole package selector. Software, source/notice carriage, installer,
+predecessor and contributor governance remain unchanged.
+
+Independent replay: `/tmp/aware-a1-selection-review.WvlNwORd/selection.xml`,
+SHA-256 `90f12f00e97b0ad8f45d0455f9829811985516672ffb844d830c117ac5afaee5`.
+Recording and owner closeout rerun no tests or installation. Fresh original
+Issue observation and a genuine applied acceptance publication precede closeout;
+authored public acceptance boxes are not manually changed.
+
+Next: separately governed instruction freeze. Whole-envelope delivery and
+prepared-input A1 limits remain. This review does not establish positive governed
+A1 execution, A2/tree completion, public availability or unassisted onboarding.
+No push is authorized or performed.
