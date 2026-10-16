@@ -2,7 +2,7 @@
 
 - Slug: canonical-workspace-a1-public-status-v0
 - Tag: fb/2026-10-16/canonical-workspace-a1-public-status-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -26,6 +26,7 @@
 
 
 
+
 ## Problem
 1. Delivered software at 8dc511505151e5e23a5d50478b2e1f00194f2c05 still has frozen pre-delivery labels that mislead customer acquisition.
 
@@ -34,8 +35,10 @@
 
 
 
+
 ## Goal
 1. Correct status prose and successor instruction pins only; preserve software, operational commands/guards, historical freeze, whole-envelope carriage and prepared-input A1 limits.
+
 
 
 
@@ -52,9 +55,18 @@
 
 
 
+
+## Verified-by
+- Independent eight-case fresh offline hidden-checkout 42-package proof; exact scope/pins/guards/original receipts and CAS/index without debt.
+- git:8482330a5e5199f1bc639c44947ed98db4b21fff
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Eight status checks passed zero skipped: fresh offline hidden-checkout 42 packages, eleven help entrances, 13 successor pins, status negative controls and original link/guard proofs. Exact ten-path delta preserves 1502 unaffected files/1508 baseline modes, operations/example/first-Issue/workspace admissions, historical freeze and complete software/source/notice carriage. Initial phrase assertion failure retained, corrected test uses actual guide requirements and final replay new environment. No additional push or U/V/R; independent review next. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Status-only implementation 19fba2aa3bad2d389a6afe5f39560db5853955a1 matches exact ten-path scope and original receipts; CAS/index applied without debt. Eight checks passed, 42 fresh installed packages, thirteen successor pins unchanged by this handoff. Independent review next, both Issues In Progress. Software/commands/guards/carriage unchanged; no additional remote push or evaluation. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Independent bounded PASS recorded: eight tests zero skipped, fresh offline hidden-checkout 42 packages, all thirteen successor pins and exact ten/two paths match original receipts/guards; CAS/index without debt. Historical freeze/software/commands/guards/source-notices unchanged. Initial assertion diagnostic and prepared-input A1 limits retained. Close bounded alignment; Luis separately approved additional-range delivery, not evaluation. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independent bounded status alignment PASS recorded, historical freeze and thirteen successor pins preserved. Additional delivery separately approved by Luis; evaluation remains separate.
