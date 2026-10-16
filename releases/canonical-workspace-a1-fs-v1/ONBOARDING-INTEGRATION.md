@@ -65,3 +65,24 @@ reference CAS and shared-index projection applied without reconciliation debt.
 The separate Issue/ledger-only handoff leaves all fourteen pins unchanged.
 Both Issues remain In Progress for independent integration/instruction review.
 This is local repository publication, not a remote push or customer evaluation.
+
+## Independent acceptance
+
+Luis supplied the bounded independent PASS for producer `e438b4c924b3`, public
+implementation `3cd040c34d2a` and handoff `2eb173c726af`. Eight cases passed,
+zero skipped, including fresh offline checkout-hidden installation of all
+42 packages. All four accepted postimages, fourteen pins, historical records,
+original eleven/two-path deltas, Issue guards and CAS/index receipts match.
+Existing command blocks, software, installer and source/notice bytes remain
+unchanged. Both review stops, complete effect scope versus final-file allowlist
+and unchanged reviewed apply guards remain explicit. The initial mode-assertion
+diagnostic is retained.
+
+Independent XML: `/tmp/aware-a1-onboarding-review.qGsf80YR/onboarding.xml`.
+SHA-256 `a45e22c93180678ab1fa35c1d5c3291c93b9f74caa24c1df07fa79110abd5b01`.
+This accepts the local integration/instruction pins for original-owner closeout.
+Publication still requires explicit authorization for the exact target/outgoing
+range, followed by pinned acquisition and separately admitted fresh evaluation.
+The prior scripted governed apply was not rerun and does not establish unassisted
+onboarding. Whole-envelope delivery and A1 limits remain mandatory. No pinned
+instruction, software or test changed to record acceptance.
