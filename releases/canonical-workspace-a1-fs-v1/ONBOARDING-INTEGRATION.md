@@ -55,3 +55,13 @@ cases passed against the final bytes in another fresh environment. Overlapping
 replays are not additional distinct coverage. The accepted four documents never
 changed. This is installer/integration proof, not another governed-apply replay
 or unassisted evaluation.
+
+## Original publication receipt
+
+Implementation `3cd040c34d2a279be429b89a7fda502d077734d2` contains exactly the
+eleven admitted paths. Original contributor a6 published identical dry-run/apply
+requests with a fresh genuine Issue-byte guard. Actual paths match the receipt;
+reference CAS and shared-index projection applied without reconciliation debt.
+The separate Issue/ledger-only handoff leaves all fourteen pins unchanged.
+Both Issues remain In Progress for independent integration/instruction review.
+This is local repository publication, not a remote push or customer evaluation.
