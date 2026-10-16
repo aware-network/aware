@@ -99,3 +99,25 @@ Do not reuse its environment target or overwrite retained receipts.
 Independent bounded integration review precedes both original-owner closeouts.
 Selection, instruction alignment/freeze, publication and evaluation remain
 separate cuts. No source or wheel rebuild is part of this integration.
+
+## Independent bounded acceptance
+
+Luis supplied independent PASS for local implementation `1872a6e20a55` and
+handoff `1b2bb517fc3a`, with no blocker. The reviewer reproduced 28 producer
+guards and eight integration checks, zero skipped, including fresh offline,
+checkout-hidden installation of 42 locked packages, clean dependencies and no
+editable/direct-URL installations. Actual 279-path implementation and two-path
+handoff match original receipts and committed Issue guards; CAS/index completed
+without debt. Accepted mappings/modes and contributor/predecessor selections
+remain preserved. Restored contributor inputs match pinned hashes and retain
+version/contract 0.1.0a6 / 1.2.1. The failed help probe remains retained.
+
+Independent replay: `/tmp/aware-a1-integration-review.OaE65poE/integration.xml`,
+SHA-256 `6da299ed70c5efcdb1917272d246ec3db04e2eb7b2bc86f13dc63bb64f4e5af6`.
+Acceptance recording and owner closeout rerun no tests or installation. Closeout
+uses fresh original Issue observation and an actual applied publication receipt;
+authored public acceptance boxes are not manually changed.
+
+Next: separately governed selection and instruction freeze. Whole-envelope
+delivery remains required; governed A1 execution, A2/tree completion and
+unassisted onboarding are not established. No selection or push is authorized.
