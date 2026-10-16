@@ -57,3 +57,21 @@ commit paths match its receipt; reference CAS and shared-index projection applie
 without reconciliation debt. The separate Issue/ledger-only handoff leaves all
 thirteen successor pins unchanged. This is local Git publication, not another
 remote push. Both Issues remain In Progress for bounded independent review.
+
+## Independent acceptance
+
+Luis supplied the bounded independent PASS for producer `1c88c6369202`, public
+implementation `19fba2aa3bad` and handoff `303e552110cb`. Eight checks passed,
+zero skipped, including fresh offline checkout-hidden installation of all
+42 packages. All thirteen successor pins, historical freeze, exact ten/two-path
+deltas, original receipts/Issue guards and CAS/index results match. Commands,
+guards, software and source/notice bytes remain unchanged. The initial assertion
+diagnostic and prepared-input A1 limits remain intact.
+
+Independent XML: `/tmp/aware-a1-status-review.2JkDiUGH/status.xml`, SHA-256
+`0ddd6f81bbfd5710afa0baa9d4d067a1fbf7243948f9cf05c8b307a2ddb934da`.
+This accepts the bounded alignment for original-owner closeout. Luis's subsequent
+“Approved go” separately authorizes the exact additional range to
+`aware-network/aware/main`, subject to target/ancestry checks and pinned acquisition.
+It does not admit evaluation, positive governed A1, A2/tree completion or
+unassisted onboarding. No instruction pins or software changed to record PASS.
