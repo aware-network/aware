@@ -10,11 +10,12 @@ is the value, not a promise of faster agents or conflict-free swarms.
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
 The reviewed Workspace A1 successor is selected locally; public delivery is
-not yet authorized. Instructions remain draft. Use this reviewed checkout, not
+not yet authorized. Instructions are frozen locally pending independent review.
+Use this reviewed checkout, not
 unchanged public main. The [delivery pointer](releases/SELECTED.json) binds the
 exact whole envelope; [local selection](releases/canonical-workspace-a1-fs-v1/LOCAL-SELECTION.md)
 records the review boundaries. Do not overlay installations or silently migrate
-contributor commands. Instruction freeze and publication remain separately governed.
+contributor commands. Freeze acceptance and publication remain separately governed.
 
 ## Understand the shared rules
 

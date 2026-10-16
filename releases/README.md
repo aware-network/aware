@@ -9,8 +9,9 @@ The [delivery pointer](SELECTED.json) now binds the accepted A1 successor locall
 The [target-fit predecessor](canonical-target-fit-fs-v1/README.md), its whole
 envelope and receipts remain exact in place and pinned history. The unchanged
 [whole-envelope installer](../protocols/install.py) targets the accepted successor.
-This is not a claim about current public delivery. Instructions remain draft;
-independent selection review, freeze and publication are separately governed.
+This is not a claim about current public delivery. Local selection is independently
+accepted; instructions are frozen locally pending independent review. Publication
+requires separate explicit authorization.
 
 Keep terms, source and notices with software. Six detached-wheel gaps remain
 unrepaired; detached wheels, stripped bundles and registry delivery are unaccepted.

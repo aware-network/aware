@@ -11,7 +11,8 @@ The Workspace A1 mount requires prepared owner-admission inputs; it does not
 admit A2 locks, positive tree-C completion, native receiving or materialization.
 Raw deltas are change evidence, not inferred meaning or renewed authority.
 
-The accepted successor is integrated and selected locally, not frozen or publicly delivered.
+The accepted successor is integrated and selected locally. Instructions are frozen
+locally pending independent review, not publicly delivered or publication-authorized.
 The [delivery pointer](../../releases/SELECTED.json) binds exact artifacts, not
 package selection or authority. The contributor command stays unchanged.
 [Whole-envelope carriage](../../releases/canonical-workspace-a1-fs-v1/README.md) is required.

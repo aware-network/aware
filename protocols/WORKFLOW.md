@@ -1,13 +1,15 @@
 # Aware Workspace A1 onboarding review
 
-Draft instructions for the accepted SDK-backed preparation candidate: install
+Instructions frozen locally pending independent review, not yet public delivery,
+for the accepted SDK-backed preparation candidate: install
 once, initialize explicitly, admit an Issue, configure SPEC and prepare a draft
 for review before explicit invocation. Agent CLI is 0.2.0a6; Protocol SDK/FS are 0.3.2/0.6.5; SPEC SDK is 0.3.4;
 SPEC FS SDK adapter and CLI are 0.4.4. Issue CLI 0.8.3 / FS 0.9.6 are carried.
 Workspace SDK/runtime/FS are 0.2.9/0.2.12/0.1.8; FileSystem is 0.3.7.
 This internal review envelope carries the exact forty-two-package payload, committed
 `portable_protocols` sources and corresponding notices. Notice/disclosure
-acceptance, instruction freeze, public selection and delivery remain separate.
+acceptance is candidate-bound; local selection is accepted. Freeze acceptance
+and public delivery remain separate.
 Scripted installed proofs do not establish unassisted customer onboarding.
 
 ## Install with the complete envelope
@@ -17,24 +19,25 @@ envelope, including LICENSE, NOTICE, sources, upstream archives and indexes.
 Wheel-only acquisition is unsupported: six Code/Workspace wheels still lack
 package-local legal attachments. Do not discard the envelope after installation.
 
-Verify its outer `SHA256SUMS`, then expand
-`payload/aware-canonical-neutral-fs-internal-v1.tar.gz` in a fresh private scratch
-directory. It expands into `aware-canonical-neutral-fs-internal-v1`. Enter that
-directory and verify its inner `SHA256SUMS` before running the shipped installer:
+From the reviewed checkout root, use the same whole-envelope installer as the
+root entrance. It verifies all outer/inner checksums, retains complete source and
+notices and delegates to the unchanged payload installer:
 
 ```bash
 set -eu
-sha256sum -c SHA256SUMS
 aware_init_parent="$(mktemp -d)"
 aware_init_env="$aware_init_parent/env"
 test ! -e "$aware_init_env"
 test ! -L "$aware_init_env"
-PYTHON_BIN=/usr/bin/python3.12 /bin/sh ./install.sh "$aware_init_env"
+/usr/bin/python3.12 protocols/install.py \
+  --python-executable /usr/bin/python3.12 --venv "$aware_init_env"
 AWARE="$aware_init_env/bin/aware"
 "$AWARE" --help
 ```
 
-The target must be absent and its private parent must exist. Do not overlay a6,
+Set `aware_envelope_root` to the returned absolute `retained_source_and_notices`
+directory; keep it with the software. The target must be absent and its private
+parent must exist. Do not overlay a6,
 an older SPEC preview or a resident development environment. Use this same
 absolute `AWARE` command for every family. Standalone family entrypoints remain
 parity/diagnostic entrances, not separate required installations.
@@ -215,7 +218,7 @@ to run it, set `aware_envelope_root` to this expanded envelope's absolute path:
 
 ```bash
 set -eu
-: "${aware_envelope_root:?Set the absolute path of this expanded envelope}"
+: "${aware_envelope_root:?Set the exact retained_source_and_notices directory}"
 : "${aware_init_env:?Use the fresh installation from this guide}"
 draft_input_parent="$(mktemp -d)"
 draft_snapshot_input="$draft_input_parent/snapshot.json"
@@ -461,11 +464,13 @@ The seven changed third-party wheels have current hash-bound source/legal inputs
 Inherited pydantic-core/rpds crate notices are historical coverage evidence, not an
 attestation of the current binary's linkage. Current Cargo inputs are attached
 for component review. Source-correlated Cython terms do not identify the actual
-wheel publisher's build toolchain. These are unresolved sufficiency decisions,
-not automatic clearance carried forward from the predecessor.
+wheel publisher's build toolchain. Bounded notice/disclosure dispositions bind
+this exact envelope; conservative accounts do not prove exact binary linkage,
+exhaustive clearance or a legal warranty. Predecessor clearance does not transfer
+automatically.
 
 This installation does not replace aware-dev's selected contributor command.
 A scripted successor observation of saved evidence is not cross-execution
-recovery or unassisted evaluation. Public availability, instruction freeze and
-unassisted onboarding of this exact candidate are not established by this
-review envelope.
+recovery or unassisted evaluation. Public availability, independent freeze
+acceptance and unassisted onboarding remain separate. Local instruction pins
+do not authorize delivery or change the candidate's capability limits.
