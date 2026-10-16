@@ -1,6 +1,8 @@
 # Workspace A1 whole distribution
 
-Prepared unselected successor; instructions remain draft. Envelope `canonical-workspace-a1-source-notice-review-v1.tar.gz`
+Selected locally; public delivery is not yet authorized. Instructions remain draft.
+[Local selection](LOCAL-SELECTION.md) records the exact decision and review boundary.
+Envelope `canonical-workspace-a1-source-notice-review-v1.tar.gz`
 is SHA-256 `de8740f8e2fd84be257704407e43ffc9a687d23f219becae3f992798519e739a`; payload SHA-256 is `a62e7f96d93c233302824ef6820d96b944867ef2338a121000976ea8a3ca1fe5`.
 Read terms before the [whole-envelope installer](../../protocols/install.py)
 through [the entrance](../../README.md). Six package-local legal gaps remain

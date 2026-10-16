@@ -9,11 +9,12 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-This is a **prepared, unselected Workspace A1 successor**. Instructions remain
-draft, not a claim about software currently delivered on public main. The
-unchanged [delivery pointer](releases/SELECTED.json) selects the target-fit predecessor.
-Integration, selection, instruction freeze and publication require separate cuts.
-Do not overlay installations or silently migrate contributor commands.
+The reviewed Workspace A1 successor is selected locally; public delivery is
+not yet authorized. Instructions remain draft. Use this reviewed checkout, not
+unchanged public main. The [delivery pointer](releases/SELECTED.json) binds the
+exact whole envelope; [local selection](releases/canonical-workspace-a1-fs-v1/LOCAL-SELECTION.md)
+records the review boundaries. Do not overlay installations or silently migrate
+contributor commands. Instruction freeze and publication remain separately governed.
 
 ## Understand the shared rules
 
@@ -31,7 +32,7 @@ before installing. Keep LICENSE, NOTICE, corresponding source, upstream inputs
 and raw audit with the software. Six package-local legal gaps remain unresolved;
 detached wheels, stripped bundles and registry publication are unaccepted.
 
-From this prepared checkout root:
+From this reviewed checkout root:
 
 ```sh
 set -eu
