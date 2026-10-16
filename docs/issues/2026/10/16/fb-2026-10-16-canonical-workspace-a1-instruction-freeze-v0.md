@@ -26,6 +26,7 @@
 
 
 
+
 ## Problem
 1. Accepted local selection needs exact current instruction/example pins and whole-envelope installer alignment before independent freeze review.
 
@@ -33,8 +34,10 @@
 
 
 
+
 ## Goal
 1. Pin 13 current instruction/example files; align only installation/status prose and canonical example link, preserve operational commands/guards, accepted software, full carriage and contributor governance.
+
 
 
 
@@ -49,8 +52,10 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Seven final exact-byte freeze checks pass, zero skipped; fresh offline checkout-hidden 42 locked packages, original help/guard refusals, 13 current pins. Canonical typed example executes and SDK-observed bytes roundtrip exactly; pure rendering yields six members, cleanup closed, no documents/authority. Exact 11-path scope preserves 1497 unaffected files and 1504 baseline modes. Initial test-label assertion failure retained; final pins/prose replayed in new environment without software changes. Whole-envelope/prepared A1 limits retained; no public delivery/push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Local instruction freeze implemented at 995cceac508902a75a6ff97099e2f32f18f3983f: exact 11-path commit and original receipts, CAS/index applied without debt. Thirteen pins unchanged by handoff. Seven checks pass; separate typed example executes/roundtrips/render six with cleanup closed. Independent review next, Issue In Progress; no public delivery or push, no broader A1/A2/tree/onboarding acceptance. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Independent PASS accepted for 995cceac5089 / 1585bee8d00a: seven checks, fresh offline hidden-checkout 42 packages, 13 pins, exact deltas and original guards/CAS/index match. Separate typed roundtrip/six pure members cleanup closed. Initial diagnostic retained. Whole-envelope/prepared A1 limits preserved. Record acceptance and close this bounded freeze; publication is separately approved by Luis. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

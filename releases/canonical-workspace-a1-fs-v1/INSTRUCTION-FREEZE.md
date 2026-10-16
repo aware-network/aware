@@ -49,3 +49,24 @@ for independent bounded freeze review. This is local, not remote publication.
 Independent bounded review precedes original-owner closeout; publication and
 push require explicit later authorization. Never refresh guards or retry a
 mutation automatically. Keep full evidence and unknown effects.
+
+## Independent acceptance
+
+Luis supplied the independent PASS for `995cceac5089` and handoff
+`1585bee8d00a`. Seven checks passed, zero skipped, including a fresh offline,
+checkout-hidden installation of all 42 locked packages. All thirteen pins,
+actual eleven/two-path deltas, original Issue guards and CAS/index receipts
+match. The separately acquired canonical input round-trips exactly, renders six
+members purely and reports cleanup closed without creating documents or authority.
+
+Independent XML SHA-256:
+`560e105bec1a0b0559e46210234a32546a7cf35ef97035355f8eb121fb927030`.
+Independent typed-example receipt SHA-256:
+`488c720fc2c7ee68b103a1588e1f1be5c07a34dc97523828d4843c5650e7f6d7`.
+The initial failed diagnostic remains retained. No software, pinned instruction
+bytes, notices, installer or governance changed while recording acceptance.
+
+The bounded freeze is accepted for original-owner closeout. Luis's subsequent
+publication approval is a separate delivery admission, not operation authority.
+Whole-envelope delivery and prepared-input A1 limits remain mandatory; positive
+governed A1, A2/tree completion and unassisted onboarding are not established here.
