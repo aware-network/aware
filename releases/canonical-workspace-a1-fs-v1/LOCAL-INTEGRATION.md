@@ -3,8 +3,9 @@
 ## Scope and status
 
 Accepted layout implementation `d58485f671c0e5ca63490e69696cf35ad5ab2550`
-and handoff `ba947e080923206cf29138441826a593669a952b` are being integrated
-locally against incoming `ebd83d247003c93320a0be4a16e8b6ad1aca2369`.
+and handoff `ba947e080923206cf29138441826a593669a952b` are integrated locally
+at `1872a6e20a5502749aa34acffdcb9e06c611eb07` against incoming
+`ebd83d247003c93320a0be4a16e8b6ad1aca2369`.
 Layout receipt SHA-256:
 `99407bbf6fd133e3cc2b0e80fc78eb834688c59ba2f6f8d586876eac4b78a5a5`.
 No selection, instruction freeze or push is authorized by this integration.
@@ -73,8 +74,16 @@ repository/workspace/module/python-package/align setup leaves. The failed XML,
 command captures and installation remain retained separately; corrected replay
 used a new environment. No software, instructions, fixtures or guards changed.
 
-Original publication receipts and actual commit deltas remain to be recorded;
-passing tests do not themselves mean publication succeeded. Private replay
+Original dry-run/apply receipts and the actual 279-path implementation match.
+Apply reports `reference_update=cas_applied`, `shared_index_projection=applied`,
+`index_reconciliation_pending=false`, transaction `isolated_index_atomic_ref_v1`.
+The implementation Issue-byte guard was
+`sha256:73646b98bb72db43024f1deb4cbb9fbee8def1fe8108a554d0175b6320d37492`.
+Original receipts are `public-commit-dry-run.json` / `public-commit-apply.json`
+under the private proof root. The report/Issue-only handoff is a separate
+fresh-observation, exact two-path publication; its commit is not self-embedded.
+Full implementation-range whitespace checking reports no findings; no accepted
+upstream bytes were normalized. Private replay
 root is `/tmp/aware-a1-public-integration.IaOlJZAE`; corrected installed root is
 `/tmp/aware-a1-integration-installed.8k9kSZXM`.
 Guard XML SHA-256: `520009bc827c9c684af3a3fa94424cc899e235848ac9f967fc16139aa309b01d`.

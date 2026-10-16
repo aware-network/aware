@@ -293,14 +293,17 @@
 
 
 
+
 ## Problem
 1. Accepted Workspace A1 layout is not yet integrated against the exact incoming public revision.
 
 
 
 
+
 ## Goal
 1. Project the reviewed 275-path delta with complete source/notice carriage, preserving contributor governance and predecessor selection.
+
 
 
 
@@ -313,7 +316,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Projected exact 275-path accepted delta under genuine 279-path scope. Restored original pinned contributor a6 separately after explicit Luis authorization. 28 producer guards and 8 integration checks pass, including fresh offline checkout-hidden 42-package installation, full envelope/source bindings, 14 help entrances, missing identity and reuse refusals. Initial wrong maintainer help vector failure retained; corrected smoke used new environment and unchanged software. Whole-envelope and prepared A1 limits remain; no governed A1/domain matrix/U replay, selection, freeze or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Integrated locally at 1872a6e20a5502749aa34acffdcb9e06c611eb07: exact 279-path implementation matches original receipt; CAS/shared-index applied without debt. 28 guards and 8 integration checks pass. Whole accepted envelope/source/modes and predecessor/contributor selection preserved. Full implementation-range whitespace check clean. Independent bounded review next; Issue remains In Progress. No selection, instruction freeze, remote push, full domain/governed A1 replay or unassisted evaluation. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
