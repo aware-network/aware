@@ -7,6 +7,7 @@ from uuid import uuid4
 import pytest
 from aware_code_semantic_contract_runtime import product_contribution as products
 from aware_code_semantic_contract_runtime import selected_provider as selected
+from aware_code_semantic_contract_runtime import stage_contribution as stages
 from aware_code_semantic_contract_runtime.contracts import ContractViolation
 from aware_code_semantic_contract_runtime.materialization_catalog import (
     CodeSemanticMaterializationProfileBinding,
@@ -22,7 +23,6 @@ from aware_code_semantic_contract_runtime.private_stage_contract import (
     PrivateStageRoleContract,
 )
 from aware_code_semantic_contract_runtime.runtime import SemanticContractRuntime
-from aware_code_semantic_contract_runtime import stage_contribution as stages
 from test_profile_runtime import profile
 from test_selected_provider import (
     _ARTIFACT,
@@ -33,11 +33,13 @@ from test_selected_provider import (
 )
 from test_stage_contribution import (
     _catalog_product as stage_catalog_product,
+)
+from test_stage_contribution import (
     factory_fixture as stage_factory_fixture,
 )
 
 
-def _factory(catalog_producer=None, private_plan_producer=None):
+def _factory(catalog_producer=None, private_plan_producer=None, planning_factory=None):
     key = "product_" + uuid4().hex
     created = []
 
@@ -55,7 +57,7 @@ def _factory(catalog_producer=None, private_plan_producer=None):
             declaration, {key: provider}, _codecs()
         )
         created.append((runtime, provider))
-        return selected._SelectedProviderFactoryProduct(
+        product = selected._SelectedProviderFactoryProduct(
             runtime,
             provider,
             replace(_BINDING, provider_key=key),
@@ -66,11 +68,137 @@ def _factory(catalog_producer=None, private_plan_producer=None):
             catalog_producer,
             private_plan_producer,
         )
+        return product if planning_factory is None else planning_factory(product)
 
     factory = selected._admit_selected_provider_factory(
         factory_ref=key, provider_key=key, selection_factory=create
     )
     return factory, created
+
+
+@pytest.mark.parametrize("change", ["declaration", "copied_tuple", "producer", "code", "late"])
+def test_factory_planning_input_is_retained_by_original_identity(change):
+    from aware_code_semantic_contract_runtime.retained_input_projection_codec import (
+        DependencyPlanningInputCodec,
+    )
+    from aware_code_semantic_contract_runtime.semantic_input_producer import (
+        SemanticInputProducerDeclaration,
+        SemanticInputSourceContract,
+    )
+
+    produced = []
+
+    def owner_producer(_value):
+        raise AssertionError("metadata validation must never call owner producer")
+
+    def another_producer(_value):
+        raise AssertionError("substituted producer must never run")
+
+    def factory(product):
+        declaration = SemanticInputProducerDeclaration(
+            "owner.planning", product.runtime.profile.profile_ref,
+            product.binding.implementation, product.binding.configuration,
+            (SemanticInputSourceContract("source", product.runtime.profile.inputs[0].contract),),
+            "planning", DependencyPlanningInputCodec.contract,
+        )
+        product = replace(product, planning_input_declaration=None if change == "late" else declaration,
+                          planning_input_producer=None if change == "late" else owner_producer)
+        produced.append((product, declaration))
+        return product
+
+    admitted, _ = _factory(planning_factory=factory)
+    contribution = products.issue_selected_provider_product_contribution(admitted)
+    product, declaration = produced[0]
+    original_sources = declaration.source_contracts
+    try:
+        if change != "late":
+            assert products.read_selected_provider_product_planning_input(contribution) == (declaration, owner_producer)
+        if change == "declaration":
+            object.__setattr__(product, "planning_input_declaration", replace(declaration))
+        elif change == "copied_tuple":
+            object.__setattr__(declaration, "source_contracts", tuple(iter(declaration.source_contracts)))
+        elif change == "producer":
+            object.__setattr__(product, "planning_input_producer", another_producer)
+        elif change == "code":
+            owner_producer.__code__ = another_producer.__code__
+        else:
+            object.__setattr__(product, "planning_input_declaration", declaration)
+            object.__setattr__(product, "planning_input_producer", owner_producer)
+        with pytest.raises(ContractViolation):
+            products.read_selected_provider_product_planning_input(contribution)
+    finally:
+        # Restore fixture originals solely to retire the registration.
+        object.__setattr__(product, "planning_input_declaration", None if change == "late" else declaration)
+        object.__setattr__(product, "planning_input_producer", None if change == "late" else owner_producer)
+        retained = products._CONTRIBUTIONS[contribution].planning_input
+        if retained is not None:
+            owner_producer.__code__ = retained.code
+            object.__setattr__(declaration, "source_contracts", original_sources)
+        products.close_selected_provider_product_contribution(contribution)
+
+
+@pytest.mark.parametrize("change", ["none", "replay", "copy", "code", "wrong_role"])
+def test_execution_input_recipe_is_factory_owned_and_single_production(change):
+    from aware_code_semantic_contract_runtime.product_execution_input_plan import (
+        ProductExecutionInputPlan,
+        ProductExecutionInputSourceScope,
+        ProductExecutionInputStep,
+    )
+    from aware_code_semantic_contract_runtime.semantic_input_producer import (
+        SemanticInputProducerDeclaration,
+        SemanticInputSourceContract,
+    )
+
+    calls = []
+
+    def never_execute(_value):
+        raise AssertionError("recipe enrollment must not run producers")
+
+    def substitute(_value):
+        raise AssertionError("substituted function must not execute")
+
+    def builder(original):
+        calls.append(original)
+        selected_product = products.read_selected_provider_product_contribution(original)
+        binding = selected_product.binding
+        source = selected_product.profile.inputs[0]
+        declaration = SemanticInputProducerDeclaration("recipe.source", "recipe.profile",
+            binding.implementation, binding.configuration, (SemanticInputSourceContract("source", source.contract),),
+            "wrong" if change == "wrong_role" else source.role, source.contract)
+        return ProductExecutionInputPlan((ProductExecutionInputStep("source", declaration, never_execute,
+            (ProductExecutionInputSourceScope("source"),)),), (0,), never_execute)
+
+    def factory(product):
+        return replace(product, execution_input_contribution_producer=None if change == "none" else builder)
+
+    admitted, _ = _factory(planning_factory=factory)
+    contribution = products.issue_selected_provider_product_contribution(admitted)
+    try:
+        if change in ("none", "wrong_role"):
+            with pytest.raises(ContractViolation):
+                products.produce_selected_provider_product_execution_inputs(contribution)
+            assert len(calls) == (0 if change == "none" else 1)
+            return
+        plan = products.produce_selected_provider_product_execution_inputs(contribution)
+        assert products.read_selected_provider_product_execution_inputs(contribution) is plan
+        if change == "replay":
+            with pytest.raises(ContractViolation, match="consumed"):
+                products.produce_selected_provider_product_execution_inputs(contribution)
+        elif change == "copy":
+            object.__setattr__(plan, "steps", tuple(iter(plan.steps)))
+            with pytest.raises(ContractViolation):
+                products.read_selected_provider_product_execution_inputs(contribution)
+        else:
+            code = never_execute.__code__
+            never_execute.__code__ = substitute.__code__
+            try:
+                with pytest.raises(ContractViolation):
+                    products.read_selected_provider_product_execution_inputs(contribution)
+            finally:
+                never_execute.__code__ = code
+        assert len(calls) == 1
+    finally:
+        products.close_selected_provider_product_contribution(contribution)
 
 
 def _private_plan(original):
@@ -391,7 +519,7 @@ def test_hostile_catalog_value_rejects_without_attribute_execution():
     calls = []
 
     class Hostile:
-        __slots__ = ("original", "entries", "executables", "planner")
+        __slots__ = ("entries", "executables", "original", "planner")
 
         def __getattribute__(self, name):
             calls.append(name)

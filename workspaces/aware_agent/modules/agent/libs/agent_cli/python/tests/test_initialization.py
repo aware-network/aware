@@ -517,10 +517,10 @@ def test_successor_metadata_names_accepted_ports_and_floors():
         "project"
     ]
     deps = {r.name: r for r in map(Requirement, project["dependencies"])}
-    assert project["version"] == "0.2.0a4"
-    assert deps["aware-workspace-sdk"].extras == {"preparation"}
-    assert "0.2.1" in deps["aware-workspace-sdk"].specifier
-    assert "0.2.0" not in deps["aware-workspace-sdk"].specifier
+    assert project["version"] == "0.2.0a5"
+    assert deps["aware-workspace-sdk"].extras == {"preparation", "setup"}
+    assert "0.2.7" in deps["aware-workspace-sdk"].specifier
+    assert "0.2.6" not in deps["aware-workspace-sdk"].specifier
     assert "0.3.0" not in deps["aware-workspace-sdk"].specifier
     assert deps["aware-protocol-cli"].extras == {"bootstrap", "specification-setup"}
     assert "0.3.5" in deps["aware-protocol-cli"].specifier

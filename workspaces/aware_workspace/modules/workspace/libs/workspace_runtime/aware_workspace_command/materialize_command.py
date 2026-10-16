@@ -6,6 +6,7 @@ import argparse
 import json
 import sys
 import time
+from contextlib import ExitStack
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any, Protocol
 
@@ -201,14 +202,16 @@ class _DirectWorkspaceCommandTransport:
         admission_started = time.perf_counter_ns()
         failure_code = "caller_not_admitted"
         inspection = None
+        published = None
         root_text = proposal.participant_checkout_root
         if root_text is not None:
             try:
-                inspection, self.admission_diagnostic = asyncio.run(
+                inspection, self.admission_diagnostic, published = asyncio.run(
                     _continue_direct_materialize_profile(proposal)
                 )
-            except SourceObservationUnavailable:
+            except SourceObservationUnavailable as error:
                 failure_code = "workspace_manifest_not_admitted"
+                self.admission_diagnostic = str(error)
             except WorkspaceObservationLeaseUnavailable as error:
                 # The original observer remains owner of this checkout. Report
                 # the existing overlap refusal without issuing a receipt or
@@ -241,15 +244,59 @@ class _DirectWorkspaceCommandTransport:
             raise WorkspaceMaterializeCommandError("exact-address selection missing")
         if selection is not None:
             counters["selected_package_count"] = 1
+            if inspection is None:
+                raise WorkspaceMaterializeCommandError("selected source inspection missing")
+            counters["catalog_observation_count"] = inspection.selected_catalog_count
+        selected_ns = 0 if inspection is None else inspection.selected_timing_ns
+        catalog_ns = 0 if inspection is None else inspection.selected_catalog_timing_ns
+        if inspection is not None and inspection.graph_plan_wire is not None:
+            counters["graph_node_count"] = inspection.graph_node_count
+            counters["graph_edge_count"] = inspection.graph_edge_count
+            plan_ns = inspection.graph_plan_timing_ns
+            if published is not None:
+                counters["graph_admission_count"] = 1
+                counters["graph_execution_count"] = 1
+                return WorkspaceMaterializeHostResultV2.create(
+                    proposal=proposal, outcome="succeeded", terminal_stage="graph_execution",
+                    host_timing_ns=(
+                        ("request_decode", request_decode_ns),
+                        ("host_admission", max(0, admission_ns - selected_ns)),
+                        ("catalog_observation", catalog_ns),
+                        ("selection", max(0, selected_ns - catalog_ns - plan_ns - published.elapsed_ns)),
+                        ("graph_plan", plan_ns),
+                        ("graph_admission", published.admission_ns),
+                        ("graph_execution", max(0, published.elapsed_ns - published.admission_ns)),
+                    ),
+                    host_total_ns=request_decode_ns + admission_ns,
+                    host_counters=tuple(counters.items()), plan_result_wire=inspection.graph_plan_wire,
+                    graph_result_wire=published.wire, failure_kind=None, failure_code=None,
+                )
+            return WorkspaceMaterializeHostResultV2.create(
+                proposal=proposal,
+                outcome="succeeded" if proposal.plan_only else "blocked",
+                terminal_stage="graph_plan",
+                host_timing_ns=(
+                    ("request_decode", request_decode_ns),
+                    ("host_admission", max(0, admission_ns - selected_ns)),
+                    ("catalog_observation", catalog_ns),
+                    ("selection", max(0, selected_ns - catalog_ns - plan_ns)),
+                    ("graph_plan", plan_ns),
+                ),
+                host_total_ns=request_decode_ns + admission_ns,
+                host_counters=tuple(counters.items()),
+                plan_result_wire=inspection.graph_plan_wire, graph_result_wire=None,
+                failure_kind=None if proposal.plan_only else "authority",
+                failure_code=None if proposal.plan_only else failure_code,
+            )
         predecessor = WorkspaceMaterializeHostResultV2.create(
             proposal=proposal,
             outcome="blocked",
             terminal_stage="selection" if selection is not None else "host_admission",
             host_timing_ns=(
                 ("request_decode", request_decode_ns),
-                ("host_admission", max(0, admission_ns - inspection.selected_timing_ns)),
-                ("catalog_observation", 0),
-                ("selection", inspection.selected_timing_ns),
+                ("host_admission", max(0, admission_ns - selected_ns)),
+                ("catalog_observation", catalog_ns),
+                ("selection", selected_ns - catalog_ns),
             ) if selection is not None else (
                 ("request_decode", request_decode_ns),
                 ("host_admission", admission_ns),
@@ -279,7 +326,7 @@ class _DirectWorkspaceCommandTransport:
 
 async def _continue_direct_materialize_profile(
     proposal: WorkspaceMaterializeCommandProposalV2 | WorkspaceMaterializeCommandProposalV3,
-) -> tuple[WorkspaceDirectCLISourceInspection, str]:
+) -> tuple[WorkspaceDirectCLISourceInspection, str | None, Any]:
     """Consume the original selected source before its command is retired.
 
     Code interprets the selected registration and profile relationships;
@@ -289,29 +336,57 @@ async def _continue_direct_materialize_profile(
     leave this context, after final source validation and cleanup succeed.
     """
     from aware_code_semantic_contract_runtime.contracts import ContractViolation
+
+    from aware_workspace_runtime.direct_cli_product_planning import (
+        plan_direct_cli_selected_product,
+    )
+    from aware_workspace_runtime.direct_cli_product_publication import (
+        publish_direct_cli_selected_product,
+    )
+    from aware_workspace_runtime.direct_cli_selected_host import (
+        DirectCLIProviderFactoryUnavailable,
+        DirectCLISelectedDeclarationUnavailable,
+        compose_direct_cli_selected_product,
+    )
     from aware_workspace_runtime.direct_command_composition import (
         _compose_direct_workspace_cli_source,
-        _resolve_direct_workspace_exact_provider_key,
     )
 
     async with _compose_direct_workspace_cli_source(proposal=proposal) as (
         command, inspection, selected,
     ):
+        published = None
         if selected is None:
             diagnostic = "selected_graph_assembly_unavailable"
         else:
             selected_started_ns = time.perf_counter_ns()
             try:
-                provider_key = _resolve_direct_workspace_exact_provider_key(
-                    command, selected,
-                )
-            except ContractViolation as error:
+                with ExitStack() as retained, compose_direct_cli_selected_product(command, selected) as product:
+                    inspection = replace(
+                        inspection, selected_catalog_count=1,
+                        selected_catalog_timing_ns=product.catalog_timing_ns,
+                    )
+                    if not product.package_membership_present:
+                        diagnostic = "selected_product_package_membership_unavailable: " + product.package_ref
+                    else:
+                        planned = await plan_direct_cli_selected_product(command, selected, product)
+                        inspection = replace(
+                            inspection, graph_plan_wire=planned.wire,
+                            graph_plan_timing_ns=planned.elapsed_ns,
+                            graph_node_count=len(planned.plan.graph.nodes),
+                            graph_edge_count=len(planned.plan.graph.edges),
+                        )
+                        diagnostic = None
+                        if not proposal.plan_only:
+                            published = await publish_direct_cli_selected_product(
+                                command, selected, product, planned, retention=retained,
+                            )
+            except DirectCLISelectedDeclarationUnavailable as error:
                 diagnostic = f"selected_participant_admission_unavailable: {error}"
-            else:
-                diagnostic = (
-                    "original_selected_provider_factory_binding_unavailable: "
-                    + provider_key
-                )
+            except DirectCLIProviderFactoryUnavailable as error:
+                diagnostic = "original_selected_provider_factory_binding_unavailable: " + str(error)
+            except ContractViolation as error:
+                diagnostic = f"selected_product_host_admission_unavailable: {error}"
             inspection = replace(
                 inspection,
                 selected_timing_ns=(
@@ -319,7 +394,7 @@ async def _continue_direct_materialize_profile(
                     + time.perf_counter_ns() - selected_started_ns
                 ),
             )
-        return inspection, diagnostic
+        return inspection, diagnostic, published
 
 
 @dataclass(frozen=True, slots=True)
@@ -360,17 +435,28 @@ class _CommandOutcome:
                     self.terminal_stage == "selection"
                     and set(self.operation_payload) == {"host_receipt", "selected_root"}
                 )
+                valid_plan = (
+                    self.terminal_stage == "graph_plan"
+                    and set(self.operation_payload) == {
+                        "plan_result", "plan_result_wire_digest",
+                        "graph_result", "graph_result_wire_digest",
+                    }
+                    and type(self.operation_payload["plan_result"]) is dict
+                    and self.operation_payload["graph_result"] is None
+                    and self.operation_payload["graph_result_wire_digest"] is None
+                )
                 if (
                     self.outcome != "blocked"
                     or self.failure_code != "graph_host_not_ready"
-                    or not (valid_source or valid_selection)
+                    or not (valid_source or valid_selection or valid_plan)
                 ):
                     raise WorkspaceMaterializeCommandError(
                         "blocked operation receipt shape differs"
                     )
-                WorkspaceMaterializeHostOperationReceiptV1.from_value(
-                    self.operation_payload["host_receipt"]
-                )
+                if not valid_plan:
+                    WorkspaceMaterializeHostOperationReceiptV1.from_value(
+                        self.operation_payload["host_receipt"]
+                    )
                 if valid_selection:
                     WorkspaceMaterializeSelectedRootV1.from_value(
                         self.operation_payload["selected_root"]
@@ -690,6 +776,10 @@ def handle_workspace_materialize_command(
             failure_code="transport_failed",
         )
         diagnostic = str(error)
+        if isinstance(error, BaseExceptionGroup):
+            import traceback
+
+            diagnostic = "".join(traceback.format_exception(error))[-16384:]
     timings.append(("transport", time.perf_counter_ns() - transport_started))
     return _emit_result(
         args=args,

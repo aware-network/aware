@@ -115,6 +115,8 @@ def test_exact_additive_submodule_exports_preserve_all_existing_exports():
         "RETAINED_DECLARATION_SCOPE_V3_DESCRIPTOR",
         "RETAINED_DECLARATION_SCOPE_V3_REF",
         *predecessor()["__all__"],
+        "CodeRetainedDeclarationScopeCodec",
+        "RETAINED_DECLARATION_SCOPE_V3_CODEC_IMPLEMENTATION",
     ]
 
 

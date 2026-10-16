@@ -13,6 +13,7 @@ from .contracts import (
     ContentDigest,
     ContractViolation,
     SemanticContractRef,
+    SemanticImplementationCoordinate,
     canonical_json_bytes,
 )
 from .dependency_scope_closure import (
@@ -155,6 +156,37 @@ RETAINED_DECLARATION_SCOPE_V3_REF = SemanticContractRef(
     "3",
     ContentDigest.of_bytes(RETAINED_DECLARATION_SCOPE_V3_DESCRIPTOR),
 )
+
+# Additive runtime adapter identity. The V3 owner functions and wire predate
+# this adapter; publishing a schema alone did not publish a body-codec recipe.
+RETAINED_DECLARATION_SCOPE_V3_CODEC_IMPLEMENTATION = SemanticImplementationCoordinate(
+    "aware.code.retained-declaration-scope.codec.v3",
+    ContentDigest.of_bytes(
+        canonical_json_bytes(
+            {
+                "contract": RETAINED_DECLARATION_SCOPE_V3_REF.to_wire(),
+                "recipe": "delegate exact V3 values and bytes to original retained-declaration encode/decode; preserve complete closure, canonical wires and owner bounds; no source, catalog or lifetime authority",
+            }
+        )
+    ),
+)
+
+
+class CodeRetainedDeclarationScopeCodec:
+    """Original V3 wire as a runtime body; decoding is not source admission."""
+
+    contract: SemanticContractRef = RETAINED_DECLARATION_SCOPE_V3_REF
+    implementation: SemanticImplementationCoordinate = (
+        RETAINED_DECLARATION_SCOPE_V3_CODEC_IMPLEMENTATION
+    )
+
+    def encode(self, value: object) -> bytes:
+        if type(value) is not CodeRetainedDependencyScopeClosureV3:
+            raise ContractViolation("exact retained declaration closure required")
+        return encode_retained_declaration_scope(value)
+
+    def decode(self, canonical_body: bytes) -> CodeRetainedDependencyScopeClosureV3:
+        return decode_retained_declaration_scope(canonical_body)
 
 
 def declaration_closure_payload_bytes(
@@ -419,4 +451,6 @@ __all__ = [
     "decode_selected_package_source_binding",
     "encode_retained_declaration_scope",
     "encode_selected_package_source_binding",
+    "CodeRetainedDeclarationScopeCodec",
+    "RETAINED_DECLARATION_SCOPE_V3_CODEC_IMPLEMENTATION",
 ]

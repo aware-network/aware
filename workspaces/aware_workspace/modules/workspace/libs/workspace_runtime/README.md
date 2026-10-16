@@ -417,3 +417,30 @@ It imports no Agent/provider contract, does not create another observer, and
 never upgrades path/time overlap into actor authorship. Development owns the
 peer translation from Agent edit observations and retains only the resulting
 cross-domain references.
+
+
+The repository tree projection client prepares an original plan from retained
+workflow source and FileSystem's original retained preparation. The binding
+preserves exact body/preimage correspondence, read pins, scratch footprint and
+transition order before Issue enrollment. Public plan observation and verification
+recheck the original source, retained bodies and live physical preparation;
+detached bindings cannot reconstruct a plan. Preparation does not write targets.
+
+Original Issue tree admission now enrolls against that actual Workspace plan.
+The controller spends it once under the existing mutation coordinator and command
+observation serialization. Each ordinal rechecks original Issue consumption,
+source/bodies and physical currentness before dispatching the retained FileSystem
+transition. Cancellation drains the actual worker before custody release; later
+refusal preserves the applied prefix and uncertainty without dispatching a suffix.
+Finish and consumed-current verification precede physical release and original
+result issuance. Actual byte changes join the existing delta capture, canonical
+mutation receipt and bounded receipt index; directory, mode-only and CURRENT
+operations retain physical evidence without manufacturing byte mutations.
+
+Result reads retain source/body/result correspondence and return descriptive
+past outcomes, without certifying later target currentness or authorizing retry.
+Known effects and original receipts survive failed index persistence, which is
+reported separately. Release disposes owned body/capture/delta custody and stops
+command observation. Issue, source and workflow parent remain borrowed. Local
+joined source proofs do not establish installed qualification or complete-call
+performance/resource acceptance.

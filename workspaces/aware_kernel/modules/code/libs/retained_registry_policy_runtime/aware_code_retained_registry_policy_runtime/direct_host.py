@@ -33,13 +33,13 @@ from aware_code_semantic_contract_runtime.runtime import SemanticContractRuntime
 from .calculation import calculate_registry_policy
 from .declaration_eligibility import calculate_declaration_eligibility
 from .direct_epoch_tracking import _epoch_closed, _tracked_policy
+from .product_runtime_retention import _ProductRuntimeRetention
 from .qualified_calculation import calculate_qualified_registry_policy
 from .stage_runtime_retention import _StageRuntimeRetention
-from .product_runtime_retention import _ProductRuntimeRetention
 
 if TYPE_CHECKING:
-    from .dependency_source_binding import _RetainedDependencySource
     from .declaration_host import _PreparedDeclarationSource
+    from .dependency_source_binding import _RetainedDependencySource
 
 
 class _Opaque:
@@ -113,6 +113,9 @@ class _State:
     dependency_binding: _RetainedDependencySource | None = None
     declaration_binding: _PreparedDeclarationSource | None = None
     source_rail: str = "existing"
+    # One grammar attachment attempt belongs to this original host. It is not
+    # an ambient lookup, producer registration or positive execution admission.
+    grammar_attachment: object = None
 
     @overload
     def check(
@@ -238,8 +241,8 @@ def _assemble_direct_command_bootstrap(
     if type(expected) is not DirectCommandExpectedContext:
         raise TypeError("exact direct context required")
     expected.__post_init__()
-    from .stage_runtime_retention import _capture_stage_runtime_retention
     from .product_runtime_retention import _capture_product_runtime_retention
+    from .stage_runtime_retention import _capture_stage_runtime_retention
 
     stages = (
         _capture_stage_runtime_retention(expected)
@@ -393,12 +396,45 @@ def register_direct_workspace_origin(
         raise
 
 
-def _state(host):
+def _identity_registry_get(mapping, key):
+    """Read retained weak keys without invoking referent hash or equality."""
+    for reference in mapping.keyrefs():
+        if reference() is key:
+            return mapping.data[reference]
+    return None
+
+
+def _identity_registry_pop(mapping, key):
+    for reference in mapping.keyrefs():
+        if reference() is key:
+            return mapping.data.pop(reference)
+    return None
+
+
+def _retained_host(host):
+    state = _identity_registry_get(_HOSTS, host)
     if type(host) is not DirectValidationHost:
+        if state is not None:
+            state.closed = True
         raise TypeError("exact direct host required")
-    state = _HOSTS.get(host)
     if state is None:
         raise ContractViolation("foreign or closed host")
+    if (
+        inspect.getattr_static(DirectValidationHost, "__hash__") is not object.__hash__
+        or inspect.getattr_static(DirectValidationHost, "__eq__") is not object.__eq__
+    ):
+        state.closed = True
+        raise ContractViolation("original direct host identity behavior substituted")
+    return state
+
+
+def validate_direct_validation_host(host: object) -> None:
+    """Verify the original owner before an application dispatches through its host."""
+    _state(host)
+
+
+def _state(host):
+    state = _retained_host(host)
     try:
         state.check(read_catalog=False)
     except BaseException:
@@ -417,7 +453,7 @@ def _state(host):
         if expected_retirement:
             try:
                 state.check(read_catalog=False, check_catalog=False)
-            except BaseException:
+            except BaseException:  # noqa: BLE001 - uncertain retirement cannot preserve admission
                 expected_retirement = False
         if state.pid == os.getpid() and not expected_retirement:
             state.closed = True
@@ -429,9 +465,7 @@ def _qualified_mode(host):
     """Dispatch on retained fixed producer, without another catalog export/check."""
     if type(host) is not DirectValidationHost:
         raise TypeError("exact direct host required")
-    state = _HOSTS.get(host)
-    if state is None:
-        raise ContractViolation("foreign or closed host")
+    state = _retained_host(host)
     if state.pid != os.getpid():
         raise ContractViolation("direct process changed")
     producer = next(
@@ -538,14 +572,14 @@ def close_direct_validation_host(host: DirectValidationHost) -> None:
     """Revoke Code records only; original composition owns resource cleanup."""
     if type(host) is not DirectValidationHost:
         raise TypeError("exact direct host required")
-    state = _HOSTS.get(host)
+    state = _identity_registry_get(_HOSTS, host)
     if state is None:
         return
     if state.pid != os.getpid():
         raise ContractViolation("direct process changed")
     with _LOCK:
         state.closed = True
-        _HOSTS.pop(host, None)
+        _identity_registry_pop(_HOSTS, host)
         for admission, value in list(_POLICIES.items()):
             if value[0] is host:
                 _POLICIES.pop(admission, None)

@@ -532,7 +532,7 @@ def _prepare_directory(
                 path, "directory", ConfinedMutationEffectState.UNKNOWN
             )
             try:
-                os.mkdir(PurePosixPath(path).name, mode=0o700, dir_fd=parent)
+                _mkdir_explicit(PurePosixPath(path).name, mode=0o700, dir_fd=parent)
             except FileExistsError:
                 effect = RetainedPhysicalEffect(
                     path, "directory", ConfinedMutationEffectState.NONE
@@ -593,3 +593,8 @@ def _prepare_directory(
     finally:
         if parent is not None:
             _close_or_retire(state, parent)
+
+
+def _mkdir_explicit(name, *, mode, dir_fd, _io=os):
+    """Original explicit mkdir primitive; private C recording does not admit paths."""
+    _io.mkdir(name, mode=mode, dir_fd=dir_fd)

@@ -14,8 +14,9 @@ import os
 import shutil
 import subprocess
 import tomllib
+import weakref
 from collections import deque
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path, PurePosixPath
 from typing import Any, Self, cast
 
@@ -58,8 +59,12 @@ def _sha(body: bytes) -> str:
     return "sha256:" + hashlib.sha256(body).hexdigest()
 
 
-def _git(root: Path, *args: str) -> bytes:
-    result = subprocess.run(
+_GIT_RUN = subprocess.run
+_TRACKED_STAT = os.stat
+
+
+def _git(root: Path, *args: str, _retained: bool = False) -> bytes:
+    result = (_GIT_RUN if _retained else subprocess.run)(
         ["git", "-C", str(root), *args],
         check=False,
         capture_output=True,
@@ -82,6 +87,134 @@ def _requirement(value: str) -> Requirement:
     return requirement
 
 
+_COMPOSITION_READER_ENTRIES = tuple(
+    (name, value)
+    for name, value in vars(LocalCheckoutWorkspaceCompositionProvider).items()
+    if callable(value)
+)
+
+
+def _retain_composition_readers(
+    provider: LocalCheckoutWorkspaceCompositionProvider, guard: Callable[[], None]
+) -> None:
+    """Retain this same original interpreter's helpers; never clone its resolver."""
+    reference = weakref.ref(provider)
+    installed: dict[str, Any] = {}
+
+    def invoke(original: Any, *args: Any, **kwargs: Any) -> Any:
+        receiver = reference()
+        try:
+            guard()
+            if (
+                receiver is None
+                or type(receiver) is not LocalCheckoutWorkspaceCompositionProvider
+                or any(
+                    vars(receiver).get(name) is not entrance
+                    for name, entrance in installed.items()
+                )
+            ):
+                raise PackageCheckoutError("composition reader substituted")
+            result = original(receiver, *args, **kwargs)
+            guard()
+            return result
+        finally:
+            receiver = result = original = None
+            args = ()
+            kwargs.clear()
+
+    def entrance(original: Any) -> Any:
+        def dispatch(*args: Any, **kwargs: Any) -> Any:
+            try:
+                return invoke(original, *args, **kwargs)
+            finally:
+                args = ()
+                kwargs.clear()
+
+        return dispatch
+
+    for name, original in _COMPOSITION_READER_ENTRIES:
+        installed[name] = entrance(original)
+        setattr(provider, name, installed[name])
+
+
+_RETAINED_READER_GUARDS: weakref.WeakKeyDictionary[
+    PackageSourceCheckout, Callable[[], None]
+] = weakref.WeakKeyDictionary()
+
+
+def _retain_reader_registry_ports(
+    registry: weakref.WeakKeyDictionary[PackageSourceCheckout, Callable[[], None]],
+) -> tuple[
+    Callable[[PackageSourceCheckout, Callable[[], None]], None], Callable[..., None]
+]:
+    """Bind enrollment and checking to the same definition-time owner registry."""
+
+    def _bind_retained_reader(
+        reader: PackageSourceCheckout, guard: Callable[[], None]
+    ) -> None:
+        object.__setattr__(reader, "_reader_guard", guard)
+        registry[reader] = guard
+
+    def _check_retained_reader(
+        reader: PackageSourceCheckout, _registry: Any = registry
+    ) -> None:
+        original = guard = None
+        try:
+            # Do not derive scan authority from the mutable module reference,
+            # even when it and the callable default are substituted together.
+            if _registry is not registry:
+                raise PackageCheckoutError("retained read registry substituted")
+            for original, guard in registry.items():
+                if original is reader:
+                    guard()
+                    allowed = {
+                        "root",
+                        "_fd",
+                        "_identity",
+                        "_revision",
+                        "_inventory",
+                        "_bodies",
+                        "_source_rows",
+                        "_package_roots",
+                        "_repository_rows",
+                        "_output_rows",
+                        "_written",
+                        "_reader_guard",
+                    }
+                    if object.__getattribute__(
+                        reader, "_reader_guard"
+                    ) is not guard or any(
+                        name not in allowed
+                        for name in object.__getattribute__(reader, "__dict__")
+                    ):
+                        raise PackageCheckoutError("retained read guard substituted")
+                    return
+            if object.__getattribute__(reader, "_reader_guard") is not None:
+                raise PackageCheckoutError("retained read guard unregistered")
+        finally:
+            del reader, _registry, original, guard
+
+    return _bind_retained_reader, _check_retained_reader
+
+
+_bind_retained_reader, _check_retained_reader = _retain_reader_registry_ports(
+    _RETAINED_READER_GUARDS
+)
+
+
+def _read_git(
+    reader: PackageSourceCheckout,
+    *args: str,
+    _guard: Callable[..., None] = _check_retained_reader,
+) -> bytes:
+    _guard(reader)
+    return _git(
+        reader.root,
+        *args,
+        _retained=object.__getattribute__(reader, "_reader_guard") is not None,
+    )
+
+
 class PackageSourceCheckout:
     """One confined working-tree capture, usable only while this reader is live.
 
@@ -90,23 +223,69 @@ class PackageSourceCheckout:
     not a portable authority handle.
     """
 
-    def __init__(self, repository_root: str | Path) -> None:
+    def __init__(
+        self,
+        repository_root: str | Path,
+        *,
+        _workflow_guard: Callable[[], None] | None = None,
+    ) -> None:
+        self._reader_guard: Callable[[], None] | None = None
+        if _workflow_guard is not None:
+            _bind_retained_reader(self, _workflow_guard)
+            _workflow_guard()
         self.root = Path(repository_root).resolve(strict=True)
         if (
             Path(_git(self.root, "rev-parse", "--show-toplevel").decode().strip())
             != self.root
         ):
             raise PackageCheckoutError("select the canonical repository root")
+        if _workflow_guard is not None:
+            _workflow_guard()
         self._revision = _git(self.root, "rev-parse", "HEAD").decode().strip()
-        self._fd = os.open(self.root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
-        self._identity = os.fstat(self._fd).st_dev, os.fstat(self._fd).st_ino
-        self._inventory: dict[str, Any] | None = None
-        self._bodies: tuple[tuple[str, bytes], ...] = ()
-        self._source_rows: tuple[tuple[str, str], ...] = ()
-        self._package_roots: tuple[str, ...] = ()
-        self._repository_rows: tuple[tuple[str, str], ...] = ()
-        self._output_rows: tuple[tuple[str, str, str], ...] = ()
-        self._written = False
+        if _workflow_guard is not None:
+            _workflow_guard()
+        descriptor = -1
+        release_root = os.close
+        self._fd = -1
+        try:
+            descriptor = os.open(
+                self.root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+            )
+            self._fd = descriptor
+            if _workflow_guard is not None:
+                _workflow_guard()
+            self._identity = os.fstat(self._fd).st_dev, os.fstat(self._fd).st_ino
+            self._inventory: dict[str, Any] | None = None
+            self._bodies: tuple[tuple[str, bytes], ...] = ()
+            self._source_rows: tuple[tuple[str, str], ...] = ()
+            self._package_roots: tuple[str, ...] = ()
+            self._repository_rows: tuple[tuple[str, str], ...] = ()
+            self._output_rows: tuple[tuple[str, str, str], ...] = ()
+            self._written = False
+        except BaseException as acquisition_error:
+            # Revoke local custody before a once-only physical release. Neither
+            # the caller nor a retained traceback may retry an uncertain close.
+            self._fd = -1
+            cleanup_state = "completed"
+            cleanup_error = None
+            try:
+                if descriptor >= 0:
+                    release_root(descriptor)
+            except BaseException as error:  # noqa: BLE001 -- preserve original acquisition interruption/cause
+                cleanup_state = "unknown"
+                cleanup_error = error
+            vars(acquisition_error)["workspace_source_acquisition_cleanup"] = (
+                cleanup_state
+            )
+            if cleanup_error is not None:
+                vars(acquisition_error)[
+                    "workspace_source_acquisition_cleanup_error"
+                ] = cleanup_error
+            self._reader_guard = None
+            raise
+        finally:
+            # A held acquisition error must not retain this failed reader/guard.
+            del self, _workflow_guard, release_root
 
     def __enter__(self) -> Self:
         return self
@@ -114,20 +293,31 @@ class PackageSourceCheckout:
     def __exit__(self, *_: object) -> None:
         self.close()
 
-    def close(self) -> None:
-        if self._fd >= 0:
-            os.close(self._fd)
-            self._fd = -1
-        self._bodies = ()
-        self._inventory = None
+    def close(self, *, _close: Callable[[int], None] = os.close) -> None:
+        if self._reader_guard is not None:
+            descriptor, self._fd = self._fd, -1
+            self._bodies = ()
+            self._inventory = None
+            self._reader_guard = None
+            if descriptor >= 0:
+                _close(descriptor)
+        else:
+            if self._fd >= 0:
+                os.close(self._fd)
+                self._fd = -1
+            self._bodies = ()
+            self._inventory = None
 
-    def _check(self) -> None:
+    def _check(self, *, _guard: Callable[..., None] = _check_retained_reader) -> None:
+        _guard(self)
         if self._fd < 0:
             raise PackageCheckoutError("checkout reader closed")
         current = self.root.stat()
+        _guard(self)
         if self.root.is_symlink() or (current.st_dev, current.st_ino) != self._identity:
             raise PackageCheckoutError("repository root replaced")
-        if _git(self.root, "rev-parse", "HEAD").decode().strip() != self._revision:
+        _guard(self)
+        if _read_git(self, "rev-parse", "HEAD").decode().strip() != self._revision:
             raise PackageCheckoutError("repository revision changed")
 
     def resolve(
@@ -138,6 +328,7 @@ class PackageSourceCheckout:
         overlays: Sequence[str] = (),
         marker_environment: Mapping[str, str] | None = None,
         forbidden_packages: Sequence[str] = (),
+        _guard: Callable[..., None] = _check_retained_reader,
     ) -> dict[str, Any]:
         """Resolve explicit PEP 508 selections against canonical declared leaves.
 
@@ -173,7 +364,10 @@ class PackageSourceCheckout:
         forbidden = {
             canonicalize_name(value, validate=True) for value in forbidden_packages
         }
+        _guard(self)
         provider = LocalCheckoutWorkspaceCompositionProvider()
+        if self._reader_guard is not None:
+            _retain_composition_readers(provider, self._reader_guard)
         description = provider.describe(self.root)
         memberships = provider.python_package_memberships(description)
         paths = tuple(sorted({r["manifest_path"] for r in memberships}))
@@ -182,7 +376,10 @@ class PackageSourceCheckout:
         # the hierarchy. Local file parsing alone does not establish membership.
         captured = dict(
             capture_exact_paths(
-                self._fd, tuple(sorted(set(structural) | set(paths))), _LIMITS
+                self._fd,
+                tuple(sorted(set(structural) | set(paths))),
+                _LIMITS,
+                _verify=self._reader_guard,
             )
         )
         if any(
@@ -192,7 +389,10 @@ class PackageSourceCheckout:
             for row in memberships
         ):
             raise PackageCheckoutError("SDK declaration changed before capture")
+        _guard(self)
         repeated = LocalCheckoutWorkspaceCompositionProvider()
+        if self._reader_guard is not None:
+            _retain_composition_readers(repeated, self._reader_guard)
         repeated_description = repeated.describe(self.root)
         if (
             repeated_description != description
@@ -417,10 +617,12 @@ class PackageSourceCheckout:
                 raise PackageCheckoutError(
                     "nested package roots require an owner-defined packaging boundary"
                 )
+        _guard(self)
         self._source_rows = self._tracked_sources()
         source_paths = {path for _, path in self._source_rows}
         if not set(roots.values()) <= source_paths:
             raise PackageCheckoutError("selected package manifest is not Git-tracked")
+        _guard(self)
         self._repository_rows = self._tracked_exact_sources(
             tuple(sorted({row["source_path"] for row in repository_files}))
         )
@@ -441,7 +643,10 @@ class PackageSourceCheckout:
             raise PackageCheckoutError("checkout output target collision")
         self._output_rows = tuple(sorted(outputs, key=lambda row: row[1]))
         self._bodies = capture_exact_paths(
-            self._fd, tuple(sorted(source_paths | set(captured) | set(modes))), _LIMITS
+            self._fd,
+            tuple(sorted(source_paths | set(captured) | set(modes))),
+            _LIMITS,
+            _verify=self._reader_guard,
         )
         fresh = dict(self._bodies)
         if any(fresh[path] != body for path, body in captured.items()):
@@ -513,12 +718,16 @@ class PackageSourceCheckout:
             ]
         inventory["inventory_digest"] = _sha(_wire(inventory))
         self._inventory = inventory
+        _guard(self)
         self.revalidate()
         return copy.deepcopy(inventory)
 
-    def _tracked_sources(self) -> tuple[tuple[str, str], ...]:
-        untracked = _git(
-            self.root,
+    def _tracked_sources(
+        self, *, _guard: Callable[..., None] = _check_retained_reader
+    ) -> tuple[tuple[str, str], ...]:
+        _guard(self)
+        untracked = _read_git(
+            self,
             "ls-files",
             "--others",
             "--exclude-standard",
@@ -531,8 +740,10 @@ class PackageSourceCheckout:
                 "untracked package sources require repository admission"
             )
         rows: list[tuple[str, str]] = []
-        for raw in _git(
-            self.root, "ls-files", "--stage", "-z", "--", *self._package_roots
+        retained = self._reader_guard is not None
+        root_text = str(self.root)
+        for raw in _read_git(
+            self, "ls-files", "--stage", "-z", "--", *self._package_roots
         ).split(b"\0"):
             if not raw:
                 continue
@@ -544,19 +755,28 @@ class PackageSourceCheckout:
                 raise PackageCheckoutError(
                     f"unsupported tracked package member: {path}"
                 )
-            executable = bool((self.root / path).stat().st_mode & 0o111)
+            if retained:
+                if os.stat is not _TRACKED_STAT:
+                    raise PackageCheckoutError("retained stat reader substituted")
+                executable = bool(_TRACKED_STAT(root_text + "/" + path).st_mode & 0o111)
+            else:
+                executable = bool((self.root / path).stat().st_mode & 0o111)
             if executable != (mode == "100755"):
                 raise PackageCheckoutError(f"source mode changed: {path}")
             rows.append((mode, path))
         return tuple(sorted(rows, key=lambda row: row[1]))
 
     def _tracked_exact_sources(
-        self, paths: tuple[str, ...]
+        self,
+        paths: tuple[str, ...],
+        *,
+        _guard: Callable[..., None] = _check_retained_reader,
     ) -> tuple[tuple[str, str], ...]:
+        _guard(self)
         if not paths:
             return ()
         rows = []
-        for raw in _git(self.root, "ls-files", "--stage", "-z", "--", *paths).split(
+        for raw in _read_git(self, "ls-files", "--stage", "-z", "--", *paths).split(
             b"\0"
         ):
             if not raw:
@@ -568,6 +788,7 @@ class PackageSourceCheckout:
                 raise PackageCheckoutError(
                     "repository file is not one tracked regular file"
                 )
+            _guard(self)
             if bool((self.root / path).stat().st_mode & 0o111) != (mode == "100755"):
                 raise PackageCheckoutError("repository file mode changed")
             rows.append((mode, path))
@@ -575,10 +796,14 @@ class PackageSourceCheckout:
             raise PackageCheckoutError("repository file is not Git-tracked")
         return tuple(sorted(rows, key=lambda row: row[1]))
 
-    def revalidate(self) -> None:
+    def revalidate(
+        self, *, _guard: Callable[..., None] = _check_retained_reader
+    ) -> None:
+        _guard(self)
         self._check()
         if self._inventory is None:
             raise PackageCheckoutError("checkout is not resolved")
+        _guard(self)
         if (
             self._tracked_exact_sources(
                 tuple(path for _, path in self._repository_rows)
@@ -586,15 +811,63 @@ class PackageSourceCheckout:
             != self._repository_rows
         ):
             raise PackageCheckoutError("repository-file membership changed")
+        _guard(self)
         if self._tracked_sources() != self._source_rows:
             raise PackageCheckoutError("tracked source membership changed")
+        _guard(self)
         if (
             capture_exact_paths(
-                self._fd, tuple(path for path, _ in self._bodies), _LIMITS
+                self._fd,
+                tuple(path for path, _ in self._bodies),
+                _LIMITS,
+                _verify=self._reader_guard,
             )
             != self._bodies
         ):
             raise PackageCheckoutError("checkout sources changed")
+        _guard(self)
+        self._check()
+
+    def revalidate_paths(
+        self,
+        output_paths: tuple[str, ...],
+        *,
+        _guard: Callable[..., None] = _check_retained_reader,
+    ) -> None:
+        """Recheck original selected leaves; full membership is a separate boundary."""
+        _guard(self)
+        self._check()
+        if self._inventory is None:
+            raise PackageCheckoutError("checkout is not resolved")
+        if (
+            type(output_paths) is not tuple
+            or len(output_paths) > _LIMITS.maximum_files
+            or any(type(path) is not str for path in output_paths)
+        ):
+            raise PackageCheckoutError("invalid selected output paths")
+        if tuple(sorted(set(output_paths))) != output_paths:
+            raise PackageCheckoutError("selected outputs are duplicated or reordered")
+        # Both tuples are original immutable capture evidence, pinned by the owner.
+        outputs = {target: (mode, source) for mode, target, source in self._output_rows}
+        if any(path not in outputs for path in output_paths):
+            raise PackageCheckoutError(
+                "selected output is outside the original capture"
+            )
+        modes = {outputs[path][1]: outputs[path][0] for path in output_paths}
+        source_paths = tuple(sorted(modes))
+        if source_paths:
+            _guard(self)
+            if self._tracked_exact_sources(source_paths) != tuple(
+                (modes[path], path) for path in source_paths
+            ):
+                raise PackageCheckoutError("selected source membership or mode changed")
+            _guard(self)
+            captured = dict(self._bodies)
+            if capture_exact_paths(
+                self._fd, source_paths, _LIMITS, _verify=self._reader_guard
+            ) != tuple((path, captured[path]) for path in source_paths):
+                raise PackageCheckoutError("selected checkout sources changed")
+        _guard(self)
         self._check()
 
     def write(self, destination: str | Path) -> dict[str, Any]:

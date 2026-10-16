@@ -62,9 +62,7 @@ _MUTATION_REQUEST_KEYS = frozenset(
         "context_refs",
     }
 )
-_MUTATION_REQUEST_REPLACEMENT_KEYS = _MUTATION_REQUEST_KEYS | {
-    "text_replacements"
-}
+_MUTATION_REQUEST_REPLACEMENT_KEYS = _MUTATION_REQUEST_KEYS | {"text_replacements"}
 _AUTHORIZED_MUTATION_KEYS = frozenset({"receipt", "evidence"})
 
 
@@ -85,7 +83,8 @@ def workspace_repository_value_payload(
     return {
         "contract_ref": WORKSPACE_REPOSITORY_CHANGE_EVIDENCE_CONTRACT_REF,
         "contract_version": (
-            "2" if type(value) is WorkspaceRepositoryMutationReceipt
+            "2"
+            if type(value) is WorkspaceRepositoryMutationReceipt
             and value.physical_effect is not None
             else WORKSPACE_REPOSITORY_CHANGE_EVIDENCE_CONTRACT_VERSION
         ),
@@ -111,9 +110,11 @@ def workspace_repository_value_from_payload(
     _exact_keys(envelope, _ENVELOPE_KEYS, "repository evidence envelope")
     if envelope["contract_ref"] != WORKSPACE_REPOSITORY_CHANGE_EVIDENCE_CONTRACT_REF:
         raise ValueError("Repository evidence contract ref is unsupported")
-    if (
-        envelope["contract_version"] != WORKSPACE_REPOSITORY_CHANGE_EVIDENCE_CONTRACT_VERSION
-        and not (envelope["contract_version"] == "2" and envelope["value_kind"] == "mutation_receipt")
+    if envelope[
+        "contract_version"
+    ] != WORKSPACE_REPOSITORY_CHANGE_EVIDENCE_CONTRACT_VERSION and not (
+        envelope["contract_version"] == "2"
+        and envelope["value_kind"] == "mutation_receipt"
     ):
         raise ValueError("Repository evidence contract version is unsupported")
     value_kind = _string(envelope["value_kind"], "value_kind")
@@ -240,22 +241,22 @@ def repository_mutation_request_payload(
     value: WorkspaceRepositoryMutationRequest,
 ) -> dict[str, object]:
     request_value: dict[str, object] = {
-            "operation_ref": value.operation_ref,
-            "idempotency_key": value.idempotency_key,
-            "mutation_kind": value.mutation_kind.value,
-            "expected_coordinate": _encode(
-                value.expected_coordinate,
-                type(value.expected_coordinate),
-            ),
-            "target_path": value.target_path,
-            "expected_exists": value.expected_exists,
-            "expected_content_digest": value.expected_content_digest,
-            "content_base64": (
-                None
-                if value.content is None
-                else base64.b64encode(value.content).decode("ascii")
-            ),
-            "context_refs": list(value.context_refs),
+        "operation_ref": value.operation_ref,
+        "idempotency_key": value.idempotency_key,
+        "mutation_kind": value.mutation_kind.value,
+        "expected_coordinate": _encode(
+            value.expected_coordinate,
+            type(value.expected_coordinate),
+        ),
+        "target_path": value.target_path,
+        "expected_exists": value.expected_exists,
+        "expected_content_digest": value.expected_content_digest,
+        "content_base64": (
+            None
+            if value.content is None
+            else base64.b64encode(value.content).decode("ascii")
+        ),
+        "context_refs": list(value.context_refs),
     }
     if value.text_replacements:
         request_value["text_replacements"] = [
@@ -299,9 +300,7 @@ def repository_mutation_request_from_payload(
             "old_text",
             "new_text",
         }:
-            raise ValueError(
-                "mutation_request.text_replacements entries are invalid"
-            )
+            raise ValueError("mutation_request.text_replacements entries are invalid")
         replacements.append(
             WorkspaceRepositoryTextReplacement(
                 old_text=_string(
@@ -439,6 +438,8 @@ def _expected(payload: object, expected_type: type[Any]) -> Any:
 def _encode(value: Any, annotation: Any) -> object:
     if value is None:
         return None
+    if annotation is str or annotation is int or annotation is bool:
+        return value
     origin = get_origin(annotation)
     if origin in (types.UnionType, getattr(types, "UnionType", object)):
         return _encode_union(value, annotation)
@@ -450,14 +451,63 @@ def _encode(value: Any, annotation: Any) -> object:
     if annotation is datetime:
         return _timestamp(value)
     if is_dataclass(annotation):
+        # Closed metadata is reusable; native fields and recursive values are not.
+        registry = _RECEIPT_FIELDS_BY_ID
+        if (
+            type(registry) is not dict
+            or registry is not _RECEIPT_ORIGINAL_REGISTRY
+            or type(_RECEIPT_ORIGINAL_ENTRIES) is not dict
+        ):
+            raise TypeError("Original receipt compiler registry required")
+        entry = registry.get(id(annotation))
+        if entry is not _RECEIPT_ORIGINAL_ENTRIES.get(id(annotation)) or (
+            entry is not None and (type(entry) is not tuple or len(entry) != 5)
+        ):
+            raise TypeError("Original receipt compiler entry required")
+        # Preserve the original single lazy lookup. It may change the schema;
+        # inspect eligibility only after it returns, before any field reads.
         hints = _type_hints(annotation)
-        return {
-            field.name: _encode(getattr(value, field.name), hints[field.name])
-            for field in fields(annotation)
-            if not (annotation is WorkspaceRepositoryMutationReceipt and field.name == "physical_effect" and value.physical_effect is None)
-        }
-    if annotation in (str, int, bool):
-        return value
+        if entry is not None and entry[0] is annotation and type(value) is annotation:
+            converter, code = entry[2]
+            namespace = vars(annotation)
+            metadata = namespace.get("__dataclass_fields__")
+            if (
+                metadata is entry[3]
+                and type(metadata) is dict
+                and tuple(map(id, metadata.values())) == entry[4]
+                and type(hints) is dict
+            ):
+                if (
+                    _RECEIPT_FIELDS_BY_ID is not registry
+                    or registry.get(id(annotation)) is not entry
+                    or type(converter) is not types.FunctionType
+                    or converter.__code__ is not code
+                    or converter.__defaults__ is not None
+                    or converter.__kwdefaults__ is not None
+                ):
+                    raise TypeError("Original receipt compiler code/defaults required")
+                converted = converter(value, entry[1], hints)
+                if converted is not None:
+                    return converted
+        result = {}
+        for field in fields(annotation):
+            if (
+                annotation is WorkspaceRepositoryMutationReceipt
+                and field.name == "physical_effect"
+                and value.physical_effect is None
+            ):
+                continue
+            member = getattr(value, field.name)
+            hint = hints[field.name]
+            # Read every original field afresh. Primitive fields need no
+            # recursive schema reflection; this is the same leaf conversion
+            # as below, with no cached value, payload or authority verdict.
+            result[field.name] = (
+                member
+                if member is None or hint is str or hint is int or hint is bool
+                else _encode(member, hint)
+            )
+        return result
     raise TypeError(f"Unsupported repository evidence annotation: {annotation!r}")
 
 
@@ -498,7 +548,10 @@ def _decode(payload: object, annotation: Any, field_name: str) -> Any:
         return _datetime(payload, field_name)
     if is_dataclass(annotation):
         mapping = _mapping(payload, field_name)
-        if annotation is WorkspaceRepositoryMutationReceipt and "physical_effect" not in mapping:
+        if (
+            annotation is WorkspaceRepositoryMutationReceipt
+            and "physical_effect" not in mapping
+        ):
             mapping = {**mapping, "physical_effect": None}
         hints = _type_hints(annotation)
         expected_keys = frozenset(field.name for field in fields(annotation))
@@ -581,3 +634,142 @@ def _string(payload: object, field_name: str) -> str:
     if not isinstance(payload, str):
         raise TypeError(f"{field_name} must be a string")
     return payload
+
+
+def _compile_receipt_fields() -> dict[int, Any]:
+    """Compile the finite authored schema closure, never caller schemas/text.
+
+    Encoding checks original metadata after its lazy hint lookup, then uses
+    these converters or the original generic path when eligibility changes.
+    Functions retain only declarations and code, never values or wire payloads.
+    """
+    todo = [*_VALUE_TYPES.values(), WorkspaceRepositoryMutationExecutionEvidence]
+    seen: set[int] = set()
+    compiled: dict[int, Any] = {}
+    while todo:
+        cls = todo.pop()
+        if id(cls) in seen:
+            continue
+        seen.add(id(cls))
+        if not isinstance(cls, type) or not is_dataclass(cls):
+            continue
+        # Compilation must not initialize the shared encoder/decoder cache.
+        # First-use annotation interpretation remains with _type_hints.
+        hints = get_type_hints(cls)
+        namespace = vars(cls)
+        definitions = []
+        lines = ["def convert(value, definitions, hints):"]
+        for field in fields(cls):
+            hint = hints[field.name]
+            pending = [hint]
+            while pending:
+                child = pending.pop()
+                if isinstance(child, type) and is_dataclass(child):
+                    todo.append(child)
+                else:
+                    pending.extend(get_args(child))
+            definitions.append(
+                (field, field.name, hint, namespace.get(field.name), field._field_type)
+            )
+        # Field objects/order are checked against the original registry at
+        # entry. Snapshot original filtering before data reads, just as fields().
+        flags = ", ".join(
+            f"definitions[{index}][0]._field_type is definitions[{index}][4]"
+            for index in range(len(definitions))
+        )
+        lines.append(f"    active = ({flags},)")
+        lines.append("    converted = {}")
+        for index, (_, name, hint, _, _) in enumerate(definitions):
+            lines.append(f"    if active[{index}]:")
+            prefix = "        "
+            lines.append(prefix + f"field = definitions[{index}][0]")
+            lines.append(
+                prefix
+                + "if type(value) is WorkspaceRepositoryMutationReceipt and field.name == 'physical_effect' and value.physical_effect is None:"
+            )
+            lines.append(prefix + "    pass")
+            lines.append(prefix + "else:")
+            prefix += "    "
+            lines.extend(
+                (
+                    prefix + "member = getattr(value, field.name)",
+                    prefix + "hint = hints[field.name]",
+                )
+            )
+            # Only the original scalar plus None is equivalent. Union members
+            # are compared by identity; arbitrary annotations never get equality
+            # or coercion here. Shared _type_hints remains lazy and untouched.
+            arguments = hint.__args__ if type(hint) is types.UnionType else ()
+            scalar = None
+            if len(arguments) == 2:
+                if arguments[0] is type(None):
+                    candidate = arguments[1]
+                elif arguments[1] is type(None):
+                    candidate = arguments[0]
+                else:
+                    candidate = None
+                if candidate is str or candidate is int or candidate is bool:
+                    scalar = candidate
+            equivalent = f"hint is definitions[{index}][2]"
+            if scalar is not None:
+                declared = f"definitions[{index}][2].__args__"
+                equivalent += (
+                    " or (type(hint) is types.UnionType and len(hint.__args__) == 2 and ("
+                    f"(hint.__args__[0] is {declared}[0] and hint.__args__[1] is {declared}[1]) or "
+                    f"(hint.__args__[0] is {declared}[1] and hint.__args__[1] is {declared}[0])))"
+                )
+            # Keep hint lookup before None handling, exactly as the generic loop.
+            lines.append(prefix + "if member is None:")
+            lines.append(prefix + "    encoded = None")
+            lines.append(prefix + f"elif {equivalent}:")
+            leaf = prefix + "    "
+            if hint is str or hint is int or hint is bool:
+                lines.append(leaf + "encoded = member")
+            elif scalar is not None:
+                lines.extend(
+                    (
+                        leaf + f"if not isinstance(member, {scalar.__name__}):",
+                        leaf
+                        + "    raise TypeError(f'Value does not match repository evidence union: {hint!r}')",
+                        leaf + "encoded = member",
+                    )
+                )
+            elif isinstance(hint, type) and issubclass(hint, Enum):
+                lines.append(
+                    leaf + "encoded = None if member is None else member.value"
+                )
+            elif hint is datetime:
+                lines.append(
+                    leaf + "encoded = None if member is None else _timestamp(member)"
+                )
+            else:
+                lines.append(
+                    leaf + "encoded = None if member is None else _encode(member, hint)"
+                )
+            lines.append(prefix + "else:")
+            lines.append(
+                prefix
+                + "    encoded = member if member is None or hint is str or hint is int or hint is bool else _encode(member, hint)"
+            )
+            lines.append(prefix + "converted[field.name] = encoded")
+        lines.append("    return converted")
+        environment: dict[str, Any] = {}
+        exec(  # noqa: S102 -- pinned authored schema names and fixed branches only
+            compile("\n".join(lines), "<workspace-receipt-native-fields>", "exec"),
+            globals(),
+            environment,
+        )
+        converter = environment["convert"]
+        compiled[id(cls)] = (
+            cls,
+            tuple(definitions),
+            (converter, converter.__code__),
+            namespace["__dataclass_fields__"],
+            tuple(map(id, namespace["__dataclass_fields__"].values())),
+        )
+    return compiled
+
+
+_RECEIPT_FIELDS_BY_ID = _compile_receipt_fields()
+_RECEIPT_ORIGINAL_REGISTRY = _RECEIPT_FIELDS_BY_ID
+_RECEIPT_ORIGINAL_ENTRIES = _RECEIPT_FIELDS_BY_ID.copy()

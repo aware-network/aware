@@ -198,6 +198,11 @@ class DirectCommandExpectedContext:
             "existing", "declaration_v3"
         ):
             raise ContractViolation("exact direct source rail required")
+        if (
+            self.source_rail == "declaration_v3" and not stages and products
+            and products[0].runtime is not self.runtime
+        ):
+            raise ContractViolation("first product runtime resource differs")
         if self.source_rail == "declaration_v3":
             roles = (
                 DECLARATION_V3_TWO_STAGE_RESOURCE_ROLES

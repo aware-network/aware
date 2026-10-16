@@ -7,6 +7,7 @@ from .provider import (
     revalidate_specification_iteration_admission,
     revalidate_specification_iteration_source_evidence,
 )
+from .saved_receipt import SpecificationFsSavedReceiptProvider
 from .source_evidence import (
     SOURCE_EVIDENCE_CONTRACT,
     SpecificationIterationSourceEvidence,
@@ -15,6 +16,7 @@ from .source_evidence import (
 __all__ = [
     "SOURCE_EVIDENCE_CONTRACT",
     "SpecificationFsInputObservationProvider",
+    "SpecificationFsSavedReceiptProvider",
     "SpecificationFsSdkProvider",
     "SpecificationIterationAdmission",
     "SpecificationIterationSourceEvidence",

@@ -16,6 +16,7 @@ from aware_code_module_manifest_contract_runtime import (
 from aware_code_module_manifest_contract_runtime.profile_models import (
     CodeSemanticContractProfileManifestSpec,
     CodeSemanticContractProfileProviderSpec,
+    CodeSemanticContractProfileProviderSpecV2,
 )
 from aware_code_module_manifest_contract_runtime.profile_parser import (
     parse_profile_manifest,
@@ -31,12 +32,12 @@ from aware_code_semantic_contract_runtime.dependency_scope_closure_v2 import (
     CodeRetainedDependencyScopeClosureV2,
     DependencyScopeProfileAssociation,
 )
-from aware_code_semantic_contract_runtime.retained_scope_interfaces import (
-    CodeRetainedScopePackage,
-)
 from aware_code_semantic_contract_runtime.retained_declaration_scope import (
     CodeRetainedDeclarationPackage,
     CodeRetainedDependencyScopeClosureV3,
+)
+from aware_code_semantic_contract_runtime.retained_scope_interfaces import (
+    CodeRetainedScopePackage,
 )
 
 from .calculation import _plain, _scope_declarations
@@ -73,6 +74,21 @@ def _module_declarations(scope):
     return models, packages, declarations
 
 
+def _profile_registration_matches(member, module, package_id, registration):
+    """Match only the exposure authored in this retained profile occurrence."""
+    value = _plain(registration)
+    if value["semantic_contract"]["provider_key"] != member.provider_key:
+        return False
+    if type(member) is CodeSemanticContractProfileProviderSpecV2:
+        if member.package_id != package_id or member.registration_key != value["key"]:
+            return False
+        stages = [row["stage"] for row in value["profiles"]]
+        if member.exposure == "graph_product":
+            return type(module) is AwareModuleSpecV3 and stages == ["graph_product"]
+        return member.exposure == "stage_pair" and stages == ["authority_derivation", "source_planning"]
+    return type(member) is CodeSemanticContractProfileProviderSpec
+
+
 def resolve_profile_memberships(
     closure: CodeRetainedDependencyScopeClosureV2 | CodeRetainedDependencyScopeClosureV3,
 ) -> tuple[ProfileMembershipSelection, ...]:
@@ -100,7 +116,7 @@ def resolve_profile_memberships(
         )
         if (
             type(meaning.aware_semantic_contract_profile) is not int
-            or meaning.aware_semantic_contract_profile != 1
+            or meaning.aware_semantic_contract_profile not in (1, 2)
             or meaning.profile.key != edge.profile_key.value
             or meaning.profile.status != "active"
         ):
@@ -128,9 +144,8 @@ def resolve_profile_memberships(
                 if key[0] != member.module_id:
                     continue
                 for registration in declaration.registrations:
-                    if (
-                        _plain(registration)["semantic_contract"]["provider_key"]
-                        == member.provider_key
+                    if _profile_registration_matches(
+                        member, modules[member.module_id], key[1], registration
                     ):
                         matches.append(
                             ProfileMemberDeclaration(

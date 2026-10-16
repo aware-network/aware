@@ -1,6 +1,6 @@
 [project]
 name = "aware-workspace-runtime"
-version = "0.2.10"
+version = "0.2.12"
 license = "Apache-2.0"
 description = "Materialization-independent local operational runtime for Aware Workspace."
 readme = "README.md"
@@ -26,11 +26,19 @@ workspace = "aware_workspace_command.pack:get_command_specs"
 aware-workspace = "aware_workspace_command.architecture_setup_command:main"
 
 [project.optional-dependencies]
+setup_admission = [
+  "aware-workspace-sdk[setup_admission]>=0.2.9,<0.3.0",
+  "aware-issue-sdk[workspace_setup_admission]>=0.10.5,<0.11.0",
+]
 source_projection = [
   "aware-issue-sdk>=0.10.3,<0.11.0",
   "aware-workspace-fs-adapter>=0.1.2,<0.2.0",
 ]
 service = ["aware-local-service-runtime>=0.1.0"]
+materialization = [
+  "aware-local-service-runtime>=0.1.0",
+  "aware-local-service-state-sqlite>=0.1.0",
+]
 publication = ["aware-issue-sdk>=0.10.2,<0.11.0"]
 test = [
   "pytest>=8.2.0,<10.0.0",

@@ -478,11 +478,13 @@ def test_provider_and_cli_have_no_service_or_ontology_imports():
         "errno",
         "hashlib",
         "importlib",
+        "inspect",
         "json",
         "os",
         "pathlib",
         "secrets",
         "threading",
+        "types",
         "typing",
     }
     neutral = {

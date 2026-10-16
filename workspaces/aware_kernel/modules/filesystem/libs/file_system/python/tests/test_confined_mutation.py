@@ -6,11 +6,11 @@ import os
 import stat
 from pathlib import Path
 
-import pytest
 import aware_file_system.confined_mutation as physical
+import pytest
 from aware_file_system.confined_mutation import (
-    ConfinedFileObservation,
     ConfinedFileMutationRequest,
+    ConfinedFileObservation,
     ConfinedMutationKind,
     ConfinedMutationOutcome,
     ConfinedObservationOutcome,
@@ -31,10 +31,16 @@ def test_update_preserves_mode_under_restrictive_umask(tmp_path, mode):
     target.chmod(mode)
     original_umask = os.umask(0o077)
     try:
-        result = mutate_confined_file(root=tmp_path, request=ConfinedFileMutationRequest(
-            kind=ConfinedMutationKind.UPDATE, path="manifest", expected_exists=True,
-            expected_content_digest=_digest(b"before"), content=b"after",
-        ))
+        result = mutate_confined_file(
+            root=tmp_path,
+            request=ConfinedFileMutationRequest(
+                kind=ConfinedMutationKind.UPDATE,
+                path="manifest",
+                expected_exists=True,
+                expected_content_digest=_digest(b"before"),
+                content=b"after",
+            ),
+        )
     finally:
         os.umask(original_umask)
     assert result.outcome is ConfinedMutationOutcome.APPLIED
@@ -44,7 +50,9 @@ def test_update_preserves_mode_under_restrictive_umask(tmp_path, mode):
 
 @pytest.mark.parametrize("kind", list(ConfinedMutationKind))
 @pytest.mark.parametrize("error_type", [OSError, PermissionError])
-def test_failure_after_application_preserves_known_effect(tmp_path, monkeypatch, kind, error_type):
+def test_failure_after_application_preserves_known_effect(
+    tmp_path, monkeypatch, kind, error_type
+):
     target = tmp_path / "manifest"
     before = None if kind is ConfinedMutationKind.CREATE else b"before"
     if before is not None:
@@ -57,11 +65,16 @@ def test_failure_after_application_preserves_known_effect(tmp_path, monkeypatch,
         return original_fsync(fd)
 
     monkeypatch.setattr(os, "fsync", fail_directory_fsync)
-    result = mutate_confined_file(root=tmp_path, request=ConfinedFileMutationRequest(
-        kind=kind, path="manifest", expected_exists=before is not None,
-        expected_content_digest=None if before is None else _digest(before),
-        content=None if kind is ConfinedMutationKind.DELETE else b"after",
-    ))
+    result = mutate_confined_file(
+        root=tmp_path,
+        request=ConfinedFileMutationRequest(
+            kind=kind,
+            path="manifest",
+            expected_exists=before is not None,
+            expected_content_digest=None if before is None else _digest(before),
+            content=None if kind is ConfinedMutationKind.DELETE else b"after",
+        ),
+    )
     assert result.outcome is ConfinedMutationOutcome.FAILED
     assert result.effect_applied and not result.durability_confirmed
     assert result.before_content == before
@@ -71,7 +84,9 @@ def test_failure_after_application_preserves_known_effect(tmp_path, monkeypatch,
     else:
         assert target.read_bytes() == result.after_content == b"after"
         assert result.after_content_digest == _digest(b"after")
-    assert sorted(p.name for p in tmp_path.iterdir()) == ([] if kind is ConfinedMutationKind.DELETE else ["manifest"])
+    assert sorted(p.name for p in tmp_path.iterdir()) == (
+        [] if kind is ConfinedMutationKind.DELETE else ["manifest"]
+    )
 
 
 def test_create_cleanup_failure_does_not_erase_successful_link(tmp_path, monkeypatch):
@@ -83,10 +98,16 @@ def test_create_cleanup_failure_does_not_erase_successful_link(tmp_path, monkeyp
         return original_unlink(path, **kwargs)
 
     monkeypatch.setattr(os, "unlink", fail_scratch_unlink)
-    result = mutate_confined_file(root=tmp_path, request=ConfinedFileMutationRequest(
-        kind=ConfinedMutationKind.CREATE, path="manifest", expected_exists=False,
-        expected_content_digest=None, content=b"after",
-    ))
+    result = mutate_confined_file(
+        root=tmp_path,
+        request=ConfinedFileMutationRequest(
+            kind=ConfinedMutationKind.CREATE,
+            path="manifest",
+            expected_exists=False,
+            expected_content_digest=None,
+            content=b"after",
+        ),
+    )
     assert result.outcome is ConfinedMutationOutcome.FAILED
     assert result.error_code == "filesystem_cleanup_failed"
     assert result.effect_applied and not result.durability_confirmed
@@ -104,10 +125,16 @@ def test_uncertain_replacement_is_not_reported_as_no_effect(tmp_path, monkeypatc
         raise OSError("effect result unavailable")
 
     monkeypatch.setattr(os, "replace", replace_then_fail)
-    result = mutate_confined_file(root=tmp_path, request=ConfinedFileMutationRequest(
-        kind=ConfinedMutationKind.UPDATE, path="manifest", expected_exists=True,
-        expected_content_digest=_digest(b"before"), content=b"after",
-    ))
+    result = mutate_confined_file(
+        root=tmp_path,
+        request=ConfinedFileMutationRequest(
+            kind=ConfinedMutationKind.UPDATE,
+            path="manifest",
+            expected_exists=True,
+            expected_content_digest=_digest(b"before"),
+            content=b"after",
+        ),
+    )
     assert result.outcome is ConfinedMutationOutcome.FAILED
     assert result.effect_state is physical.ConfinedMutationEffectState.UNKNOWN
     assert not result.effect_applied and not result.durability_confirmed
@@ -399,6 +426,9 @@ def test_confined_mutation_primitive_is_stdlib_only() -> None:
     )
     assert absolute_roots <= {
         "__future__",
+        "collections",
+        "typing",
+        "errno",
         "dataclasses",
         "enum",
         "hashlib",
@@ -406,11 +436,13 @@ def test_confined_mutation_primitive_is_stdlib_only() -> None:
         "pathlib",
         "stat",
         "uuid",
+        "unicodedata",
     }
 
 
 def test_legacy_descriptor_profile_does_not_claim_continuous_confinement(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Characterize the existing profile, not a safe-installation proof. All
     # paths, including the external sibling, are inside this disposable fixture.
@@ -431,19 +463,26 @@ def test_legacy_descriptor_profile_does_not_claim_continuous_confinement(
     result = mutate_confined_file(
         root=repository,
         request=ConfinedFileMutationRequest(
-            kind=ConfinedMutationKind.UPDATE, path="goals/goal.md",
-            expected_exists=True, expected_content_digest=_digest(b"before"),
+            kind=ConfinedMutationKind.UPDATE,
+            path="goals/goal.md",
+            expected_exists=True,
+            expected_content_digest=_digest(b"before"),
             content=b"after",
         ),
     )
     assert result.outcome is ConfinedMutationOutcome.APPLIED
     assert (outside / "goal.md").read_bytes() == b"after"
-    assert result.confinement_profile is physical.ConfinedMutationProfile.DESCRIPTOR_WALK_V1
+    assert (
+        result.confinement_profile
+        is physical.ConfinedMutationProfile.DESCRIPTOR_WALK_V1
+    )
 
 
 @pytest.mark.parametrize("kind", tuple(ConfinedMutationKind))
 def test_continuous_confinement_refuses_before_traversal_or_effect(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, kind: ConfinedMutationKind,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    kind: ConfinedMutationKind,
 ) -> None:
     before = b"before"
     target = tmp_path / "goal.md"
@@ -453,19 +492,31 @@ def test_continuous_confinement_refuses_before_traversal_or_effect(
 
     def forbidden_traversal(**kwargs):
         calls.append(kwargs)
-        raise AssertionError("unsupported confinement must not reach filesystem traversal")
+        raise AssertionError(
+            "unsupported confinement must not reach filesystem traversal"
+        )
 
     monkeypatch.setattr(physical, "_open_parent", forbidden_traversal)
     request = ConfinedFileMutationRequest(
-        kind=kind, path="goal.md", expected_exists=kind is not ConfinedMutationKind.CREATE,
-        expected_content_digest=None if kind is ConfinedMutationKind.CREATE else _digest(before),
+        kind=kind,
+        path="goal.md",
+        expected_exists=kind is not ConfinedMutationKind.CREATE,
+        expected_content_digest=None
+        if kind is ConfinedMutationKind.CREATE
+        else _digest(before),
         content=None if kind is ConfinedMutationKind.DELETE else b"after",
     )
-    result = mutate_confined_file(root=tmp_path, request=request,
-        confinement_profile=physical.ConfinedMutationProfile.CONTINUOUS_ROOT_V1)
+    result = mutate_confined_file(
+        root=tmp_path,
+        request=request,
+        confinement_profile=physical.ConfinedMutationProfile.CONTINUOUS_ROOT_V1,
+    )
     assert result.outcome is ConfinedMutationOutcome.DENIED
     assert result.error_code == "continuous_root_confinement_unavailable"
-    assert result.confinement_profile is physical.ConfinedMutationProfile.CONTINUOUS_ROOT_V1
+    assert (
+        result.confinement_profile
+        is physical.ConfinedMutationProfile.CONTINUOUS_ROOT_V1
+    )
     assert result.before_content is result.after_content is None
     assert calls == []
     assert target.exists() == (kind is not ConfinedMutationKind.CREATE)
@@ -476,29 +527,42 @@ def test_continuous_confinement_refuses_before_traversal_or_effect(
 
 @pytest.mark.parametrize("invalid", ["continuous_root_v1", "unknown", True, None])
 def test_unqualified_profile_tokens_do_not_reach_the_filesystem(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, invalid,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    invalid,
 ) -> None:
     def forbidden_traversal(**kwargs):
         raise AssertionError("invalid profile reached filesystem traversal")
 
     monkeypatch.setattr(physical, "_open_parent", forbidden_traversal)
     request = ConfinedFileMutationRequest(
-        kind=ConfinedMutationKind.CREATE, path="missing/goal.md",
-        expected_exists=False, expected_content_digest=None, content=b"after",
+        kind=ConfinedMutationKind.CREATE,
+        path="missing/goal.md",
+        expected_exists=False,
+        expected_content_digest=None,
+        content=b"after",
     )
     with pytest.raises(TypeError, match="profile must be exact"):
-        mutate_confined_file(root=tmp_path, request=request, confinement_profile=invalid)
+        mutate_confined_file(
+            root=tmp_path, request=request, confinement_profile=invalid
+        )
     assert not (tmp_path / "missing").exists()
 
 
 def test_unavailable_profile_does_not_resolve_or_create_a_root(tmp_path: Path) -> None:
     missing_root = tmp_path / "missing-root"
     request = ConfinedFileMutationRequest(
-        kind=ConfinedMutationKind.CREATE, path="missing/goal.md",
-        expected_exists=False, expected_content_digest=None, content=b"after",
+        kind=ConfinedMutationKind.CREATE,
+        path="missing/goal.md",
+        expected_exists=False,
+        expected_content_digest=None,
+        content=b"after",
     )
-    result = mutate_confined_file(root=missing_root, request=request,
-        confinement_profile=physical.ConfinedMutationProfile.CONTINUOUS_ROOT_V1)
+    result = mutate_confined_file(
+        root=missing_root,
+        request=request,
+        confinement_profile=physical.ConfinedMutationProfile.CONTINUOUS_ROOT_V1,
+    )
     assert result.outcome is ConfinedMutationOutcome.DENIED
     assert result.error_code == "continuous_root_confinement_unavailable"
     assert not missing_root.exists()
@@ -506,7 +570,9 @@ def test_unavailable_profile_does_not_resolve_or_create_a_root(tmp_path: Path) -
 
 @pytest.mark.parametrize("stage", ["_open_parent", "_read_current", "_write_temporary"])
 def test_continuous_profile_never_reaches_a_relocation_interleaving(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, stage: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stage: str,
 ) -> None:
     repository = tmp_path / "repository"
     parent = repository / "goals"
@@ -523,11 +589,17 @@ def test_continuous_profile_never_reaches_a_relocation_interleaving(
         return original(**kwargs)
 
     monkeypatch.setattr(physical, stage, relocate_then_call)
-    result = mutate_confined_file(root=repository,
+    result = mutate_confined_file(
+        root=repository,
         request=ConfinedFileMutationRequest(
-            kind=ConfinedMutationKind.UPDATE, path="goals/goal.md",
-            expected_exists=True, expected_content_digest=_digest(b"before"), content=b"after",
-        ), confinement_profile=physical.ConfinedMutationProfile.CONTINUOUS_ROOT_V1)
+            kind=ConfinedMutationKind.UPDATE,
+            path="goals/goal.md",
+            expected_exists=True,
+            expected_content_digest=_digest(b"before"),
+            content=b"after",
+        ),
+        confinement_profile=physical.ConfinedMutationProfile.CONTINUOUS_ROOT_V1,
+    )
     assert result.outcome is ConfinedMutationOutcome.DENIED
     assert reached == [] and not outside.exists()
     assert target.read_bytes() == b"before"

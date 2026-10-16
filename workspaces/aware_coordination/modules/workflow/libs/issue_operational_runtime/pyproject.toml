@@ -1,6 +1,6 @@
 [project]
 name = "aware-issue-operational-runtime"
-version = "0.3.2"
+version = "0.3.4"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 description = "Materialization-independent Workflow Issue operation authority for Aware."
@@ -13,6 +13,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+workspace_setup_admission = [
+  "aware-issue-sdk[workspace_setup_admission]>=0.10.5,<0.11.0",
+  "aware-workspace-sdk[setup_admission]>=0.2.9,<0.3.0",
+]
 source_projection = [
   "aware-issue-fs-adapter>=0.9.3,<0.10.0",
   "aware-workspace-sdk[source_projection]>=0.2.2,<0.3.0",

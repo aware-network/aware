@@ -177,3 +177,27 @@ honest locks and fresh checkout-hidden installation still need qualification
 for this addition.
 
 See [source extraction and remaining gates](../../../../../../../../docs/reports/workspace-sdk-service-source-extraction-20261010.md).
+
+
+### Repository tree projection metadata
+
+`aware_workspace_sdk.repository_tree_projection_values` and
+`repository_tree_projection_codec` provide the accepted v1 closed descriptive
+values and canonical JSON. The codec checks exact field/types, required nulls,
+ordering, modes, complete ancestor declarations, binding commitments and
+conjunctive metadata/body limits. Live handles and native body bytes are excluded;
+decoding cannot issue a plan, spend an Issue admission or restore an owner.
+
+This source checkpoint supplies the portable contract layer. The original tree
+client/runtime, Issue consumption, physical executor and complete-call resource
+qualification remain under the separate tree-projection implementation Issues.
+No new base dependency, installation or release version is selected here.
+
+
+`repository_tree_projection` now exposes original native client selection and
+closed plan/admission/result types. Its source-first preparation uses the
+original workflow source and owned body retention, then refuses while the
+original FileSystem preparation/binding join is absent. It currently issues no
+positive tree plan or result. Issue enrollment, serialized tree execution and
+complete-call qualification remain pending; unavailable entrances do not select
+a substitute writer or restore authority from decoded metadata.

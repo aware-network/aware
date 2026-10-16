@@ -21,6 +21,10 @@ _REGISTRARS = {
         "aware_specification_cli.read_commands",
         ("register_read_commands",),
     ),
+    "workspace": (
+        "aware_workspace_command.setup_registration",
+        ("register_workspace_setup_commands",),
+    ),
 }
 
 
@@ -81,12 +85,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="aware",
         description=(
-            "Use neutral Issue, Protocol and Specification operations through "
+            "Use neutral Issue, Protocol, Specification and Workspace setup operations through "
             "their canonical SDKs. Run aware FAMILY --help for exact leaf inputs."
         ),
         epilog=(
             "Initialization previews by default; creation and effects require "
-            "explicit intent. No Agent sessions, approval or Service fallback."
+            "explicit intent. Workspace setup mounting does not establish Issue enforcement. "
+            "No Agent sessions, approval or Service fallback."
         ),
     )
     parser.add_argument("family", choices=(*_REGISTRARS, "init"))

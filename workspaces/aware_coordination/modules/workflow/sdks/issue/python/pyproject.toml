@@ -1,6 +1,6 @@
 [project]
 name = "aware-issue-sdk"
-version = "0.10.3"
+version = "0.10.5"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 description = "Canonical Issue SDK operations with explicitly selected authority providers."
@@ -18,6 +18,11 @@ dependencies = [
 aware-issue-runtime = { workspace = true }
 
 [project.optional-dependencies]
+workspace_setup_admission = [
+  "aware-issue-operational-runtime[workspace_setup_admission]>=0.3.4,<0.4.0",
+  "aware-issue-fs-adapter>=0.9.6,<0.10.0",
+  "aware-workspace-sdk[setup_admission]>=0.2.9,<0.3.0",
+]
 source_projection = [
   "aware-issue-operational-runtime[source_projection]>=0.3.2,<0.4.0",
   "aware-issue-fs-adapter>=0.9.3,<0.10.0",

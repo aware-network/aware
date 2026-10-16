@@ -10,29 +10,43 @@ import os
 from copy import deepcopy
 from dataclasses import dataclass, replace
 
-from aware_code_semantic_contract_runtime.contracts import ContractViolation
+from aware_code_semantic_contract_runtime.contracts import (
+    ContentDigest,
+    ContractViolation,
+    ProviderExecutionBinding,
+)
 from aware_code_semantic_contract_runtime.direct_origin_interfaces import (
     DirectCommandExpectedContext,
-    RetainedSemanticProductRuntimeExpectation,
 )
 from aware_code_semantic_contract_runtime.materialization_catalog import (
     CodeSemanticContractCatalogResolver,
+    CodeSemanticMaterializationProfileBinding,
+)
+from aware_code_semantic_contract_runtime.profile import (
+    SemanticContractProfileDeclaration,
+    SemanticContractProviderDeclaration,
 )
 from aware_code_semantic_contract_runtime.runtime import SemanticContractRuntime
 from aware_code_semantic_contract_runtime.selected_provider import (
+    AdmittedSemanticProviderRegistration,
     _registration_state,
     validate_selected_provider_registration,
 )
+
+type _ProductEntry = tuple[
+    str, SemanticContractProfileDeclaration, SemanticContractProviderDeclaration,
+    ProviderExecutionBinding, ContentDigest,
+]
 
 
 @dataclass(frozen=True, slots=True)
 class _ProductRuntimeRetention:
     expected: DirectCommandExpectedContext
     identities: tuple[object, ...]
-    products: tuple[tuple[SemanticContractRuntime, object], ...]
+    products: tuple[tuple[SemanticContractRuntime, AdmittedSemanticProviderRegistration], ...]
     executables: tuple[object, ...]
-    entries: tuple[tuple[object, ...], ...]
-    catalog_digest: object
+    entries: tuple[_ProductEntry, ...]
+    catalog_digest: ContentDigest
     resolver: CodeSemanticContractCatalogResolver
     pid: int
     current_catalog: object = None
@@ -77,16 +91,13 @@ class _ProductRuntimeRetention:
             else self.expected.catalog
         ):
             raise ContractViolation("product catalog admission changed")
-        self.resolver.validate_catalog()
-        if self.resolver._catalog_coordinates()[2] != self.catalog_digest:
+        if self.resolver._validate_retained_catalog_coordinate()[2] != self.catalog_digest:
             raise ContractViolation("product catalog digest changed")
         for (runtime, registration), executable, retained in zip(
             self.products, self.executables, self.entries, strict=True
         ):
             provider_key, profile, declaration, binding, entry_digest = retained
-            entry = self.resolver.read_profile_binding(
-                profile=profile, semantic_provider_key=provider_key
-            )
+            entry = self._read_original_entry(provider_key, profile, entry_digest)
             if (
                 entry.binding_digest != entry_digest
                 or entry.semantic_provider_key != provider_key
@@ -107,6 +118,28 @@ class _ProductRuntimeRetention:
             )
         self.check_identities()
 
+    def _read_original_entry(self, provider_key, profile, entry_digest):
+        """Detached metadata under the original complete catalog coordinate fence."""
+        if self.resolver._validate_retained_catalog_coordinate()[2] != self.catalog_digest:
+            raise ContractViolation("product catalog digest changed")
+        matches = [
+            entry for entry in self.resolver._catalog.entries
+            if entry.semantic_provider_key == provider_key
+            and entry.profile_declaration.profile_ref == profile.profile_ref
+            and entry.profile_declaration.version == profile.version
+        ]
+        if len(matches) != 1:
+            raise ContractViolation("exact product catalog entry unavailable")
+        snapshot = deepcopy(matches[0])
+        if (
+            type(snapshot) is not CodeSemanticMaterializationProfileBinding
+            or snapshot.binding_digest != entry_digest
+        ):
+            raise ContractViolation("original product catalog entry changed")
+        if self.resolver._validate_retained_catalog_coordinate()[2] != self.catalog_digest:
+            raise ContractViolation("product catalog digest changed")
+        return snapshot
+
     def successor(
         self,
         resolver: CodeSemanticContractCatalogResolver,
@@ -120,6 +153,50 @@ class _ProductRuntimeRetention:
         )
         successor.validate()
         return successor
+
+    def validate_declared_profile(
+        self, declaration, *, package_kind: str,
+    ) -> tuple[AdmittedSemanticProviderRegistration, CodeSemanticMaterializationProfileBinding]:
+        """Bind an authenticated v3 graph_product declaration to its live owner.
+
+        No package kind, role or matching name can substitute for the exact
+        declared profile digest and original catalog-backed registration.
+        Source/participation authority remains the enclosing selected policy.
+        """
+        from .calculation import _execution_entry_correspondence, _plain
+
+        self.validate()
+        value = _plain(declaration)
+        profiles = value["profiles"]
+        if len(profiles) != 1 or profiles[0]["stage"] != "graph_product":
+            raise ContractViolation("one declared graph_product profile required")
+        declared = profiles[0]
+        provider_key = value["semantic_contract"]["provider_key"]
+        matches = [
+            ((runtime, original), retained)
+            for (runtime, original), retained in zip(
+                self.products, self.entries, strict=True
+            )
+            if retained[0] == provider_key
+            and declared == {
+                "stage": "graph_product",
+                "profile_ref": retained[1].profile_ref,
+                "profile_version": retained[1].version,
+                "profile_digest": retained[1].digest.to_wire(),
+            }
+        ]
+        if len(matches) != 1:
+            raise ContractViolation("exact declared live product profile unavailable")
+        (runtime, registration), retained = matches[0]
+        profile = retained[1]
+        entry = self._read_original_entry(provider_key, profile, retained[4])
+        if entry.binding_digest != retained[4] or runtime.profile != profile:
+            raise ContractViolation("declared product catalog binding changed")
+        _execution_entry_correspondence(value, entry, package_kind=package_kind)
+        if "materialize" not in profile.operation_kinds:
+            raise ContractViolation("declared product profile inapplicable")
+        self.validate()
+        return registration, entry
 
 
 def _capture_product_runtime_retention(
@@ -138,7 +215,7 @@ def _capture_product_runtime_retention(
         (item.runtime, item.registration)
         for item in expected.product_runtime_bindings
     )
-    entries = []
+    entries: list[_ProductEntry] = []
     executables = []
     for runtime, registration in products:
         if type(runtime) is not SemanticContractRuntime:

@@ -12,6 +12,61 @@ observable. Workflow owns their work association independently.
 
 This is a source implementation, not a customer distribution or release.
 
+## Saved draft receipt SDK 0.3.4
+
+`SpecificationSavedReceiptClient(provider).present_draft_receipt(request)` is a
+separate read-only port for an **existing full CLI043 draft capture**. It never
+calls a draft writer, reobserves the original repository or restores authority.
+The physical provider and customer registrar are separate implementation cuts;
+this package supplies their neutral values, validation and presentation.
+
+`SpecificationSavedReceiptRequest` requires an explicit normalized absolute
+`base_ref`, a canonical relative `source_ref` and the exact saved-file byte
+guard `expected_source_sha256`. That guard is not an Issue, Protocol manifest,
+SPEC closure or omission digest. `input_profile` is fixed to
+`specification.cli043-draft-transport.v1`; no producer-format guessing occurs.
+Views are `summary` and `full`.
+
+Every successful SDK result retains the full original bytes as bounded
+canonical `full_body_hex`, including summary results. The complete captured
+packet is validated through original SPEC values and snapshot codecs before
+omission. Only the ten enumerated collection pointers can be replaced;
+descriptors bind their exact encoding, counts and guarded source access. Effect
+collections retain none/applied/unknown and confirmed/unconfirmed-durability
+counts. All scalar failures, cleanup responsibilities, uncertainty and residue
+remain visible. Full view keeps original whitespace and returns no summary.
+
+Legacy FileSystem fallback cleanup is mapped only for validation: unreported
+`ledger_complete` and `before_identity` stay absent in the capture and summary.
+Top-level Issue custody has its own exact transport mapping: its reported
+`ledger_complete` is preserved, while its unreported `before_identity` remains
+absent. Neither mapping changes the captured bytes or guesses a producer.
+Present attempt/client/execution/context coordinates are joined across evidence,
+cleanup, Issue disposition and custody before omission. Unknown coordinates
+remain unknown; the original exact comparison between the two custody carriers
+also remains in force. No completeness or preimage identity is invented.
+A malformed omitted member
+refuses the whole presentation. Presentation success describes capture review,
+not the captured operation's success, currentness, approval or retry permission.
+
+The six new authored values use
+`aware.specification.saved-receipt-value.v1` through dedicated codecs;
+`encode_specification_value`/`decode_specification_value` route these same
+values without changing the existing envelope for historical carriers.
+Source JSON is limited to 16 MiB, depth 32, 262,144 nodes, 1 MiB individual
+strings and signed 64-bit integers. Duplicate keys, invalid UTF-8, nonfinite
+numbers and unexpected fields refuse. Requests have a 64 KiB wire limit;
+results/errors have a 192 MiB ceiling, including the retained raw hex.
+
+Local request/copy failures report no provider invocation or acquisition.
+Correlated provider refusals preserve original evidence. Invalid returns carry
+explicitly unvalidated reports with unknown effects/cleanup, never success or
+automatic retry; untransportable reports retain their type and an explicit
+unavailability diagnostic. These values are detached data, not admissions or
+permanent retention. The default dependency remains neutral Specification
+runtime only. Live mutation JSON, filesystem implementation, selected command
+and installed consumer closure are unchanged by this source cut.
+
 ## Read-only draft input observation SDK 0.3.3
 
 `SpecificationInputObservationClient(provider).observe_draft_input(request)`

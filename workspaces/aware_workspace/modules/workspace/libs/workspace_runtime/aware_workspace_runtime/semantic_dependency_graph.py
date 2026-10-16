@@ -46,9 +46,9 @@ from .materialization_session import (
     WorkspaceMaterializationSessionSourceEvidenceV3,
 )
 from .semantic_materialization_publication import (
-    WORKSPACE_SEMANTIC_MATERIALIZATION_HEAD_V4,
     WORKSPACE_SEMANTIC_MATERIALIZATION_HEAD_REREAD_EVIDENCE_V3,
     WORKSPACE_SEMANTIC_MATERIALIZATION_HEAD_V3,
+    WORKSPACE_SEMANTIC_MATERIALIZATION_HEAD_V4,
     WORKSPACE_SEMANTIC_MATERIALIZATION_RECEIPT_V3,
     WORKSPACE_SEMANTIC_MATERIALIZATION_REQUEST_V3,
     WorkspaceMaterializationPackageOccurrenceV4,
@@ -1917,26 +1917,76 @@ class WorkspaceSemanticMaterializationNodeExecutionBinding:
         self.__post_init__()
 
     def to_wire(self) -> dict[str, object]:
-        self.__post_init__()
+        payload = _node_execution_binding_payload(
+            graph=None,
+            node_digest=self.node_digest,
+            package=self.package,
+            package_entry=self.package_entry,
+            code_intent=self.code_intent,
+            workspace_admitted_intent=self.workspace_admitted_intent,
+            planning_context=self.planning_context,
+            code_match=self.code_match,
+            code_match_admission=self.code_match_admission,
+            dependency_demand_set=self.dependency_demand_set,
+            planning_input_digest=self.planning_input_digest,
+            planning_demand_closure=self.planning_demand_closure,
+            incoming_target_resolutions=self.incoming_target_resolutions,
+            required_result_products=self.required_result_products,
+        )
+        digest_wire = _content_digest(
+            self.binding_digest, "node_binding.digest"
+        ).to_wire()
+        if (
+            digest_wire
+            != _digest(
+                WORKSPACE_SEMANTIC_MATERIALIZATION_NODE_EXECUTION_BINDING,
+                {
+                    "code_intent_digest": cast(
+                        Mapping[str, object], payload["code_intent"]
+                    )["intent_digest"],
+                    "code_match_admission_digest": cast(
+                        Mapping[str, object], payload["code_match_admission"]
+                    )["admission_digest"],
+                    "code_match_digest": cast(
+                        Mapping[str, object], payload["code_match"]
+                    )["match_digest"],
+                    "planning_input_digest": payload["planning_input_digest"],
+                    "dependency_demand_set_digest": cast(
+                        Mapping[str, object], payload["dependency_demand_set"]
+                    )["demand_set_digest"],
+                    "incoming_target_resolution_digests": [
+                        cast(Mapping[str, object], item)["resolution_digest"]
+                        for item in cast(
+                            list[object], payload["incoming_target_resolutions"]
+                        )
+                    ],
+                    "node_digest": payload["node_digest"],
+                    "package_entry_digest": cast(
+                        Mapping[str, object], payload["package_entry"]
+                    )["entry_digest"],
+                    "planning_context_digest": cast(
+                        Mapping[str, object], payload["planning_context"]
+                    )["context_digest"],
+                    "planning_demand_closure_digest": cast(
+                        Mapping[str, object], payload["planning_demand_closure"]
+                    )["planning_demand_closure_digest"],
+                    "required_result_product_digests": [
+                        cast(Mapping[str, object], item)["requirement_digest"]
+                        for item in cast(
+                            list[object], payload["required_result_products"]
+                        )
+                    ],
+                    "workspace_admitted_intent_digest": cast(
+                        Mapping[str, object], payload["workspace_admitted_intent"]
+                    )["admission_digest"],
+                },
+            ).to_wire()
+        ):
+            raise ContractViolation("node execution binding digest mismatched")
         return {
             "contract": WORKSPACE_SEMANTIC_MATERIALIZATION_NODE_EXECUTION_BINDING,
-            **_node_execution_binding_payload(
-                graph=None,
-                node_digest=self.node_digest,
-                package=self.package,
-                package_entry=self.package_entry,
-                code_intent=self.code_intent,
-                workspace_admitted_intent=self.workspace_admitted_intent,
-                planning_context=self.planning_context,
-                code_match=self.code_match,
-                code_match_admission=self.code_match_admission,
-                dependency_demand_set=self.dependency_demand_set,
-                planning_input_digest=self.planning_input_digest,
-                planning_demand_closure=self.planning_demand_closure,
-                incoming_target_resolutions=self.incoming_target_resolutions,
-                required_result_products=self.required_result_products,
-            ),
-            "binding_digest": self.binding_digest.to_wire(),
+            **payload,
+            "binding_digest": digest_wire,
         }
 
 
@@ -2262,15 +2312,32 @@ class WorkspaceSemanticMaterializationGraphExecutionBinding:
         self.__post_init__()
 
     def to_wire(self) -> dict[str, object]:
-        self.__post_init__()
+        payload = _graph_execution_binding_payload(
+            graph=None,
+            graph_digest=self.graph_digest,
+            ordered_node_bindings=self.ordered_node_bindings,
+        )
+        digest_wire = _content_digest(
+            self.binding_digest, "graph_binding.digest"
+        ).to_wire()
+        if (
+            digest_wire
+            != _digest(
+                WORKSPACE_SEMANTIC_MATERIALIZATION_GRAPH_EXECUTION_BINDING,
+                {
+                    "graph_digest": payload["graph_digest"],
+                    "ordered_node_binding_digests": [
+                        cast(Mapping[str, object], item)["binding_digest"]
+                        for item in cast(list[object], payload["ordered_node_bindings"])
+                    ],
+                },
+            ).to_wire()
+        ):
+            raise ContractViolation("graph execution binding digest mismatched")
         return {
             "contract": WORKSPACE_SEMANTIC_MATERIALIZATION_GRAPH_EXECUTION_BINDING,
-            **_graph_execution_binding_payload(
-                graph=None,
-                graph_digest=self.graph_digest,
-                ordered_node_bindings=self.ordered_node_bindings,
-            ),
-            "binding_digest": self.binding_digest.to_wire(),
+            **payload,
+            "binding_digest": digest_wire,
         }
 
 
@@ -2425,18 +2492,44 @@ class WorkspaceSemanticMaterializationGraphPlanResult:
             raise ContractViolation("graph plan result digest mismatched")
 
     def to_wire(self) -> dict[str, object]:
-        self.__post_init__()
+        payload = _graph_plan_result_payload(
+            selection_resolution=self.selection_resolution,
+            graph=self.graph,
+            graph_plan_admission=self.graph_plan_admission,
+            graph_execution_binding=self.graph_execution_binding,
+            timing_entries=self.timing_entries,
+            counter_entries=self.counter_entries,
+        )
+        digest_wire = _content_digest(
+            self.planning_result_digest, "plan_result.digest"
+        ).to_wire()
+        if (
+            digest_wire
+            != _digest(
+                WORKSPACE_SEMANTIC_MATERIALIZATION_GRAPH_PLAN_RESULT,
+                {
+                    "counter_entries": payload["counter_entries"],
+                    "graph_digest": cast(Mapping[str, object], payload["graph"])[
+                        "graph_digest"
+                    ],
+                    "graph_execution_binding_digest": cast(
+                        Mapping[str, object], payload["graph_execution_binding"]
+                    )["binding_digest"],
+                    "graph_plan_admission_digest": cast(
+                        Mapping[str, object], payload["graph_plan_admission"]
+                    )["admission_digest"],
+                    "selection_resolution_digest": cast(
+                        Mapping[str, object], payload["selection_resolution"]
+                    )["resolution_digest"],
+                    "timing_entries": payload["timing_entries"],
+                },
+            ).to_wire()
+        ):
+            raise ContractViolation("graph plan result digest mismatched")
         return {
             "contract": WORKSPACE_SEMANTIC_MATERIALIZATION_GRAPH_PLAN_RESULT,
-            **_graph_plan_result_payload(
-                selection_resolution=self.selection_resolution,
-                graph=self.graph,
-                graph_plan_admission=self.graph_plan_admission,
-                graph_execution_binding=self.graph_execution_binding,
-                timing_entries=self.timing_entries,
-                counter_entries=self.counter_entries,
-            ),
-            "planning_result_digest": self.planning_result_digest.to_wire(),
+            **payload,
+            "planning_result_digest": digest_wire,
         }
 
 
@@ -3825,32 +3918,40 @@ class WorkspaceSemanticMaterializationNodeResultEvidenceV3:
         self.__post_init__()
 
     def to_wire(self) -> dict[str, object]:
-        self.__post_init__()
+        supplied_digest = _content_digest(
+            self.node_result_digest, "node_result.node_result_digest"
+        ).to_wire()
+        payload = _node_result_v2_payload(
+            graph_digest=self.graph_digest,
+            execution_binding_digest=self.execution_binding_digest,
+            node_digest=self.node_digest,
+            outcome=self.outcome,
+            execution_input_closure_digest=self.execution_input_closure_digest,
+            ordered_fulfilled_products=self.ordered_fulfilled_products,
+            result_head_revision=self.result_head_revision,
+            result_head_digest=self.result_head_digest,
+            result_coordinate=self.result_coordinate,
+            package_head_reread_evidence=self.package_head_reread_evidence,
+            publication_receipt=self.publication_receipt,
+            session_source_evidence=self.session_source_evidence,
+            session_event_reread_evidence=self.session_event_reread_evidence,
+            session_fanout_receipt=self.session_fanout_receipt,
+            session_source_evidence_digest=self.session_source_evidence_digest,
+            session_event_reread_evidence_digest=self.session_event_reread_evidence_digest,
+            operation_result_digest=self.operation_result_digest,
+            publication_request_digest=self.publication_request_digest,
+            publication_receipt_digest=self.publication_receipt_digest,
+            session_fanout_receipt_digest=self.session_fanout_receipt_digest,
+        )
+        if supplied_digest != _digest(
+            WORKSPACE_SEMANTIC_MATERIALIZATION_NODE_RESULT_EVIDENCE_V3,
+            payload,
+        ).to_wire():
+            raise ContractViolation("node result evidence digest mismatched")
         return {
             "contract": WORKSPACE_SEMANTIC_MATERIALIZATION_NODE_RESULT_EVIDENCE_V3,
-            **_node_result_v2_payload(
-                graph_digest=self.graph_digest,
-                execution_binding_digest=self.execution_binding_digest,
-                node_digest=self.node_digest,
-                outcome=self.outcome,
-                execution_input_closure_digest=self.execution_input_closure_digest,
-                ordered_fulfilled_products=self.ordered_fulfilled_products,
-                result_head_revision=self.result_head_revision,
-                result_head_digest=self.result_head_digest,
-                result_coordinate=self.result_coordinate,
-                package_head_reread_evidence=self.package_head_reread_evidence,
-                publication_receipt=self.publication_receipt,
-                session_source_evidence=self.session_source_evidence,
-                session_event_reread_evidence=self.session_event_reread_evidence,
-                session_fanout_receipt=self.session_fanout_receipt,
-                session_source_evidence_digest=self.session_source_evidence_digest,
-                session_event_reread_evidence_digest=self.session_event_reread_evidence_digest,
-                operation_result_digest=self.operation_result_digest,
-                publication_request_digest=self.publication_request_digest,
-                publication_receipt_digest=self.publication_receipt_digest,
-                session_fanout_receipt_digest=self.session_fanout_receipt_digest,
-            ),
-            "node_result_digest": self.node_result_digest.to_wire(),
+            **payload,
+            "node_result_digest": supplied_digest,
         }
 
 
@@ -4163,19 +4264,24 @@ class WorkspaceSemanticMaterializationGraphResultV3:
         self.__post_init__()
 
     def to_wire(self) -> dict[str, object]:
-        self.__post_init__()
+        supplied_digest = _content_digest(
+            self.result_digest, "graph_result_v2.result_digest"
+        ).to_wire()
+        payload = _graph_result_v2_payload(
+            graph_digest=self.graph_digest,
+            execution_binding_digest=self.execution_binding_digest,
+            status=self.status,
+            ordered_node_results=self.ordered_node_results,
+            terminal_failure=self.terminal_failure,
+            ordered_fulfilled_products=self.ordered_fulfilled_products,
+            counter_entries=self.counter_entries,
+        )
+        if supplied_digest != _digest(WORKSPACE_SEMANTIC_MATERIALIZATION_GRAPH_RESULT_V3, payload).to_wire():
+            raise ContractViolation("graph result V2 digest mismatched")
         return {
             "contract": WORKSPACE_SEMANTIC_MATERIALIZATION_GRAPH_RESULT_V3,
-            **_graph_result_v2_payload(
-                graph_digest=self.graph_digest,
-                execution_binding_digest=self.execution_binding_digest,
-                status=self.status,
-                ordered_node_results=self.ordered_node_results,
-                terminal_failure=self.terminal_failure,
-                ordered_fulfilled_products=self.ordered_fulfilled_products,
-                counter_entries=self.counter_entries,
-            ),
-            "result_digest": self.result_digest.to_wire(),
+            **payload,
+            "result_digest": supplied_digest,
         }
 
 

@@ -94,6 +94,7 @@ from .declaration_scope_admission import (
     WorkspaceDeclarationScope,
     WorkspaceDeclarationScopeRuntime,
     WorkspaceSelectedPackageSource,
+    _original_group_method,
 )
 from .dependency_fulfillment import _Fulfillment
 from .dependency_scope_adapter import WorkspaceCodeDependencyScopeAdapter
@@ -1155,6 +1156,12 @@ class WorkspaceDirectCLISourceInspection:
     operation_receipt: WorkspaceMaterializeHostOperationReceiptV1
     selected_root: WorkspaceMaterializeSelectedRootV1 | None = None
     selected_timing_ns: int = 0
+    selected_catalog_count: int = 0
+    selected_catalog_timing_ns: int = 0
+    graph_plan_wire: bytes | None = None
+    graph_plan_timing_ns: int = 0
+    graph_node_count: int = 0
+    graph_edge_count: int = 0
 
 
 @contextmanager
@@ -1381,15 +1388,7 @@ async def _compose_direct_workspace_cli_source(
         raise WorkspaceDirectCommandRootUnavailable(
             "repository manifest unavailable"
         )
-    state_home = os.environ.get("XDG_STATE_HOME")
-    state_root = (
-        Path(state_home).expanduser()
-        if state_home and Path(state_home).is_absolute()
-        else Path.home() / ".local" / "state"
-    ) / "aware" / "workspace-direct"
-    cache_root = state_root / hashlib.sha256(
-        str(binding.root_path).encode("utf-8")
-    ).hexdigest()
+    cache_root = _direct_workspace_cli_state_root(binding.root_path)
     cache_root.mkdir(parents=True, exist_ok=True)
     # Each command owns its index and retained source bodies. It cannot write
     # another command's cache or the maintained observer's index/journal.
@@ -1420,6 +1419,17 @@ async def _compose_direct_workspace_cli_source(
                 yield resources
         finally:
             await session.stop()
+
+
+def _direct_workspace_cli_state_root(repository_root: Path) -> Path:
+    """One fixed local runtime placement; no caller-supplied backing selector."""
+    state_home = os.environ.get("XDG_STATE_HOME")
+    state_root = (
+        Path(state_home).expanduser()
+        if state_home and Path(state_home).is_absolute()
+        else Path.home() / ".local" / "state"
+    ) / "aware" / "workspace-direct"
+    return state_root / hashlib.sha256(str(repository_root).encode("utf-8")).hexdigest()
 
 
 async def admit_direct_workspace_cli_source(
@@ -2939,6 +2949,13 @@ def _selected_input_identity_lookup(mapping, value):
         key = retained = value = None
 
 
+def _selected_input_identity_pop(mapping, value):
+    for reference in mapping.keyrefs():
+        if reference() is value:
+            return mapping.data.pop(reference)
+    return None
+
+
 def _selected_input_read_record(node):
     # Refuse a fork before touching a potentially inherited locked mutex.
     if os.getpid() != _SELECTED_INPUT_NODES_PID:
@@ -3050,62 +3067,93 @@ def _retire_selected_input_reads_for_host(host):
         records = record = host = command = None
 
 
-def _validate_selected_input_read_record(record):
-    """Original owner checks only; never a replacement source verifier."""
-    command = issuer = product = host = registration = expected = result = None
-    try:
-        command = record.command
-        _require_live_direct_workspace_command(command)
-        if record.dependency_binding is not None:
-            record.dependency_binding.check(record)
-        if record.assembly_binding is not None:
-            record.assembly_binding.check(record)
-        staged = _POLICY_HOSTS.get(record.host)
-        if (
-            staged is None
-            or staged.command is not command
-            or _SELECTED_INPUT_FACTORIES.get(record.host) is not record.factory
-            or record.factory._command is not command
-            or record.factory._epoch is not record.epoch
-            or record.factory._epoch_expected is not record.epoch_expected
-            or not any(
-                item is record.contribution for item in staged.product_contributions
-            )
-        ):
-            raise RuntimeError("selected-input read host or catalog epoch changed")
-        product = read_selected_provider_product_contribution(record.contribution)
-        if product.expected.registration is not record.registration:
-            raise RuntimeError("selected-input read registration changed")
-        command.catalog_host.validate_current_catalog_epoch(
-            record.epoch, expected=record.epoch_expected
-        )
-        _read_direct_workspace_selected_participants(command, record.selected)
-        issuer = command.sources.declaration_scope_runtime
-        for expected in record.expectations:
-            if (
-                type(expected) is not SemanticInputProductionExpectation
-                or expected.operation_identity is not command.invocation_parent
-                or expected.source_identity is not record.selected
-            ):
-                raise RuntimeError("selected-input parent/source association changed")
-            issuer.validate_semantic_input_source(record.selected, expected=expected)
-        from aware_code_semantic_contract_runtime.semantic_input_producer import (
-            validate_registered_semantic_input_result,
-        )
+def _bind_selected_input_read_validation(dispatch):
+    namespace = globals()
+    owner = dispatch.__globals__
+    code = dispatch.__code__
 
-        for host, registration, expected, result in record.results:
-            validate_registered_semantic_input_result(
-                host,
-                registration,
-                source_admission=record.selected,
-                expected=expected,
-                result=result,
+    def check_dispatch():
+        if (namespace.get("_original_group_method") is not dispatch
+            or owner.get("_original_group_method") is not dispatch
+            or dispatch.__code__ is not code):
+            raise RuntimeError("original selected-input dispatcher changed")
+
+    def _validate_selected_input_read_record(record):
+        """Original owner checks only; never a replacement source verifier."""
+        command = issuer = product = expected = None
+        retained = ()
+        try:
+            command = record.command
+            _require_live_direct_workspace_command(command)
+            issuer = command.sources.declaration_scope_runtime
+            check_dispatch()
+            dispatch(issuer, "_check_origin")
+            if record.dependency_binding is not None:
+                record.dependency_binding.check(record)
+            if record.assembly_binding is not None:
+                record.assembly_binding.check(record)
+            staged = _POLICY_HOSTS.get(record.host)
+            if (
+                staged is None
+                or staged.command is not command
+                or _SELECTED_INPUT_FACTORIES.get(record.host) is not record.factory
+                or record.factory._command is not command
+                or record.factory._epoch is not record.epoch
+                or record.factory._epoch_expected is not record.epoch_expected
+                or not any(
+                    item is record.contribution for item in staged.product_contributions
+                )
+            ):
+                raise RuntimeError("selected-input read host or catalog epoch changed")
+            product = read_selected_provider_product_contribution(record.contribution)
+            if product.expected.registration is not record.registration:
+                raise RuntimeError("selected-input read registration changed")
+            for expected in record.expectations:
+                if (
+                    type(expected) is not SemanticInputProductionExpectation
+                    or expected.operation_identity is not command.invocation_parent
+                    or expected.source_identity is not record.selected
+                ):
+                    raise RuntimeError("selected-input parent/source association changed")
+            check_dispatch()
+            retained = tuple(
+                dispatch(issuer, "_pre_request_record", record.selected, expected)
+                for expected in record.expectations
             )
-        _require_live_direct_workspace_command(command)
-    finally:
-        command = issuer = product = host = registration = expected = result = (
-            record
-        ) = None
+            # Reuse only this issuer's existing synchronous source window.
+            # No provider execution, await or foreign member enters the window;
+            # its complete terminal source check runs before validation returns.
+            with ExitStack() as stack:
+                if retained and not any(item.grouped_origin is not None for item in retained):
+                    stack.enter_context(dispatch(
+                        issuer, "_original_semantic_source_window", record.selected,
+                        record.expectations[0],
+                    ))
+                command.catalog_host.validate_current_catalog_epoch(
+                    record.epoch, expected=record.epoch_expected
+                )
+                _read_direct_workspace_selected_participants(command, record.selected)
+                check_dispatch()
+                dispatch(
+                    issuer, "_validate_retained_semantic_inputs", record.selected,
+                    expectations=record.expectations, results=record.results,
+                )
+                check_dispatch()
+            check_dispatch()
+            _require_live_direct_workspace_command(command)
+        finally:
+            command = issuer = product = expected = (
+                record
+            ) = None
+            retained = ()
+
+
+    return _validate_selected_input_read_record
+
+
+_validate_selected_input_read_record = _bind_selected_input_read_validation(
+    _original_group_method,
+)
 
 
 def _selected_input_retained_bytes(record):
@@ -3467,11 +3515,8 @@ class _DirectWorkspaceStagedCommandResources:
     """Owned Code contribution plus original Workspace resources; no host admission."""
 
     command: _DirectWorkspaceCommandResources
-    contribution: SelectedProviderStageContribution
-    stage_runtime_bindings: tuple[
-        RetainedSemanticStageRuntimeExpectation,
-        RetainedSemanticStageRuntimeExpectation,
-    ]
+    contribution: SelectedProviderStageContribution | None
+    stage_runtime_bindings: tuple[RetainedSemanticStageRuntimeExpectation, ...]
     product_contributions: tuple[SelectedProviderProductContribution, ...] = ()
     product_runtime_bindings: tuple[RetainedSemanticProductRuntimeExpectation, ...] = ()
 
@@ -3488,7 +3533,7 @@ class DirectWorkspaceSelectedHost:
 @contextmanager
 def compose_direct_workspace_selected_host(
     *,
-    factory_admission: _AdmittedSemanticProviderFactory,
+    factory_admission: _AdmittedSemanticProviderFactory | None = None,
     session: WorkspaceRepositoryObservationSession,
     store: WorkspaceRepositoryDeltaRetentionClient,
     workspace_manifest_path: str,
@@ -3498,6 +3543,7 @@ def compose_direct_workspace_selected_host(
     policy_configuration,
     product_factory_admissions: tuple[_AdmittedSemanticProviderFactory, ...] = (),
     command_resources: _DirectWorkspaceCommandResources | None = None,
+    selected_package_sources: tuple[WorkspaceSelectedPackageSource, ...] = (),
 ) -> Iterator[DirectWorkspaceSelectedHost]:
     """Enter the existing selected catalog and Code host under one command.
 
@@ -3505,6 +3551,8 @@ def compose_direct_workspace_selected_host(
     composition, never from a materialization proposal. This entrance does not
     issue them or interpret provider meaning. When original command resources
     are supplied, their parent stays borrowed and must outlive this host.
+    Product-only v3 composition supplies no stage factory and at least one
+    original product factory; the original pair route remains unchanged.
     """
     with _compose_direct_workspace_staged_command_resources(
         factory_admission=factory_admission,
@@ -3515,7 +3563,9 @@ def compose_direct_workspace_selected_host(
         source_rail="declaration_v3",
         command_resources=command_resources,
     ) as staged:
-        pair = _admit_direct_workspace_selected_provider_catalogs(staged)
+        pair = _admit_direct_workspace_selected_provider_catalogs(
+            staged, selected_package_sources=selected_package_sources
+        )
         with _compose_direct_workspace_policy_host(
             staged,
             composition_implementation=composition_implementation,
@@ -3529,7 +3579,7 @@ def compose_direct_workspace_selected_host(
 @contextmanager
 def _compose_direct_workspace_staged_command_resources(
     *,
-    factory_admission: _AdmittedSemanticProviderFactory,
+    factory_admission: _AdmittedSemanticProviderFactory | None = None,
     product_factory_admissions: tuple[_AdmittedSemanticProviderFactory, ...] = (),
     session: WorkspaceRepositoryObservationSession,
     store: WorkspaceRepositoryDeltaRetentionClient,
@@ -3540,8 +3590,8 @@ def _compose_direct_workspace_staged_command_resources(
 ) -> Iterator[_DirectWorkspaceStagedCommandResources]:
     """Acquire only through original Code factory authority, never a callback.
 
-    Code rolls back partial acquisition. After success this assembly owns both
-    registrations. After yielded host cleanup, close those registrations before
+    Code rolls back partial acquisition. This assembly owns the acquired pair
+    and/or products. After yielded host cleanup, close their registrations before
     the command parent and source resources. No execution is mounted here;
     this construction envelope is not the later live-operation quiescence join.
     """
@@ -3568,7 +3618,14 @@ def _compose_direct_workspace_staged_command_resources(
         raise TypeError("bounded original product factory tuple required")
     if len({id(item) for item in product_factory_admissions}) != len(product_factory_admissions):
         raise ValueError("duplicate original product factory")
-    contribution = issue_selected_provider_stage_contribution(factory_admission)
+    if factory_admission is None and (
+        source_rail != "declaration_v3" or qualified or not product_factory_admissions
+    ):
+        raise TypeError("product-only composition requires original v3 products")
+    contribution = (
+        None if factory_admission is None
+        else issue_selected_provider_stage_contribution(factory_admission)
+    )
     close_contribution = close_selected_provider_stage_contribution
     products: list[SelectedProviderProductContribution] = []
     errors: list[BaseException] = []
@@ -3590,7 +3647,10 @@ def _compose_direct_workspace_staged_command_resources(
         with command_context as command:
             _require_live_direct_workspace_command(command)
             try:
-                stages = read_selected_provider_stage_contribution(contribution)
+                stages = (
+                    () if contribution is None
+                    else read_selected_provider_stage_contribution(contribution)
+                )
                 product_bindings = tuple(
                     read_selected_provider_product_contribution(product).expected
                     for product in products
@@ -3613,10 +3673,11 @@ def _compose_direct_workspace_staged_command_resources(
                         close_selected_provider_product_contribution(product)
                     except BaseException as error:
                         errors.append(error)
-                try:
-                    close_contribution(contribution)
-                except BaseException as error:
-                    errors.append(error)
+                if contribution is not None:
+                    try:
+                        close_contribution(contribution)
+                    except BaseException as error:
+                        errors.append(error)
     except BaseException as error:
         errors.append(error)
     if not cleanup_attempted:
@@ -3625,10 +3686,11 @@ def _compose_direct_workspace_staged_command_resources(
                 close_selected_provider_product_contribution(product)
             except BaseException as error:
                 errors.append(error)
-        try:
-            close_contribution(contribution)
-        except BaseException as error:
-            errors.append(error)
+        if contribution is not None:
+            try:
+                close_contribution(contribution)
+            except BaseException as error:
+                errors.append(error)
     if len(errors) == 1:
         raise errors[0]
     if errors:
@@ -3637,6 +3699,8 @@ def _compose_direct_workspace_staged_command_resources(
 
 def _admit_direct_workspace_selected_provider_catalogs(
     staged: _DirectWorkspaceStagedCommandResources,
+    *,
+    selected_package_sources: tuple[WorkspaceSelectedPackageSource, ...] = (),
 ):
     """Admit only owner-produced Code inputs through this command's paired host."""
     if type(staged) is not _DirectWorkspaceStagedCommandResources:
@@ -3658,7 +3722,10 @@ def _admit_direct_workspace_selected_provider_catalogs(
     ):
         raise RuntimeError("original staged catalog command unavailable")
     command.sources.exclusion.check_live()
-    stages = read_selected_provider_stage_contribution(staged.contribution)
+    stages = (
+        () if staged.contribution is None
+        else read_selected_provider_stage_contribution(staged.contribution)
+    )
     if any(
         current.runtime is not retained.runtime
         or current.registration is not retained.registration
@@ -3676,17 +3743,20 @@ def _admit_direct_workspace_selected_provider_catalogs(
     ):
         raise RuntimeError("original product catalog registration changed")
 
-    produce_selected_provider_stage_catalog_contribution(staged.contribution)
+    if staged.contribution is not None:
+        produce_selected_provider_stage_catalog_contribution(staged.contribution)
     for product in staged.product_contributions:
         produce_selected_provider_product_catalog_contribution(product)
     code_catalog = compose_selected_provider_stage_catalog_input(
-        (staged.contribution,),
+        () if staged.contribution is None else (staged.contribution,),
         catalog_ref="workspace.direct.selected-providers.v1",
         catalog_generation=1,
         product_contributions=staged.product_contributions,
     )
     owner_catalogs = (
-        read_selected_provider_stage_catalog_contribution(staged.contribution),
+        *(() if staged.contribution is None else (
+            read_selected_provider_stage_catalog_contribution(staged.contribution),
+        )),
         *(
             read_selected_provider_product_catalog_contribution(value)
             for value in staged.product_contributions
@@ -3707,14 +3777,52 @@ def _admit_direct_workspace_selected_provider_catalogs(
             previous = planners.setdefault(coordinate, value.planner)
             if previous is not value.planner:
                 raise RuntimeError("different owner planners share one coordinate")
+    from .declaration_product_membership import (
+        capture_declaration_inspect_product_correspondence,
+        capture_declaration_product_correspondence,
+    )
+
+    if type(selected_package_sources) is not tuple or len(selected_package_sources) > 4096:
+        raise TypeError("bounded original selected source tuple required")
+    # Stage and product contributions have already been joined to this same
+    # original command above. Their coexistence does not turn a selected
+    # package source into a foreign source or permit a second command.
+    if selected_package_sources and type(command.sources) is not _DirectWorkspaceDeclarationSources:
+        raise TypeError("initial product participation requires original v3 product sources")
+    correspondences = []
+    entries = []
+    for selected_source in selected_package_sources:
+        key = _resolve_direct_workspace_exact_provider_key(command, selected_source)
+        matching = tuple(
+            product for product in staged.product_contributions
+            if read_selected_provider_product_contribution(product).binding.provider_key == key
+        )
+        if len(matching) != 1:
+            raise RuntimeError("selected source has no unique original product contribution")
+        # The original owner's exact profile selects its existing read-only
+        # correspondence, never a caller flag or portable request verdict.
+        original_product = read_selected_provider_product_contribution(matching[0])
+        capture = (capture_declaration_inspect_product_correspondence
+                   if original_product.profile.operation_kinds == ("inspect",)
+                   else capture_declaration_product_correspondence)
+        correspondence, entry = capture(
+            issuer=command.sources.declaration_scope_runtime,
+            declaration=command.sources.declaration_scope,
+            selected=selected_source, product=matching[0],
+        )
+        correspondences.append(correspondence)
+        entries.append(entry)
+    ordered = sorted(zip(entries, correspondences, strict=True),
+                     key=lambda row: row[0].package.package_ref.encode())
     workspace_catalog = WorkspaceSemanticMaterializationMembershipCatalog.create(
         catalog_ref="workspace.direct.initial-membership.v1",
         catalog_generation=1,
-        entries=(),
+        entries=tuple(row[0] for row in ordered),
     )
     return command.catalog_host.admit_catalogs(
         code_catalog=code_catalog,
         workspace_catalog_reader=lambda: workspace_catalog,
+        source_correspondences=tuple(row[1] for row in ordered),
         provider_executable_bindings=executables,
         dependency_planner_bindings=tuple(
             (implementation, configuration, planner)
@@ -3993,7 +4101,10 @@ class _DirectWorkspaceOriginFactory:
             if self._used or lifetime is not self._lifetime:
                 raise RuntimeError("original origin lifetime unavailable or consumed")
             self._used = True
-        stages = read_selected_provider_stage_contribution(self._contribution)
+        stages = (
+            () if self._contribution is None
+            else read_selected_provider_stage_contribution(self._contribution)
+        )
         for current, retained in zip(stages, self._stages, strict=True):
             if (
                 current.runtime is not retained.runtime
@@ -4050,6 +4161,7 @@ def _assemble_direct_workspace_origin_factory(
     if not declaration_v3 and type(command.sources) is not _DirectWorkspaceSourceResources:
         raise RuntimeError("original command source resources required")
     from aware_code_semantic_contract_runtime.direct_origin_interfaces import (
+        DECLARATION_V3_RESOURCE_ROLES,
         DECLARATION_V3_TWO_STAGE_RESOURCE_ROLES,
         TWO_STAGE_RESOURCE_ROLES,
         DirectCommandExpectedContext,
@@ -4072,7 +4184,10 @@ def _assemble_direct_workspace_origin_factory(
     from aware_code_retained_registry_policy_runtime.calculation import (
         calculate_registry_policy,
     )
-    stages = read_selected_provider_stage_contribution(staged.contribution)
+    stages = (
+        () if staged.contribution is None
+        else read_selected_provider_stage_contribution(staged.contribution)
+    )
     for current, retained in zip(stages, staged.stage_runtime_bindings, strict=True):
         if (
             current.runtime is not retained.runtime
@@ -4137,15 +4252,19 @@ def _assemble_direct_workspace_origin_factory(
         policy_producer = calculate_qualified_registry_policy
     elif not declaration_v3:
         policy_producer = calculate_registry_policy
+    if not stages and (not declaration_v3 or not products):
+        raise RuntimeError("original v3 product runtime required")
+    runtime = stages[0].runtime if stages else products[0].runtime
     factory = object.__new__(_DirectWorkspaceOriginFactory)
-    objects = dict(
-        authority_code_runtime=stages[1].runtime,
-        catalog=catalog,
-        code_runtime=stages[0].runtime,
-        composition_factory=factory,
-        lifetime_runtime=owner,
-        policy_producer=policy_producer,
-    )
+    objects = {
+        "catalog": catalog,
+        "code_runtime": runtime,
+        "composition_factory": factory,
+        "lifetime_runtime": owner,
+        "policy_producer": policy_producer,
+    }
+    if stages:
+        objects["authority_code_runtime"] = stages[1].runtime
     if declaration_v3:
         objects["declaration_scope_runtime"] = sources.declaration_scope_runtime
     else:
@@ -4163,7 +4282,7 @@ def _assemble_direct_workspace_origin_factory(
         owner.invocation_identity,
         owner.epoch_identity,
         os.getpid(),
-        stages[0].runtime,
+        runtime,
         catalog,
         composition_implementation,
         composition_configuration,
@@ -4172,7 +4291,8 @@ def _assemble_direct_workspace_origin_factory(
         tuple(
             DirectCommandResourceBinding(role, objects[role], "borrowed")
             for role in (
-                DECLARATION_V3_TWO_STAGE_RESOURCE_ROLES
+                (DECLARATION_V3_TWO_STAGE_RESOURCE_ROLES if stages
+                 else DECLARATION_V3_RESOURCE_ROLES)
                 if declaration_v3 else TWO_STAGE_RESOURCE_ROLES
             )
         ),
@@ -4253,6 +4373,9 @@ def _compose_direct_workspace_policy_host(staged, **coordinates):
     )
 
     factory = _assemble_direct_workspace_origin_factory(staged, **coordinates)
+    has_stages = bool(
+        cast(_DirectWorkspaceOriginFactory, factory)._expected.stage_runtime_bindings
+    )
     bootstrap = code._assemble_direct_command_bootstrap(
         lifetime=factory._lifetime, expected=factory._expected
     )
@@ -4309,17 +4432,22 @@ def _compose_direct_workspace_policy_host(staged, **coordinates):
             command.sources.declaration_scope_runtime if declaration_v3
             else command.sources.semantic_issuer
         )
-        issuer._bind_original_code_validator(
-            planning_contexts.source_planning_context_validator(host)
-        )
-        issuer._bind_original_authority_validator(
-            authority_contexts.authority_context_validator(host)
-        )
-        if declaration_v3 or type(command.sources.scope_runtime) is WorkspaceDependencyScopeRuntime:
+        if has_stages:
+            issuer._bind_original_code_validator(
+                planning_contexts.source_planning_context_validator(host)
+            )
+            issuer._bind_original_authority_validator(
+                authority_contexts.authority_context_validator(host)
+            )
+        if has_stages and (
+            declaration_v3 or type(command.sources.scope_runtime) is WorkspaceDependencyScopeRuntime
+        ):
             issuer._bind_original_dependency_validator(
                 dependency_contexts.retained_dependency_operation_validator(host)
             )
-        if declaration_v3 or type(command.sources.scope_runtime) is WorkspaceDependencyScopeRuntime:
+        if has_stages and (
+            declaration_v3 or type(command.sources.scope_runtime) is WorkspaceDependencyScopeRuntime
+        ):
             issuer._bind_original_resolution_resources(
                 target_origin=assemble_target_context_origin(host),
                 catalog=joint.read_code_catalog_for_epoch(epoch, expected=expected),
@@ -4334,8 +4462,8 @@ def _compose_direct_workspace_policy_host(staged, **coordinates):
             _retire_selected_input_reads_for_host(host)
         except BaseException as error:  # noqa: BLE001 - independently close borrowed Code host
             errors.append(error)
-        _POLICY_HOSTS.pop(host, None)
-        _SELECTED_INPUT_FACTORIES.pop(host, None)
+        _selected_input_identity_pop(_POLICY_HOSTS, host)
+        _selected_input_identity_pop(_SELECTED_INPUT_FACTORIES, host)
         try:
             close_code(host)
             code_closed = True

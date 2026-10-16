@@ -23,6 +23,7 @@ from aware_specification_cli.read_commands import register_read_commands
 from aware_specification_fs_sdk_adapter import SpecificationFsSdkProvider
 from aware_specification_sdk import (
     SPECIFICATION_OBSERVE_OPERATION_REF,
+    SPECIFICATION_SAVED_RECEIPT_OPERATION_REF,
     SpecificationSdkClient,
 )
 from packaging.requirements import Requirement
@@ -86,9 +87,13 @@ def test_registration_is_effect_free_and_has_exact_canonical_labels(monkeypatch)
         patch.setattr(SpecificationSdkClient, "observe", prohibited)
         register_read_commands(registry)
         build_parser(registry, prog="aware-spec")
-    assert registry.names() == ("observe", "iteration-identity")
+    assert registry.names() == ("observe", "iteration-identity", "present-receipt")
     for command in registry:
-        assert command.operation_ref == SPECIFICATION_OBSERVE_OPERATION_REF
+        assert command.operation_ref == (
+            SPECIFICATION_SAVED_RECEIPT_OPERATION_REF
+            if command.name == "present-receipt"
+            else SPECIFICATION_OBSERVE_OPERATION_REF
+        )
         assert command.source == "aware_specification_cli"
         assert command.projection_ref is None
 
@@ -220,7 +225,18 @@ def read_mount(argv):
     ],
 )
 def test_read_mount_parser_refusal_parity(predecessor, capsys, args):
-    assert capture(read_mount, args, capsys) == capture(predecessor, args, capsys)
+    observed = capture(read_mount, args, capsys)
+    expected = capture(predecessor, args, capsys)
+    # Only the declared additional read appears in parser choices/usage.
+    normalized = tuple(
+        item.replace(",present-receipt", "") if isinstance(item, str) else item
+        for item in observed
+    )
+    normalized = tuple(
+        item.replace(", 'present-receipt'", "") if isinstance(item, str) else item
+        for item in normalized
+    )
+    assert normalized == expected
 
 
 @pytest.mark.parametrize(
@@ -342,10 +358,10 @@ def test_interrupt_propagation_and_cleanup_match_predecessor(
 
 def test_source_metadata_has_only_agreed_neutral_consumer_edges():
     project = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())
-    assert project["project"]["version"] == "0.4.3"
+    assert project["project"]["version"] == "0.4.4"
     assert project["project"]["dependencies"] == [
-        "aware-specification-sdk>=0.3.3,<0.4.0",
-        "aware-specification-fs-sdk-adapter[protocol]>=0.4.3,<0.5.0",
+        "aware-specification-sdk>=0.3.4,<0.4.0",
+        "aware-specification-fs-sdk-adapter[protocol,receipts]>=0.4.4,<0.5.0",
         "aware-command-runtime>=0.1.1,<0.2.0",
     ]
     assert project["project"]["scripts"] == {
@@ -370,7 +386,8 @@ def test_source_metadata_has_only_agreed_neutral_consumer_edges():
         ("0.4.0", False),
         ("0.4.1", False),
         ("0.4.2", False),
-        ("0.4.3", True),
+        ("0.4.3", False),
+        ("0.4.4", True),
         ("0.4.9", True),
         ("0.5.0", False),
     ],
@@ -378,7 +395,7 @@ def test_source_metadata_has_only_agreed_neutral_consumer_edges():
 def test_successor_admits_only_agreed_adapter_generation(version, admitted):
     project = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())
     adapter = Requirement(project["project"]["dependencies"][1])
-    assert adapter.extras == {"protocol"}
+    assert adapter.extras == {"protocol", "receipts"}
     assert adapter.specifier.contains(version) is admitted
 
 

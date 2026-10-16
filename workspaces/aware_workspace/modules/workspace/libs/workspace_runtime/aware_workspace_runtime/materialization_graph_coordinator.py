@@ -659,6 +659,7 @@ class _GraphExecutionState:
     expected_predecessor_event_digest: ContentDigest | None
     ports: _WorkspaceSemanticMaterializationGraphHostPorts
     owner: object
+    direct_command_scope: object | None = None
     status: str = "fresh"
     completed_results: tuple[
         WorkspaceSemanticMaterializationNodeResultEvidenceV3, ...
@@ -1193,6 +1194,42 @@ def _issue_workspace_semantic_materialization_graph_execution_production(
     return issuer(owner=owner, **values)
 
 
+def _issue_workspace_direct_command_graph_execution(
+    *, scope: object, **values: object,
+) -> AdmittedWorkspaceSemanticMaterializationGraphExecution:
+    """Admit the same coordinator from an original local command, not RELEASE.
+
+    The sealed Workspace scope validates its own original command, selection,
+    Code host and backing. Portable fields and caller callbacks cannot replace
+    it. The managed-release production entrance keeps its existing cutover law.
+    """
+    from .direct_cli_product_publication import validate_direct_cli_graph_scope
+
+    validate_direct_cli_graph_scope(scope, values=values)
+    if values.get("authority_grade") is not WorkspaceMaterializationSessionAuthorityGrade.LOCAL_OPERATIONAL:
+        raise WorkspaceSemanticMaterializationGraphExecutionError("direct graph grade differs")
+    admission = _issue_workspace_semantic_materialization_graph_execution_core(
+        owner=scope, **values,
+    )
+    _execution_state(admission).direct_command_scope = scope
+    return admission
+
+
+def _dispose_workspace_direct_command_graph_execution(admission, *, scope):
+    """Release only this direct command's completed or interrupted registry row."""
+    if type(admission) is not AdmittedWorkspaceSemanticMaterializationGraphExecution:
+        raise TypeError("original graph execution admission required")
+    with _EXECUTIONS_LOCK:
+        state = _EXECUTIONS.get(admission)
+        if state is None:
+            return
+        if state.owner is not scope or state.direct_command_scope is not scope:
+            raise WorkspaceSemanticMaterializationGraphExecutionError("foreign direct graph cleanup")
+        if state.status == "running":
+            raise WorkspaceSemanticMaterializationGraphExecutionError("direct graph execution remains running")
+        _EXECUTIONS.pop(admission, None)
+
+
 def _execution_state(
     admission: AdmittedWorkspaceSemanticMaterializationGraphExecution,
 ) -> _GraphExecutionState:
@@ -1475,7 +1512,7 @@ class WorkspaceSemanticMaterializationGraphCoordinator:
             with _EXECUTIONS_LOCK:
                 state.status = "interrupted_resumable"
             raise
-        except Exception:
+        except BaseException:
             with _EXECUTIONS_LOCK:
                 state.status = "interrupted_resumable"
             raise
@@ -1560,6 +1597,11 @@ class WorkspaceSemanticMaterializationGraphCoordinator:
     def _reread_cutover_fence(
         state: _GraphExecutionState, stage: str
     ) -> WorkspaceMaterializationProductionCutoverHeadV1 | None:
+        if state.direct_command_scope is not None:
+            from .direct_cli_product_publication import validate_direct_cli_graph_scope
+
+            validate_direct_cli_graph_scope(state.direct_command_scope)
+            return None
         reader = state.ports.cutover_fence_reader
         if reader is None:
             return None

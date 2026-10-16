@@ -1242,26 +1242,33 @@ class WorkspaceSemanticMaterializationRequestV3:
             )
 
     def to_wire(self) -> dict[str, object]:
-        self.__post_init__()
+        supplied_digest = _v2_content_digest(
+            self.request_digest, "request_v2.request_digest"
+        ).to_wire()
+        payload = _publication_request_v2_payload(
+            {
+                name: getattr(self, name)
+                for name in (
+                    "package",
+                    "result_coordinate",
+                    "source_identity_digest",
+                    "code_intent_digest",
+                    "code_match_digest",
+                    "planning_input_digest",
+                    "execution_input_closure_digest",
+                    "operation_result_digest",
+                    "expected_head_revision",
+                )
+            }
+        )
+        if supplied_digest != _v2_digest(WORKSPACE_SEMANTIC_MATERIALIZATION_REQUEST_V3, payload).to_wire():
+            raise WorkspaceSemanticMaterializationPublicationError(
+                "publication request V2 digest mismatched"
+            )
         return {
             "contract": WORKSPACE_SEMANTIC_MATERIALIZATION_REQUEST_V3,
-            **_publication_request_v2_payload(
-                {
-                    name: getattr(self, name)
-                    for name in (
-                        "package",
-                        "result_coordinate",
-                        "source_identity_digest",
-                        "code_intent_digest",
-                        "code_match_digest",
-                        "planning_input_digest",
-                        "execution_input_closure_digest",
-                        "operation_result_digest",
-                        "expected_head_revision",
-                    )
-                }
-            ),
-            "request_digest": self.request_digest.to_wire(),
+            **payload,
+            "request_digest": supplied_digest,
         }
 
 
@@ -1373,26 +1380,32 @@ class WorkspaceSemanticMaterializationHeadV3:
             )
 
     def to_wire(self) -> dict[str, object]:
-        self.__post_init__()
+        supplied_digest = _v2_content_digest(self.head_digest, "head_v2.head_digest").to_wire()
+        values = {
+            name: getattr(self, name)
+            for name in (
+                "request",
+                "package",
+                "result_coordinate",
+                "source_identity_digest",
+                "code_intent_digest",
+                "code_match_digest",
+                "planning_input_digest",
+                "execution_input_closure_digest",
+                "operation_result_digest",
+            )
+        }
+        payload = _publication_head_v2_payload(values)
+        if supplied_digest != _v2_digest(
+            WORKSPACE_SEMANTIC_MATERIALIZATION_HEAD_V3, payload
+        ).to_wire():
+            raise WorkspaceSemanticMaterializationPublicationError(
+                "publication head V2 digest mismatched"
+            )
         return {
             "contract": WORKSPACE_SEMANTIC_MATERIALIZATION_HEAD_V3,
-            **_publication_head_v2_payload(
-                {
-                    name: getattr(self, name)
-                    for name in (
-                        "request",
-                        "package",
-                        "result_coordinate",
-                        "source_identity_digest",
-                        "code_intent_digest",
-                        "code_match_digest",
-                        "planning_input_digest",
-                        "execution_input_closure_digest",
-                        "operation_result_digest",
-                    )
-                }
-            ),
-            "head_digest": self.head_digest.to_wire(),
+            **payload,
+            "head_digest": supplied_digest,
         }
 
 
@@ -2028,23 +2041,29 @@ class WorkspaceSemanticMaterializationPublicationReceiptV3:
             )
 
     def to_wire(self) -> dict[str, object]:
-        self.__post_init__()
+        supplied_digest = _v2_content_digest(
+            self.receipt_digest, "receipt_v2.receipt_digest"
+        ).to_wire()
+        values = {
+            name: getattr(self, name)
+            for name in (
+                "request",
+                "head",
+                "prior_head_revision",
+                "head_revision",
+                "head_advanced",
+                "canonical_head_wire_digest",
+            )
+        }
+        payload = _publication_receipt_v2_payload(values)
+        if supplied_digest != _v2_digest(WORKSPACE_SEMANTIC_MATERIALIZATION_RECEIPT_V3, payload).to_wire():
+            raise WorkspaceSemanticMaterializationPublicationError(
+                "publication receipt V2 digest mismatched"
+            )
         return {
             "contract": WORKSPACE_SEMANTIC_MATERIALIZATION_RECEIPT_V3,
-            **_publication_receipt_v2_payload(
-                {
-                    name: getattr(self, name)
-                    for name in (
-                        "request",
-                        "head",
-                        "prior_head_revision",
-                        "head_revision",
-                        "head_advanced",
-                        "canonical_head_wire_digest",
-                    )
-                }
-            ),
-            "receipt_digest": self.receipt_digest.to_wire(),
+            **payload,
+            "receipt_digest": supplied_digest,
         }
 
 
@@ -2275,29 +2294,37 @@ class WorkspaceSemanticMaterializationHeadRereadEvidenceV3:
             )
 
     def to_wire(self) -> dict[str, object]:
-        self.__post_init__()
+        supplied_digest = _v2_content_digest(
+            self.reread_evidence_digest, "head_reread_v2.reread_evidence_digest"
+        ).to_wire()
+        values = {
+            name: getattr(self, name)
+            for name in (
+                "observation_role",
+                "materialization_head_revision",
+                "head",
+                "package",
+                "result_coordinate",
+                "source_identity_digest",
+                "code_intent_digest",
+                "code_match_digest",
+                "planning_input_digest",
+                "execution_input_closure_digest",
+                "materialization_head_digest",
+                "canonical_head_wire_digest",
+            )
+        }
+        payload = _head_reread_v2_payload(values)
+        if supplied_digest != _v2_digest(
+            WORKSPACE_SEMANTIC_MATERIALIZATION_HEAD_REREAD_EVIDENCE_V3, payload
+        ).to_wire():
+            raise WorkspaceSemanticMaterializationPublicationError(
+                "head reread V2 digest mismatched"
+            )
         return {
             "contract": WORKSPACE_SEMANTIC_MATERIALIZATION_HEAD_REREAD_EVIDENCE_V3,
-            **_head_reread_v2_payload(
-                {
-                    name: getattr(self, name)
-                    for name in (
-                        "observation_role",
-                        "materialization_head_revision",
-                        "head",
-                        "package",
-                        "result_coordinate",
-                        "source_identity_digest",
-                        "code_intent_digest",
-                        "code_match_digest",
-                        "planning_input_digest",
-                        "execution_input_closure_digest",
-                        "materialization_head_digest",
-                        "canonical_head_wire_digest",
-                    )
-                }
-            ),
-            "reread_evidence_digest": self.reread_evidence_digest.to_wire(),
+            **payload,
+            "reread_evidence_digest": supplied_digest,
         }
 
 

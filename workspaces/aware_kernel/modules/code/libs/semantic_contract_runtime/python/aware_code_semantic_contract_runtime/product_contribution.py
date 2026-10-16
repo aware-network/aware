@@ -8,9 +8,14 @@ from __future__ import annotations
 
 import inspect
 import os
+from collections.abc import Callable
 from copy import deepcopy
 from dataclasses import dataclass
-from types import MemberDescriptorType
+from types import CodeType, FunctionType, MemberDescriptorType
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from .semantic_input_producer import SemanticInputProducerDeclaration
 
 from . import selected_provider as selected
 from .contracts import (
@@ -18,6 +23,7 @@ from .contracts import (
     ProviderExecutionBinding,
     SemanticConfigurationCoordinate,
     SemanticImplementationCoordinate,
+    canonical_json_bytes,
 )
 from .direct_origin_interfaces import RetainedSemanticProductRuntimeExpectation
 from .materialization_catalog import CodeSemanticMaterializationProfileBinding
@@ -50,11 +56,50 @@ class SelectedProviderProductContribution:
 @dataclass(frozen=True, slots=True)
 class _State:
     pid: int
-    factory: object
+    factory: selected._AdmittedSemanticProviderFactory
     product: selected._SelectedProviderFactoryProduct
-    catalog_producer: object
-    private_stage_plan_producer: object
+    catalog_producer: Callable | None
+    private_stage_plan_producer: Callable | None
     expected: RetainedSemanticProductRuntimeExpectation
+    planning_input: _PlanningInput | None = None
+    execution_input_producer: Callable | None = None
+    execution_input_code: object = None
+
+
+@dataclass(frozen=True, slots=True)
+class _PlanningInput:
+    declaration: SemanticInputProducerDeclaration
+    tree: Any
+    producer: FunctionType
+    code: CodeType
+
+    def check(self, product):
+        if (
+            product.planning_input_declaration is not self.declaration
+            or product.planning_input_producer is not self.producer
+            or not inspect.isfunction(self.producer)
+            or self.producer.__code__ is not self.code
+        ):
+            raise ContractViolation("original product planning producer changed")
+        self.tree.check(self.declaration)
+
+
+def _capture_planning_input(product):
+    # Import locally: shared producer models also use the selected-provider rail.
+    from .retained_input_projection_codec import DependencyPlanningInputCodec
+    from .semantic_input_producer import SemanticInputProducerDeclaration, _result_tree
+
+    declaration = product.planning_input_declaration
+    producer = product.planning_input_producer
+    if declaration is None and producer is None:
+        return None
+    if type(declaration) is not SemanticInputProducerDeclaration or not inspect.isfunction(producer):
+        raise TypeError("original planning declaration and exact owner function required")
+    tree = _result_tree(declaration)
+    declaration.__post_init__()
+    if declaration.result_contract != DependencyPlanningInputCodec.contract:
+        raise ContractViolation("product planning must return the shared planning-input contract")
+    return _PlanningInput(declaration, tree, producer, producer.__code__)
 
 
 @dataclass(frozen=True, slots=True)
@@ -97,6 +142,8 @@ _CATALOG_PENDING = object()
 _CATALOG_PRODUCTS: dict[SelectedProviderProductContribution, object] = {}
 _PRIVATE_PLAN_PENDING = object()
 _PRIVATE_PLANS: dict[SelectedProviderProductContribution, object] = {}
+_EXECUTION_INPUT_PENDING = object()
+_EXECUTION_INPUT_PLANS: dict[SelectedProviderProductContribution, tuple | object] = {}
 
 
 def _state(contribution: SelectedProviderProductContribution) -> _State:
@@ -108,10 +155,47 @@ def _state(contribution: SelectedProviderProductContribution) -> _State:
     if state.pid != os.getpid():
         raise ContractViolation("product contribution belongs to another process")
     selected._factory_state(state.factory)
+    if (
+        state.product.execution_input_contribution_producer is not state.execution_input_producer
+        or (state.execution_input_producer is not None
+            and state.execution_input_producer.__code__ is not state.execution_input_code)
+    ):
+        raise ContractViolation("original execution input contribution producer changed")
+    if state.planning_input is None:
+        if (state.product.planning_input_declaration is not None
+                or state.product.planning_input_producer is not None):
+            raise ContractViolation("product planning producer attached after registration")
+    else:
+        state.planning_input.check(state.product)
     if state.product.catalog_contribution_producer is not state.catalog_producer:
         raise ContractViolation("product catalog producer changed")
-    if state.product.private_stage_plan_producer is not state.private_stage_plan_producer:
+    if (
+        state.product.private_stage_plan_producer
+        is not state.private_stage_plan_producer
+    ):
         raise ContractViolation("private-stage plan producer changed")
+    # Read the original registration in its owner, not a caller-reconstructed
+    # expectation. Equal declarations cannot substitute a live provider or its
+    # retained executable/input entrances after product issuance.
+    registered = selected._registration_state(state.expected.registration)
+    product = state.product
+    if (
+        product.runtime is not state.expected.runtime
+        or product.runtime is not registered.runtime
+        or product.provider is not registered.provider
+        or product.executable_entrance is not registered.executable_entrance
+        or product.input_closure_entrance is not registered.input_closure_entrance
+        or type(product.binding) is not ProviderExecutionBinding
+        or canonical_json_bytes(product.binding.to_wire()) != registered.binding_bytes
+        or type(product.semantic_implementation_contract_body) is not bytes
+        or product.semantic_implementation_contract_body
+        != registered.semantic_implementation_contract_body
+        or type(product.configuration_body) is not bytes
+        or product.configuration_body != registered.configuration_body
+    ):
+        raise ContractViolation(
+            "original product runtime/provider/entrance binding changed"
+        )
     return state
 
 
@@ -226,7 +310,9 @@ def produce_selected_provider_product_catalog_contribution(
         _CATALOG_PRODUCTS[contribution] = _CATALOG_PENDING
         product = producer(contribution)
         if _state(contribution) is not state:
-            raise ContractViolation("original product registration changed during production")
+            raise ContractViolation(
+                "original product registration changed during production"
+            )
         _CATALOG_PRODUCTS[contribution] = _validate_catalog_product(
             contribution, product
         )
@@ -323,6 +409,10 @@ def issue_selected_provider_product_contribution(
                 RetainedSemanticProductRuntimeExpectation(
                     product.runtime, registration
                 ),
+                _capture_planning_input(product),
+                product.execution_input_contribution_producer,
+                None if product.execution_input_contribution_producer is None
+                else _execution_input_producer_code(product.execution_input_contribution_producer),
             )
             read_selected_provider_product_contribution(contribution)
             return contribution
@@ -338,6 +428,16 @@ def issue_selected_provider_product_contribution(
             raise
 
 
+def read_selected_provider_product_planning_input(contribution) -> tuple[SemanticInputProducerDeclaration, Callable]:
+    """Return factory-retained owner metadata, never a planning source admission."""
+    with selected._LOCK:
+        state = _state(contribution)
+        read_selected_provider_product_contribution(contribution)
+        if state.planning_input is None:
+            raise ContractViolation("owner product planning-input producer unavailable")
+        return state.planning_input.declaration, state.planning_input.producer
+
+
 def close_selected_provider_product_contribution(
     contribution: SelectedProviderProductContribution,
 ) -> None:
@@ -349,7 +449,58 @@ def close_selected_provider_product_contribution(
         )
         _CATALOG_PRODUCTS.pop(contribution, None)
         _PRIVATE_PLANS.pop(contribution, None)
+        _EXECUTION_INPUT_PLANS.pop(contribution, None)
         del _CONTRIBUTIONS[contribution]
+
+
+def _execution_input_producer_code(producer):
+    if type(producer) is not FunctionType or inspect.iscoroutinefunction(producer):
+        raise TypeError("exact execution input contribution function required")
+    parameters = tuple(inspect.signature(producer).parameters.values())
+    if len(parameters) != 1 or parameters[0].kind not in (
+        inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD,
+    ) or parameters[0].default is not inspect.Parameter.empty:
+        raise TypeError("execution input producer must take one original contribution")
+    return producer.__code__
+
+
+def produce_selected_provider_product_execution_inputs(contribution):
+    """Retain one owner-factory recipe; do not execute source producers here."""
+    from .product_execution_input_plan import ProductExecutionInputPlan, _tree
+
+    with selected._LOCK:
+        state = _state(contribution)
+        if state.execution_input_producer is None:
+            raise ContractViolation("owner execution input contribution unavailable")
+        if contribution in _EXECUTION_INPUT_PLANS:
+            raise ContractViolation("execution input contribution already consumed")
+        _EXECUTION_INPUT_PLANS[contribution] = _EXECUTION_INPUT_PENDING
+        plan = state.execution_input_producer(contribution)
+        if type(plan) is not ProductExecutionInputPlan:
+            raise TypeError("exact execution input plan required")
+        tree = _tree(plan)
+        plan.__post_init__()
+        profile = read_selected_provider_product_contribution(contribution).profile
+        if tuple((plan.steps[i].ordinary.result_role, plan.steps[i].ordinary.result_contract)
+                 for i in plan.input_result_indices) != tuple((x.role, x.contract) for x in profile.inputs):
+            raise ContractViolation("execution input results must cover the exact profile inputs")
+        if _state(contribution) is not state:
+            raise ContractViolation("original execution input contribution changed")
+        tree.check(plan)
+        _EXECUTION_INPUT_PLANS[contribution] = (plan, tree)
+        return plan
+
+
+def read_selected_provider_product_execution_inputs(contribution):
+    """Repeated original recipe validation is not another owner execution."""
+    with selected._LOCK:
+        _state(contribution)
+        retained = _EXECUTION_INPUT_PLANS.get(contribution)
+        if type(retained) is not tuple:
+            raise ContractViolation("original execution input plan unavailable")
+        plan, tree = retained
+        tree.check(plan)
+        return plan
 
 
 def _validate_private_stage_plan(

@@ -90,3 +90,15 @@ __all__ += [
     "SyntaxDeclarationError",
     "syntax_declaration_digest",
 ]
+
+from .grammar_profile_source import (
+    GrammarProfileSourceError,
+    parse_grammar_provider_module,
+    parse_registered_grammar_profile,
+)
+
+__all__ += [
+    "GrammarProfileSourceError",
+    "parse_grammar_provider_module",
+    "parse_registered_grammar_profile",
+]

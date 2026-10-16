@@ -9,16 +9,11 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-The target-fit software is published at
-[`2a805bd45535089513f657b7ff0acffe4e54d697`](https://github.com/aware-network/aware/tree/2a805bd45535089513f657b7ff0acffe4e54d697).
-One installation supports init, Issues, SPEC setup, target-fit preparation and
-draft preview/apply/read. [Delivery status](releases/canonical-target-fit-fs-v1/PUBLIC-STATUS.md)
-separates that delivered software from this local status-only alignment, which
-awaits independent review and separate publication authorization. The
-[delivery pointer](releases/SELECTED.json) binds the exact whole envelope;
-[successor instruction pins](releases/canonical-target-fit-fs-v1/PUBLIC-INSTRUCTIONS.json)
-preserve the accepted commands and guards. Do not overlay installations or
-silently migrate contributor commands.
+This is a **prepared, unselected Workspace A1 successor**. Instructions remain
+draft, not a claim about software currently delivered on public main. The
+unchanged [delivery pointer](releases/SELECTED.json) selects the target-fit predecessor.
+Integration, selection, instruction freeze and publication require separate cuts.
+Do not overlay installations or silently migrate contributor commands.
 
 ## Understand the shared rules
 
@@ -31,12 +26,12 @@ are different decisions. This filesystem composition starts no service.
 ## Inspect terms and install once
 
 Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Read
-[complete distribution terms and source](releases/canonical-target-fit-fs-v1/README.md)
+[complete distribution terms and source](releases/canonical-workspace-a1-fs-v1/README.md)
 before installing. Keep LICENSE, NOTICE, corresponding source, upstream inputs
 and raw audit with the software. Six package-local legal gaps remain unresolved;
 detached wheels, stripped bundles and registry publication are unaccepted.
 
-From this reviewed checkout root:
+From this prepared checkout root:
 
 ```sh
 set -eu
@@ -89,7 +84,8 @@ guards refuse; retain diagnostics rather than guessing or silently refreshing.
 Use [the complete workflow](protocols/WORKFLOW.md) for Issue-governed SPEC setup,
 typed input preparation, draft preview/apply and observation. No prequalified
 package or approved iteration is needed. One 42-package installation supports
-`aware issue`, `aware protocol`, `aware spec` and explicit `aware init`.
+`aware issue`, `aware protocol`, `aware spec`, the setup-only `aware workspace`
+mount and explicit `aware init`.
 
 `aware spec prepare-draft` first asks the original Protocol SDK whether the
 supplied SPEC manifest fits the configured layout. Review the configured root,
@@ -125,12 +121,38 @@ not atomic: late refusal may follow known publication. Keep commit/reference
 update, index, closeout, cleanup and known/unknown effects. Do not republish to
 recreate spent authority or assume rollback. Remote push is separately authorized.
 
+## Read saved evidence without replay
+
+Use [saved-receipt presentation](protocols/WORKFLOW.md#review-a-saved-receipt-without-repeating-the-operation)
+for validated summaries and byte-exact full access to an original draft capture.
+Keep the saved bytes and their correctly labelled receipt guard. Presentation
+does not repeat apply, refresh repository currentness, renew authority or make
+an unknown outcome successful. Exit zero means presentation succeeded.
+
+## Prepare Workspace architecture through its owners
+
+Read [Workspace A1](protocols/workspace/README.md) before invoking
+`aware workspace setup`. The original Workspace SDK/runtime/FS owners handle
+repository/workspace/module/Python-package creation and alignment. This is not
+another package-selection engine or a hand-authored JSON catalog.
+
+**Governed A1 requires prepared owner-admission inputs.** Use explicit
+`--governed`, the configured setup-admission authority manifest, current
+Issue/manifest byte guards, intent, actor/evidence and exact allowed paths.
+Review the owner plan; apply additionally requires its unchanged plan digest.
+Init does not provision those Workspace admissions. If inputs are unavailable,
+stop rather than fabricate records or bypass governance.
+
+The Agent mount is qualified for bounded A1 only. Carried lock help or scripts
+do not admit A2 lock updates, positive tree-C execution/completion, `.aware`
+package creation or materialization. A1 unassisted onboarding remains unproved.
+
 ## What comes next
 
 Issues → Specifications → Goals → shared map. Approval, approved iterations,
 durable binding, Goals tooling, service elevation and object/materialization
-bridges are not supplied here. Workspace's standalone script is carried, not
-admitted as an Agent mount or governed workflow; `aware workspace` is unavailable.
+bridges are not supplied here. Workspace A1 is a real owner-backed mount with the prepared-input limits above;
+script carriage does not extend that admission.
 Workspace deltas are change evidence, not meaning or authority. Currentness is
 observed state, not every-write detection or continuous confinement. This
 successor still needs fresh unassisted evaluation.

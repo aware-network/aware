@@ -975,21 +975,29 @@ class WorkspaceMaterializationSessionSourceEvidenceV3:
             )
 
     def to_wire(self) -> dict[str, object]:
-        self.__post_init__()
+        supplied_digest = _session_v2_content_digest(
+            self.source_evidence_digest, "session_source_v2.source_evidence_digest"
+        ).to_wire()
+        values = {
+            name: getattr(self, name)
+            for name in (
+                "disposition",
+                "head_reread_evidence",
+                "publication_receipt",
+                "publication_receipt_digest",
+            )
+        }
+        payload = _session_source_v2_payload(values)
+        if supplied_digest != _session_v2_digest(
+            WORKSPACE_MATERIALIZATION_SESSION_SOURCE_EVIDENCE_V3, payload
+        ).to_wire():
+            raise WorkspaceMaterializationSessionError(
+                "session source V2 digest mismatched"
+            )
         return {
             "contract": WORKSPACE_MATERIALIZATION_SESSION_SOURCE_EVIDENCE_V3,
-            **_session_source_v2_payload(
-                {
-                    name: getattr(self, name)
-                    for name in (
-                        "disposition",
-                        "head_reread_evidence",
-                        "publication_receipt",
-                        "publication_receipt_digest",
-                    )
-                }
-            ),
-            "source_evidence_digest": self.source_evidence_digest.to_wire(),
+            **payload,
+            "source_evidence_digest": supplied_digest,
         }
 
 
@@ -1443,17 +1451,23 @@ class WorkspaceMaterializationSessionEventV3:
             )
 
     def to_wire(self) -> dict[str, object]:
-        self.__post_init__()
+        supplied_digest = _session_v2_content_digest(
+            self.event_digest, "session_event_v2.event_digest"
+        ).to_wire()
+        values = {
+            name: getattr(self, name)
+            for name in self.__dataclass_fields__
+            if name != "event_digest"
+        }
+        payload = _session_event_v2_payload(values)
+        if supplied_digest != _session_v2_digest(WORKSPACE_MATERIALIZATION_SESSION_EVENT_V3, payload).to_wire():
+            raise WorkspaceMaterializationSessionError(
+                "session event V2 digest mismatched"
+            )
         return {
             "contract": WORKSPACE_MATERIALIZATION_SESSION_EVENT_V3,
-            **_session_event_v2_payload(
-                {
-                    name: getattr(self, name)
-                    for name in self.__dataclass_fields__
-                    if name != "event_digest"
-                }
-            ),
-            "event_digest": self.event_digest.to_wire(),
+            **payload,
+            "event_digest": supplied_digest,
         }
 
 
@@ -1667,17 +1681,25 @@ class WorkspaceMaterializationSessionEventRereadEvidenceV3:
             )
 
     def to_wire(self) -> dict[str, object]:
-        self.__post_init__()
+        supplied_digest = _session_v2_content_digest(
+            self.reread_evidence_digest, "event_reread_v2.reread_evidence_digest"
+        ).to_wire()
+        values = {
+            name: getattr(self, name)
+            for name in self.__dataclass_fields__
+            if name != "reread_evidence_digest"
+        }
+        payload = _session_event_reread_v2_payload(values)
+        if supplied_digest != _session_v2_digest(
+            WORKSPACE_MATERIALIZATION_SESSION_EVENT_REREAD_EVIDENCE_V3, payload
+        ).to_wire():
+            raise WorkspaceMaterializationSessionError(
+                "session event reread V2 digest mismatched"
+            )
         return {
             "contract": WORKSPACE_MATERIALIZATION_SESSION_EVENT_REREAD_EVIDENCE_V3,
-            **_session_event_reread_v2_payload(
-                {
-                    name: getattr(self, name)
-                    for name in self.__dataclass_fields__
-                    if name != "reread_evidence_digest"
-                }
-            ),
-            "reread_evidence_digest": self.reread_evidence_digest.to_wire(),
+            **payload,
+            "reread_evidence_digest": supplied_digest,
         }
 
 
@@ -1781,17 +1803,25 @@ class WorkspaceMaterializationSessionFanoutReceiptV3:
             )
 
     def to_wire(self) -> dict[str, object]:
-        self.__post_init__()
+        supplied_digest = _session_v2_content_digest(
+            self.receipt_digest, "session_fanout_v2.receipt_digest"
+        ).to_wire()
+        values = {
+            name: getattr(self, name)
+            for name in self.__dataclass_fields__
+            if name != "receipt_digest"
+        }
+        payload = _session_fanout_receipt_v2_payload(values)
+        if supplied_digest != _session_v2_digest(
+            WORKSPACE_MATERIALIZATION_SESSION_FANOUT_RECEIPT_V3, payload
+        ).to_wire():
+            raise WorkspaceMaterializationSessionError(
+                "session fanout receipt V2 digest mismatched"
+            )
         return {
             "contract": WORKSPACE_MATERIALIZATION_SESSION_FANOUT_RECEIPT_V3,
-            **_session_fanout_receipt_v2_payload(
-                {
-                    name: getattr(self, name)
-                    for name in self.__dataclass_fields__
-                    if name != "receipt_digest"
-                }
-            ),
-            "receipt_digest": self.receipt_digest.to_wire(),
+            **payload,
+            "receipt_digest": supplied_digest,
         }
 
 

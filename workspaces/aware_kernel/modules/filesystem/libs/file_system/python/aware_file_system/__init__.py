@@ -29,6 +29,9 @@ from .native_backend import (
 from .confined_mutation import (
     DEFAULT_CONFINED_MUTATION_MAX_BYTES,
     ConfinedFileObservation,
+    ConfinedFileObservationWithCleanup,
+    ConfinedFileObservationError,
+    ConfinedFileReadCleanup,
     ConfinedFileMutationRequest,
     ConfinedFileMutationResult,
     ConfinedMutationKind,
@@ -36,6 +39,7 @@ from .confined_mutation import (
     ConfinedObservationOutcome,
     mutate_confined_file,
     observe_confined_file,
+    observe_confined_file_with_cleanup,
 )
 
 from .introspection.singleton_introspector import (
@@ -71,6 +75,9 @@ __all__ = [
     "detect_native_backend",
     "DEFAULT_CONFINED_MUTATION_MAX_BYTES",
     "ConfinedFileObservation",
+    "ConfinedFileObservationWithCleanup",
+    "ConfinedFileObservationError",
+    "ConfinedFileReadCleanup",
     "ConfinedFileMutationRequest",
     "ConfinedFileMutationResult",
     "ConfinedMutationKind",
@@ -78,6 +85,7 @@ __all__ = [
     "ConfinedObservationOutcome",
     "mutate_confined_file",
     "observe_confined_file",
+    "observe_confined_file_with_cleanup",
     # singleton
     "introspect",
     "get_introspector_instance",

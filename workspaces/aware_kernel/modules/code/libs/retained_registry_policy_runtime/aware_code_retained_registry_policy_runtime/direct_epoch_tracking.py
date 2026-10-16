@@ -158,7 +158,7 @@ def _original(binding, host, guard):
 
     epochs._state(binding.participant)
     binding.parent_binding.check()
-    if direct._HOSTS.get(host) is not binding.state or binding.state.closed:
+    if direct._retained_host(host) is not binding.state or binding.state.closed:
         raise ContractViolation("original policy host closed")
     if (
         binding.parent_binding.call(
@@ -190,7 +190,7 @@ def _policy_epoch_use(host):
     # an epoch label and restamp earlier untracked operations.
     if type(host) is not direct.DirectValidationHost:
         raise TypeError("exact direct host required")
-    state = direct._HOSTS.get(host)
+    state = direct._retained_host(host)
     if state is not None and state.pid != os.getpid():
         raise ContractViolation("direct process changed")
     with direct._LOCK:
@@ -239,11 +239,11 @@ def _epoch_closed(function):
 
         if type(host) is not direct.DirectValidationHost:
             raise TypeError("exact direct host required")
-        state = direct._HOSTS.get(host)
+        state = direct._identity_registry_get(direct._HOSTS, host)
         if state is not None and state.pid != os.getpid():
             raise ContractViolation("direct process changed")
         with direct._LOCK:
-            binding = _BINDINGS.get(host)
+            binding = direct._identity_registry_get(_BINDINGS, host)
         from . import product_execution as products
 
         exclusion_released = False
@@ -261,7 +261,7 @@ def _epoch_closed(function):
                 binding.participant._close_under_exclusion(guard)
                 result = function(host)
                 with direct._LOCK:
-                    _BINDINGS.pop(host, None)
+                    direct._identity_registry_pop(_BINDINGS, host)
             exclusion_released = True
             return result
         finally:

@@ -110,7 +110,8 @@ def parse_module_manifest(
 
 
 def _parse_module_table(
-    raw: dict[str, object], *, allow_empty: bool = False
+    raw: dict[str, object], *, allow_empty: bool = False,
+    product_provider_keys: tuple[str, ...] = (),
 ) -> AwareModuleSpec:
     _expect_keys(
         raw,
@@ -497,9 +498,11 @@ def _parse_module_table(
                 raise AwareModuleTomlError(
                     f"plugins[{i}] must set provider_key when kind='{_CODE_MODULE_PLUGIN_KIND}'"
                 )
-            if provider_key is not None and not _MODULE_PROVIDER_KEY_RE.fullmatch(
-                provider_key
-            ):
+            key_pattern = (
+                re.compile(r"^[a-z_][a-z0-9_-]*$")
+                if provider_key in product_provider_keys else _MODULE_PROVIDER_KEY_RE
+            )
+            if provider_key is not None and not key_pattern.fullmatch(provider_key):
                 raise AwareModuleTomlError(
                     f"plugins[{i}].provider_key must match "
                     "^[a-z_][a-z0-9_]*$ "
@@ -680,6 +683,7 @@ def _parse_module_table(
         semantic_contract = _parse_package_semantic_contract(
             p_tbl.get("semantic_contract"),
             ctx=f"packages[{i}].semantic_contract",
+            product_provider_keys=product_provider_keys,
         )
         mirrors_ontology = (
             _expect_opt_bool(p_tbl, "mirrors_ontology", ctx=f"packages[{i}]") or False
@@ -840,6 +844,7 @@ def _parse_package_semantic_contract(
     value: object,
     *,
     ctx: str,
+    product_provider_keys: tuple[str, ...] = (),
 ) -> AwareModulePackageSemanticContractSpec | None:
     if value is None:
         return None
@@ -867,7 +872,11 @@ def _parse_package_semantic_contract(
         raise AwareModuleTomlError(
             f"{ctx}.contract must match ^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)*$"
         )
-    if not _MODULE_PROVIDER_KEY_RE.fullmatch(provider_key):
+    key_pattern = (
+        re.compile(r"^[a-z_][a-z0-9_-]*$")
+        if provider_key in product_provider_keys else _MODULE_PROVIDER_KEY_RE
+    )
+    if not key_pattern.fullmatch(provider_key):
         raise AwareModuleTomlError(f"{ctx}.provider_key must match ^[a-z_][a-z0-9_]*$")
     if not _PYTHON_MODULE_RE.fullmatch(module):
         raise AwareModuleTomlError(

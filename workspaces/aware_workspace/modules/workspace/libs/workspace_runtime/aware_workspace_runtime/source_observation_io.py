@@ -5,7 +5,9 @@ from __future__ import annotations
 import os
 import stat
 import unicodedata
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Any
 
 
 class SourceObservationUnavailable(RuntimeError):
@@ -100,10 +102,8 @@ def capture_selected_root(
     excluded_nested_roots: tuple[str, ...],
 ) -> tuple[tuple[str, bytes], ...]:
     """Reuse the complete-root scanner with retained-declaration exclusions."""
-    if (
-        type(excluded_nested_roots) is not tuple
-        or excluded_nested_roots
-        != tuple(sorted(set(excluded_nested_roots), key=str.encode))
+    if type(excluded_nested_roots) is not tuple or excluded_nested_roots != tuple(
+        sorted(set(excluded_nested_roots), key=str.encode)
     ):
         raise SourceObservationUnavailable("nested_root_set_invalid")
     for path in excluded_nested_roots:
@@ -217,10 +217,21 @@ def _capture_root(
     return tuple(sorted(rows, key=lambda row: row[0].encode("utf-8")))
 
 
+# Fixed primitive entrances are retained at owner import, not rediscovered after IO.
+_EXACT_PATH_IO = tuple(
+    (name, getattr(os, name))
+    for name in ("dup", "open", "close", "fstat", "stat", "read")
+)
+_EXACT_VALIDATE_PATH = validate_relative_path
+_EXACT_STAMP = _stamp
+
+
 def capture_exact_paths(
     root_fd: int,
     paths: tuple[str, ...],
     limits: SourceObservationLimits,
+    *,
+    _verify: Callable[[], None] | None = None,
 ) -> tuple[tuple[str, bytes], ...]:
     """Capture a provisional declaration set through confined descriptors.
 
@@ -230,6 +241,30 @@ def capture_exact_paths(
     still matches its original bytes. A caller-provided path tuple alone grants
     no authority.
     """
+    if _verify is not None:
+        _verify()
+    entries = dict(_EXACT_PATH_IO)
+    io_module = os
+
+    def io(name: str, *args: Any, **kwargs: Any) -> Any:
+        if _verify is None:
+            return getattr(os, name)(*args, **kwargs)
+        # No semantic helper is dispatched inside this primitive. Its retained
+        # binding is checked immediately; the complete owner check brackets capture.
+        if os is not io_module or vars(io_module).get(name) is not entries[name]:
+            raise SourceObservationUnavailable("retained_reader_substituted")
+        return entries[name](*args, **kwargs)
+
+    def release(fd: int) -> None:
+        # Descriptor custody does not depend on a now-revoked read guard.
+        (entries["close"] if _verify is not None else os.close)(fd)
+
+    validate = _EXACT_VALIDATE_PATH if _verify is not None else validate_relative_path
+    stamp = _EXACT_STAMP if _verify is not None else _stamp
+    if _verify is not None:
+        _verify()
+        if validate_relative_path is not validate or _stamp is not stamp:
+            raise SourceObservationUnavailable("retained_reader_substituted")
     if (
         type(paths) is not tuple
         or not paths
@@ -238,63 +273,175 @@ def capture_exact_paths(
     ):
         raise SourceObservationUnavailable("declaration_path_set_invalid")
     directories: set[tuple[str, ...]] = {()}
+    prepared_paths: list[tuple[str, tuple[str, ...]]] = []
     for path in paths:
-        parts = validate_relative_path(path)
+        parts = validate(path)
+        prepared_paths.append((path, parts))
         directories.update(parts[:index] for index in range(1, len(parts)))
         if len(directories) > limits.maximum_directories:
             raise SourceObservationUnavailable("directory_capacity_exceeded")
-    rows: list[tuple[str, bytes]] = []
-    total = 0
-    for path in paths:
-        parts = validate_relative_path(path)
-        parent = "/".join(parts[:-1]) or "."
+    # Operation-local directory custody; no cross-capture cache or authority.
+    # Every retained edge is checked before release. The root and file stamps are
+    # still checked around reads, and primitive dispatch remains authenticated.
+    cache: dict[tuple[str, ...], int] = {}
+
+    def flush() -> None:
+        failure: BaseException | None = None
         try:
-            directory = open_directory(root_fd, parent)
-            try:
-                before_directory = _stamp(os.fstat(directory))
-                first = os.stat(parts[-1], dir_fd=directory, follow_symlinks=False)
-                if not stat.S_ISREG(first.st_mode):
-                    raise SourceObservationUnavailable("declaration_member_unsupported")
-                if first.st_size > limits.maximum_body_bytes:
-                    raise SourceObservationUnavailable("body_capacity_exceeded")
-                source = os.open(
-                    parts[-1],
-                    os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
-                    dir_fd=directory,
-                )
-                try:
-                    if _stamp(os.fstat(source)) != _stamp(first):
-                        raise SourceObservationUnavailable("declaration_source_changed")
-                    remaining = min(
-                        limits.maximum_body_bytes, limits.maximum_total_bytes - total
-                    ) + 1
-                    chunks: list[bytes] = []
-                    while remaining:
-                        chunk = os.read(source, min(65536, remaining))
-                        if not chunk:
-                            break
-                        chunks.append(chunk)
-                        remaining -= len(chunk)
-                    body = b"".join(chunks)
-                    if (
-                        len(body) != first.st_size
-                        or _stamp(os.fstat(source)) != _stamp(first)
-                        or _stamp(
-                            os.stat(parts[-1], dir_fd=directory, follow_symlinks=False)
-                        )
-                        != _stamp(first)
+            for key, descriptor in cache.items():
+                if key:
+                    current = io(
+                        "stat", key[-1], dir_fd=cache[key[:-1]], follow_symlinks=False
+                    )
+                    opened = io("fstat", descriptor)
+                    if (current.st_dev, current.st_ino) != (
+                        opened.st_dev,
+                        opened.st_ino,
                     ):
-                        raise SourceObservationUnavailable("declaration_source_changed")
-                finally:
-                    os.close(source)
-                if _stamp(os.fstat(directory)) != before_directory:
+                        raise SourceObservationUnavailable(
+                            "declaration_directory_changed"
+                        )
+        finally:
+            owned = tuple(cache.values())
+            cache.clear()
+            for descriptor in reversed(owned):
+                try:
+                    release(descriptor)
+                except BaseException as error:  # noqa: BLE001 -- release all owned descriptors before reporting failure
+                    if failure is None:
+                        failure = error
+            if failure is not None:
+                raise failure
+
+    def cached_directory(parts: tuple[str, ...]) -> int:
+        missing = sum(parts[:i] not in cache for i in range(len(parts) + 1))
+        if len(cache) + missing > 48:
+            flush()
+        if () not in cache:
+            cache[()] = io("dup", root_fd)
+        for index, component in enumerate(parts):
+            key = parts[: index + 1]
+            if key not in cache:
+                parent = cache[parts[:index]]
+                current = io("stat", component, dir_fd=parent, follow_symlinks=False)
+                descriptor = io(
+                    "open",
+                    component,
+                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                    dir_fd=parent,
+                )
+                cache[key] = descriptor  # cleanup custody precedes any later check
+                opened = io("fstat", descriptor)
+                if (current.st_dev, current.st_ino) != (opened.st_dev, opened.st_ino):
                     raise SourceObservationUnavailable("declaration_directory_changed")
-            finally:
-                os.close(directory)
-        except (OSError, UnicodeError) as error:
-            raise SourceObservationUnavailable("declaration_capture_unavailable") from error
-        total += len(body)
-        if total > limits.maximum_total_bytes:
-            raise SourceObservationUnavailable("total_capacity_exceeded")
-        rows.append((path, body))
-    return tuple(rows)
+        return cache[parts]
+
+    rows: list[tuple[str, bytes]] = []
+    chunks: list[bytes] = []
+    total = 0
+    try:
+        for path, parts in prepared_paths:
+            parent = "/".join(parts[:-1]) or "."
+            try:
+                if _verify is None:
+                    directory = open_directory(root_fd, parent)
+                else:
+                    if len(parts) <= 48:
+                        directory = cached_directory(parts[:-1])
+                    else:
+                        directory = io("dup", root_fd)
+                        try:
+                            for component in parts[:-1]:
+                                child = io(
+                                    "open",
+                                    component,
+                                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                                    dir_fd=directory,
+                                )
+                                release(directory)
+                                directory = child
+                        except BaseException:
+                            release(directory)
+                            raise
+                try:
+                    before_directory = stamp(io("fstat", directory))
+                    first = io(
+                        "stat", parts[-1], dir_fd=directory, follow_symlinks=False
+                    )
+                    if not stat.S_ISREG(first.st_mode):
+                        raise SourceObservationUnavailable(
+                            "declaration_member_unsupported"
+                        )
+                    if first.st_size > limits.maximum_body_bytes:
+                        raise SourceObservationUnavailable("body_capacity_exceeded")
+                    source = io(
+                        "open",
+                        parts[-1],
+                        os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                        dir_fd=directory,
+                    )
+                    try:
+                        if stamp(io("fstat", source)) != stamp(first):
+                            raise SourceObservationUnavailable(
+                                "declaration_source_changed"
+                            )
+                        remaining = (
+                            min(
+                                limits.maximum_body_bytes,
+                                limits.maximum_total_bytes - total,
+                            )
+                            + 1
+                        )
+                        chunks = []
+                        while remaining:
+                            chunk = io("read", source, min(65536, remaining))
+                            if not chunk:
+                                break
+                            chunks.append(chunk)
+                            remaining -= len(chunk)
+                        body = b"".join(chunks)
+                        if (
+                            len(body) != first.st_size
+                            or stamp(io("fstat", source)) != stamp(first)
+                            or stamp(
+                                io(
+                                    "stat",
+                                    parts[-1],
+                                    dir_fd=directory,
+                                    follow_symlinks=False,
+                                )
+                            )
+                            != stamp(first)
+                        ):
+                            raise SourceObservationUnavailable(
+                                "declaration_source_changed"
+                            )
+                    finally:
+                        release(source)
+                    if stamp(io("fstat", directory)) != before_directory:
+                        raise SourceObservationUnavailable(
+                            "declaration_directory_changed"
+                        )
+                finally:
+                    if _verify is None or len(parts) > 48:
+                        release(directory)
+            except (OSError, UnicodeError) as error:
+                raise SourceObservationUnavailable(
+                    "declaration_capture_unavailable"
+                ) from error
+            total += len(body)
+            if total > limits.maximum_total_bytes:
+                raise SourceObservationUnavailable("total_capacity_exceeded")
+            rows.append((path, body))
+        if _verify is not None:
+            _verify()
+        return tuple(rows)
+    finally:
+        try:
+            flush()
+        finally:
+            # A held Workspace IO error must not retain copied source buffers.
+            rows.clear()
+            prepared_paths.clear()
+            chunks.clear()
+            body = chunk = b""

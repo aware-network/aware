@@ -172,7 +172,7 @@ def test_bounded_source_and_manifest_fail_before_projection(tmp_path):
 
 @pytest.mark.parametrize("operation", ["read", "create", "update"])
 @pytest.mark.parametrize("possible_duplicate", [False, True])
-def test_oversized_duplicate_candidate_refuses_before_effect(
+def test_oversized_duplicate_candidate_header_refuses_before_effect(
     tmp_path: Path, monkeypatch, operation: str, possible_duplicate: bool
 ) -> None:
     root = _repository(tmp_path)
@@ -181,7 +181,7 @@ def test_oversized_duplicate_candidate_refuses_before_effect(
     candidate = record.with_name("fb-2026-09-20-candidate.md")
     source = _issue(
         issue_ref=target_ref if possible_duplicate else "fb/2026-09-20/unrelated"
-    ).encode("utf-8")
+    ).split("## ", 1)[0].encode("utf-8")
     candidate.write_bytes(source + b"x" * (262_145 - len(source)))
     before_files = {path.relative_to(root): path.read_bytes()
                     for path in root.rglob("*") if path.is_file()}
@@ -222,15 +222,15 @@ def test_oversized_duplicate_candidate_refuses_before_effect(
 
 @pytest.mark.parametrize("possible_duplicate", [False, True])
 @pytest.mark.parametrize("bounded", [False, True])
+@pytest.mark.parametrize("size", [262_144, 262_145, 1_048_576])
 def test_duplicate_candidate_limit_boundary_and_direct_defaults(
-    tmp_path: Path, possible_duplicate: bool, bounded: bool
+    tmp_path: Path, possible_duplicate: bool, bounded: bool, size: int
 ) -> None:
     root = _repository(tmp_path)
     candidate = root / "docs/issues/2026/09/20/fb-2026-09-20-candidate.md"
     source = _issue(
         issue_ref=ISSUE_REF if possible_duplicate else "fb/2026-09-20/unrelated"
     ).encode("utf-8")
-    size = 262_144 if bounded else 262_145
     candidate.write_bytes(source + b"x" * (size - len(source)))
     provider = FilesystemIssueOperationProvider(
         repository_root=root,
@@ -243,6 +243,42 @@ def test_duplicate_candidate_limit_boundary_and_direct_defaults(
     else:
         assert result.projection is not None
         assert result.projection.issue_ref == ISSUE_REF
+
+
+@pytest.mark.parametrize("operation", ["create", "update"])
+def test_large_duplicate_body_still_refuses_before_any_write(
+    tmp_path: Path, monkeypatch, operation: str
+) -> None:
+    root = _repository(tmp_path)
+    record = root / "docs/issues/2026/09/20/fb-2026-09-20-example.md"
+    target_ref = "fb/2026-10-11/new" if operation == "create" else ISSUE_REF
+    candidate = record.with_name("fb-2026-09-20-candidate.md")
+    candidate.write_text(_issue(issue_ref=target_ref) + "x" * 1_048_576)
+    before = {path.relative_to(root): path.read_bytes()
+              for path in root.rglob("*") if path.is_file()}
+    bounded = FilesystemIssueOperationProvider(
+        repository_root=root, limits=FilesystemIssueOperationLimits()
+    )
+
+    def unexpected_effect(**kwargs):
+        pytest.fail("known duplicate must precede all write entrances")
+
+    monkeypatch.setattr(bounded, "_create_source", unexpected_effect)
+    monkeypatch.setattr(bounded, "_replace_source", unexpected_effect)
+    if operation == "create":
+        result = bounded.ensure_issue_snapshot(IssueEnsureSnapshotRequest(
+            issue_ref=target_ref, title="New", priority="P1",
+            client_intent_id="create", actor_ref="codex-example",
+            actor_evidence_ref="evidence:create",
+        ))
+    else:
+        result = bounded.append_issue_update(IssueAppendUpdateRequest(
+            **_mutation_kwargs(record, intent="duplicate-body"), message="must refuse",
+        ))
+    assert result.outcome is IssueMutationOutcome.CONFLICT
+    assert result.diagnostics == ("issue_identity_duplicate_matches:2",)
+    assert {path.relative_to(root): path.read_bytes()
+            for path in root.rglob("*") if path.is_file()} == before
 
 
 def test_planned_result_failure_preserves_source_and_no_temporary(tmp_path):

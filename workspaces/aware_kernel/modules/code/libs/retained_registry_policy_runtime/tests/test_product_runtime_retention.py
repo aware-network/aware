@@ -5,13 +5,6 @@ from dataclasses import fields, replace
 from uuid import uuid4
 
 import pytest
-from aware_code_retained_registry_policy_runtime import direct_host
-from aware_code_retained_registry_policy_runtime.calculation import (
-    calculate_registry_policy,
-)
-from aware_code_retained_registry_policy_runtime.product_runtime_retention import (
-    _capture_product_runtime_retention,
-)
 from aware_code_semantic_contract_runtime import selected_provider as selected
 from aware_code_semantic_contract_runtime.contracts import ContractViolation
 from aware_code_semantic_contract_runtime.direct_origin_interfaces import (
@@ -34,6 +27,14 @@ from test_operation_context import (
     _SelectedProvider,
 )
 from test_profile_runtime import JsonBodyCodec
+
+from aware_code_retained_registry_policy_runtime import direct_host
+from aware_code_retained_registry_policy_runtime.calculation import (
+    calculate_registry_policy,
+)
+from aware_code_retained_registry_policy_runtime.product_runtime_retention import (
+    _capture_product_runtime_retention,
+)
 
 
 def _case(*, foreign_executable=False):
@@ -213,3 +214,53 @@ def test_fixed_host_retains_product_under_original_command_parent():
             state.check(read_catalog=False)
     finally:
         direct_host.close_direct_validation_host(host)
+
+
+def test_retention_uses_complete_coordinate_without_catalog_reconstruction(monkeypatch):
+    _, retained, _, _ = _case()
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("retained immutable catalog was reconstructed")
+
+    monkeypatch.setattr(CodeSemanticContractCatalogResolver, "validate_catalog", forbidden)
+    monkeypatch.setattr(CodeSemanticContractCatalogResolver, "read_profile_binding", forbidden)
+    retained.validate()
+    key, profile, _, _, digest = retained.entries[0]
+    snapshot = retained._read_original_entry(key, profile, digest)
+    assert snapshot is not retained.resolver._catalog.entries[0]
+    assert snapshot.binding_digest == digest
+
+
+@pytest.mark.parametrize("mutation", ["scalar", "tuple", "nested", "admission"])
+def test_fast_product_retention_rejects_catalog_substitution(mutation):
+    _, retained, _, _ = _case()
+    entry = retained.resolver._catalog.entries[0]
+    if mutation == "scalar":
+        object.__setattr__(entry, "semantic_provider_key", "substituted")
+    elif mutation == "tuple":
+        copied = tuple(list(entry.profile_declaration.providers))  # noqa: C414 - deliberately substitute an equal distinct tuple
+        object.__setattr__(entry.profile_declaration, "providers", copied)
+    elif mutation == "nested":
+        object.__setattr__(entry.profile_declaration.providers[0], "provider_key", "substituted")
+    else:
+        retained.resolver._admission = object()
+    with pytest.raises(ContractViolation):
+        retained.validate()
+
+
+def test_entry_copy_cannot_weaken_catalog_fence(monkeypatch):
+    from aware_code_retained_registry_policy_runtime import (
+        product_runtime_retention as module,
+    )
+
+    _, retained, _, _ = _case()
+    original = module.deepcopy
+
+    def mutate_during_copy(value):
+        result = original(value)
+        object.__setattr__(retained.resolver._catalog.entries[0], "semantic_provider_key", "moved")
+        return result
+
+    monkeypatch.setattr(module, "deepcopy", mutate_during_copy)
+    with pytest.raises(ContractViolation):
+        retained.validate()

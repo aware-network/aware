@@ -139,6 +139,38 @@ class WorkspaceRetainedRootObservation:
         raise TypeError("observation handles cannot be serialized")
 
 
+def _bind_original_body_reread(client_kind, scalar):
+    entrance = client_kind.resolve_bodies
+
+    def reread(self, bodies):
+        # The full bulk boundary costs more than the existing scalar path for
+        # small lists. Preserve that path; amortize only at the measured crossover.
+        if len(bodies) < 8:
+            return scalar(self, bodies)
+        store = values = body = value = None
+        try:
+            store = self._store
+            if (type(store) is not client_kind
+                or inspect.getattr_static(store, "resolve_bodies", None) is not entrance):
+                raise SourceObservationUnavailable("retention_reader_origin_changed")
+            try:
+                values = entrance(store, tuple(body.body_ref for body in bodies))
+            except (WorkspaceRepositoryDeltaStoreError, WorkspaceRepositoryDeltaRetentionRefusal, OSError) as error:
+                raise SourceObservationUnavailable("retained_body_unavailable") from error
+            if (self._store is not store
+                or inspect.getattr_static(store, "resolve_bodies", None) is not entrance
+                or type(values) is not tuple or len(values) != len(bodies)):
+                raise SourceObservationUnavailable("retention_reader_origin_changed")
+            for body, value in zip(bodies, values, strict=True):
+                if (type(value) is not bytes or len(value) != body.size_bytes
+                    or _digest(value) != body.content_digest):
+                    raise SourceObservationUnavailable("retained_body_unavailable")
+        finally:
+            del self, bodies, store, values, body, value
+
+    return reread
+
+
 class WorkspaceSourceObservationRuntime:
     """Host-composed resource over an admitted session and the existing body store.
 
@@ -865,7 +897,7 @@ class WorkspaceSourceObservationRuntime:
             raise SourceObservationUnavailable("foreign_or_expired_observation")
         return self._records[handle]
 
-    def _reread(self, bodies: tuple[WorkspaceRetainedObservedBody, ...]) -> None:
+    def _reread_scalar(self, bodies: tuple[WorkspaceRetainedObservedBody, ...]) -> None:
         for body in bodies:
             try:
                 value = self._store.resolve_body(body.body_ref)
@@ -879,6 +911,8 @@ class WorkspaceSourceObservationRuntime:
                 or _digest(value) != body.content_digest
             ):
                 raise SourceObservationUnavailable("retained_body_unavailable")
+
+    _reread = _bind_original_body_reread(WorkspaceRepositoryDeltaRetentionClient, _reread_scalar)
 
     def evidence(
         self, handle: WorkspaceRetainedRootObservation

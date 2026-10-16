@@ -16,9 +16,10 @@ from aware_code_semantic_contract_runtime.contracts import (
     canonical_json_bytes,
 )
 
-from .calculation import _execution_entry_correspondence, _plain
+from .calculation import _plain
 from .declaration_host import _selected_policy_source, _selected_policy_view
 from .selected_participant_calculation import selected_qualified_occurrence
+from .selected_root_intent import _selected_owner_entry
 
 
 @dataclass(frozen=True, slots=True)
@@ -61,12 +62,9 @@ def _derive(host, policy, registration):
         _, _, _, declaration = selected_qualified_occurrence(
             closure, _selected_policy_view(host, policy), keys
         )
-        stages = state.stage_retention
         products = state.product_retention
-        if stages is None or products is None:
-            raise ContractViolation("original selected stage and product unavailable")
-        stages.validate_declared_profiles(declaration)
-        stages.validate()
+        if products is None:
+            raise ContractViolation("original selected product unavailable")
         products.validate()
         owner = _plain(declaration)
         if (
@@ -75,30 +73,11 @@ def _derive(host, policy, registration):
             or owner["semantic_package_kind"] != grant.semantic_package_kind
         ):
             raise ContractViolation("selected product owner declaration changed")
-        authority_key = owner["semantic_contract"]["provider_key"]
-        authority = [
-            retained
-            for (stage, _runtime, _original), retained in zip(
-                stages.stages, stages.entries, strict=True
-            )
-            if stage == "authority_derivation" and retained[0] == authority_key
-        ]
-        if len(authority) != 1:
-            raise ContractViolation("unique original authority profile required")
-        _, authority_profile, _, _, authority_digest = authority[0]
-        authority_entry = stages.resolver.read_profile_binding(
-            profile=authority_profile, semantic_provider_key=authority_key
+        authority_entry, declared_product = _selected_owner_entry(
+            state, declaration, package_kind=grant.declared_package_kind
         )
-        if authority_entry.binding_digest != authority_digest:
-            raise ContractViolation("selected authority catalog binding changed")
-        _execution_entry_correspondence(
-            owner, authority_entry, package_kind=grant.declared_package_kind
-        )
-        if (
-            grant.declared_package_kind not in authority_profile.package_kinds
-            or "materialize" not in authority_profile.operation_kinds
-        ):
-            raise ContractViolation("selected authority profile inapplicable")
+        if declared_product is not None and registration is not declared_product:
+            raise ContractViolation("product differs from declared registration")
 
         matches = [
             retained
@@ -213,7 +192,7 @@ def check_selected_product_catalog_eligibility_locked(
     record = direct._POLICIES.get(policy)
     if (
         state is None or state.closed or binding is None
-        or record is None or len(record) != 7
+        or record is None or len(record) != 8
         or record[0] is not host or record[6] is not binding
         or state.declaration_binding is not record[5]
     ):
@@ -245,8 +224,8 @@ def check_selected_product_catalog_eligibility_locked(
 __all__ = [
     "SelectedProductCatalogEligibility",
     "SelectedProductCatalogEligibilityView",
+    "check_selected_product_catalog_eligibility_locked",
     "issue_selected_product_catalog_eligibility",
     "read_selected_product_catalog_eligibility",
     "validate_selected_product_catalog_eligibility",
-    "check_selected_product_catalog_eligibility_locked",
 ]

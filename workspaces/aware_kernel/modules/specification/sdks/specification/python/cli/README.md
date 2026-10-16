@@ -1,6 +1,6 @@
 # Specification CLI
 
-Thin source-stage `aware-spec` 0.4.3 entrance; no service probing or fallback.
+Thin source-stage `aware-spec` 0.4.4 entrance; no service probing or fallback.
 Existing reader requests and owner behavior remain unchanged. Governed draft preview/application is
 an optional source-stage entrance with whole-context completion handling below;
 this README does not select a public installation or enable published previews.
@@ -40,13 +40,13 @@ do not become SPEC approval or fabricated source observations. Output is portabl
 evidence with `retained_capability_exported=false`; a later execution must admit
 its own sources again.
 
-The mandatory dependencies select public SDK `>=0.3.1,<0.4.0`,
-`aware-specification-fs-sdk-adapter[protocol]>=0.4.1,<0.5.0` and the existing
+The mandatory dependencies select public SDK `>=0.3.4,<0.4.0`,
+`aware-specification-fs-sdk-adapter[protocol,receipts]>=0.4.4,<0.5.0` and the existing
 neutral `aware-command-runtime>=0.1.1,<0.2.0`. The adapter's Protocol reader extra
 selects `aware-protocol-fs-adapter>=0.3.0,<0.7.0`; the default CLI dependency
 set does not select the adapter's `governed` extra or Protocol's `draft` extra.
 The CLI's optional `governed` extra explicitly requires
-`aware-specification-fs-sdk-adapter[governed]>=0.4.1,<0.5.0`, including the
+`aware-specification-fs-sdk-adapter[governed]>=0.4.3,<0.5.0`, including the
 accepted SDK0.3.1 completion/custody generation through that adapter and Protocol
 `[draft]>=0.6.1,<0.7.0`. Its Issue/FileSystem
 supplier floors still require Bundle's neutral-profile refresh; internal
@@ -59,14 +59,15 @@ No Protocol or command-runtime edge enters the neutral public SDK/runtime or
 source-value contract.
 
 `aware_specification_cli.read_commands.register_read_commands(registry)` registers
-exactly `observe`, then `iteration-identity`, with no IO or provider admission.
+`observe`, then `iteration-identity`, then `present-receipt`, with no IO or provider admission.
 The standalone entrypoint dispatches through Kernel's existing neutral registry.
-Both projections reference `SPECIFICATION_OBSERVE_OPERATION_REF`; identity adds
+The first two projections reference `SPECIFICATION_OBSERVE_OPERATION_REF`; identity adds
 the existing neutral resolver, not a second SDK operation. Registration labels
 and invocation context are not authority. Duplicate registration refuses; no
 writer enters this read registrar. Main additionally composes the separate lazy
-`register_draft_commands`; there is no `aware spec` alias or automatic environment
-combination. Missing governed integration returns a typed unavailable refusal.
+`register_draft_commands`. Agent mounts the same public registrars under `aware spec`;
+source mounting does not combine installations or select an installed successor.
+Missing governed integration returns a typed unavailable refusal.
 Draft requests never retry through `compatibility_main`, even when the historical
 diagnostic writer is present.
 
@@ -103,8 +104,8 @@ Read refusals preserve supplied diagnostics; draft refusals keep their existing
 primary, effect and cleanup evidence. The CLI does not reconstruct a cause the
 owner omitted: Protocol's generic draft-admission wrapper still requires its
 separate source correction. No stale guard is refreshed or retried automatically.
-Labeled owner-observed guard discovery, concise SPEC receipt presentation and
-the unified installed entrance remain separate cuts. This source successor does
+Labeled owner-observed guard discovery and installed qualification of concise
+SPEC receipt presentation remain separate cuts. This source successor does
 not change the accepted 0.4.1 installation or public selection.
 
 ## Governed draft: source-only preview and application
@@ -211,6 +212,68 @@ iteration identity. JSON is portable evidence, not the retained SDK capability.
 No approval, iteration writer, Issue binding, Git publication or readiness
 authority is exposed by the historical diagnostic primitive. Source tests do
 not admit the new command in public a6 or any selected SPEC preview.
+
+## Saved receipt presentation CLI 0.4.4
+
+Present an already saved full draft capture without invoking draft preview or
+apply again. Both standalone `aware-spec present-receipt` and Agent's
+`aware spec present-receipt` use the original read registrar, public saved-receipt
+SDK and original cleanup-qualified FileSystem reader. This is a source command;
+a newly pinned consumer installation and public selection remain separate.
+
+```text
+aware-spec present-receipt --receipt-base /absolute/evidence \
+  --receipt attempts/draft-apply/stdout \
+  --expected-receipt-sha256 sha256:EXACT_SAVED_FILE_BYTES \
+  --input-profile specification.cli043-draft-transport.v1 \
+  --format summary
+```
+
+`--receipt-base` is an explicit absolute normalized evidence directory, with no
+cwd or repository default. `--receipt` is canonical relative to that base.
+The mandatory guard identifies the **saved file's exact bytes**, not an Issue,
+Protocol manifest, SPEC closure, snapshot or omission digest. The required
+receiving profile accepts the original CLI043 draft transport; recognizing a
+capture's shape does not authenticate its issuer. Other profiles refuse.
+
+Summary is the default. The SDK validates the whole original capture, including
+all omitted collections and cross-carrier correlation, before the CLI omits
+`full_body_hex`. The projection retains original outcomes, cleanup, uncertainty,
+durability, diagnostics and explicit omission descriptors. It is not a complete
+SDK wire result: `presentation_projection=summary_without_full_body.v1` and
+`full_capture_omitted=true` identify the display. `full_access` supplies exact
+standalone and Agent argument arrays using the same coordinates, profile and
+guard; `availability=guarded_source_read` requires another explicit read of those
+unchanged bytes. A missing or changed capture refuses; no guard is refreshed.
+
+`--format full` writes the guarded original bytes, including original whitespace
+and the presence or absence of a final newline. It adds no JSON envelope or
+newline. This is real full access, not an abbreviated receipt or replay of the
+recorded operation. Summary size depends on the critical evidence retained; no
+fixed tiny-output limit is promised.
+
+Exit 0 means presentation succeeded, not that the recorded draft operation
+succeeded. A historical refusal or unknown completion remains such in the
+display. Exit 2 retains typed read/validation failure evidence, including source
+facts and unknown cleanup where supplied. Output interruptions report uncertain
+output completion and the already validated read source. Refusal output is also
+guarded and explicitly flushed: if stdout fails, stderr retains the complete
+original refusal plus secondary output-error fields, without replacing its
+guard, cause, source facts or cleanup. A failed stdout destination is terminally
+redirected to a discard sink; buffered residue cannot be resent to the failed
+pipe during interpreter shutdown. Successful retirement is reported, never
+inferred. No read, source close or failed delivery is retried. If stderr also
+fails, there is no invented durable-evidence fallback. All views remain
+unauthenticated saved evidence with
+`currentness=not_revalidated`, `operation_invoked=false`,
+`authority_restored=false` and `authorizes_retry=false`. A saved receipt restores
+neither write authority nor currentness.
+
+The `receipts` adapter extra selects FileSystem `>=0.3.6,<0.4.0`. It does not
+select Issue, Service, Protocol draft authority or governed writers. Live draft
+mutation JSON and exit semantics are unchanged; callers still capture that full
+output explicitly before requesting presentation.
+
 ## Input observation SDK consumption CLI 0.4.3
 
 Draft commands acquire snapshot bytes through

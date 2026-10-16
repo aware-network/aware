@@ -1,5 +1,7 @@
 """Fixed composition of original Code planning readers; no planning producer."""
 
+from __future__ import annotations
+
 import inspect
 import os
 from copy import deepcopy
@@ -16,6 +18,7 @@ from . import direct_epoch_tracking as hooks
 from . import direct_host
 from . import planning_dependency_source as sources
 from . import planning_execution as execution
+from . import product_planning_source as products
 
 
 @dataclass(frozen=True)
@@ -54,7 +57,7 @@ class _Member:
 
 @dataclass(frozen=True)
 class _Composition:
-    members: tuple[_Member, ...]
+    members: tuple[_Member | _ProductMember, ...]
     pid: int
 
     def check(self):
@@ -80,6 +83,30 @@ class _Composition:
 
 
 _COMPOSITIONS = WeakKeyDictionary()
+
+
+@dataclass(frozen=True)
+class _ProductMember:
+    source: object
+    retained: Any
+    reader: Any
+    package: SemanticPackageCoordinate
+    host: object
+    binding: Any
+    operation_identity: object
+    original_package: SemanticPackageCoordinate
+
+    def check(self, guard):
+        retained = products._state(self.source)
+        retained.check_locked(self.source, guard)
+        if (
+            retained is not self.retained or retained.host is not self.host
+            or retained.binding is not self.binding
+            or retained.expected.operation_identity is not self.operation_identity
+            or retained.package is not self.original_package
+        ):
+            raise ContractViolation("original product planning lineage changed")
+        self.reader.check()
 
 
 class ComposedRetainedPlanningSource(direct_host._Opaque):
@@ -130,14 +157,31 @@ def compose_retained_planning_sources(original_sources):
     members = []
     refs = set()
     for source in original_sources:
-        if type(source) is not sources.RetainedPlanningDependencySource:
+        if type(source) is products.RetainedProductPlanningDependencySource:
+            retained = products._state(source)
+            binding = retained.binding
+            member = _ProductMember(
+                source, retained, direct_host._capture(source, "read_dependencies"),
+                deepcopy(retained.package), retained.host, binding,
+                retained.expected.operation_identity,
+                retained.package,
+            )
+        elif type(source) is sources.RetainedPlanningDependencySource:
+            retained = sources._SOURCES.get(source)
+            if retained is None or retained[4] != os.getpid():
+                raise ContractViolation("foreign retained planning source/process")
+            origin, _context, stage, _body, _pid = retained
+            host, _registration, _stages = execution._origin(origin)
+            binding = stage.record.reservation.binding
+            if inspect.getattr_static(source, "read_dependencies") is not sources._READ:
+                raise ContractViolation("original planning reader substituted")
+            member = _Member(
+                source, retained, direct_host._capture(source, "read_dependencies"),
+                deepcopy(stage.record.expected.package), host, binding,
+                stage.record.expected.operation_identity,
+            )
+        else:
             raise TypeError("original retained planning source required")
-        retained = sources._SOURCES.get(source)
-        if retained is None or retained[4] != os.getpid():
-            raise ContractViolation("foreign retained planning source/process")
-        origin, _context, stage, _body, _pid = retained
-        host, _registration, _stages = execution._origin(origin)
-        binding = stage.record.reservation.binding
         if members:
             anchor = members[0].binding
             if (
@@ -149,23 +193,11 @@ def compose_retained_planning_sources(original_sources):
                 raise ContractViolation(
                     "planning sources have different parent/epoch/catalog"
                 )
-        package = deepcopy(stage.record.expected.package)
+        package = member.package
         if package.package_ref in refs:
             raise ContractViolation("duplicate planning package source")
         refs.add(package.package_ref)
-        if inspect.getattr_static(source, "read_dependencies") is not sources._READ:
-            raise ContractViolation("original planning reader substituted")
-        members.append(
-            _Member(
-                source,
-                retained,
-                direct_host._capture(source, "read_dependencies"),
-                package,
-                host,
-                stage.record.reservation.binding,
-                stage.record.expected.operation_identity,
-            )
-        )
+        members.append(member)
     state = _Composition(
         tuple(sorted(members, key=lambda m: m.package.package_ref)), os.getpid()
     )

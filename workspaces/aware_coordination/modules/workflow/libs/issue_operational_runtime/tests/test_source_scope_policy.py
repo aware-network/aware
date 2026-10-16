@@ -77,3 +77,136 @@ def test_empty_effects_preserve_policy_but_do_not_admit_an_operation():
         actor_ref="codex-owner",
         effect_paths=(),
     ).allowed
+
+
+def _original_decision(owner, status, scopes, actor, effects):
+    from aware_issue_operational_runtime.source_scope_policy import (
+        IssueSourceScopeDecision,
+    )
+
+    if owner != actor:
+        return IssueSourceScopeDecision(IssueSourceScopeRefusal.OWNER_MISMATCH)
+    normalized = " ".join(
+        status.strip().lower().replace("_", " ").replace("-", " ").split()
+    )
+    if normalized != "in progress":
+        return IssueSourceScopeDecision(IssueSourceScopeRefusal.STATUS_INVALID)
+    for path in effects:
+        if not any(path == scope or path.startswith(scope + "/") for scope in scopes):
+            return IssueSourceScopeDecision(IssueSourceScopeRefusal.OUT_OF_SCOPE, path)
+    return IssueSourceScopeDecision()
+
+
+def _decision(scopes, effects, *, owner="same", actor="same", status="In Progress"):
+    return evaluate_issue_source_scope(
+        issue_owner=owner,
+        issue_status=status,
+        scope_paths=scopes,
+        actor_ref=actor,
+        effect_paths=effects,
+    )
+
+
+def test_fresh_lookup_matches_original_complete_path_corpus():
+    from itertools import product
+
+    # Includes valid owner-normalized paths and pure-policy characterization
+    # outside that contract. Parsing still belongs to the original source owner.
+    components = ("a", "ab", "a-b", "é", "日本", "", ".", "..")
+    paths = ("", "/", "a/", "a//b") + tuple(
+        "/".join(parts)
+        for depth in (1, 2, 3)
+        for parts in product(components, repeat=depth)
+    )
+    scope_sets = (
+        (),
+        ("a",),
+        ("a/b",),
+        ("a/",),
+        ("",),
+        ("/",),
+        ("é", "日本/a", "ab"),
+        ("a/b", "a", "a", "ab/a"),
+    )
+    for scopes in scope_sets:
+        for path in paths:
+            assert _decision(scopes, (path,)) == _original_decision(
+                "same", "In Progress", scopes, "same", (path,)
+            ), (scopes, path)
+
+
+def test_effect_order_not_scope_order_selects_first_refusal():
+    effects = ("a/first", "foreign/first", "foreign/second")
+    for scopes in (("a", "a/first"), ("a/first", "a"), ("a", "a", "a/first")):
+        result = _decision(scopes, effects)
+        assert result.refusal is IssueSourceScopeRefusal.OUT_OF_SCOPE
+        assert result.offending_path == "foreign/first"
+
+
+def test_each_decision_observes_scope_owner_status_and_effect_changes():
+    assert _decision(("a",), ("a/child",)).allowed
+    assert not _decision(("b",), ("a/child",)).allowed
+    assert _decision(("a",), ("a/child",), owner="foreign").refusal is (
+        IssueSourceScopeRefusal.OWNER_MISMATCH
+    )
+    assert _decision(("a",), ("a/child",), status="Closed").refusal is (
+        IssueSourceScopeRefusal.STATUS_INVALID
+    )
+    assert not _decision(("a",), ("b/child",)).allowed
+    assert _decision(("a",), ("a/child",)).allowed
+
+
+def test_scope_not_traversed_before_owner_status_or_empty_effects():
+    class UnreadableScope(tuple):
+        def __iter__(self):
+            raise AssertionError("scope must not be read")
+
+    scopes = UnreadableScope(("a",))
+    assert _decision(scopes, ("a",), owner="foreign").refusal is (
+        IssueSourceScopeRefusal.OWNER_MISMATCH
+    )
+    assert _decision(scopes, ("a",), status="Closed").refusal is (
+        IssueSourceScopeRefusal.STATUS_INVALID
+    )
+    assert _decision(scopes, ()).allowed
+
+
+def test_nonexact_string_scope_and_path_preserve_original_unhashed_fallback():
+    class UnhashableText(str):
+        __hash__ = None
+
+    scope = UnhashableText("a")
+    path = UnhashableText("a/child")
+    for scopes, effects in (
+        ((scope,), ("a/child",)),
+        (("a",), (path,)),
+        ((scope,), (path,)),
+        (["a"], ("a/child",)),
+    ):
+        assert _decision(scopes, effects) == _original_decision(
+            "same", "In Progress", scopes, "same", effects
+        )
+
+
+def test_complete_policy_signature_and_standalone_lookup_remain_original():
+    import inspect
+
+    from aware_issue_operational_runtime.source_scope_policy import (
+        evaluate_issue_source_scope as policy,
+    )
+
+    assert tuple(inspect.signature(policy).parameters) == (
+        "issue_owner",
+        "issue_status",
+        "scope_paths",
+        "actor_ref",
+        "effect_paths",
+    )
+    assert all(
+        parameter.kind is inspect.Parameter.KEYWORD_ONLY
+        for parameter in inspect.signature(policy).parameters.values()
+    )
+    for path in ("a", "a/child", "ab/child", "a/b/c", "é/a"):
+        assert issue_scope_covers_path(path=path, scope_paths=("a", "é")) == any(
+            path == scope or path.startswith(scope + "/") for scope in ("a", "é")
+        )

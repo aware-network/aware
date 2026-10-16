@@ -18,6 +18,8 @@ from aware_specification_sdk import (
     SpecificationSdkClient,
 )
 
+from .receipt_commands import register_receipt_commands
+
 SOURCE_ARGUMENT_HELP = {
     "repository-root": "Customer repository root; relative to the invocation directory or absolute.",
     "protocol-manifest": "Protocol manifest; relative to --repository-root or absolute; default aware.protocol.toml.",
@@ -104,6 +106,7 @@ def register_read_commands(registry: AwareCommandRegistry) -> None:
             source="aware_specification_cli",
             operation_ref=SPECIFICATION_OBSERVE_OPERATION_REF,
         )
+    register_receipt_commands(registry)
 
 
 def _handle_read(invocation: AwareCommandInvocation) -> int:

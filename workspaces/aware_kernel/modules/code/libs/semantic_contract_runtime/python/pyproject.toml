@@ -1,7 +1,7 @@
 [project]
 license = "Apache-2.0"
 name = "aware-code-semantic-contract-runtime"
-version = "0.1.0"
+version = "0.2.0"
 description = "Dependency-free semantic provider/profile execution runtime for Aware Code."
 readme = "README.md"
 requires-python = ">=3.12"

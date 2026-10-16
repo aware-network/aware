@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import codecs
 import hashlib
 import re
 from datetime import datetime
 from pathlib import PurePosixPath
+from typing import BinaryIO
 
 from .contracts import (
     ISSUE_PROJECTION_SCHEMA_VERSION,
@@ -46,6 +48,49 @@ _KNOWN_SECTIONS = {
 
 
 def parse_issue_source(text: str) -> IssueSourceDocument:
+    return _parse_issue_source(text, header_only=False)[0]
+
+
+def read_issue_source_header(
+    stream: BinaryIO, *, byte_limit: int
+) -> IssueSourceDocument:
+    """Read a complete identity header through the original source grammar.
+
+    The first section permanently ends headers in that grammar. Its body need
+    not be read or decoded to determine identity. Otherwise EOF must be reached
+    within the byte limit. A prefix without either boundary is not evidence of
+    absence. At most the limit plus one overflow-detection byte is read.
+    """
+    if type(byte_limit) is not int or byte_limit <= 0:
+        raise ValueError("positive Issue header byte limit required")
+    source = bytearray()
+    while True:
+        chunk = stream.read(min(4096, byte_limit + 1 - len(source)))
+        source.extend(chunk)
+        prefix = bytes(source[:byte_limit])
+        decoder = codecs.getincrementaldecoder("utf-8")()
+        try:
+            text = decoder.decode(prefix, final=not chunk)
+        except UnicodeDecodeError as error:
+            # Invalid body bytes after a complete header cannot hide a Tag.
+            # Invalid bytes before that boundary remain an unreadable candidate.
+            text = prefix[: error.start].decode("utf-8")
+            document, complete = _parse_issue_source(text, header_only=True)
+            if complete:
+                return document
+            raise
+        document, complete = _parse_issue_source(text, header_only=True)
+        if complete:
+            return document
+        if len(source) > byte_limit:
+            raise OSError("Issue identity header limit exceeded")
+        if not chunk:
+            return document
+
+
+def _parse_issue_source(
+    text: str, *, header_only: bool
+) -> tuple[IssueSourceDocument, bool]:
     title = ""
     headers: list[IssueSourceHeader] = []
     sections: list[IssueSourceSection] = []
@@ -58,6 +103,8 @@ def parse_issue_source(text: str) -> IssueSourceDocument:
             title = stripped.split(":", 1)[1].strip()
             continue
         if stripped.startswith("## "):
+            if header_only:
+                return IssueSourceDocument(title, tuple(headers), ()), True
             if current_heading is not None:
                 sections.append(
                     IssueSourceSection(current_heading, tuple(current_lines))
@@ -91,7 +138,7 @@ def parse_issue_source(text: str) -> IssueSourceDocument:
 
     if current_heading is not None:
         sections.append(IssueSourceSection(current_heading, tuple(current_lines)))
-    return IssueSourceDocument(title, tuple(headers), tuple(sections))
+    return IssueSourceDocument(title, tuple(headers), tuple(sections)), False
 
 
 def parse_issue_projection(

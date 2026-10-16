@@ -1,12 +1,12 @@
 [project]
 license = "Apache-2.0"
 name = "aware-code-retained-registry-policy-runtime"
-version = "0.1.1"
+version = "0.1.2"
 description = "Neutral fixed retained registry policy calculation; no host authority."
 requires-python = ">=3.12"
 dependencies = [
   "aware-code-module-manifest-contract-runtime>=0.1.1,<0.2.0",
-  "aware-code-semantic-contract-runtime==0.1.0",
+  "aware-code-semantic-contract-runtime==0.2.0",
 ]
 
 [build-system]

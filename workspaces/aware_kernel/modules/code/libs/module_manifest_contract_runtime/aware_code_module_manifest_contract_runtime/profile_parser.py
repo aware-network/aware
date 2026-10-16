@@ -10,13 +10,16 @@ from .parser import AwareModuleTomlError
 from .profile_models import (
     CodeSemanticContractProfileDescriptorSpec,
     CodeSemanticContractProfileManifestSpec,
+    CodeSemanticContractProfileManifestSpecV2,
     CodeSemanticContractProfileProviderSpec,
+    CodeSemanticContractProfileProviderSpecV2,
 )
 
 _MANIFEST_VERSION_KEY = "aware_semantic_contract_profile"
 _PROFILE_KEY_RE = re.compile(r"^[a-z_][a-z0-9_]*(\.[a-z_][a-z0-9_]*)*$")
 _MODULE_ID_RE = re.compile(r"^[a-z_][a-z0-9_]*$")
 _PROVIDER_KEY_RE = re.compile(r"^[a-z_][a-z0-9_]*$")
+_PRODUCT_KEY_RE = re.compile(r"^[a-z_][a-z0-9_-]*$")
 _RUNTIME_IMPORT_MODE_RE = re.compile(r"^[a-z_][a-z0-9_]*$")
 _STATUS_RE = re.compile(r"^[a-z_][a-z0-9_]*$")
 
@@ -47,6 +50,16 @@ def _parse_profile_table(
         ctx="root",
     )
     version = _expect_int(raw, _MANIFEST_VERSION_KEY, ctx="root")
+    if type(version) is int and version == 2:
+        profile = _parse_profile(raw.get("profile"))
+        profile_table = _as_table(raw["profile"], ctx="[profile]")
+        if any(type(v) is str and v != v.strip() for v in profile_table.values()):
+            raise AwareModuleTomlError("v2 profile text must be canonical")
+        return CodeSemanticContractProfileManifestSpecV2(
+            aware_semantic_contract_profile=2,
+            profile=profile,
+            providers=_parse_providers_v2(raw.get("providers")),
+        )
     if version != 1:
         raise AwareModuleTomlError(
             f"{_MANIFEST_VERSION_KEY} must be 1 in {source_label}; got {version!r}"
@@ -138,6 +151,38 @@ def _parse_providers(
                 status=status,
             )
         )
+    return tuple(providers)
+
+
+def _parse_providers_v2(value: object) -> tuple[CodeSemanticContractProfileProviderSpecV2, ...]:
+    from .v2_parser import ID, token
+
+    tables = _as_table_list(value, ctx="[[providers]]")
+    if not 1 <= len(tables) <= 4096:
+        raise AwareModuleTomlError("v2 profile requires 1..4096 providers")
+    providers = []
+    seen = set()
+    for index, row in enumerate(tables):
+        ctx = f"providers[{index}]"
+        _expect_keys(row, required={"module_id", "package_id", "registration_key", "provider_key", "exposure"},
+                     optional={"required", "status"}, ctx=ctx)
+        module = token(row["module_id"], ID)
+        package = token(row["package_id"], ID)
+        registration = token(row["registration_key"], ID)
+        exposure = row["exposure"]
+        if type(exposure) is not str or exposure not in ("stage_pair", "graph_product"):
+            raise AwareModuleTomlError("v2 profile exposure must be stage_pair or graph_product")
+        provider = token(row["provider_key"], _PRODUCT_KEY_RE if exposure == "graph_product" else _PROVIDER_KEY_RE)
+        if provider in seen:
+            raise AwareModuleTomlError(f"[[providers]] declares duplicate provider_key {provider!r}")
+        seen.add(provider)
+        required = _expect_opt_bool(row, "required", ctx=ctx)
+        status = token(row["status"], _STATUS_RE) if "status" in row else "active"
+        providers.append(CodeSemanticContractProfileProviderSpecV2(
+            module_id=module, package_id=package, registration_key=registration,
+            provider_key=provider, exposure=exposure,
+            required=True if required is None else required, status=status,
+        ))
     return tuple(providers)
 
 

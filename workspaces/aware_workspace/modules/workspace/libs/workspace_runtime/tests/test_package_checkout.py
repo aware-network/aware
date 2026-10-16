@@ -695,3 +695,50 @@ def test_false_workspace_hint_cannot_choose_local_package(repository: Path) -> N
         pytest.raises(PackageCheckoutError, match="invalid owner source"),
     ):
         checkout.resolve(["sample-a"])
+
+
+def test_selected_checkout_paths_leave_full_validation_explicit(repository):
+    with PackageSourceCheckout(repository) as checkout:
+        inventory = checkout.resolve(["sample-a"])
+        selected = next(
+            row["path"]
+            for row in inventory["files"]
+            if row["path"].endswith("source.py")
+        )
+        unrelated = repository / "workspaces/main/modules/family/a/resource.bin"
+        unrelated.write_bytes(b"changed later source")
+        assert checkout.revalidate_paths((selected,)) is None
+        assert checkout.revalidate_paths(()) is None
+        with pytest.raises(PackageCheckoutError, match="sources changed"):
+            checkout.revalidate()
+
+
+@pytest.mark.parametrize("change", ["body", "mode", "head"])
+def test_selected_checkout_paths_detect_selected_bytes_mode_and_revision(
+    repository, change
+):
+    with PackageSourceCheckout(repository) as checkout:
+        inventory = checkout.resolve(["sample-a"])
+        selected = next(
+            row["path"]
+            for row in inventory["files"]
+            if row["path"].endswith("source.py")
+        )
+        path = repository / selected
+        if change == "body":
+            path.write_bytes(b"changed")
+        elif change == "mode":
+            path.chmod(0o755)
+        else:
+            (repository / "new-commit").write_bytes(b"foreign advancement")
+            commit_fixture(repository)
+        with pytest.raises((PackageCheckoutError, SourceObservationUnavailable)):
+            checkout.revalidate_paths((selected,))
+
+
+@pytest.mark.parametrize("paths", [None, [], ("../outside",), ("unknown",), (True,)])
+def test_selected_checkout_paths_reject_non_original_selection(repository, paths):
+    with PackageSourceCheckout(repository) as checkout:
+        checkout.resolve(["sample-a"])
+        with pytest.raises(PackageCheckoutError):
+            checkout.revalidate_paths(paths)

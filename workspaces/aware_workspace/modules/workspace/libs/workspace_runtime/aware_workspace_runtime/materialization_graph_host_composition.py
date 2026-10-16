@@ -14,13 +14,13 @@ from aware_code_semantic_contract_runtime import (
     SemanticPackageCoordinate,
     SemanticValueCoordinate,
 )
-from aware_local_service_runtime import LocalOperationalStateStore
-from aware_code_semantic_contract_runtime.selected_provider import (
-    AdmittedSemanticProviderRegistration,
-)
 from aware_code_semantic_contract_runtime.materialization_catalog import (
     CodeSemanticMaterializationProfileBinding,
 )
+from aware_code_semantic_contract_runtime.selected_provider import (
+    AdmittedSemanticProviderRegistration,
+)
+from aware_local_service_runtime import LocalOperationalStateStore
 
 if TYPE_CHECKING:
     from .direct_command_composition import (
@@ -28,6 +28,12 @@ if TYPE_CHECKING:
         _SuccessorGraphNodeSourceInputs,
     )
 
+from .declaration_product_membership import (
+    WorkspaceDeclarationProductCorrespondence,
+    read_declaration_product_correspondence_package,
+    validate_declaration_product_planning_input,
+)
+from .declaration_scope_admission import WorkspaceOriginalGraphTargetValidator
 from .materialization_graph_coordinator import (
     WorkspaceMaterializationProductionCutoverHeadV1,
     WorkspaceSemanticMaterializationNodePreparation,
@@ -37,19 +43,17 @@ from .materialization_graph_planner import (
     WorkspaceSemanticMaterializationGraphPlanner,
     WorkspaceSemanticRootCodePlan,
 )
-from .declaration_scope_admission import WorkspaceOriginalGraphTargetValidator
-from .source_admission_catalog import WorkspaceV3GraphSourceCorrespondence
 from .materialization_operation import (
+    WorkspaceMaterializeExecutionPlanResolver,
     WorkspaceMaterializeOperation,
     WorkspaceMaterializeOperationAdmission,
-    WorkspaceMaterializeExecutionPlanResolver,
 )
 from .materialization_selection import WorkspaceMaterializationSelectionProposal
-from .semantic_catalog_host import WorkspaceSemanticCatalogHost
 from .materialization_session import WorkspaceMaterializationSessionJournal
+from .semantic_catalog_host import WorkspaceSemanticCatalogHost
 from .semantic_dependency_graph import (
-    WorkspaceSemanticPackageHeadObservation,
     WorkspaceSemanticMaterializationGraphPlanResult,
+    WorkspaceSemanticPackageHeadObservation,
 )
 from .semantic_dependency_graph_codec import (
     decode_workspace_semantic_materialization_graph_plan_result,
@@ -63,6 +67,7 @@ from .semantic_materialization_publication import (
     WorkspaceSemanticMaterializationPublicationError,
     WorkspaceSemanticMaterializationPublisher,
 )
+from .source_admission_catalog import WorkspaceV3GraphSourceCorrespondence
 
 
 class _WorkspacePackageHeadReader:
@@ -183,7 +188,7 @@ def compose_current_workspace_graph_planner(
     package_closure: tuple[SemanticPackageCoordinate, ...],
     backing: WorkspaceMaterializationGraphBacking,
     source_only_target_validator: WorkspaceOriginalGraphTargetValidator | None = None,
-    source_correspondences: tuple[WorkspaceV3GraphSourceCorrespondence, ...] = (),
+    source_correspondences: tuple[WorkspaceV3GraphSourceCorrespondence | WorkspaceDeclarationProductCorrespondence, ...] = (),
 ) -> WorkspaceSemanticMaterializationGraphPlanner:
     """Bind current original owner readers to the sole neutral graph planner.
 
@@ -219,12 +224,16 @@ def compose_current_workspace_graph_planner(
         source_only_target_validator.validate_source_packages(package_closure)
     if type(source_correspondences) is not tuple:
         raise TypeError("original graph source correspondence tuple required")
+    by_ref: dict[str, WorkspaceV3GraphSourceCorrespondence | WorkspaceDeclarationProductCorrespondence] = {}
     if source_correspondences:
-        by_ref = {}
         for item in source_correspondences:
-            if type(item) is not WorkspaceV3GraphSourceCorrespondence:
+            if type(item) not in (WorkspaceV3GraphSourceCorrespondence, WorkspaceDeclarationProductCorrespondence):
                 raise TypeError("original v3 graph source correspondence required")
-            package_ref = item.package().package_ref
+            package_ref = (
+                read_declaration_product_correspondence_package(item).package_ref
+                if type(item) is WorkspaceDeclarationProductCorrespondence
+                else item.package().package_ref
+            )
             if package_ref in by_ref:
                 raise RuntimeError("duplicate graph source correspondence")
             by_ref[package_ref] = item
@@ -237,9 +246,14 @@ def compose_current_workspace_graph_planner(
         if entry.package != package:
             raise RuntimeError("planning source is outside current Workspace membership")
         if source_correspondences:
-            by_ref[package.package_ref].validate(
-                entry, source.read_dependencies(package)
-            )
+            correspondence = by_ref[package.package_ref]
+            value = source.read_dependencies(package)
+            if type(correspondence) is WorkspaceDeclarationProductCorrespondence:
+                validate_declaration_product_planning_input(correspondence, entry, value)
+            elif type(correspondence) is WorkspaceV3GraphSourceCorrespondence:
+                correspondence.validate(entry, value)
+            else:
+                raise TypeError("original graph source correspondence required")
     return WorkspaceSemanticMaterializationGraphPlanner(
         workspace_catalog=pair.workspace,
         code_catalog=pair.code,
@@ -262,7 +276,7 @@ async def plan_current_workspace_materialization_graph(
     selection: WorkspaceMaterializationSelectionProposal,
     root_plans: tuple[WorkspaceSemanticRootCodePlan, ...],
     source_only_target_validator: WorkspaceOriginalGraphTargetValidator | None = None,
-    source_correspondences: tuple[WorkspaceV3GraphSourceCorrespondence, ...] = (),
+    source_correspondences: tuple[WorkspaceV3GraphSourceCorrespondence | WorkspaceDeclarationProductCorrespondence, ...] = (),
 ) -> tuple[WorkspaceSemanticMaterializationGraphPlanResult, bytes]:
     """Plan once and verify final graph coverage and currentness after await."""
     from aware_code_retained_registry_policy_runtime.planning_source_composition import (
@@ -302,11 +316,19 @@ async def plan_current_workspace_materialization_graph(
     if source_only_target_validator is not None:
         source_only_target_validator.validate_source_packages(package_closure)
     for item in source_correspondences:
-        package = item.package()
-        item.validate(
-            planner._workspace.package(package.package_ref),
-            planner._planning_source.read_dependencies(package),
+        package = (
+            read_declaration_product_correspondence_package(item)
+            if type(item) is WorkspaceDeclarationProductCorrespondence
+            else item.package()
         )
+        entry = planner._workspace.package(package.package_ref)
+        value = planner._planning_source.read_dependencies(package)
+        if type(item) is WorkspaceDeclarationProductCorrespondence:
+            validate_declaration_product_planning_input(item, entry, value)
+        elif type(item) is WorkspaceV3GraphSourceCorrespondence:
+            item.validate(entry, value)
+        else:
+            raise TypeError("original graph source correspondence required")
     catalog_host.validate_current_catalog_epoch(epoch, expected=expected_epoch)
     if catalog_host.read_code_catalog_for_epoch(
         epoch, expected=expected_epoch
@@ -549,6 +571,7 @@ class WorkspaceCurrentGraphProductOperationFactory:
         from aware_code_retained_registry_policy_runtime.product_execution import (
             bind_product_execution_origin,
         )
+
         from . import direct_command_composition as command_composition
 
         if (

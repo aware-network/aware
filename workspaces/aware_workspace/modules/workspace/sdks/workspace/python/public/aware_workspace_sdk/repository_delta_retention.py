@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import inspect
 import threading
+from collections.abc import Callable
 from pathlib import Path
 from weakref import WeakKeyDictionary
 
@@ -118,6 +120,8 @@ class WorkspaceRepositoryDeltaRetentionFactory(_Original):
 
 
 class WorkspaceRepositoryDeltaRetentionClient(_Original):
+    resolve_bodies: Callable[..., tuple[bytes | None, ...]]
+
     __slots__ = ()
 
     def initialize_delta_retention(
@@ -216,4 +220,54 @@ __all__ = (
     "WorkspaceRepositoryDeltaRetentionClient",
     "WorkspaceRepositoryDeltaRetentionFactory",
     "WorkspaceRepositoryDeltaRetentionRefusal",
+)
+
+
+def _bind_original_bulk_client(kind):
+    from aware_workspace_runtime.repository_delta_retention import (
+        WorkspaceRepositoryDeltaRetentionRuntime,
+    )
+
+    registry = _CLIENTS
+    namespace = globals()
+    runtime_kind = WorkspaceRepositoryDeltaRetentionRuntime
+    entrance = runtime_kind.resolve_bodies
+    state_kind = entrance.__globals__["_State"]
+
+    def resolve_bodies(self, body_refs):
+        pair = current = runtime = state = values = None
+        try:
+            if type(self) is not kind or namespace.get("_CLIENTS") is not registry:
+                raise WorkspaceRepositoryDeltaRetentionRefusal("retention_not_issued")
+            # Identity lookup does not dispatch a substituted receiver hash/equality.
+            with _LOCK:
+                pair = next((value for client, value in registry.items() if client is self), None)
+            if pair is None:
+                raise WorkspaceRepositoryDeltaRetentionRefusal("retention_not_issued")
+            runtime, state = pair
+            if (type(runtime) is not runtime_kind
+                or inspect.getattr_static(runtime, "resolve_bodies", None) is not entrance):
+                raise WorkspaceRepositoryDeltaRetentionRefusal("retention_reader_origin_changed")
+            values = entrance(runtime, state, body_refs)
+            with _LOCK:
+                current = next((value for client, value in registry.items() if client is self), None)
+            if (namespace.get("_CLIENTS") is not registry or current is not pair
+                or inspect.getattr_static(runtime, "resolve_bodies", None) is not entrance):
+                raise WorkspaceRepositoryDeltaRetentionRefusal("retention_reader_origin_changed")
+            return values
+        except BaseException:
+            if runtime is not None and state is not None and type(runtime) is runtime_kind and type(state) is state_kind:
+                with object.__getattribute__(runtime, "_lock"):
+                    if (any(item is state for item in object.__getattribute__(runtime, "_states"))
+                        and object.__getattribute__(state, "phase") != "released"):
+                        object.__setattr__(state, "phase", "refused")
+            raise
+        finally:
+            del self, body_refs, pair, current, runtime, state, values
+
+    return resolve_bodies
+
+
+WorkspaceRepositoryDeltaRetentionClient.resolve_bodies = _bind_original_bulk_client(
+    WorkspaceRepositoryDeltaRetentionClient,
 )

@@ -54,20 +54,20 @@ def test_actual_successor_metadata_and_direct_storage_edge(name):
         assert "0.2.99" not in requirements["aware-issue-runtime"].specifier
 
 
-def test_existing_cli_admits_adapter_successor_without_new_reader_edges():
+def test_current_cli_selects_receipt_reader_without_mandatory_issue_edges():
     cli = tomllib.loads((Path(__file__).parents[2] / "cli/pyproject.toml").read_text())[
         "project"
     ]
-    assert cli["version"] == "0.4.3"
-    for value, extra in (
-        (cli["dependencies"][1], "protocol"),
-        (cli["optional-dependencies"]["governed"][0], "governed"),
+    assert cli["version"] == "0.4.4"
+    for value, extras, floor in (
+        (cli["dependencies"][1], {"protocol", "receipts"}, "0.4.4"),
+        (cli["optional-dependencies"]["governed"][0], {"governed"}, "0.4.3"),
     ):
         requirement = Requirement(value)
         assert requirement.name == "aware-specification-fs-sdk-adapter"
-        assert requirement.extras == {extra}
+        assert requirement.extras == extras
         assert "0.4.2" not in requirement.specifier
-        assert "0.4.3" in requirement.specifier
+        assert floor in requirement.specifier
         assert "0.5.0" not in requirement.specifier
     assert all("issue" not in value for value in cli["dependencies"])
 

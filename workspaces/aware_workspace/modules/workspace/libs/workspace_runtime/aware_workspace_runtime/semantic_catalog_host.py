@@ -47,10 +47,17 @@ from .command_lifetime import (
     WorkspaceCommandLifetimeRuntime,
     WorkspaceCommandLifetimeUnavailable,
 )
+from .declaration_product_membership import (
+    WorkspaceDeclarationProductCorrespondence,
+    check_declaration_product_correspondence_locked,
+    read_declaration_product_correspondence_package,
+    validate_declaration_product_correspondence,
+)
 from .materialization_membership_catalog import (
     AdmittedWorkspaceSemanticMaterializationMembershipCatalog,
     WorkspaceSemanticMaterializationMembershipCatalog,
     WorkspaceSemanticMaterializationMembershipResolver,
+    WorkspaceSemanticMaterializationPackageEntry,
     _issue_workspace_semantic_materialization_membership_catalog,
     _revoke_workspace_semantic_materialization_membership_catalog,
 )
@@ -64,6 +71,7 @@ class WorkspaceJointCatalogResolvers:
     contribution_digest: str
     code_admission: AdmittedCodeSemanticContractCatalog
     workspace_admission: AdmittedWorkspaceSemanticMaterializationMembershipCatalog
+    source_correspondences: tuple[object, ...] = ()
 
 
 @dataclass(slots=True)
@@ -88,9 +96,16 @@ def _source_correspondence_entries(snapshot, correspondences):
     result = []
     previous = None
     for correspondence in correspondences:
-        if type(correspondence) is not WorkspaceV3GraphSourceCorrespondence:
+        if type(correspondence) not in (
+            WorkspaceV3GraphSourceCorrespondence,
+            WorkspaceDeclarationProductCorrespondence,
+        ):
             raise TypeError("original Workspace source correspondence required")
-        package_ref = correspondence.package().package_ref
+        package_ref = (
+            read_declaration_product_correspondence_package(correspondence).package_ref
+            if type(correspondence) is WorkspaceDeclarationProductCorrespondence
+            else correspondence.package().package_ref
+        )
         if (
             package_ref not in entries
             or (previous is not None and previous.encode() >= package_ref.encode())
@@ -112,14 +127,20 @@ def _validate_source_correspondences(snapshot, correspondences):
     for correspondence, entry in _source_correspondence_entries(
         snapshot, correspondences
     ):
-        correspondence.validate_catalog_entry(entry)
+        if type(correspondence) is WorkspaceDeclarationProductCorrespondence:
+            validate_declaration_product_correspondence(correspondence, entry)
+        else:
+            correspondence.validate_catalog_entry(entry)
 
 
 def _check_source_correspondences_locked(snapshot, correspondences, guard):
     for correspondence, entry in _source_correspondence_entries(
         snapshot, correspondences
     ):
-        correspondence.check_catalog_entry_locked(entry, guard)
+        if type(correspondence) is WorkspaceDeclarationProductCorrespondence:
+            check_declaration_product_correspondence_locked(correspondence, entry, guard)
+        else:
+            correspondence.check_catalog_entry_locked(entry, guard)
 
 
 class _CommandCatalogParent:
@@ -211,8 +232,6 @@ class _CommandCatalogParent:
     ):
         if not code_catalog.entries:
             raise RuntimeError("initial command requires Code contributions")
-        if workspace_catalog.entries:
-            raise RuntimeError("initial command membership must be empty")
         epoch = CatalogPairEpochExpectation(
             self.invocation,
             object(),
@@ -224,12 +243,18 @@ class _CommandCatalogParent:
             object(),
             None,
             epoch,
-            ContentDigest.of_bytes(canonical_json_bytes([])),
+            _workspace_entry_inputs_digest(workspace_catalog),
         )
         return expected
 
-    def publish_initial(self, *, code_leg, workspace_admission, expected):
+    def publish_initial(
+        self, *, code_leg, workspace_admission, expected,
+        workspace_snapshot, source_correspondences,
+    ):
         with self.guarded() as guard:
+            _check_source_correspondences_locked(
+                workspace_snapshot, source_correspondences, guard
+            )
             preparation = self.records._prepare(
                 guard, expected=expected, pair=(code_leg, workspace_admission)
             )
@@ -275,6 +300,9 @@ class WorkspaceSemanticCatalogHost:
     _result: WorkspaceJointCatalogResolvers | None
     _command_parent: _CommandCatalogParent | None
     _successor_attempts: dict[object, _PreparedSuccessorCatalogPair]
+    _initial_source_entries: tuple[
+        tuple[WorkspaceDeclarationProductCorrespondence, WorkspaceSemanticMaterializationPackageEntry], ...
+    ] = ()
 
     def __new__(cls):
         raise TypeError("semantic_catalog_host_requires_original_assembly")
@@ -312,7 +340,21 @@ class WorkspaceSemanticCatalogHost:
     def _workspace_live(self) -> bool:
         try:
             self.validate_catalog_parent()
-            return self._issuing_workspace or self.catalogs_published()
+            if self._issuing_workspace:
+                return True
+            if not self.catalogs_published():
+                return False
+            if self._initial_source_entries:
+                if self._command_parent is None:
+                    return False
+                # Original registration/source records only; never filesystem
+                # reads or owner callbacks while the parent guard is held.
+                with self._command_parent.guarded() as guard:
+                    for correspondence, entry in self._initial_source_entries:
+                        check_declaration_product_correspondence_locked(
+                            correspondence, entry, guard
+                        )
+            return True
         except Exception:
             return False
 
@@ -325,6 +367,7 @@ class WorkspaceSemanticCatalogHost:
         ],
         provider_executable_bindings,
         dependency_planner_bindings,
+        source_correspondences: tuple[WorkspaceDeclarationProductCorrespondence, ...] = (),
     ):
         self.validate_catalog_parent()
         with self._lock:
@@ -343,6 +386,16 @@ class WorkspaceSemanticCatalogHost:
             if self._command_parent is not None:
                 captured = _capture_workspace_catalog(workspace_catalog_reader())
                 snapshot, body, coordinates = captured
+                if snapshot.entries:
+                    if (
+                        len(source_correspondences) != len(snapshot.entries)
+                        or any(type(item) is not WorkspaceDeclarationProductCorrespondence
+                               for item in source_correspondences)
+                    ):
+                        raise RuntimeError("initial command membership must be empty without original declaration sources")
+                    _validate_source_correspondences(snapshot, source_correspondences)
+                elif source_correspondences:
+                    raise RuntimeError("initial correspondence has no package entry")
                 publication = self._command_parent.prepare_expectation(
                     code_catalog=code_catalog,
                     workspace_catalog=snapshot,
@@ -395,6 +448,10 @@ class WorkspaceSemanticCatalogHost:
             validate_code_catalog_leg(code_leg)
             # The same lock guards the original resident parent close. No source
             # reader is invoked while it is held.
+            _validate_source_correspondences(snapshot, source_correspondences)
+            self._initial_source_entries = _source_correspondence_entries(
+                snapshot, source_correspondences
+            )
             with self._lock:
                 self.validate_catalog_parent()
                 if self._phase != "preparing":
@@ -412,11 +469,14 @@ class WorkspaceSemanticCatalogHost:
                         code_leg=code_leg,
                         workspace_admission=workspace_admission,
                         expected=publication,
+                        workspace_snapshot=snapshot,
+                        source_correspondences=source_correspondences,
                     )
                 self._phase = "published"
             # Code's published accessor rereads its source, so invoke outside the
             # publication lock and revoke both if that final read refuses.
             code_admission, code_resolver = published_code_catalog_leg(code_leg)
+            _validate_source_correspondences(snapshot, source_correspondences)
             result = WorkspaceJointCatalogResolvers(
                 code=code_resolver,
                 workspace=WorkspaceSemanticMaterializationMembershipResolver(
@@ -425,6 +485,7 @@ class WorkspaceSemanticCatalogHost:
                 contribution_digest=digest,
                 code_admission=code_admission,
                 workspace_admission=workspace_admission,
+                source_correspondences=source_correspondences,
             )
             with self._lock:
                 self.validate_catalog_parent()
@@ -801,6 +862,7 @@ class WorkspaceSemanticCatalogHost:
             self._code_admission = None
             self._result = None
             self._contribution = None
+            self._initial_source_entries = ()
 
         # These reads are deliberately outside the parent exclusion.  They can
         # only observe the record committed above and refuse any substituted leg.
@@ -957,6 +1019,7 @@ class WorkspaceSemanticCatalogHost:
             raise RuntimeError("catalog_host_process_changed")
         with self._lock:
             self._phase = "closed"
+            self._initial_source_entries = ()
             code_leg, workspace = self._code_leg, self._workspace_admission
             pending = tuple(self._successor_attempts.values())
             self._successor_attempts.clear()

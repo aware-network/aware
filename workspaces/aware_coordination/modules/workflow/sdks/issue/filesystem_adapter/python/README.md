@@ -16,6 +16,29 @@ survives SDK and CLI JSON/summary presentation unchanged. Invalid syntax refuses
 before manifest admission or target access; it does not select a corrected
 reference, broaden authority or authorize a retry.
 
+## Bounded identity lookup
+
+Bounded reads and mutations still check every admitted `fb-*.md` candidate under
+the original Issue root for duplicate identity. The original Issue runtime's
+`read_issue_source_header` reuses the same Markdown parser, including case-folded
+field names, first-Tag selection, value normalization and indented continuations.
+Headers permanently end at the first section in that grammar; a completed
+header can therefore establish identity without loading an oversized body.
+
+The existing source-byte ceiling also bounds each candidate's identity lookup.
+Reads use chunks of at most 4 KiB, with at most one extra byte to detect overflow.
+EOF completes a small sectionless header. If neither EOF nor the header boundary
+is established within the ceiling, or the header cannot be read/decoded, the
+original `issue_duplicate_candidate_unavailable` refusal remains. No overflow
+candidate is silently skipped. Known duplicate headers still refuse before
+mutation, including when their bodies are oversized or invalid UTF-8.
+
+This identity check does not validate or expose another candidate's body.
+Selected Issue source, manifest and planned-result limits remain unchanged;
+large selected records still require the supported full-source profile. Ordinary
+unbounded defaults retain their existing behavior. Sequential filesystem lookup
+is not atomic root isolation, a lease or an Evaluation observation capability.
+
 ## Genuine single-use source-change admission
 
 `FilesystemIssueOperationProvider.admit_source_change()` freshly resolves the

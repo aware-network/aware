@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import os
+import signal
 from dataclasses import replace
 from pathlib import Path
 
@@ -18,12 +21,248 @@ from aware_workspace_runtime.operational_validation import (
     ValidationEffectClass,
     ValidationExecutionStatus,
     WorkspaceValidationSourceCoordinate,
+    read_retained_validation_chunk,
     validate_test_resource_outcome,
 )
 
 
 def _sha(character: str) -> str:
     return "sha256:" + character * 64
+
+
+def _retained_member(observer, handle, name="plain.bin"):
+    evidence = observer.evidence(handle)
+    body = next(row for row in evidence.bodies if row.relative_path == name)
+    payload = {
+        "relative_path": str(Path(evidence.root_relative_path) / body.relative_path),
+        "body_ref": body.body_ref,
+        "content_digest": body.content_digest,
+        "size_bytes": body.size_bytes,
+    }
+    return (
+        "platform-source-member:sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+            ).encode()
+            + b"\n"
+        ).hexdigest()
+    )
+
+
+async def test_original_retained_chunks_rebuild_exact_bytes_not_checkout(tmp_path):
+    from test_source_observation import runtime
+
+    original = b"captured" * 12289
+    async with runtime(tmp_path) as (observer, _, _, package):
+        (package / "plain.bin").write_bytes(original)
+        handle = observer.observe(root_relative_path="package")
+        member = _retained_member(observer, handle)
+        (package / "plain.bin").write_bytes(b"different checkout")
+        parts = []
+        offset = 0
+        while offset < len(original):
+            chunk = read_retained_validation_chunk(
+                observer, handle, member_ref=member, offset_bytes=offset
+            )
+            assert (
+                chunk.chunk_digest == "sha256:" + hashlib.sha256(chunk.data).hexdigest()
+            )
+            assert (
+                chunk.member_digest == "sha256:" + hashlib.sha256(original).hexdigest()
+            )
+            assert chunk.relative_path == "package/plain.bin"
+            assert chunk == read_retained_validation_chunk(
+                observer, handle, member_ref=member, offset_bytes=offset
+            )
+            assert not hasattr(chunk, "allocation_ref") and not hasattr(
+                chunk, "authorization_ref"
+            )
+            parts.append(chunk.data)
+            offset = chunk.next_offset_bytes
+        assert chunk.member_complete and b"".join(parts) == original
+
+
+async def test_original_empty_retained_member_has_one_exact_chunk(tmp_path):
+    from test_source_observation import runtime
+
+    async with runtime(tmp_path) as (observer, _, _, package):
+        (package / "plain.bin").write_bytes(b"")
+        handle = observer.observe(root_relative_path="package")
+        chunk = read_retained_validation_chunk(
+            observer,
+            handle,
+            member_ref=_retained_member(observer, handle),
+            offset_bytes=0,
+        )
+        assert chunk.data == b"" and chunk.member_complete
+        assert chunk.next_offset_bytes == 0
+
+
+@pytest.mark.parametrize("offset", [-1, True, 1, 6, 32768])
+async def test_retained_chunk_rejects_invalid_offsets(tmp_path, offset):
+    from test_source_observation import runtime
+
+    async with runtime(tmp_path) as (observer, _, _, _):
+        handle = observer.observe(root_relative_path="package")
+        with pytest.raises(OperationalValidationError):
+            read_retained_validation_chunk(
+                observer,
+                handle,
+                member_ref=_retained_member(observer, handle),
+                offset_bytes=offset,
+            )
+
+
+@pytest.mark.parametrize(
+    "member", ["file:/tmp/private", "platform-source-member:" + _sha("a")]
+)
+async def test_retained_chunk_rejects_foreign_member_or_path(tmp_path, member):
+    from test_source_observation import runtime
+
+    async with runtime(tmp_path) as (observer, _, _, _):
+        handle = observer.observe(root_relative_path="package")
+        with pytest.raises(OperationalValidationError, match="member_unavailable"):
+            read_retained_validation_chunk(
+                observer, handle, member_ref=member, offset_bytes=0
+            )
+
+
+async def test_retained_chunk_rejects_foreign_handle_owner_and_epoch(tmp_path):
+    from aware_workspace_runtime import (
+        SourceObservationUnavailable,
+        WorkspaceSourceObservationRuntime,
+    )
+    from test_source_observation import runtime
+
+    async with runtime(tmp_path) as (observer, session, store, _):
+        handle = observer.observe(root_relative_path="package")
+        member = _retained_member(observer, handle)
+        other = WorkspaceSourceObservationRuntime(session=session, store=store)
+        try:
+            with pytest.raises(SourceObservationUnavailable):
+                read_retained_validation_chunk(
+                    other, handle, member_ref=member, offset_bytes=0
+                )
+        finally:
+            other.close()
+        await session.stop()
+        await session.start(background=False)
+        with pytest.raises(SourceObservationUnavailable):
+            read_retained_validation_chunk(
+                observer, handle, member_ref=member, offset_bytes=0
+            )
+
+
+async def test_retained_chunk_rejects_lost_body_without_recapture(tmp_path):
+    from aware_workspace_runtime import SourceObservationUnavailable
+    from test_source_observation import runtime
+
+    async with runtime(tmp_path, capacity=2) as (observer, _, store, package):
+        handle = observer.observe(root_relative_path="package")
+        member = _retained_member(observer, handle)
+        store.record_bodies((b"evict-one", b"evict-two"))
+        with pytest.raises(SourceObservationUnavailable):
+            read_retained_validation_chunk(
+                observer, handle, member_ref=member, offset_bytes=0
+            )
+        assert (package / "plain.bin").read_bytes() == b"initial"
+
+
+async def test_retained_chunk_bypasses_caller_instance_reader_callback(
+    tmp_path, monkeypatch
+):
+    from test_source_observation import runtime
+
+    async with runtime(tmp_path) as (observer, _, _, _):
+        handle = observer.observe(root_relative_path="package")
+        member = _retained_member(observer, handle)
+        monkeypatch.setattr(
+            observer, "read", lambda *a, **k: pytest.fail("caller callback used")
+        )
+        chunk = read_retained_validation_chunk(
+            observer, handle, member_ref=member, offset_bytes=0
+        )
+        assert chunk.data == b"initial"
+
+
+def test_retained_chunk_rejects_fake_reader_before_effect():
+    with pytest.raises(OperationalValidationError):
+        read_retained_validation_chunk(
+            {}, object(), member_ref="foreign", offset_bytes=0
+        )
+
+
+async def test_retained_chunk_fork_rejects_before_inherited_lock(tmp_path):
+    from test_source_observation import runtime
+
+    async with runtime(tmp_path) as (observer, _, _, _):
+        handle = observer.observe(root_relative_path="package")
+        member = _retained_member(observer, handle)
+        with observer._lock:
+            pid = os.fork()
+            if pid == 0:
+                signal.alarm(2)
+                try:
+                    read_retained_validation_chunk(
+                        observer, handle, member_ref=member, offset_bytes=0
+                    )
+                except OperationalValidationError as error:
+                    os._exit(
+                        0 if str(error) == "retained_chunk_owner_unavailable" else 2
+                    )
+                except Exception:  # noqa: BLE001 -- child must exit, not resume pytest
+                    os._exit(3)
+                os._exit(4)
+            _, status = os.waitpid(pid, 0)  # noqa: ASYNC222 -- bounded two-second child
+            assert os.waitstatus_to_exitcode(status) == 0
+        assert (
+            read_retained_validation_chunk(
+                observer, handle, member_ref=member, offset_bytes=0
+            ).data
+            == b"initial"
+        )
+
+
+async def test_retained_chunk_refuses_oversized_original_capture(tmp_path, monkeypatch):
+    from aware_workspace_runtime import (
+        SourceObservationLimits,
+        WorkspaceSourceObservationRuntime,
+    )
+    from test_source_observation import runtime
+
+    async with runtime(
+        tmp_path, limits=SourceObservationLimits(maximum_body_bytes=16 * 1024 * 1024)
+    ) as (observer, _, _, package):
+        (package / "plain.bin").write_bytes(b"x" * (8 * 1024 * 1024 + 1))
+        handle = observer.observe(root_relative_path="package")
+        member = _retained_member(observer, handle)
+        monkeypatch.setattr(
+            WorkspaceSourceObservationRuntime,
+            "read",
+            lambda *a, **k: pytest.fail("oversized body read"),
+        )
+        with pytest.raises(OperationalValidationError, match="capture_limit"):
+            read_retained_validation_chunk(
+                observer, handle, member_ref=member, offset_bytes=0
+            )
+
+
+async def test_retained_chunk_revalidates_exact_small_member_on_construction(tmp_path):
+    from test_source_observation import runtime
+
+    async with runtime(tmp_path) as (observer, _, _, _):
+        handle = observer.observe(root_relative_path="package")
+        chunk = read_retained_validation_chunk(
+            observer,
+            handle,
+            member_ref=_retained_member(observer, handle),
+            offset_bytes=0,
+        )
+        with pytest.raises(OperationalValidationError, match="member_mismatch"):
+            replace(chunk, data=b"altered")
+        with pytest.raises(OperationalValidationError):
+            replace(chunk, total_size_bytes=True)
 
 
 def _resource(output: str = "1 passed") -> dict[str, object]:
@@ -283,9 +522,9 @@ def test_resource_extension_changes_receipt_identity_but_legacy_is_absent() -> N
             substituted, expected_ref=observed.receipt_ref
         )
     substituted = observed.to_payload()
-    substituted["suite_receipts"][0]["resource_outcome"][
-        "cleanup_reason"
-    ] = "termination_unconfirmed"
+    substituted["suite_receipts"][0]["resource_outcome"]["cleanup_reason"] = (
+        "termination_unconfirmed"
+    )
     with pytest.raises(OperationalValidationError, match="identity_mismatch"):
         OperationalValidationReceipt.validate_payload_identity(
             substituted, expected_ref=observed.receipt_ref

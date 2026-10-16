@@ -27,3 +27,17 @@ class CodeSemanticContractProfileManifestSpec:
     aware_semantic_contract_profile: int
     profile: CodeSemanticContractProfileDescriptorSpec
     providers: tuple[CodeSemanticContractProfileProviderSpec, ...]
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class CodeSemanticContractProfileProviderSpecV2(CodeSemanticContractProfileProviderSpec):
+    """Exact declared registration exposure; not an executable admission."""
+
+    package_id: str
+    registration_key: str
+    exposure: str
+
+
+@dataclass(frozen=True, slots=True)
+class CodeSemanticContractProfileManifestSpecV2(CodeSemanticContractProfileManifestSpec):
+    """Versioned profile with exact package/registration correspondence."""

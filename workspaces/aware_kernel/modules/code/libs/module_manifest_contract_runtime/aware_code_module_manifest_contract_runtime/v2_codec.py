@@ -67,7 +67,8 @@ def _encode_version(value, *, version) -> bytes:
             )
         reg_wire = [thaw(v) for v in declaration.registrations]
         reg = registrations(
-            reg_wire, package.semantic_contract, package.kind, value.plugins
+            reg_wire, package.semantic_contract, package.kind, value.plugins,
+            _version=version,
         )
         occ_wire = occurrence_wire(declaration.occurrence)
         occ = occurrence(occ_wire, _version=version)
@@ -128,6 +129,7 @@ def _decode_version(body: bytes, *, version):
                         package.semantic_contract,
                         package.kind,
                         base.plugins,
+                        _version=version,
                     ),
                     occurrence(declaration["occurrence"], _version=version),
                     declaration["occurrence_declared"],

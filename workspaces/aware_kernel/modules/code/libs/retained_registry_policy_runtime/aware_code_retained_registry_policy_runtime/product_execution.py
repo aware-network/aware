@@ -309,6 +309,7 @@ class _InputOriginRecord:
     uses: dict
     retired: bool = False
     exclusion_pending: bool = False
+    execution_inputs: object = None
 
 
 _READ_ORIGINS: WeakKeyDictionary = WeakKeyDictionary()
@@ -389,6 +390,13 @@ def _read_locked(record, stage, guard):
     retained.check_identities()
     if sum(candidate is record.registration for _, candidate in retained.products) != 1:
         raise ContractViolation("selected input registration changed")
+    if record.execution_inputs is not None:
+        from aware_code_semantic_contract_runtime import product_contribution
+
+        policy, contribution = record.execution_inputs
+        if hosts._POLICIES.get(policy) is None or hosts._POLICIES[policy][0] is not record.host:
+            raise ContractViolation("execution input policy retired")
+        product_contribution.read_selected_provider_product_execution_inputs(contribution)
     if _read_entrance(record, 1, stage.source) is not None:
         raise ContractViolation("locked selected input validator returned a value")
 
@@ -434,6 +442,11 @@ def _read_full(record, stage, *, closure=None):
             if original is None:
                 raise ContractViolation("selected input product retention unavailable")
             original.validate()
+            if record.execution_inputs is not None:
+                from .product_execution_inputs import validate_execution_input_assembly
+
+                policy, contribution = record.execution_inputs
+                validate_execution_input_assembly(record.host, policy, contribution, assembly)
             with original_result_verification_work_scope():
                 if _read_entrance(record, 0, stage.source, assembly=assembly, closure=closure) is not None:
                     raise ContractViolation("selected input validator returned a value")
@@ -619,6 +632,11 @@ class _SelectedInputExecutionOrigin(hosts._Opaque):
 
 def bind_selected_input_verification_origin(host, registration):
     """Authenticate the fixed factory and capture its two original entrances."""
+    return _bind_selected_input_verification_origin(host, registration)
+
+
+def _bind_selected_input_verification_origin(host, registration, *, execution_inputs=None):
+    """Internal closed paths: observed read, or factory-enrolled product inputs."""
     try:
         state = hosts._state(host)
         binding = hooks._BINDINGS.get(host)
@@ -627,7 +645,7 @@ def bind_selected_input_verification_origin(host, registration):
             raise ContractViolation("original selected input host required")
         retained.validate()
         original = selected._registration_state(registration)
-        if original.selected_invocation_observer is None:
+        if execution_inputs is None and original.selected_invocation_observer is None:
             raise ContractViolation("original selected input observer required")
         if sum(runtime is original.runtime and candidate is registration
                for runtime, candidate in retained.products) != 1:
@@ -639,7 +657,7 @@ def bind_selected_input_verification_origin(host, registration):
         codes = tuple((entrance.method.__func__, entrance.method.__func__.__code__)
                       for entrance in entrances)
         record = _InputOriginRecord(host, registration, binding, entrances, codes,
-                                    current_thread(), os.getpid(), {})
+                                    current_thread(), os.getpid(), {}, execution_inputs=execution_inputs)
         with hooks._guard(binding) as guard:
             hooks._original(binding, host, guard)
             retained.check_identities()

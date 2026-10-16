@@ -196,7 +196,9 @@ def test_source_oracle_and_original_parsed_provider_agree(materialized, bundle):
     )
     assert len(materialized.manifest.schema_slices) == 8
     assert len(bundle.types) == 32
-    assert len(materialized.inventory.operation_refs) == 3
+    assert set(materialized.inventory.operation_refs) == set(OPERATIONS) | {
+        "specification_sdk.present_draft_receipt"
+    }
     assert materialized.authority_grade == "portable_input"
     assert (
         source_contract(

@@ -6,7 +6,10 @@ import hashlib
 import json
 import os
 import re
+import threading
 import tomllib
+import unicodedata
+import weakref
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import overload
@@ -82,18 +85,32 @@ def _overlaps(left, right):
 
 
 def _code_manifests(owner, child_roots):
-    """Exact support registrations, separate from registered child ownership."""
+    """Structural locators; package interpretation belongs to its selected profile."""
     rows = owner.get("codes", [])
     if type(rows) is not list:
         raise ArchitectureSetupError("invalid_code_registrations")
     roots = []
     for path in rows:
         relative(path)
+        root = str(PurePosixPath(path).parent)
+        if root == ".":
+            raise ArchitectureSetupError("support_package_requires_explicit_root")
+        if any(_overlaps(root, child) for child in child_roots):
+            raise ArchitectureSetupError("support_package_crosses_child_ownership")
+        if root in roots:
+            raise ArchitectureSetupError("duplicate_or_overlapping_code_registration")
+        roots.append(root)
+    return rows
+
+
+def _python_code_manifests(owner, child_roots):
+    """The existing flat authored-Python profile remains explicit and bounded."""
+    rows = _code_manifests(owner, child_roots)
+    roots = []
+    for path in rows:
         if not path.endswith("/pyproject.toml"):
             raise ArchitectureSetupError("support_profile_requires_python_manifest")
         root = str(PurePosixPath(path).parent)
-        if any(_overlaps(root, child) for child in child_roots):
-            raise ArchitectureSetupError("support_package_crosses_child_ownership")
         if any(_overlaps(root, old) for old in roots):
             raise ArchitectureSetupError("duplicate_or_overlapping_code_registration")
         roots.append(root)
@@ -118,6 +135,9 @@ class ArchitectureSetupRuntime:
 
     def close(self):
         self.closed = True
+        for _, state in tuple(_SETUP_DERIVATIONS.values()):
+            if state.owner() is self:
+                _expire_setup_derivation(state)
         self.physical.close()
 
     def _current(self):
@@ -525,13 +545,16 @@ class ArchitectureSetupRuntime:
             packages[key] = (path, payload)
             paths.add(path)
 
-        for path in repo["repo"].get("codes", []):
+        for path in _python_code_manifests(repo["repo"], self._workspace_roots(repo)):
             add(path)
         workspace_roots = []
         for ws in repo.get("workspaces", []):
             wp, data, _ = self._workspace(ws["handle"], inputs)
             workspace_roots.append(wp)
-            for path in data["workspace"].get("codes", []):
+            for path in _python_code_manifests(
+                data["workspace"],
+                [row["path"] for row in data["workspace"].get("modules", [])],
+            ):
                 add(wp + "/" + relative(path))
             for row in data["workspace"].get("modules", []):
                 mp, module, _ = self._module(ws["handle"], row["id"], inputs)
@@ -746,6 +769,217 @@ class ArchitectureSetupRuntime:
 
 
 _PHYSICAL_TYPES = set()
+
+
+class _RetainedSetupDerivation:
+    """Private derivation custody; this is not a public plan or Issue admission."""
+
+    # CPython initializes its weak-reference slot through object.__new__.
+    __slots__: tuple[str, ...] = ("__weakref__",)  # pyright: ignore[reportUninitializedInstanceVariable]
+
+    def __new__(cls):
+        raise TypeError("original_setup_derivation_required")
+
+    def __init_subclass__(cls, **kwargs):
+        raise TypeError("setup_derivations_cannot_be_subclassed")
+
+    def __copy__(self):
+        raise TypeError("setup_derivations_cannot_be_copied")
+
+    def __deepcopy__(self, memo):
+        raise TypeError("setup_derivations_cannot_be_copied")
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("setup_derivations_cannot_be_serialized")
+
+
+@dataclass
+class _SetupDerivationState:
+    owner: weakref.ReferenceType[ArchitectureSetupRuntime]
+    process_id: int
+    thread_id: int
+    request: ArchitectureSetupRequest | None
+    request_sha256: str
+    plan_sha256: str
+    inputs: tuple[tuple[str, bytes | None], ...]
+    outputs: tuple[tuple[str, bytes], ...]
+    retained_bytes: int
+    phase: str = "retained"
+
+
+_SETUP_DERIVATIONS: dict[
+    int, tuple[weakref.ReferenceType[_RetainedSetupDerivation], _SetupDerivationState]
+] = {}
+_ORIGINAL_PLAN = ArchitectureSetupRuntime._plan
+_ORIGINAL_PLAN_CODE = _ORIGINAL_PLAN.__code__
+
+
+def _expire_setup_derivation(state):
+    state.phase = "released"
+    state.request = None
+    state.inputs = ()
+    state.outputs = ()
+    state.retained_bytes = 0
+
+
+def _capture_setup_derivation(owner, request, *, expected_plan_sha256):
+    """Derive once and retain original bytes; no physical preparation or effects.
+
+    The eventual A1 sequence must still reserve physical resources and produce
+    the complete owner binding before a public plan can be issued. This private
+    primitive neither consumes an Issue right nor authorizes the legacy writer.
+    """
+    from aware_workspace_sdk.architecture_setup_admission_codec import (
+        setup_value_from_payload,
+        setup_value_to_payload,
+    )
+    from aware_workspace_sdk.architecture_setup_admission_values import (
+        WORKSPACE_SETUP_LIMIT_CAPS,
+    )
+
+    if type(owner) is not ArchitectureSetupRuntime:
+        raise ArchitectureSetupError("original_setup_runtime_required")
+    if (
+        type(expected_plan_sha256) is not str
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", expected_plan_sha256) is None
+    ):
+        raise ArchitectureSetupError("reviewed_setup_digest_required")
+    # Clone through strict original slots rather than retaining caller-owned
+    # request fields or dispatching model equality during later currentness.
+    snapshot = setup_value_from_payload(
+        ArchitectureSetupRequest, setup_value_to_payload(request)
+    )
+    owner._current()
+    if (
+        ArchitectureSetupRuntime._plan is not _ORIGINAL_PLAN
+        or _ORIGINAL_PLAN.__code__ is not _ORIGINAL_PLAN_CODE
+    ):
+        raise ArchitectureSetupError("original_setup_deriver_changed")
+    plan = _ORIGINAL_PLAN(owner, snapshot)
+    if (
+        ArchitectureSetupRuntime._plan is not _ORIGINAL_PLAN
+        or _ORIGINAL_PLAN.__code__ is not _ORIGINAL_PLAN_CODE
+    ):
+        raise ArchitectureSetupError("original_setup_deriver_changed")
+    if type(plan) is not _Plan:
+        raise ArchitectureSetupError("original_setup_derivation_required")
+    if plan.preview.plan_sha256 != expected_plan_sha256:
+        raise ArchitectureSetupError("setup_plan_changed")
+    if type(plan.inputs) is not dict or type(plan.outputs) is not dict:
+        raise ArchitectureSetupError("original_setup_byte_rows_required")
+    inputs, outputs = [], []
+    retained = 0
+    for source, rows, maximum in (
+        (plan.inputs, inputs, WORKSPACE_SETUP_LIMIT_CAPS["input_files"]),
+        (plan.outputs, outputs, WORKSPACE_SETUP_LIMIT_CAPS["file_transitions"]),
+    ):
+        if len(source) > maximum:
+            raise ArchitectureSetupError("setup_derivation_count_limit")
+        for path, body in source.items():
+            relative(path)
+            if (
+                unicodedata.normalize("NFC", path) != path
+                or len(path.encode("utf-8"))
+                > WORKSPACE_SETUP_LIMIT_CAPS["path_utf8_bytes"]
+                or len(path.split("/")) > WORKSPACE_SETUP_LIMIT_CAPS["path_components"]
+                or any(ord(c) < 32 or ord(c) == 127 for c in path)
+            ):
+                raise ArchitectureSetupError("canonical_setup_path_required")
+            if type(body) is not bytes and not (source is plan.inputs and body is None):
+                raise ArchitectureSetupError("original_setup_bytes_required")
+            if body is not None:
+                if len(body) > WORKSPACE_SETUP_LIMIT_CAPS["file_bytes"]:
+                    raise ArchitectureSetupError("setup_derivation_file_limit")
+                retained += len(body)
+                if (
+                    retained
+                    > WORKSPACE_SETUP_LIMIT_CAPS["retained_before_and_after_bytes"]
+                ):
+                    raise ArchitectureSetupError("setup_derivation_body_limit")
+            rows.append((path, body))
+    owner._current()
+    held_bytes = sum(
+        state.retained_bytes
+        for _, state in _SETUP_DERIVATIONS.values()
+        if state.owner() is owner and state.phase == "retained"
+    )
+    if (
+        retained + held_bytes
+        > WORKSPACE_SETUP_LIMIT_CAPS["retained_before_and_after_bytes"]
+    ):
+        raise ArchitectureSetupError("setup_derivation_body_limit")
+    # Match original writer ordering without choosing scratch names or creating
+    # a second schedule. Physical preparation supplies those later.
+    ordered = tuple(
+        sorted(outputs, key=lambda row: (plan.inputs.get(row[0]) is not None, row[0]))
+    )
+    state = _SetupDerivationState(
+        weakref.ref(owner),
+        os.getpid(),
+        threading.get_ident(),
+        snapshot,
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                setup_value_to_payload(snapshot),
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest(),
+        expected_plan_sha256,
+        tuple(sorted(inputs)),
+        ordered,
+        retained,
+    )
+    state.owner = weakref.ref(owner, lambda _: _expire_setup_derivation(state))
+    handle = object.__new__(_RetainedSetupDerivation)
+    key = id(handle)
+
+    def collected(_):
+        _SETUP_DERIVATIONS.pop(key, None)
+        _expire_setup_derivation(state)
+
+    _SETUP_DERIVATIONS[key] = (weakref.ref(handle, collected), state)
+    return handle
+
+
+def _setup_derivation_state(owner, handle):
+    if type(handle) is not _RetainedSetupDerivation:
+        raise ArchitectureSetupError("original_setup_derivation_required")
+    row = _SETUP_DERIVATIONS.get(id(handle))
+    if row is None or row[0]() is not handle:
+        raise ArchitectureSetupError("original_setup_derivation_required")
+    state = row[1]
+    if state.owner() is not owner:
+        raise ArchitectureSetupError("setup_derivation_owner_mismatch")
+    if state.process_id != os.getpid() or state.thread_id != threading.get_ident():
+        # A foreign thread/process cannot release its original owner's custody.
+        raise ArchitectureSetupError("setup_derivation_execution_mismatch")
+    return state
+
+
+def _verify_setup_derivation(owner, handle):
+    """Reread the original inputs without deriving or refreshing any baseline."""
+    state = _setup_derivation_state(owner, handle)
+    if state.phase != "retained":
+        raise ArchitectureSetupError("setup_derivation_retired")
+    try:
+        owner._current()
+        for path, body in state.inputs:
+            if owner.physical.read(path) != body:
+                raise ArchitectureSetupError("setup_input_drift:" + path)
+        owner._current()
+    except BaseException:
+        _expire_setup_derivation(state)
+        raise
+    return state
+
+
+def _release_setup_derivation(owner, handle):
+    """Drop only private byte custody; no descriptor close, rollback or free."""
+    state = _setup_derivation_state(owner, handle)
+    _expire_setup_derivation(state)
 
 
 def _append_code_manifest(text, section, paths):

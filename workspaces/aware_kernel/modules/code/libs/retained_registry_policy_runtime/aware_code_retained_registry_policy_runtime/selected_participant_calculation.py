@@ -11,7 +11,9 @@ from pathlib import PurePosixPath
 
 from aware_code_module_manifest_contract_runtime import AwareModuleSpecV3
 from aware_code_module_manifest_contract_runtime.parser import parse_module_manifest
-from aware_code_module_manifest_contract_runtime.profile_parser import parse_profile_manifest
+from aware_code_module_manifest_contract_runtime.profile_parser import (
+    parse_profile_manifest,
+)
 from aware_code_semantic_contract_runtime.contracts import ContractViolation
 from aware_code_semantic_contract_runtime.retained_declaration_scope import (
     CodeRetainedDependencyScopeClosureV3,
@@ -25,6 +27,7 @@ from aware_code_semantic_contract_runtime.selected_participant_scope import (
 )
 
 from .calculation import _plain, _validate_declared_package_kind
+from .profile_membership import _profile_registration_matches
 from .qualified_calculation import _address_scope
 from .qualified_scope import validate_selected_scope_graph_v3
 
@@ -153,7 +156,7 @@ def derive_selected_participant_view(
                     source_label=association.manifest.relative_path,
                 )
                 if (
-                    meaning.aware_semantic_contract_profile != 1
+                    meaning.aware_semantic_contract_profile not in (1, 2)
                     or meaning.profile.key != profile_key
                     or meaning.profile.status != "active"
                 ):
@@ -164,6 +167,7 @@ def derive_selected_participant_view(
                 requested = set(restrictions)
                 found = set()
                 members = set()
+                selected_registration_exposed = False
                 for member in meaning.providers:
                     if member.provider_key not in requested:
                         continue
@@ -172,16 +176,23 @@ def derive_selected_participant_view(
                     for candidate_key, candidate in declarations.items():
                         if candidate_key[0:2] != (target_scope, member.module_id) or candidate is None:
                             continue
-                        if any(
-                            _plain(item)["semantic_contract"]["provider_key"]
-                            == member.provider_key
-                            for item in candidate.registrations
-                        ):
+                        matching_registrations = [
+                            item for item in candidate.registrations
+                            if _profile_registration_matches(
+                                member, models[(target_scope, member.module_id)],
+                                candidate_key[2], item,
+                            )
+                        ]
+                        if matching_registrations:
                             members.add(CodeSelectedParticipant(*candidate_key))
                             found.add(member.provider_key)
+                            if candidate_key == target_key and any(
+                                item is registration[0] for item in matching_registrations
+                            ):
+                                selected_registration_exposed = True
                 if found != requested:
                     raise ContractViolation("selected profile member unavailable")
-                if target in members:
+                if target in members and selected_registration_exposed:
                     entitled = True
                 pending.extend(members)
                 profiles.add(CodeSelectedProfileRelationship(

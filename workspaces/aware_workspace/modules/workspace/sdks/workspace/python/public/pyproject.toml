@@ -1,6 +1,6 @@
 [project]
 name = "aware-workspace-sdk"
-version = "0.2.7"
+version = "0.2.9"
 description = "Neutral Workspace SDK with explicitly selected original authority providers."
 license = "Apache-2.0"
 authors = [{ name = "AWARE Team" }]
@@ -11,6 +11,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+setup_admission = [
+  "aware-workspace-runtime[setup_admission]>=0.2.12,<0.3.0",
+  "aware-workspace-fs-adapter>=0.1.8,<0.2.0",
+  "aware-issue-sdk[workspace_setup_admission]>=0.10.5,<0.11.0",
+]
 setup = ["aware-workspace-fs-adapter>=0.1.5,<0.2.0"]
 filesystem_delta_capture = ["aware-workspace-fs-adapter>=0.1.3,<0.2.0"]
 source_projection = [

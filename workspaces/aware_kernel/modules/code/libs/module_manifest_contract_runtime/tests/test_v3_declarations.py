@@ -130,3 +130,62 @@ def test_v2_codec_refuses_v3_model():
     )
     with pytest.raises(ModuleManifestMeaningError):
         encode_module_manifest_meaning_v2(parse_module_manifest(full_source().encode()))
+
+
+def product_source():
+    source = full_source()
+    start = source.index("profiles = [")
+    end = source.index("\n]", start) + 2
+    return source[:start] + (
+        'profiles = [{stage="graph_product", profile_ref="demo.product", '
+        'profile_version="1", profile_digest="sha256:' + "a" * 64 + '"}]'
+    ) + source[end:]
+
+
+def test_single_product_v3_full_meaning_roundtrip():
+    from aware_code_module_manifest_contract_runtime import (
+        decode_module_manifest_meaning,
+        encode_module_manifest_meaning,
+        parse_module_manifest,
+    )
+    value = parse_module_manifest(product_source().encode())
+    body = encode_module_manifest_meaning(value)
+    assert decode_module_manifest_meaning(body) == value
+    assert b'"stage":"graph_product"' in body
+    assert b'"stage":"source_planning"' not in body
+    assert b'"stage":"authority_derivation"' not in body
+
+
+@pytest.mark.parametrize("change", ["v2", "unknown", "mixed", "duplicate", "missing", "extra"])
+def test_single_product_declaration_refuses_incomplete_or_mixed_modes(change):
+    from aware_code_module_manifest_contract_runtime import parse_module_manifest
+    source = product_source()
+    if change == "v2":
+        source = source.replace("aware = 3", "aware = 2")
+    elif change == "unknown":
+        source = source.replace('stage="graph_product"', 'stage="product"')
+    elif change in ("mixed", "duplicate"):
+        stage = "source_planning" if change == "mixed" else "graph_product"
+        source = source.replace('"}]', '"}, {stage="' + stage + '", profile_ref="demo.other", '
+                                'profile_version="1", profile_digest="sha256:' + "a" * 64 + '"}]', 1)
+    elif change == "missing":
+        source = source.replace('profile_version="1", ', "")
+    else:
+        source = source.replace('stage="graph_product",', 'stage="graph_product", hidden=true,')
+    with pytest.raises(AwareModuleTomlError):
+        parse_module_manifest(source.encode())
+
+
+def test_v2_canonical_codec_cannot_accept_single_product_profile():
+    import json
+
+    from aware_code_module_manifest_contract_runtime import (
+        decode_module_manifest_meaning,
+        encode_module_manifest_meaning,
+        parse_module_manifest,
+    )
+    wire = json.loads(encode_module_manifest_meaning(parse_module_manifest(product_source().encode())))
+    wire["contract"] = "aware.code.module-manifest-meaning.v2"
+    wire["meaning"]["aware"] = 2
+    with pytest.raises(ValueError, match="profiles require exact ordered stages"):
+        decode_module_manifest_meaning(json.dumps(wire, sort_keys=True, separators=(",", ":")).encode())

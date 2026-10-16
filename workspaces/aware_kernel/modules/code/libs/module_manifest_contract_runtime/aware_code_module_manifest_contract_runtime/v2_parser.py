@@ -239,7 +239,7 @@ def occurrence_wire(value):
     return result
 
 
-def registrations(value, parent, kind, plugins):
+def registrations(value, parent, kind, plugins, *, _version=2):
     result = []
     for item in rows(value):
         table(
@@ -301,10 +301,12 @@ def registrations(value, parent, kind, plugins):
         strings(item["supported_languages"], True)
         tag(item["code_package_surface"], token, True)
         profiles = rows(item["profiles"])
-        if [p.get("stage") for p in profiles if type(p) is dict] != [
-            "authority_derivation",
-            "source_planning",
-        ] or len(profiles) != 2:
+        stages = [p.get("stage") for p in profiles if type(p) is dict]
+        pair = stages == ["authority_derivation", "source_planning"] and len(profiles) == 2
+        product = _version == 3 and stages == ["graph_product"] and len(profiles) == 1
+        if not pair and not product:
+            if _version == 3:
+                fail("v3 profiles require exact ordered stages or one graph_product")
             fail("v2 profiles require exact ordered stages")
         for profile in profiles:
             table(
@@ -342,6 +344,7 @@ def _parse_version_table(raw, *, version):
         fail("v2 packages must be array")
     stripped = []
     extensions = []
+    product_provider_keys = []
     for package in packages:
         if type(package) is not dict:
             fail("v2 package must be table")
@@ -354,14 +357,30 @@ def _parse_version_table(raw, *, version):
             parent = dict(copy["semantic_contract"])
             registration = parent.pop("registrations", [])
             copy["semantic_contract"] = parent
+            if version == 3 and type(registration) is list and any(
+                type(item) is dict
+                and type(item.get("profiles")) is list
+                and len(item["profiles"]) == 1
+                and type(item["profiles"][0]) is dict
+                and item["profiles"][0].get("stage") == "graph_product"
+                for item in registration
+            ):
+                key = parent.get("provider_key")
+                if type(key) is str:
+                    product_provider_keys.append(key)
         stripped.append(copy)
         extensions.append((extension, registration, "semantic_admission" in package))
     legacy["packages"] = stripped
-    base = _parse_module_table(legacy)
+    base = _parse_module_table(
+        legacy, product_provider_keys=tuple(product_provider_keys)
+    )
     declarations = tuple(
         PackageDeclarationV2(
             package.id,
-            registrations(reg, package.semantic_contract, package.kind, base.plugins),
+            registrations(
+                reg, package.semantic_contract, package.kind, base.plugins,
+                _version=version,
+            ),
             occurrence(ext, _version=version),
             declared,
         )

@@ -13,7 +13,13 @@ from .grammar_source_group import (
     _field,
     _token,
     _tuple_items,
+    decode_grammar_source_group,
     grammar_source_group_body,
+)
+from .retained_declaration_scope import CodeRetainedDependencyScopeClosureV3
+from .retained_declaration_scope_codec import (
+    RETAINED_DECLARATION_SCOPE_V3_REF,
+    decode_retained_declaration_scope,
 )
 from .runtime import SemanticBody
 from .semantic_candidates import MAX_CANDIDATES
@@ -114,3 +120,97 @@ def validate_grammar_source_group_input(
             or bytes.fromhex(grouped.body_hex) != original.canonical_body
         ):
             raise ContractViolation("grammar group root source differs from input")
+
+
+def read_grammar_declaration_context(
+    input: SemanticInputProductionInput,
+) -> tuple[CodeGrammarSourceGroupV1, CodeRetainedDependencyScopeClosureV3]:
+    """Decode and cross-check the two original supplied contexts, never admit them.
+
+    Invoke inside registered Code production so the original owner authenticates
+    source, context, currentness and lifetime before and after this synchronous
+    data step. A self-consistent manufactured input is still portable data.
+    No source read, TOML interpretation, registration or validation cache occurs.
+    """
+    owner_input = _validate_input_graph(input)
+    grouped = tuple(
+        item
+        for item in owner_input.context_bodies
+        if item.coordinate.role == "grammar_source_group"
+        or item.coordinate.contract.key == GRAMMAR_SOURCE_GROUP_REF.key
+    )
+    declared = tuple(
+        item
+        for item in owner_input.context_bodies
+        if item.coordinate.role == "declaration_scope"
+        or item.coordinate.contract.key == RETAINED_DECLARATION_SCOPE_V3_REF.key
+    )
+    if len(grouped) != 1 or len(declared) != 1:
+        raise ContractViolation(
+            "one complete grammar group and declaration context required"
+        )
+    group_body, declaration_body = grouped[0], declared[0]
+    coordinate = declaration_body.coordinate
+    if (
+        coordinate.role != "declaration_scope"
+        or coordinate.contract != RETAINED_DECLARATION_SCOPE_V3_REF
+        or coordinate.value_ref != "workspace-context:" + coordinate.digest.value
+    ):
+        raise ContractViolation("grammar declaration context identity differs")
+    if (
+        group_body.coordinate.role != "grammar_source_group"
+        or group_body.coordinate.contract != GRAMMAR_SOURCE_GROUP_REF
+    ):
+        raise ContractViolation("grammar source group context identity differs")
+    group = decode_grammar_source_group(group_body.canonical_body)
+    validate_grammar_source_group_input(group, input=owner_input)
+    closure = decode_retained_declaration_scope(declaration_body.canonical_body)
+    # Each member is joined by complete original occurrence, never by a display
+    # package label, first matching path, content digest or closure membership alone.
+    scopes = {scope.scope_key: scope for scope in closure.scopes}
+    for member in group.members:
+        origin = decode_source_origin(bytes.fromhex(member.origin_body_hex))
+        occurrence = origin.occurrence
+        scope = scopes.get(occurrence.scope_key)
+        if (
+            occurrence.repository_binding_ref != closure.repository_binding_ref
+            or scope is None
+        ):
+            raise ContractViolation("grammar member declaration scope differs")
+        modules = tuple(
+            item
+            for item in scope.projection.modules
+            if item.module_id == occurrence.module_id
+        )
+        packages = tuple(
+            item
+            for item in scope.projection.packages
+            if item.module_id == occurrence.module_id
+            and item.package_id == occurrence.package_id
+        )
+        if len(modules) != 1 or len(packages) != 1:
+            raise ContractViolation("grammar member declaration occurrence unavailable")
+        package = packages[0]
+        manifest = package.manifest
+        outer = origin.outer_manifest
+        expected_root = "" if package.package_root == "." else package.package_root
+        if (
+            expected_root != occurrence.package_root
+            or package.manifest_relative_path != occurrence.outer_manifest_path
+            or modules[0].manifest.relative_path != package.module_manifest_path
+            or manifest.relative_path
+            != (
+                (expected_root + "/" if expected_root else "")
+                + occurrence.outer_manifest_path
+            )
+            or outer.relative_path != package.manifest_relative_path
+            or outer.coordinate.value_ref != manifest.body_ref
+            or outer.coordinate.digest != manifest.content_digest
+            or outer.coordinate.size_bytes != len(manifest.body)
+            or origin.package.package_kind != package.package_kind
+            or origin.package.manifest_digest != manifest.content_digest
+        ):
+            raise ContractViolation(
+                "grammar member complete manifest correspondence differs"
+            )
+    return group, closure

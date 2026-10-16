@@ -20,6 +20,45 @@ from .declaration_host import _selected_policy_source, _selected_policy_view
 from .selected_participant_calculation import selected_qualified_occurrence
 
 
+def _selected_owner_entry(state, declaration, *, package_kind):
+    """Return the exact declared owner profile, without inventing a stage pair."""
+    registration = _plain(declaration)
+    profiles = registration.get("profiles", ())
+    if len(profiles) == 1 and profiles[0]["stage"] == "graph_product":
+        products = state.product_retention
+        if products is None:
+            raise ContractViolation("original selected product retention required")
+        original, entry = products.validate_declared_profile(
+            declaration, package_kind=package_kind
+        )
+        return entry, original
+    stages = state.stage_retention
+    if stages is None:
+        raise ContractViolation("original selected stage pair unavailable")
+    stages.validate_declared_profiles(declaration)
+    stages.validate()
+    provider_key = registration["semantic_contract"]["provider_key"]
+    authority = [
+        retained
+        for (stage, _runtime, _registration), retained in zip(
+            stages.stages, stages.entries, strict=True
+        )
+        if stage == "authority_derivation" and retained[0] == provider_key
+    ]
+    if len(authority) != 1:
+        raise ContractViolation("unique original authority profile required")
+    _, profile, _, _, digest = authority[0]
+    entry = stages.resolver.read_profile_binding(
+        profile=profile, semantic_provider_key=provider_key
+    )
+    if entry.binding_digest != digest:
+        raise ContractViolation("selected authority binding changed")
+    _execution_entry_correspondence(registration, entry, package_kind=package_kind)
+    if package_kind not in profile.package_kinds or "materialize" not in profile.operation_kinds:
+        raise ContractViolation("selected authority profile inapplicable")
+    return entry, None
+
+
 def _explicit_root_product(
     state, authority_entry, registration, package_kind, role, selected_registration
 ):
@@ -73,7 +112,7 @@ def _derive_selected_root_intent(
     """Return the existing neutral intent and one required product for a v3 root.
 
     A package-only command has no role or semantic configuration field, so its
-    authority profile must expose one non-effect product. An explicit role is
+    declared owner profile must expose one non-effect product. An explicit role is
     input intent paired with the original selected product registration: Code
     checks both against the owner policy and retained live profile.
     """
@@ -88,12 +127,6 @@ def _derive_selected_root_intent(
             closure, _selected_policy_view(host, policy),
             (selected.scope_key, selected.module_id, selected.package_id),
         )
-        stages = state.stage_retention
-        if stages is None:
-            raise ContractViolation("original selected stage pair unavailable")
-        stages.validate_declared_profiles(declaration)
-        stages.validate()
-
         registration = _plain(declaration)
         if (
             ContentDigest.of_bytes(canonical_json_bytes(registration))
@@ -101,30 +134,11 @@ def _derive_selected_root_intent(
             or registration["semantic_package_kind"] != grant.semantic_package_kind
         ):
             raise ContractViolation("selected root registration differs")
-        provider_key = registration["semantic_contract"]["provider_key"]
-        authority = [
-            retained
-            for (stage, _runtime, _registration), retained in zip(
-                stages.stages, stages.entries, strict=True
-            )
-            if stage == "authority_derivation" and retained[0] == provider_key
-        ]
-        if len(authority) != 1:
-            raise ContractViolation("unique original authority profile required")
-        _, profile, _, _, digest = authority[0]
-        entry = stages.resolver.read_profile_binding(
-            profile=profile, semantic_provider_key=provider_key
+        entry, declared_product = _selected_owner_entry(
+            state, declaration, package_kind=grant.declared_package_kind
         )
-        if entry.binding_digest != digest:
-            raise ContractViolation("selected authority binding changed")
-        _execution_entry_correspondence(
-            registration, entry, package_kind=grant.declared_package_kind
-        )
-        if (
-            grant.declared_package_kind not in profile.package_kinds
-            or "materialize" not in profile.operation_kinds
-        ):
-            raise ContractViolation("selected authority profile inapplicable")
+        profile = entry.profile_declaration
+        selected_provider_key = None
         if requested_role is None:
             if selected_product_registration is not None:
                 raise ContractViolation("package-only root cannot select a product")
@@ -148,6 +162,8 @@ def _derive_selected_root_intent(
                 raise ContractViolation(
                     "explicit role requires original selected product"
                 )
+            if declared_product is not None and selected_product_registration is not declared_product:
+                raise ContractViolation("explicit product differs from declared registration")
             role = requested_role
             selected_product, selected_provider_key = _explicit_root_product(
                 state,
@@ -191,4 +207,4 @@ def derive_selected_product_root_intent(
     )
 
 
-__all__ = ["derive_selected_root_intent", "derive_selected_product_root_intent"]
+__all__ = ["derive_selected_product_root_intent", "derive_selected_root_intent"]

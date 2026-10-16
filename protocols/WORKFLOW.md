@@ -1,18 +1,14 @@
-# Aware target fit workflow
+# Aware Workspace A1 onboarding review
 
-The target-fit software is published at
-[`2a805bd45535089513f657b7ff0acffe4e54d697`](https://github.com/aware-network/aware/tree/2a805bd45535089513f657b7ff0acffe4e54d697).
-Install
+Draft instructions for the accepted SDK-backed preparation candidate: install
 once, initialize explicitly, admit an Issue, configure SPEC and prepare a draft
-for review before explicit invocation. Agent CLI is 0.2.0a4; Protocol SDK/FS are 0.3.2/0.6.5; SPEC SDK is 0.3.3;
-SPEC FS SDK adapter and CLI are 0.4.3. Issue CLI 0.8.3 / FS 0.9.4 remain selected.
-The delivered whole distribution carries the exact forty-two-package
-payload, committed `portable_protocols` sources and corresponding notices.
-[Successor instruction pins](../releases/canonical-target-fit-fs-v1/PUBLIC-INSTRUCTIONS.json)
-bind this guidance to those accepted artifacts, not to operation authority.
-This local status-only alignment awaits independent review and separate
-publication authorization. Scripted installed proofs do not establish unassisted
-customer onboarding. Read [delivery status](../releases/canonical-target-fit-fs-v1/PUBLIC-STATUS.md).
+for review before explicit invocation. Agent CLI is 0.2.0a6; Protocol SDK/FS are 0.3.2/0.6.5; SPEC SDK is 0.3.4;
+SPEC FS SDK adapter and CLI are 0.4.4. Issue CLI 0.8.3 / FS 0.9.6 are carried.
+Workspace SDK/runtime/FS are 0.2.9/0.2.12/0.1.8; FileSystem is 0.3.7.
+This internal review envelope carries the exact forty-two-package payload, committed
+`portable_protocols` sources and corresponding notices. Notice/disclosure
+acceptance, instruction freeze, public selection and delivery remain separate.
+Scripted installed proofs do not establish unassisted customer onboarding.
 
 ## Install with the complete envelope
 
@@ -21,18 +17,19 @@ envelope, including LICENSE, NOTICE, sources, upstream archives and indexes.
 Wheel-only acquisition is unsupported: six Code/Workspace wheels still lack
 package-local legal attachments. Do not discard the envelope after installation.
 
-From this reviewed public checkout root, use the same whole-envelope installer
-as the [root entrance](../README.md). It verifies the accepted outer envelope and
-inner payload and retains terms, source and notices before installation:
+Verify its outer `SHA256SUMS`, then expand
+`payload/aware-canonical-neutral-fs-internal-v1.tar.gz` in a fresh private scratch
+directory. It expands into `aware-canonical-neutral-fs-internal-v1`. Enter that
+directory and verify its inner `SHA256SUMS` before running the shipped installer:
 
 ```bash
 set -eu
+sha256sum -c SHA256SUMS
 aware_init_parent="$(mktemp -d)"
 aware_init_env="$aware_init_parent/env"
 test ! -e "$aware_init_env"
 test ! -L "$aware_init_env"
-/usr/bin/python3.12 protocols/install.py \
-  --python-executable /usr/bin/python3.12 --venv "$aware_init_env"
+PYTHON_BIN=/usr/bin/python3.12 /bin/sh ./install.sh "$aware_init_env"
 AWARE="$aware_init_env/bin/aware"
 "$AWARE" --help
 ```
@@ -41,10 +38,6 @@ The target must be absent and its private parent must exist. Do not overlay a6,
 an older SPEC preview or a resident development environment. Use this same
 absolute `AWARE` command for every family. Standalone family entrypoints remain
 parity/diagnostic entrances, not separate required installations.
-
-Keep the exact absolute `retained_source_and_notices` directory printed by the
-installer with the software. Set `aware_envelope_root` to that directory for the
-typed example below; do not guess an expanded source path or discard its terms.
 
 These candidate-bound instructions supersede the immutable inner README's older
 no-init wording. Selected READMEs with seed, resident or broader-workspace recipes
@@ -218,11 +211,11 @@ handwrite approval/authority records or a package-selection JSON.
 The attached [typed input example](../workspaces/aware_kernel/modules/specification/sdks/specification/python/cli/examples/prepare_draft_input.py)
 prints canonical snapshot bytes through the original public types/encoder. Read
 and approve or replace its illustrative JSON-checker terms first. If you choose
-to run it, set `aware_envelope_root` to the installer's exact retained directory:
+to run it, set `aware_envelope_root` to this expanded envelope's absolute path:
 
 ```bash
 set -eu
-: "${aware_envelope_root:?Set the exact retained_source_and_notices directory}"
+: "${aware_envelope_root:?Set the absolute path of this expanded envelope}"
 : "${aware_init_env:?Use the fresh installation from this guide}"
 draft_input_parent="$(mktemp -d)"
 draft_snapshot_input="$draft_input_parent/snapshot.json"
@@ -362,7 +355,7 @@ work or upgrades filesystem evidence into resident authority.
 
 ## Sources and notices
 
-`SOURCE-INDEX.json` binds 1,157 committed selected files to `portable_protocols`
+`SOURCE-INDEX.json` binds 1,286 committed selected files to `portable_protocols`
 and the exact wheels. It is evidence, not a second selector. Full discovery
 inventory remains producer-side. Customer `aware.protocol.toml` configures
 record selection/authority, not software packages.
@@ -372,9 +365,7 @@ notices and indexes with the payload. `NOTICE-BINDINGS.json` binds current wheel
 identities/resources and openly inventories six missing package-local legal
 attachments. Earlier notice indexes and held-input wording stay byte-exact
 history, not this envelope's customer authority. Whole-envelope notice acceptance
-is recorded for these exact bytes in
-[the bounded review status](../releases/canonical-target-fit-fs-v1/REVIEW-STATUS.md);
-detached wheels remain unaccepted.
+must be reviewed against these exact bytes; detached wheels remain unaccepted.
 
 The schema keeps scoped MIT/BSD attribution and adaptations. BSD-3-Clause is
 selected while the full upstream file retains its alternative AFL text without
@@ -390,15 +381,91 @@ is precautionary input from a configurable CI default. `CONTENT-AUDIT.json`
 keeps every bounded finding unsuppressed, including relative fixture paths.
 This is not exhaustive disclosure clearance or a legal warranty.
 
-Both complete SDK-contract/Meta type-schema libraries are neutral infrastructure,
-not Meta/Object or materialization products. Workspace's transitive standalone
-`aware-workspace` script is carried, but this candidate does not qualify its
-setup/lock workflow or an Agent mount. `aware workspace` remains unavailable;
-do not treat script presence as operation admission or bypass the supported
-Issue/Protocol/SPEC journey through another launcher.
+## Review a saved receipt without repeating the operation
 
-This installation does not admit Service/API, object execution, materialization,
-native receiving or Experience authority. It does not replace aware-dev's
-selected contributor command. Delivered software is pinned above; this status-only
-alignment still awaits independent review and separate publication authorization.
-Unassisted onboarding is not established by installed proof or status alignment.
+Save the complete original draft command stdout as immutable evidence, including
+refusals and unknown outcomes. Present that saved capture through the original
+SDK and FileSystem reader, not by rerunning preview/apply:
+
+```bash
+"$AWARE" spec present-receipt --help
+"$AWARE" spec present-receipt \
+  --receipt-base /absolute/evidence \
+  --receipt attempt/stdout.json \
+  --expected-receipt-sha256 'sha256:<exact-saved-file-byte-digest>' \
+  --input-profile specification.cli043-draft-transport.v1 \
+  --format summary
+```
+
+Replace the explicit coordinates and digest with your own observed saved bytes.
+The receipt base is an absolute normalized directory; the receipt is a canonical
+relative path beneath it, never an absolute path or parent traversal. This guard
+is not the Issue, manifest or input guard. Summary validates the complete capture
+before omitting detail. Use the identical request with `--format full` for exact
+original bytes, without an added newline. Keep the original capture available.
+
+Exit zero means presentation succeeded, not that the recorded operation did.
+Shape recognition does not authenticate a capture. Neither format rechecks old
+repository currentness, repeats an operation, refreshes guards, renews admission
+or changes an unknown outcome into success. Preserve correlation, effects,
+cleanup and uncertainty when handing the summary to another execution.
+
+## Workspace setup: A1 only
+
+The unified client now mounts the original Workspace registrar. Inspect the
+owner's exact inputs before selecting an operation:
+
+```bash
+"$AWARE" workspace setup --help
+"$AWARE" workspace setup repository --help
+"$AWARE" workspace setup workspace --help
+"$AWARE" workspace setup module --help
+"$AWARE" workspace setup python-package --help
+"$AWARE" workspace setup align --help
+```
+
+A1 qualifies repository/workspace/module creation, authored Python-package
+creation and alignment through Workspace SDK → neutral runtime → original
+FileSystem owners, under genuine Issue scope/admission. Select exact paths and
+review the owner plan before explicitly applying; help is discovery, not
+authority. Init prepares a repository and protocol guidance/configuration; it
+does not automatically create or register a Workspace package.
+
+Governed A1 requires explicit `--governed`, an owner-configured setup-admission
+authority manifest, current Issue/authority-manifest byte guards, client intent,
+actor/evidence coordinates and exact `--allowed-path` scope. Apply additionally
+requires the reviewed `--expected-plan-sha256`. Init does not provision that
+Workspace admission configuration. These are prepared inputs, not an admission
+inferred from a help command, SDK import or preview. If those owner inputs are
+unavailable, stop; do not fabricate authority records or omit `--governed` to
+bypass the governed workflow. Unassisted A1 onboarding remains unproved.
+
+`portable_protocols` remains the sole producer-side package selector.
+Workspace setup writes or aligns authored repository/workspace/module/package
+manifests through their existing owners. It does not introduce a consumer JSON
+package catalog or silently resolve software packages from `aware.protocol.toml`.
+
+The `locks` help entrance and standalone script are carried, but A2 lock updates
+and their governed receiving workflow are not qualified by this candidate.
+Tree-C execution/postimage completion, `.aware` package creation/materialization
+and positive native dispatch are also not admitted. Do not bypass these limits
+through a standalone launcher or infer readiness from import/script presence.
+
+Both complete SDK-contract/Meta type-schema libraries are shared neutral
+infrastructure, not Meta/Object or materialization products. Raw filesystem
+deltas do not infer meaning or operation authority. Service/API, object
+execution, materialization, native receiving and Experience authority stay
+separate from this filesystem-first installation.
+
+The seven changed third-party wheels have current hash-bound source/legal inputs.
+Inherited pydantic-core/rpds crate notices are historical coverage evidence, not an
+attestation of the current binary's linkage. Current Cargo inputs are attached
+for component review. Source-correlated Cython terms do not identify the actual
+wheel publisher's build toolchain. These are unresolved sufficiency decisions,
+not automatic clearance carried forward from the predecessor.
+
+This installation does not replace aware-dev's selected contributor command.
+A scripted successor observation of saved evidence is not cross-execution
+recovery or unassisted evaluation. Public availability, instruction freeze and
+unassisted onboarding of this exact candidate are not established by this
+review envelope.

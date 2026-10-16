@@ -5,7 +5,7 @@ import hashlib
 from contextvars import copy_context
 from dataclasses import dataclass, replace
 from pathlib import PurePosixPath
-from typing import Protocol
+from typing import Protocol, cast
 
 from aware_file_system.confined_mutation import (
     DEFAULT_CONFINED_MUTATION_MAX_BYTES,
@@ -302,6 +302,96 @@ class WorkspaceRepositoryMutationCoordinator:
         self, request: WorkspaceRepositoryMutationRequest, *, plan
     ) -> WorkspaceRepositoryAuthorizedMutation:
         return await self._mutate(request, projection_plan=plan)
+
+    async def _run_tree_projection(self, effect):
+        """One original C controller transaction; no alternative physical writer."""
+        async with self._lock:
+            if type(self._session) is not WorkspaceRepositoryObservationSession:
+                raise TypeError("Original command observation required")
+            if vars(WorkspaceRepositoryObservationSession).get("run_serialized_transition") is not _TREE_SERIALIZE:
+                raise ValueError("Original tree observation dispatcher changed")
+            return await _TREE_SERIALIZE(self._session, effect)
+
+    def _record_tree_byte_return(
+        self,
+        *,
+        returned,
+        before,
+        after,
+        batch,
+        before_content,
+        after_content,
+        binding,
+        consumption_ref,
+    ):
+        """Issue metadata for an actual C return; never dispatch the legacy writer."""
+        from types import SimpleNamespace
+
+        from aware_file_system.confined_mutation import ConfinedTreeTransitionResult
+
+        if type(returned) is not ConfinedTreeTransitionResult or (
+            returned.preparation_ref != binding.physical_preparation_ref
+            or returned.request_ref != binding.physical_request_ref
+            or returned.kind not in ("CREATE", "UPDATE", "DELETE")
+            or returned.completion_state != "complete"
+            or returned.after is None
+            or batch is None
+        ):
+            raise ValueError("Original complete tree byte return required")
+        if (returned.before.content_digest, returned.after.content_digest) == (
+            _content_digest(before_content) if before_content is not None else None,
+            _content_digest(after_content) if after_content is not None else None,
+        ) and returned.before.content_digest != returned.after.content_digest:
+            request = SimpleNamespace(
+                operation_ref="workspace_sdk.project_repository_tree",
+                idempotency_key=binding.binding_ref + ":" + str(returned.ordinal),
+                mutation_kind=RepositoryMutationKind[returned.kind],
+                expected_coordinate=_coordinate(before, self._session),
+                target_path=returned.path,
+                expected_exists=returned.before.exists,
+                expected_content_digest=returned.before.content_digest,
+                content=after_content,
+                context_refs=(binding.binding_ref, consumption_ref),
+            )
+            physical = SimpleNamespace(
+                before_content_digest=returned.before.content_digest,
+                after_content_digest=returned.after.content_digest,
+                before_size_bytes=returned.before.size_bytes,
+                after_size_bytes=returned.after.size_bytes,
+            )
+            receipt_ref = repository_mutation_receipt_ref(
+                repository_binding_ref=binding.target_repository_binding_ref,
+                operation_ref=request.operation_ref,
+                idempotency_key=request.idempotency_key,
+            )
+            result = _authorized_result(
+                request=cast(WorkspaceRepositoryMutationRequest, request),
+                binding_ref=binding.target_repository_binding_ref,
+                receipt_ref=receipt_ref,
+                physical=cast(ConfinedFileMutationResult, physical),
+                batch=batch,
+                before=before,
+                after=after,
+            )
+            if result.evidence is None:
+                raise ValueError("Original tree byte evidence required")
+            self._body_store.record(
+                WorkspaceRepositoryOperationalChange(
+                    receipt=result.receipt,
+                    evidence=result.evidence,
+                    before_content=before_content,
+                    after_content=after_content,
+                )
+            )
+            fingerprint = binding.binding_ref + ":" + str(returned.ordinal)
+            self._results[receipt_ref] = (fingerprint, result)
+            if self._result_store is not None:
+                try:
+                    self._result_store.record(fingerprint=fingerprint, result=result)
+                except Exception as error:  # noqa: BLE001 - preserve known physical effect
+                    self._result_store_error = f"{type(error).__name__}: {error}"
+            return result
+        raise ValueError("Tree return/body correspondence differs")
 
     async def _mutate(
         self, request: WorkspaceRepositoryMutationRequest, *, projection_plan
@@ -1028,3 +1118,6 @@ def _required(value: str | None, field_name: str) -> str:
     if value is None or not value.strip():
         raise ValueError(f"{field_name} is required")
     return value.strip()
+
+
+_TREE_SERIALIZE = vars(WorkspaceRepositoryObservationSession)["run_serialized_transition"]

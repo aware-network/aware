@@ -207,3 +207,80 @@ def test_optional_repository_performance_probe_counts_body_resolution(tmp_path: 
             "amount": 1,
         }
     ]
+
+
+@pytest.mark.parametrize("body", (b"", b"body", b"\0binary\xff"))
+def test_every_body_resolution_reads_and_hashes_again(tmp_path: Path, body: bytes):
+    store = WorkspaceRepositoryDeltaStore(
+        repository_binding_ref=BINDING, state_root=tmp_path / "space é root"
+    )
+    body_ref = store.record_body(body)
+    original = store.snapshot().metrics
+    for _ in range(3):
+        assert store.resolve_body(body_ref) == body
+    metrics = store.snapshot().metrics
+    assert metrics.body_read_count == original.body_read_count + 3
+    assert metrics.body_hash_count == original.body_hash_count + 3
+    assert metrics.body_read_bytes == original.body_read_bytes + 3 * len(body)
+    assert metrics.body_write_count == original.body_write_count
+    assert metrics.index_write_count == original.index_write_count
+
+
+@pytest.mark.parametrize("replacement", (b"BODY", b"longer replacement"))
+def test_changed_physical_body_rejects_after_prior_success(tmp_path: Path, replacement):
+    store = WorkspaceRepositoryDeltaStore(
+        repository_binding_ref=BINDING, state_root=tmp_path
+    )
+    body_ref = store.record_body(b"body")
+    assert store.resolve_body(body_ref) == b"body"
+    digest = store._bodies[body_ref].content_digest
+    store._body_path(digest).write_bytes(replacement)
+    with pytest.raises(WorkspaceRepositoryDeltaStoreCorrupt):
+        store.resolve_body(body_ref)
+    assert store.snapshot().metrics.body_read_count == 2
+    assert store.snapshot().metrics.body_hash_count == 3  # Record plus both reads.
+
+
+def test_removed_physical_body_returns_missing_without_cached_bytes(tmp_path: Path):
+    store = WorkspaceRepositoryDeltaStore(
+        repository_binding_ref=BINDING, state_root=tmp_path
+    )
+    body_ref = store.record_body(b"body")
+    assert store.resolve_body(body_ref) == b"body"
+    store._body_path(store._bodies[body_ref].content_digest).unlink()
+    assert store.resolve_body(body_ref) is None
+    assert store.snapshot().metrics.body_read_count == 1
+    assert store.snapshot().metrics.body_hash_count == 2
+
+
+def test_physical_reader_interruption_closes_its_file(tmp_path: Path):
+    import os
+    import sys
+
+    store = WorkspaceRepositoryDeltaStore(
+        repository_binding_ref=BINDING, state_root=tmp_path
+    )
+    body_ref = store.record_body(b"body")
+    before = set(os.listdir("/proc/self/fd"))
+    interrupted = False
+
+    def interrupt(frame, event, value):
+        nonlocal interrupted
+        if (
+            frame.f_code is WorkspaceRepositoryDeltaStore.resolve_body.__code__
+            and event == "c_return"
+            and getattr(value, "__name__", None) == "read"
+        ):
+            interrupted = True
+            raise KeyboardInterrupt("physical read interrupted")
+
+    prior = sys.getprofile()
+    sys.setprofile(interrupt)
+    try:
+        with pytest.raises(KeyboardInterrupt, match="physical read interrupted"):
+            store.resolve_body(body_ref)
+    finally:
+        sys.setprofile(prior)
+    assert interrupted
+    assert set(os.listdir("/proc/self/fd")) == before
+    assert store.resolve_body(body_ref) == b"body"

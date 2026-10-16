@@ -60,6 +60,26 @@ def test_expectations_and_products_are_not_nominal_admissions():
     assert not hasattr(product, "acquire_command_publication_guard")
 
 
+def test_v3_product_only_host_anchors_original_primary_product_runtime():
+    from aware_code_semantic_contract_runtime.direct_origin_interfaces import (
+        DECLARATION_V3_RESOURCE_ROLES,
+        RetainedSemanticProductRuntimeExpectation,
+    )
+    base = context()
+    products = (RetainedSemanticProductRuntimeExpectation(base.runtime, object()),)
+    resources = {item.role: item.resource for item in base.resources}
+    resources["declaration_scope_runtime"] = object()
+    expected = replace(base, source_rail="declaration_v3", product_runtime_bindings=products,
+                       resources=tuple(DirectCommandResourceBinding(role, resources[role], "borrowed")
+                                       for role in DECLARATION_V3_RESOURCE_ROLES))
+    assert expected.stage_runtime_bindings == ()
+    assert expected.product_runtime_bindings[0].runtime is expected.runtime
+    with pytest.raises(ContractViolation, match="first product runtime"):
+        replace(expected, product_runtime_bindings=(
+            RetainedSemanticProductRuntimeExpectation(object(), object()),
+        ))
+
+
 @pytest.mark.parametrize("pid", [True, 0, -1, "1"])
 def test_exact_process_id_required(pid):
     with pytest.raises(ContractViolation):

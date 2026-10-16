@@ -38,7 +38,7 @@ sys.path[:0] = ROOTS
 class RejectDomain(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path=None, target=None):
         if fullname.startswith(('aware_issue', 'aware_protocol', 'aware_specification',
-                                'aware_agent_sdk', 'aware_agent.')):
+                                'aware_workspace', 'aware_agent_sdk', 'aware_agent.')):
             raise AssertionError('root help imported domain: ' + fullname)
 sys.meta_path.insert(0, RejectDomain())
 from aware_agent_cli.main import main
@@ -57,11 +57,12 @@ else:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert "issue,protocol,spec" in result.stdout
+    assert "issue,protocol,spec,workspace" in result.stdout
+    assert "does not establish Issue enforcement" in result.stdout
     assert result.stderr == ""
 
 
-@pytest.mark.parametrize("family", ["issue", "protocol", "spec"])
+@pytest.mark.parametrize("family", ["issue", "protocol", "spec", "workspace"])
 def test_leaf_identity_argv_context_and_owner_return_are_preserved(family, monkeypatch):
     calls = []
     context = {"not_authority": object()}
@@ -92,7 +93,7 @@ def test_leaf_identity_argv_context_and_owner_return_are_preserved(family, monke
     assert calls[1].context is None
 
 
-@pytest.mark.parametrize("family", ["issue", "protocol", "spec"])
+@pytest.mark.parametrize("family", ["issue", "protocol", "spec", "workspace"])
 @pytest.mark.parametrize("failure", ["import", "export", "not_callable"])
 def test_missing_supplier_refuses_before_dispatch(family, failure, monkeypatch, capsys):
     def unavailable(name):
@@ -105,6 +106,7 @@ def test_missing_supplier_refuses_before_dispatch(family, failure, monkeypatch, 
             "register_admit_command",
             "register_setup_specification_command",
             "register_read_commands",
+            "register_workspace_setup_commands",
         ]
         return SimpleNamespace(**dict.fromkeys(names, None))
 
@@ -139,7 +141,7 @@ def test_missing_draft_port_does_not_dispatch_partially_registered_spec(
     assert json.loads(capsys.readouterr().err)["operation_invoked"] is False
 
 
-@pytest.mark.parametrize("family", ["issue", "protocol", "spec"])
+@pytest.mark.parametrize("family", ["issue", "protocol", "spec", "workspace"])
 def test_handler_failures_and_interruptions_are_not_reinterpreted(family, monkeypatch):
     def registrar(registry, selected):
         registry.register_command(name="probe", help="Unit probe", handle=handle)
@@ -159,7 +161,7 @@ def test_handler_failures_and_interruptions_are_not_reinterpreted(family, monkey
         assert caught.value is error
 
 
-@pytest.mark.parametrize("family", ["issue", "protocol", "spec"])
+@pytest.mark.parametrize("family", ["issue", "protocol", "spec", "workspace"])
 def test_original_public_handler_identities_are_mounted(family):
     actual = AwareCommandRegistry()
     client.register_family_commands(actual, family)
@@ -176,6 +178,12 @@ def test_original_public_handler_identities_are_mounted(family):
 
         register_admit_command(expected)
         register_setup_specification_command(expected)
+    elif family == "workspace":
+        from aware_workspace_command.setup_registration import (
+            register_workspace_setup_commands,
+        )
+
+        register_workspace_setup_commands(expected)
     else:
         from aware_specification_cli.draft_commands import register_draft_commands
         from aware_specification_cli.read_commands import register_read_commands
@@ -198,7 +206,7 @@ def test_original_public_handler_identities_are_mounted(family):
 def test_owned_metadata_is_finite_neutral_and_explicit():
     project = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())
     assert project["project"]["name"] == "aware-agent-cli"
-    assert project["project"]["version"] == "0.2.0a4"
+    assert project["project"]["version"] == "0.2.0a5"
     assert project["project"]["scripts"] == {"aware": "aware_agent_cli.main:main"}
     dependencies = [Requirement(raw) for raw in project["project"]["dependencies"]]
     assert {r.name for r in dependencies} == {
@@ -207,6 +215,7 @@ def test_owned_metadata_is_finite_neutral_and_explicit():
         "aware-protocol-cli",
         "aware-specification-cli",
         "aware-workspace-sdk",
+        "aware-workspace-runtime",
         "aware-issue-sdk",
         "aware-issue-fs-adapter",
         "aware-protocol-sdk",

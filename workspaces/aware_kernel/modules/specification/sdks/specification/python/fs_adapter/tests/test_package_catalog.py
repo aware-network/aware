@@ -72,13 +72,13 @@ def test_protocol_read_extra_is_optional_and_current_cli_bound_admits_patch_succ
         (MODULE / SUPPLIERS["specification_fs_sdk_adapter"][0]).read_text()
     )
     cli = tomllib.loads((MODULE / SUPPLIERS["specification_cli_python"][0]).read_text())
-    assert adapter["project"]["version"] == "0.4.3"
+    assert adapter["project"]["version"] == "0.4.4"
     assert adapter["project"]["optional-dependencies"]["protocol"] == [
         "aware-protocol-fs-adapter>=0.3.0,<0.7.0"
     ]
     assert not any("protocol" in item for item in adapter["project"]["dependencies"])
     assert (
-        "aware-specification-fs-sdk-adapter[protocol]>=0.4.3,<0.5.0"
+        "aware-specification-fs-sdk-adapter[protocol,receipts]>=0.4.4,<0.5.0"
         in cli["project"]["dependencies"]
     )
     selected = next(
@@ -86,8 +86,9 @@ def test_protocol_read_extra_is_optional_and_current_cli_bound_admits_patch_succ
         for value in cli["project"]["dependencies"]
         if Requirement(value).name == "aware-specification-fs-sdk-adapter"
     )
-    # Compatible metadata does not implement consumer success handling or qualify
-    # installed delivery; CLI source and its entrypoint remain unchanged here.
+    # Receipt selection preserves the original Protocol reader extra. Metadata
+    # compatibility does not qualify an installed command or mutation outcome.
+    assert selected.extras == {"protocol", "receipts"}
     assert adapter["project"]["version"] in selected.specifier
 
 
@@ -96,7 +97,7 @@ def test_adapter_sdk03_dependency_is_exact_without_new_mandatory_edges():
         (MODULE / SUPPLIERS["specification_fs_sdk_adapter"][0]).read_text()
     )
     assert adapter["project"]["dependencies"] == [
-        "aware-specification-sdk>=0.3.3,<0.4.0",
+        "aware-specification-sdk>=0.3.4,<0.4.0",
         "aware-specification-fs-adapter",
     ]
 
@@ -112,7 +113,8 @@ def test_adapter_sdk03_dependency_is_exact_without_new_mandatory_edges():
         ("0.3.0", False),
         ("0.3.1", False),
         ("0.3.2", False),
-        ("0.3.3", True),
+        ("0.3.3", False),
+        ("0.3.4", True),
         ("0.3.99", True),
         ("0.4.0", False),
     ],

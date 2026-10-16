@@ -9,17 +9,205 @@ reinterpreting the operational result.
 from __future__ import annotations
 
 import hashlib
+import inspect
 import json
+import os
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import PurePosixPath
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .source_observation import (
+        WorkspaceRetainedRootObservation,
+        WorkspaceSourceObservationRuntime,
+    )
 
 WORKSPACE_OPERATIONAL_VALIDATION_CONTRACT = "aware.workspace.operational-validation.v1"
 
 
 class OperationalValidationError(ValueError):
     """Raised when an operational validation value is not exact."""
+
+
+@dataclass(frozen=True, slots=True)
+class RetainedValidationSourceChunk:
+    """Original-reader facts, not source approval or allocation authority."""
+
+    observation_digest: str
+    member_ref: str
+    body_ref: str
+    relative_path: str
+    member_digest: str
+    total_size_bytes: int
+    offset_bytes: int
+    data: bytes
+    chunk_digest: str = field(init=False)
+    next_offset_bytes: int = field(init=False)
+    member_complete: bool = field(init=False)
+
+    def __post_init__(self) -> None:
+        if (
+            type(self.observation_digest) is not str
+            or type(self.member_digest) is not str
+            or type(self.body_ref) is not str
+            or type(self.relative_path) is not str
+            or type(self.member_ref) is not str
+            or type(self.data) is not bytes
+            or type(self.total_size_bytes) is not int
+            or type(self.offset_bytes) is not int
+        ):
+            raise OperationalValidationError("retained_chunk_contract_invalid")
+        _digest(self.observation_digest, "observation_digest")
+        _digest(self.member_digest, "member_digest")
+        _path(self.relative_path)
+        if self.body_ref != "workspace-repository-body:" + self.member_digest:
+            raise OperationalValidationError("retained_chunk_body_mismatch")
+        if not 0 <= self.total_size_bytes <= 8 * 1024 * 1024:
+            raise OperationalValidationError("retained_chunk_contract_invalid")
+        # The member contract uses canonical compact JSON with one LF;
+        # operational validation's older content_digest has no LF.
+        expected = (
+            "platform-source-member:sha256:"
+            + hashlib.sha256(
+                json.dumps(
+                    {
+                        "relative_path": self.relative_path,
+                        "body_ref": self.body_ref,
+                        "content_digest": self.member_digest,
+                        "size_bytes": self.total_size_bytes,
+                    },
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    ensure_ascii=False,
+                ).encode("utf-8")
+                + b"\n"
+            ).hexdigest()
+        )
+        if (
+            self.member_ref != expected
+            or not 0 <= self.total_size_bytes <= 8 * 1024 * 1024
+            or not 0 <= self.offset_bytes <= self.total_size_bytes
+            or self.offset_bytes % 32768
+            or (
+                self.total_size_bytes != 0
+                and self.offset_bytes == self.total_size_bytes
+            )
+            or len(self.data) != min(32768, self.total_size_bytes - self.offset_bytes)
+        ):
+            raise OperationalValidationError("retained_chunk_contract_invalid")
+        if (
+            self.offset_bytes == 0
+            and len(self.data) == self.total_size_bytes
+            and "sha256:" + hashlib.sha256(self.data).hexdigest() != self.member_digest
+        ):
+            raise OperationalValidationError("retained_chunk_member_mismatch")
+        object.__setattr__(
+            self, "chunk_digest", "sha256:" + hashlib.sha256(self.data).hexdigest()
+        )
+        object.__setattr__(
+            self, "next_offset_bytes", self.offset_bytes + len(self.data)
+        )
+        object.__setattr__(
+            self, "member_complete", self.next_offset_bytes == self.total_size_bytes
+        )
+
+
+def read_retained_validation_chunk(
+    observer: WorkspaceSourceObservationRuntime,
+    handle: WorkspaceRetainedRootObservation,
+    *,
+    member_ref: str,
+    offset_bytes: int,
+) -> RetainedValidationSourceChunk:
+    """Read the original captured body, never a current checkout coordinate.
+
+    Original issuer composition must select this owner and separately verify
+    funding, profile, caller and destination custody. This reader neither
+    captures new source nor writes, signs, consumes or appoints anything.
+    """
+    from .source_observation import (
+        WorkspaceRetainedRootObservation,
+        WorkspaceSourceObservationRuntime,
+    )
+    from .source_observation_io import SourceObservationLimits
+
+    if (
+        type(observer) is not WorkspaceSourceObservationRuntime
+        or type(handle) is not WorkspaceRetainedRootObservation
+        or type(member_ref) is not str
+        or type(offset_bytes) is not int
+    ):
+        raise OperationalValidationError("retained_chunk_contract_invalid")
+    # Reject borrowed-process readers before their inherited locks are touched.
+    pid = inspect.getattr_static(observer, "_pid", None)
+    if type(pid) is not int or pid != os.getpid():
+        raise OperationalValidationError("retained_chunk_owner_unavailable")
+    limits = inspect.getattr_static(observer, "_limits", None)
+    if type(limits) is not SourceObservationLimits:
+        raise OperationalValidationError("retained_chunk_owner_unavailable")
+    SourceObservationLimits.__post_init__(limits)
+    if (
+        limits.maximum_files > 4096
+        or limits.maximum_directories > 16384
+        or limits.maximum_body_bytes > 8 * 1024 * 1024
+        or limits.maximum_total_bytes > 64 * 1024 * 1024
+    ):
+        raise OperationalValidationError("retained_chunk_capture_limit")
+    evidence = WorkspaceSourceObservationRuntime.evidence(observer, handle)
+    if (
+        len(evidence.bodies) > 4096
+        or any(body.size_bytes > 8 * 1024 * 1024 for body in evidence.bodies)
+        or sum(body.size_bytes for body in evidence.bodies) > 64 * 1024 * 1024
+    ):
+        raise OperationalValidationError("retained_chunk_capture_limit")
+    selected = None
+    for body in evidence.bodies:
+        path = str(PurePosixPath(evidence.root_relative_path) / body.relative_path)
+        payload = {
+            "relative_path": path,
+            "body_ref": body.body_ref,
+            "content_digest": body.content_digest,
+            "size_bytes": body.size_bytes,
+        }
+        actual_ref = (
+            "platform-source-member:sha256:"
+            + hashlib.sha256(
+                json.dumps(
+                    payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+                ).encode("utf-8")
+                + b"\n"
+            ).hexdigest()
+        )
+        if actual_ref == member_ref:
+            selected = body, path
+            break
+    if selected is None:
+        raise OperationalValidationError("retained_chunk_member_unavailable")
+    body, path = selected
+    if (
+        not 0 <= offset_bytes <= body.size_bytes
+        or offset_bytes % 32768
+        or (body.size_bytes != 0 and offset_bytes == body.size_bytes)
+    ):
+        raise OperationalValidationError("retained_chunk_contract_invalid")
+    content = WorkspaceSourceObservationRuntime.read(
+        observer, handle, relative_path=body.relative_path
+    )
+    after = WorkspaceSourceObservationRuntime.evidence(observer, handle)
+    if after != evidence:
+        raise OperationalValidationError("retained_chunk_owner_unavailable")
+    return RetainedValidationSourceChunk(
+        evidence.observation_digest,
+        member_ref,
+        body.body_ref,
+        path,
+        body.content_digest,
+        body.size_bytes,
+        offset_bytes,
+        content[offset_bytes : offset_bytes + 32768],
+    )
 
 
 def validate_test_resource_outcome(

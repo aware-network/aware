@@ -1,6 +1,6 @@
 # Neutral Agent CLI composition
 
-Source preview **0.2.0a4** supplies one `aware` entrance over the accepted family
+Source preview **0.2.0a5** supplies one `aware` entrance over the accepted family
 registrars and Kernel's command runtime. It is a composition library with a CLI
 entrypoint, not a new Agent SDK, evaluator or authority provider.
 
@@ -13,6 +13,7 @@ aware spec observe [original arguments]
 aware spec iteration-identity [original arguments]
 aware spec create-draft [original arguments]
 aware spec prepare-draft [explicit selections and authored input]
+aware workspace setup <original setup leaf> [original arguments]
 ```
 
 Run `aware --help`, then `aware FAMILY --help` or
@@ -166,3 +167,59 @@ Source tests and canonical capture are distinct from a qualified installed
 bundle. Do not change a repository's Environment-selected operational CLI or
 overlay an evaluated a6 environment based on this source preview. Installation,
 source/notice clearance, customer onboarding and publication follow separately.
+
+## Workspace setup source mounting
+
+This source successor mounts only the public
+`aware_workspace_command.setup_registration.register_workspace_setup_commands`
+registrar. It delegates the exact parsed arguments to the original Workspace
+SDK handler through Kernel's command runtime. No broader Workspace router,
+checkout, materialization, Service host or publisher is mounted.
+
+For a separately qualified successor installation, read-only architecture
+preparation begins with:
+
+```bash
+aware workspace setup --help
+aware workspace setup repository \
+  --repository-root /absolute/prepared/customer \
+  --name example --license-expression MIT --preview --json
+```
+
+The other original leaves are `workspace`, `module`, `python-package`, `align`
+and `locks update|check`. Physical/protocol `aware init` remains separate: it
+does not create architecture, select an Issue, align packages or run locks.
+A simple application may use a Repository-owned package; Workspace and Module
+layers are optional. Source mounting does not establish application correctness.
+
+Original contract `aware.workspace.architecture-setup-command.v1`, complete
+receipts and exit codes 0/1/2/3 remain unchanged. Original SDK plan/currentness
+and exact allowed-path checks are not Issue authorization. Neither generic
+context, a digest, an allowed-path list nor publication afterward substitutes
+for a genuine single-use admission.
+
+**Governed setup remains held pending real A1/A2 joins:** A1 admits architecture
+and alignment effects, including parent registrations, metadata and directory
+effects; A2 separately admits lock updates against their actual resolution
+roots and tool/input identity. Local source tests demonstrate the existing
+Workspace capability, not those admissions. This source cut publishes no
+governed apply recipe and grants no new authority. No automatic guard refresh,
+scope expansion, lock update, retry or rollback is added.
+
+Workspace locks require an explicitly selected absolute UV executable,
+version **0.11.19**. A selected Repository/registered Workspace resolution
+root is distinct from package ownership; no executable is inferred or downloaded
+by Agent. The original operation preserves completed failures and uncertain
+post-effect evidence; inspect it before considering any new operation.
+
+Agent requires SDK `[preparation,setup]>=0.2.7,<0.3.0` and the registrar-bearing
+runtime `>=0.2.10,<0.3.0`, without the Service extra. Missing ports refuse
+before dispatch, with no provider or environment fallback. This does not qualify
+new wheels, update shared locks or replace an installed client.
+
+The accepted setup FS 0.1.5 wheel remains an exact artifact input; its current
+expanded source tree must not be rebuilt under that old identity. Full workflow
+FS 0.1.6 qualification remains separate. Parent Bundle owns exact canonical
+`portable_protocols` capture, installed parity and eventual delivery after the
+relevant authority gates. The accepted Agent 0.2.0a4 target-fit correction can
+be delivered independently; do not couple it to this held governed setup cut.

@@ -63,6 +63,25 @@ def _run(root, capsys):
     return json.loads(captured.out), captured.err.strip()
 
 
+def test_original_v1_exact_target_refusal_is_visible_without_operation_receipt(
+    tmp_path, monkeypatch, capsys,
+):
+    root = tmp_path / "repository"
+    _repository(root)
+    module = root / "workspaces/kernel/modules/main/aware.module.toml"
+    module.write_text(
+        'aware=1\n[[packages]]\nid="example"\nkind="example"\n'
+        'manifest="package/aware.example.toml"\nvisibility="module"\n'
+    )
+    monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path / "state"))
+    payload, diagnostic = _run(root, capsys)
+    assert payload["failure_code"] == "workspace_manifest_not_admitted"
+    assert payload["terminal_stage"] == "host_admission"
+    assert payload["operation"] is None
+    assert diagnostic == "materialization_module_v3_required"
+    assert not list((tmp_path / "state").rglob("command-*"))
+
+
 def _imported_repository(root):
     _repository(root)
     module = root / "workspaces/kernel/modules/main/aware.module.toml"

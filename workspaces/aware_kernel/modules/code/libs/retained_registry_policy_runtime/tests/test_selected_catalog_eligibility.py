@@ -5,21 +5,21 @@ from dataclasses import fields, replace
 from types import SimpleNamespace
 
 import pytest
-
-from aware_code_retained_registry_policy_runtime import selected_catalog_eligibility as eligibility
+from aware_code_retained_registry_policy_runtime import (
+    selected_catalog_eligibility as eligibility,
+)
 from aware_code_semantic_contract_runtime.contracts import (
     ContentDigest,
     ContractViolation,
     canonical_json_bytes,
 )
+from aware_code_semantic_contract_runtime.materialization_catalog import (
+    CodeSemanticMaterializationProfileBinding,
+)
 from aware_code_semantic_contract_runtime.registry_policy import (
     RegistryPolicy,
     RegistryPolicyGrant,
 )
-from aware_code_semantic_contract_runtime.materialization_catalog import (
-    CodeSemanticMaterializationProfileBinding,
-)
-
 from test_calculation import _binding, _digest
 
 
@@ -167,9 +167,11 @@ def test_eligibility_rejects_inapplicable_live_product_profile(monkeypatch):
 def test_guarded_publication_check_uses_original_identity_without_source_read(
     monkeypatch,
 ):
-    from aware_code_retained_registry_policy_runtime import declaration_host
-    from aware_code_retained_registry_policy_runtime import direct_epoch_tracking
-    from aware_code_retained_registry_policy_runtime import direct_host
+    from aware_code_retained_registry_policy_runtime import (
+        declaration_host,
+        direct_epoch_tracking,
+        direct_host,
+    )
 
     policy, registration, _product, _state, _calls = _selected(monkeypatch)
     host = object()
@@ -211,7 +213,7 @@ def test_guarded_publication_check_uses_original_identity_without_source_read(
     monkeypatch.setattr(direct_host, "_HOSTS", {host: state})
     monkeypatch.setattr(
         direct_host, "_POLICIES",
-        {policy: (host, object(), "source-digest", policy, object(), original, epoch)},
+        {policy: (host, object(), "source-digest", policy, object(), original, epoch, object())},
     )
     monkeypatch.setattr(direct_epoch_tracking, "_BINDINGS", {host: epoch})
     monkeypatch.setattr(

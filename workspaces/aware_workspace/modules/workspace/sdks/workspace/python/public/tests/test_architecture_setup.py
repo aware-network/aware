@@ -742,8 +742,224 @@ with WorkspaceSetupClient.filesystem(repository_root=Path({str(tmp_path)!r})) as
     m.create_python_package("client",distribution="greeting-client",import_root="greeting_client")
 assert not any(n == "aware_workspace" or n.startswith("aware_workspace.") for n in sys.modules)
 assert not any("orm_models" in n or "service_sdk_adapter" in n for n in sys.modules)
+assert not any(n.startswith("aware_issue") for n in sys.modules)
 """
     result = subprocess.run(
         [sys.executable, "-B", "-c", code], capture_output=True, text=True, check=False
     )
     assert result.returncode == 0, result.stderr
+
+
+def existing_support_catalog(root, repo, *, nested=True, mixed=True):
+    """Existing locators and bodies are preserved by structural setup."""
+    repo.create_workspace("application")
+    repository_manifest = root / "aware.repo.toml"
+    workspace_manifest = root / "workspaces/application/aware.workspace.toml"
+    repository_codes = (
+        ["tools/cli/pyproject.toml", "tools/cli/compile_pack/pyproject.toml"]
+        if nested
+        else []
+    )
+    workspace_codes = (
+        ["libs/comms/python/pyproject.toml", "libs/comms/dart/pubspec.yaml"]
+        if mixed
+        else []
+    )
+    for parent, codes in (
+        (repository_manifest, repository_codes),
+        (workspace_manifest, workspace_codes),
+    ):
+        parent.write_text(
+            parent.read_text().replace("codes = []", "codes = " + json.dumps(codes))
+        )
+        for index, manifest in enumerate(codes):
+            target = parent.parent / manifest
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(
+                f'[project]\nname = "original-{index}"\nversion = "0.1.0"\n'
+                if manifest.endswith(".toml")
+                else "name: original_dart\n# retain exact bytes\n"
+            )
+
+
+@pytest.mark.parametrize("operation", ["repository", "workspace", "module"])
+def test_structural_setup_preserves_nested_and_mixed_existing_codes(
+    tmp_path, operation
+):
+    with start(tmp_path)[0] as client:
+        existing_support_catalog(tmp_path, client.repository())
+        before = bodies(tmp_path)
+        if operation == "repository":
+            request = ArchitectureSetupRequest(
+                operation, name="example", license_expression="MIT"
+            )
+            writes = set()
+        elif operation == "workspace":
+            request = ArchitectureSetupRequest(
+                operation, name="additional", path="additional"
+            )
+            writes = {
+                "aware.repo.toml",
+                "workspaces/additional/aware.workspace.toml",
+            }
+        else:
+            request = ArchitectureSetupRequest(
+                operation,
+                workspace="application",
+                name="platform",
+                path="modules/platform",
+            )
+            writes = {
+                "workspaces/application/aware.workspace.toml",
+                "workspaces/application/modules/platform/aware.module.toml",
+            }
+        preview = client.preview(request)
+        assert bodies(tmp_path) == before
+        assert {change.path for change in preview.changes} == writes
+        receipt = client.apply(request, expected_plan_sha256=preview.plan_sha256)
+        assert receipt.status == ("succeeded" if writes else "unchanged")
+        after = bodies(tmp_path)
+        assert {path for path in after if before.get(path) != after[path]} == writes
+        for path, body in before.items():
+            if path not in writes:
+                assert after[path] == body
+        for path, owner in (
+            ("aware.repo.toml", "repo"),
+            ("workspaces/application/aware.workspace.toml", "workspace"),
+        ):
+            assert (
+                tomllib.loads(after[path].decode())[owner]["codes"]
+                == tomllib.loads(before[path].decode())[owner]["codes"]
+            )
+        assert client.apply(request).status == "unchanged"
+        assert bodies(tmp_path) == after
+
+
+@pytest.mark.parametrize("operation", ["python_package", "package_manager"])
+@pytest.mark.parametrize("incompatible", ["nested", "mixed"])
+def test_python_profile_still_refuses_incompatible_support_catalog(
+    tmp_path, operation, incompatible
+):
+    with start(tmp_path)[0] as client:
+        existing_support_catalog(
+            tmp_path,
+            client.repository(),
+            nested=incompatible == "nested",
+            mixed=incompatible == "mixed",
+        )
+        before = bodies(tmp_path)
+        request = (
+            ArchitectureSetupRequest(
+                operation,
+                name="support",
+                owner="repository",
+                path="libs/support/python",
+                distribution="support",
+                import_root="support",
+            )
+            if operation == "python_package"
+            else ArchitectureSetupRequest(operation)
+        )
+        code = (
+            "duplicate_or_overlapping_code_registration"
+            if incompatible == "nested"
+            else "support_profile_requires_python_manifest"
+        )
+        with pytest.raises(ArchitectureSetupError, match=code):
+            client.apply(request)
+        assert bodies(tmp_path) == before
+
+
+@pytest.mark.parametrize("owner", ["repo", "workspace"])
+@pytest.mark.parametrize("second", ["pyproject.toml", "pubspec.yaml"])
+def test_structural_setup_rejects_duplicate_support_root_before_writes(
+    tmp_path, owner, second
+):
+    with start(tmp_path)[0] as client:
+        repo = client.repository()
+        repo.create_workspace("application")
+        parent = tmp_path / (
+            "aware.repo.toml"
+            if owner == "repo"
+            else "workspaces/application/aware.workspace.toml"
+        )
+        codes = ["libs/support/python/pyproject.toml", "libs/support/python/" + second]
+        parent.write_text(
+            parent.read_text().replace("codes = []", "codes = " + json.dumps(codes))
+        )
+        before = bodies(tmp_path)
+        with pytest.raises(ArchitectureSetupError, match="duplicate_or_overlapping"):
+            client.repository().workspace("application").create_module("platform")
+        assert bodies(tmp_path) == before
+
+
+def test_structural_setup_guard_detects_mixed_catalog_drift_before_writes(tmp_path):
+    with start(tmp_path)[0] as client:
+        existing_support_catalog(tmp_path, client.repository())
+        request = ArchitectureSetupRequest(
+            "module", workspace="application", name="platform", path="modules/platform"
+        )
+        preview = client.preview(request)
+        parent = tmp_path / "workspaces/application/aware.workspace.toml"
+        parent.write_text(parent.read_text() + '\n[custom]\npolicy = "advanced"\n')
+        before = bodies(tmp_path)
+        with pytest.raises(ArchitectureSetupError, match="setup_plan_changed"):
+            client.apply(request, expected_plan_sha256=preview.plan_sha256)
+        assert bodies(tmp_path) == before
+
+
+@pytest.mark.parametrize("owner", ["repo", "workspace"])
+def test_structural_support_cannot_claim_entire_owner_root(tmp_path, owner):
+    with start(tmp_path)[0] as client:
+        repo = client.repository()
+        repo.create_workspace("application")
+        parent = tmp_path / (
+            "aware.repo.toml"
+            if owner == "repo"
+            else "workspaces/application/aware.workspace.toml"
+        )
+        parent.write_text(
+            parent.read_text().replace("codes = []", 'codes = ["pubspec.yaml"]')
+        )
+        before = bodies(tmp_path)
+        with pytest.raises(
+            ArchitectureSetupError, match="support_package_requires_explicit_root"
+        ):
+            client.repository().workspace("application").create_module("platform")
+        assert bodies(tmp_path) == before
+
+
+def test_selected_cli_previews_module_in_preserved_existing_catalog(tmp_path):
+    with start(tmp_path)[0] as client:
+        existing_support_catalog(tmp_path, client.repository())
+    before = bodies(tmp_path)
+    checkout = next(
+        p for p in Path(__file__).parents if (p / "aware.repo.toml").exists()
+    )
+    result = subprocess.run(
+        [
+            str(checkout / ".venv/bin/aware-cli"),
+            "workspace",
+            "setup",
+            "module",
+            "--repository-root",
+            str(tmp_path),
+            "--workspace",
+            "application",
+            "--name",
+            "platform",
+            "--preview",
+            "--json",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["status"] == "planned"
+    assert set(payload["proposed_write_paths"]) == {
+        "workspaces/application/aware.workspace.toml",
+        "workspaces/application/modules/platform/aware.module.toml",
+    }
+    assert bodies(tmp_path) == before

@@ -52,6 +52,9 @@ class ArchitectureSetupReceipt:
 
 
 class ArchitectureSetupError(RuntimeError):
+    result: object | None = None
+    client_cleanup: object | None = None
+
     def __init__(
         self,
         code: str,
@@ -109,7 +112,65 @@ class WorkspaceSetupClient:
         self.close()
 
     def close(self):
+        setup_a1_module = importlib.import_module(
+            "aware_workspace_sdk.architecture_setup_admission"
+        )
+        _has_setup_plans = setup_a1_module._has_setup_plans
+        if _has_setup_plans(self):
+            cleanup = self.release_client()
+            if cleanup.outcome != "confirmed":
+                raise ArchitectureSetupError("setup_client_cleanup_unknown")
+            return
         self._runtime.close()
+
+    def prepare_setup(self, request, *, expected_plan_sha256):
+        setup_a1_module = importlib.import_module(
+            "aware_workspace_sdk.architecture_setup_admission"
+        )
+        prepare_setup = setup_a1_module.prepare_setup
+        return prepare_setup(self, request, expected_plan_sha256=expected_plan_sha256)
+
+    def enroll_setup_admission(self, plan, *, issue_admission):
+        setup_a1_module = importlib.import_module(
+            "aware_workspace_sdk.architecture_setup_admission"
+        )
+        enroll_setup_admission = setup_a1_module.enroll_setup_admission
+        return enroll_setup_admission(self, plan, issue_admission=issue_admission)
+
+    def apply_setup_plan(self, plan, *, admission):
+        setup_a1_module = importlib.import_module(
+            "aware_workspace_sdk.architecture_setup_admission"
+        )
+        apply_setup_plan = setup_a1_module.apply_setup_plan
+        return apply_setup_plan(self, plan, admission=admission)
+
+    def observe_setup_result(self, result):
+        setup_a1_module = importlib.import_module(
+            "aware_workspace_sdk.architecture_setup_admission"
+        )
+        observe_setup_result = setup_a1_module.observe_setup_result
+        return observe_setup_result(self, result)
+
+    def release_setup_plan(self, plan):
+        setup_a1_module = importlib.import_module(
+            "aware_workspace_sdk.architecture_setup_admission"
+        )
+        release_setup_plan = setup_a1_module.release_setup_plan
+        return release_setup_plan(self, plan)
+
+    def observe_client_cleanup(self):
+        setup_a1_module = importlib.import_module(
+            "aware_workspace_sdk.architecture_setup_admission"
+        )
+        observe_client_cleanup = setup_a1_module.observe_client_cleanup
+        return observe_client_cleanup(self)
+
+    def release_client(self):
+        setup_a1_module = importlib.import_module(
+            "aware_workspace_sdk.architecture_setup_admission"
+        )
+        release_client = setup_a1_module.release_client
+        return release_client(self)
 
     def preview(self, request: ArchitectureSetupRequest) -> ArchitectureSetupPreview:
         return self._runtime.preview(request)

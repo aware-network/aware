@@ -109,3 +109,29 @@ class FilesystemIssueProjectionPort:
     @staticmethod
     def digest(body):
         return "sha256:" + hashlib.sha256(body).hexdigest()
+
+    def read_tree_authority(self, request):
+        """Original Issue and manifest byte/identity guards; no foreign SDK IO."""
+        from aware_issue_sdk.source_projection import IssueTreeProjectionRefusal
+
+        try:
+            capture, projection = self.read(request)
+            manifest, identity, parents = _read_issue(self.root, "aware.protocol.toml")
+            if manifest != capture[4]:
+                raise IssueTreeProjectionRefusal("issue_tree_manifest_changed")
+            return (*capture, identity, parents), projection
+        except BaseException as error:
+            from aware_issue_sdk.source_change import IssueSourceChangeRefusal
+
+            original = error
+            code = getattr(error, "code", "issue_tree_authority_read_unavailable")
+            # v0's wrapper stays unchanged; preserve the own reader's precise
+            # original refusal (particularly unknown descriptor cleanup) for C.
+            for _ in range(32):
+                if isinstance(original, IssueSourceChangeRefusal):
+                    code = original.code
+                    break
+                original = original.__cause__
+                if original is None:
+                    break
+            raise IssueTreeProjectionRefusal(code) from error

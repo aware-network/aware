@@ -45,7 +45,28 @@ def evaluate_issue_source_scope(
     )
     if normalized_status != "in progress":
         return IssueSourceScopeDecision(IssueSourceScopeRefusal.STATUS_INVALID)
+    # Construct only after the original owner/status checks and only when an
+    # effect is actually examined. Never retain scope or a policy verdict
+    # between decisions. Owner-normalized exact strings need no ordered scan.
+    scope_index: frozenset[str] | None = None
+    index_checked = False
     for path in effect_paths:
-        if not issue_scope_covers_path(path=path, scope_paths=scope_paths):
+        if not index_checked:
+            index_checked = True
+            if type(scope_paths) is tuple and all(
+                type(scope) is str for scope in scope_paths
+            ):
+                scope_index = frozenset(scope_paths)
+        if scope_index is None or type(path) is not str:
+            # Keep the original behavior for values outside the normalized
+            # exact-string contract, including their original short circuit.
+            covered = issue_scope_covers_path(path=path, scope_paths=scope_paths)
+        else:
+            covered = path in scope_index
+            separator = path.find("/")
+            while not covered and separator >= 0:
+                covered = path[:separator] in scope_index
+                separator = path.find("/", separator + 1)
+        if not covered:
             return IssueSourceScopeDecision(IssueSourceScopeRefusal.OUT_OF_SCOPE, path)
     return IssueSourceScopeDecision()

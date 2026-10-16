@@ -986,3 +986,1245 @@ def test_interrupted_open_after_durability_preserves_original_opening_evidence(
     )
     with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
         client.open_repository_workflow_attempt(plan)
+
+
+def workflow_source(inputs):
+    from aware_workspace_sdk.repository_workflow import (
+        observe_original_repository_workflow_source,
+    )
+
+    client, request = inputs[-2:]
+    attempt = client.open_repository_workflow_attempt(
+        client.plan_repository_workflow(request)
+    )
+    source = client.retain_repository_workflow_source(attempt)
+    return attempt, source, observe_original_repository_workflow_source(source)
+
+
+def test_original_source_path_verification_is_nonallocating_and_bodyless_safe(inputs):
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source,
+        verify_original_repository_workflow_source_paths,
+    )
+
+    attempt, source, observed = workflow_source(inputs)
+    for paths in ((), (observed.files[0].output_path,)):
+        assert (
+            verify_original_repository_workflow_source_paths(
+                source, expected_binding=observed.binding, output_paths=paths
+            )
+            is None
+        )
+    verify_original_repository_workflow_source(
+        source, expected_binding=observed.binding
+    )
+    assert inputs[-2].release_repository_workflow(attempt).state == "completed"
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source_paths(
+            source, expected_binding=observed.binding, output_paths=()
+        )
+
+
+@pytest.mark.parametrize("paths", [None, [], (True,), ("unknown",), ("../outside",)])
+def test_original_source_path_bad_selection_is_terminal(inputs, paths):
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source_paths,
+    )
+
+    _parent, source, observed = workflow_source(inputs)
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source_paths(
+            source, expected_binding=observed.binding, output_paths=paths
+        )
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source_paths(
+            source,
+            expected_binding=observed.binding,
+            output_paths=(observed.files[0].output_path,),
+        )
+
+
+@pytest.mark.parametrize("change", ["body", "mode"])
+def test_original_source_path_drift_cannot_resume_after_restoration(inputs, change):
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source_paths,
+    )
+
+    _parent, source, observed = workflow_source(inputs)
+    selected = next(
+        row for row in observed.files if row.source_path.endswith("source.py")
+    )
+    path = inputs[0] / selected.source_path
+    original, mode = path.read_bytes(), path.stat().st_mode & 0o777
+    if change == "body":
+        path.write_bytes(b"drift")
+    else:
+        path.chmod(0o755)
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source_paths(
+            source,
+            expected_binding=observed.binding,
+            output_paths=(selected.output_path,),
+        )
+    path.write_bytes(original)
+    path.chmod(mode)
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source_paths(
+            source,
+            expected_binding=observed.binding,
+            output_paths=(selected.output_path,),
+        )
+
+
+@pytest.mark.parametrize("replacement", ["foreign", "code", "instance"])
+def test_original_source_path_reader_substitution_has_zero_dispatch(
+    inputs, monkeypatch, replacement
+):
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source_paths,
+    )
+
+    _parent, source, observed = workflow_source(inputs)
+    original = package_checkout.PackageSourceCheckout.revalidate_paths
+    calls = []
+
+    def foreign(_reader, _paths):
+        calls.append(True)
+
+    def foreign_code(_reader, _paths):
+        raise AssertionError("foreign reader code executed")
+
+    with monkeypatch.context() as patch:
+        if replacement == "foreign":
+            patch.setattr(
+                package_checkout.PackageSourceCheckout, "revalidate_paths", foreign
+            )
+        elif replacement == "code":
+            patch.setattr(original, "__code__", foreign_code.__code__)
+        else:
+            from aware_workspace_sdk import repository_workflow as sdk
+
+            runtime = next(
+                record[0] for handle, record in sdk._SOURCES.items() if handle is source
+            )
+            patch.setattr(runtime._sources[-1][1].reader, "revalidate_paths", foreign)
+        with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+            verify_original_repository_workflow_source_paths(
+                source, expected_binding=observed.binding, output_paths=()
+            )
+    assert calls == []
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source_paths(
+            source, expected_binding=observed.binding, output_paths=()
+        )
+
+
+@pytest.mark.parametrize("entry", ["membership", "capture", "read"])
+@pytest.mark.parametrize("behavior", ["return", "raise", "restore"])
+def test_original_source_path_nested_io_substitution_is_terminal(
+    inputs, monkeypatch, entry, behavior
+):
+    import sys
+
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source_paths,
+    )
+
+    _parent, source, observed = workflow_source(inputs)
+    selected = next(
+        row for row in observed.files if row.source_path.endswith("source.py")
+    )
+    if entry == "membership":
+        owner, name = package_checkout.PackageSourceCheckout, "_tracked_exact_sources"
+    elif entry == "capture":
+        owner, name = package_checkout, "capture_exact_paths"
+    else:
+        owner, name = package_checkout.os, "read"
+    original = getattr(owner, name)
+    changed, calls = [], []
+    previous = sys.getprofile()
+
+    def foreign(*args, **kwargs):
+        calls.append(True)
+        if behavior == "restore":
+            setattr(owner, name, original)
+        if behavior == "raise":
+            raise AssertionError("foreign reader invoked")
+
+    with monkeypatch.context() as patch:
+
+        def profile(frame, event, _arg):
+            if (
+                event == "return"
+                and frame.f_code is package_checkout._git.__code__
+                and not changed
+            ):
+                # The first real HEAD read completed; poison the next nested entrance.
+                patch.setattr(owner, name, foreign)
+                changed.append(True)
+
+        try:
+            sys.setprofile(profile)
+            with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+                verify_original_repository_workflow_source_paths(
+                    source,
+                    expected_binding=observed.binding,
+                    output_paths=(selected.output_path,),
+                )
+        finally:
+            sys.setprofile(previous)
+    assert changed == [True] and calls == []
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source_paths(
+            source,
+            expected_binding=observed.binding,
+            output_paths=(selected.output_path,),
+        )
+
+
+@pytest.mark.parametrize(
+    "entry,in_place",
+    [
+        (entry, in_place)
+        for entry in ("selected", "check", "membership", "git", "capture", "close")
+        for in_place in (False, True)
+    ]
+    + [("registry", False)],
+)
+@pytest.mark.parametrize("behavior", ["return", "raise", "restore"])
+@pytest.mark.parametrize("after_io", [False, True])
+def test_original_source_path_default_substitution_is_terminal(
+    inputs, monkeypatch, entry, in_place, behavior, after_io
+):
+    import sys
+
+    from aware_workspace_sdk import repository_workflow as sdk
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source_paths,
+    )
+
+    _parent, source, observed = workflow_source(inputs)
+    selected = next(
+        row for row in observed.files if row.source_path.endswith("source.py")
+    )
+    method, key = {
+        "selected": (package_checkout.PackageSourceCheckout.revalidate_paths, "_guard"),
+        "check": (package_checkout.PackageSourceCheckout._check, "_guard"),
+        "membership": (
+            package_checkout.PackageSourceCheckout._tracked_exact_sources,
+            "_guard",
+        ),
+        "git": (package_checkout._read_git, "_guard"),
+        "capture": (package_checkout.capture_exact_paths, "_verify"),
+        "close": (package_checkout.PackageSourceCheckout.close, "_close"),
+        "registry": (package_checkout._check_retained_reader, "_registry"),
+    }[entry]
+    attribute = "__defaults__" if entry == "registry" else "__kwdefaults__"
+    original = getattr(method, attribute)
+    record = next(
+        registered[0]._sources[-1][1]
+        for handle, registered in sdk._SOURCES.items()
+        if handle is source
+    )
+    calls, changed = [], []
+    previous = sys.getprofile()
+
+    def foreign(*args, **kwargs):
+        calls.append(True)
+        if behavior == "restore":
+            setattr(method, attribute, original)
+            if in_place:
+                original[key] = original_value
+        if behavior == "raise":
+            raise AssertionError("foreign default dispatched")
+        if entry == "registry":
+            return original[0].items()
+
+    # A foreign registry can dispatch behavior through .items(), even though
+    # its default is positional rather than a guard keyword.
+    foreign.items = foreign
+    original_value = original[key] if entry != "registry" else None
+
+    with monkeypatch.context() as patch:
+
+        def poison():
+            if in_place:
+                patch.setitem(original, key, foreign)
+            else:
+                replacement = (
+                    (foreign,) if entry == "registry" else {**original, key: foreign}
+                )
+                patch.setattr(method, attribute, replacement)
+            changed.append(True)
+
+        def profile(frame, event, _arg):
+            if (
+                event == "return"
+                and frame.f_code is package_checkout._git.__code__
+                and not changed
+            ):
+                poison()
+
+        try:
+            if after_io:
+                sys.setprofile(profile)
+            else:
+                poison()
+            with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+                verify_original_repository_workflow_source_paths(
+                    source,
+                    expected_binding=observed.binding,
+                    output_paths=(selected.output_path,),
+                )
+        finally:
+            sys.setprofile(previous)
+
+    assert changed == [True] and calls == []
+    assert record.status == "terminal" and record.parent.status == "held"
+    assert record.reader is None and record.descriptor == -1
+    assert record.state == () and record.reader_data == {}
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source_paths(
+            source,
+            expected_binding=observed.binding,
+            output_paths=(selected.output_path,),
+        )
+
+
+def test_original_source_path_default_refusal_preserves_unrelated_family(
+    inputs, monkeypatch
+):
+    from aware_workspace_sdk.repository_workflow import (
+        observe_original_repository_workflow_source,
+        verify_original_repository_workflow_source_paths,
+    )
+
+    _parent, source, observed = workflow_source(inputs)
+    client, request = inputs[-2:]
+    other_parent = client.open_repository_workflow_attempt(
+        client.plan_repository_workflow(replace(request, attempt_ref="attempt:other"))
+    )
+    other = client.retain_repository_workflow_source(other_parent)
+    before = observe_original_repository_workflow_source(other)
+    original = package_checkout.PackageSourceCheckout.revalidate_paths.__kwdefaults__
+    calls = []
+
+    def foreign(*args, **kwargs):
+        calls.append(True)
+
+    with monkeypatch.context() as patch:
+        patch.setitem(original, "_guard", foreign)
+        with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+            verify_original_repository_workflow_source_paths(
+                source, expected_binding=observed.binding, output_paths=()
+            )
+    assert calls == []
+    assert observe_original_repository_workflow_source(other).binding == before.binding
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source_paths(
+            source, expected_binding=observed.binding, output_paths=()
+        )
+    assert client.release_repository_workflow(other_parent).state == "completed"
+
+
+@pytest.mark.parametrize("replacement", ["module", "default", "both"])
+@pytest.mark.parametrize("behavior", ["return", "raise", "restore"])
+@pytest.mark.parametrize("after_io", [False, True])
+def test_original_source_path_registry_origin_substitution_is_terminal(
+    inputs, monkeypatch, replacement, behavior, after_io
+):
+    import sys
+
+    from aware_workspace_sdk import repository_workflow as sdk
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source_paths,
+    )
+
+    _parent, source, observed = workflow_source(inputs)
+    method = package_checkout._check_retained_reader
+    original = package_checkout._RETAINED_READER_GUARDS
+    defaults = method.__defaults__
+    record = next(
+        registered[0]._sources[-1][1]
+        for handle, registered in sdk._SOURCES.items()
+        if handle is source
+    )
+    descriptor = record.descriptor
+    calls, changed = [], []
+    previous = sys.getprofile()
+
+    class ForeignRegistry:
+        def items(self):
+            calls.append(True)
+            if behavior == "restore":
+                package_checkout._RETAINED_READER_GUARDS = original
+                method.__defaults__ = defaults
+            if behavior == "raise":
+                raise AssertionError("foreign registry dispatched")
+            return original.items()
+
+    with monkeypatch.context() as patch:
+
+        def poison():
+            foreign = ForeignRegistry()
+            if replacement in ("module", "both"):
+                patch.setattr(package_checkout, "_RETAINED_READER_GUARDS", foreign)
+            if replacement in ("default", "both"):
+                patch.setattr(method, "__defaults__", (foreign,))
+            changed.append(True)
+
+        def profile(frame, event, _arg):
+            if (
+                event == "return"
+                and frame.f_code is package_checkout._git.__code__
+                and not changed
+            ):
+                poison()
+
+        try:
+            if after_io:
+                sys.setprofile(profile)
+            else:
+                poison()
+            with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+                verify_original_repository_workflow_source_paths(
+                    source,
+                    expected_binding=observed.binding,
+                    output_paths=(observed.files[0].output_path,),
+                )
+        finally:
+            sys.setprofile(previous)
+    assert changed == [True] and calls == []
+    assert record.status == "terminal" and record.parent.status == "held"
+    assert record.reader is None and record.descriptor == -1
+    assert record.state == () and record.reader_data == {}
+    assert record.cleanup == "completed"
+    with pytest.raises(OSError):
+        os.fstat(descriptor)
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source_paths(
+            source, expected_binding=observed.binding, output_paths=()
+        )
+
+
+def test_original_source_path_registry_origin_refusal_preserves_other_family(
+    inputs, monkeypatch
+):
+    import sys
+
+    from aware_workspace_sdk.repository_workflow import (
+        observe_original_repository_workflow_source,
+        verify_original_repository_workflow_source_paths,
+    )
+
+    _parent, source, observed = workflow_source(inputs)
+    client, request = inputs[-2:]
+    other_parent = client.open_repository_workflow_attempt(
+        client.plan_repository_workflow(replace(request, attempt_ref="attempt:other"))
+    )
+    other = client.retain_repository_workflow_source(other_parent)
+    before = observe_original_repository_workflow_source(other)
+    calls, changed = [], []
+    previous = sys.getprofile()
+
+    class ForeignRegistry:
+        def items(self):
+            calls.append(True)
+            raise AssertionError("foreign registry dispatched")
+
+    with monkeypatch.context() as patch:
+
+        def profile(frame, event, _arg):
+            if (
+                event == "return"
+                and frame.f_code is package_checkout._git.__code__
+                and not changed
+            ):
+                foreign = ForeignRegistry()
+                patch.setattr(package_checkout, "_RETAINED_READER_GUARDS", foreign)
+                patch.setattr(
+                    package_checkout._check_retained_reader, "__defaults__", (foreign,)
+                )
+                changed.append(True)
+
+        try:
+            sys.setprofile(profile)
+            with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+                verify_original_repository_workflow_source_paths(
+                    source, expected_binding=observed.binding, output_paths=()
+                )
+        finally:
+            sys.setprofile(previous)
+    assert changed == [True] and calls == []
+    assert observe_original_repository_workflow_source(other).binding == before.binding
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source_paths(
+            source, expected_binding=observed.binding, output_paths=()
+        )
+    assert client.release_repository_workflow(other_parent).state == "completed"
+
+
+@pytest.mark.parametrize("entry", ["selected", "registry"])
+def test_original_source_path_default_refusal_does_not_retain_foreign_callback(
+    inputs, monkeypatch, entry
+):
+    import gc
+    import sys
+    import weakref
+
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source_paths,
+    )
+
+    class Payload:
+        pass
+
+    _parent, source, observed = workflow_source(inputs)
+    method = (
+        package_checkout.PackageSourceCheckout.revalidate_paths
+        if entry == "selected"
+        else package_checkout._check_retained_reader
+    )
+    payload = Payload()
+    reference = weakref.ref(payload)
+    calls = []
+
+    def foreign(*args, _payload=payload, **kwargs):
+        calls.append(_payload)
+
+    foreign.items = foreign
+    changed = []
+    previous = sys.getprofile()
+    with monkeypatch.context() as patch:
+
+        def profile(frame, event, _arg, _target=foreign):
+            if (
+                event == "return"
+                and frame.f_code is package_checkout._git.__code__
+                and not changed
+            ):
+                patch.setattr(method, "__defaults__", (_target,))
+                changed.append(True)
+
+        try:
+            if entry == "selected":
+                patch.setattr(method, "__kwdefaults__", {"_guard": foreign})
+            else:
+                sys.setprofile(profile)
+            with pytest.raises(WorkspaceRepositoryWorkflowRefusal) as caught:
+                verify_original_repository_workflow_source_paths(
+                    source,
+                    expected_binding=observed.binding,
+                    output_paths=(observed.files[0].output_path,),
+                )
+        finally:
+            sys.setprofile(previous)
+    if entry == "registry":
+        assert changed == [True]
+    # Discard the profile closure as well; it legitimately borrowed the callback
+    # while injecting the fault. Keep the original refusal traceback alive.
+    del profile
+    del foreign, payload
+    gc.collect()
+    assert caught.value.__traceback__ is not None
+    assert calls == [] and reference() is None
+
+
+def test_workflow_source_original_bytes_and_complete_request(inputs):
+    from aware_workspace_sdk.repository_workflow import (
+        read_original_repository_workflow_source,
+        release_original_repository_workflow_source,
+        verify_original_repository_workflow_source,
+    )
+
+    attempt, source, observation = workflow_source(inputs)
+    request = inputs[-1]
+    assert observation.binding.marker_environment == request.marker_environment
+    assert observation.binding.source_commit == request.source_commit
+    paths = tuple(row.output_path for row in observation.files)
+    result = read_original_repository_workflow_source(
+        source, expected_binding=observation.binding, output_paths=paths
+    )
+    assert len(result.bodies) == len(paths)
+    for item in result.bodies:
+        assert item.body == (inputs[0] / item.file.source_path).read_bytes()
+        assert (
+            item.file.content_digest
+            == "sha256:" + hashlib.sha256(item.body).hexdigest()
+        )
+    verify_original_repository_workflow_source(
+        source, expected_binding=observation.binding
+    )
+    assert release_original_repository_workflow_source(source).state == "completed"
+    assert inputs[-2].release_repository_workflow(attempt).state == "completed"
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source(
+            source, expected_binding=observation.binding
+        )
+
+
+@pytest.mark.parametrize("drift", ("body", "mode", "membership", "commit"))
+def test_workflow_source_drift_terminal_and_restoration(inputs, drift):
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source,
+    )
+
+    attempt, source, observation = workflow_source(inputs)
+    path = inputs[3] / "source.py"
+    before = path.read_bytes()
+    if drift == "body":
+        path.write_bytes(b"changed")
+    elif drift == "mode":
+        path.chmod(0o755)
+    elif drift == "membership":
+        (inputs[3] / "new.py").write_bytes(b"new")
+    else:
+        (inputs[3] / "new.py").write_bytes(b"new")
+        commit(inputs[0])
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source(
+            source, expected_binding=observation.binding
+        )
+    path.write_bytes(before)
+    path.chmod(0o644)
+    with pytest.raises(
+        WorkspaceRepositoryWorkflowRefusal, match="foreign_or_retired_handle"
+    ):
+        verify_original_repository_workflow_source(
+            source, expected_binding=observation.binding
+        )
+    assert attempt is not None
+
+
+@pytest.mark.parametrize(
+    "field",
+    (
+        "source_commit",
+        "profile_key",
+        "selection_digest",
+        "output_layout_digest",
+        "marker_environment",
+    ),
+)
+def test_workflow_source_binding_substitution_is_terminal(inputs, field):
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source,
+    )
+
+    attempt, source, observation = workflow_source(inputs)
+    value = observation.binding
+    changes = {
+        "source_commit": "0" * 40,
+        "profile_key": "other",
+        "selection_digest": "sha256:" + "0" * 64,
+        "output_layout_digest": "sha256:" + "0" * 64,
+        "marker_environment": value.marker_environment[:-1],
+    }
+    wrong = replace(value, **{field: changes[field]})
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source(source, expected_binding=wrong)
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source(source, expected_binding=value)
+    assert attempt is not None
+
+
+@pytest.mark.parametrize("kind", ("return", "raise", "restore"))
+@pytest.mark.parametrize(
+    "entry",
+    (
+        "_check",
+        "_tracked_sources",
+        "_tracked_exact_sources",
+        "revalidate",
+        "capture_exact_paths",
+        "read",
+        "run",
+    ),
+)
+@pytest.mark.parametrize("phase", ("retain", "reread"))
+def test_workflow_source_reader_substitution_zero_calls(
+    inputs, monkeypatch, kind, entry, phase
+):
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source,
+    )
+
+    client, request = inputs[-2:]
+    attempt = client.open_repository_workflow_attempt(
+        client.plan_repository_workflow(request)
+    )
+    source = observation = None
+    if phase == "reread":
+        from aware_workspace_sdk.repository_workflow import (
+            observe_original_repository_workflow_source,
+        )
+
+        source = client.retain_repository_workflow_source(attempt)
+        observation = observe_original_repository_workflow_source(source)
+    owner = (
+        package_checkout.PackageSourceCheckout
+        if entry.startswith("_") or entry == "revalidate"
+        else package_checkout
+        if entry == "capture_exact_paths"
+        else os
+        if entry == "read"
+        else subprocess
+    )
+    original = getattr(owner, entry)
+    calls = []
+
+    def hostile(*args, **kwargs):
+        calls.append(entry)
+        if kind == "restore":
+            monkeypatch.setattr(owner, entry, original)
+        if kind == "raise":
+            raise AssertionError("foreign reader must never run")
+
+    monkeypatch.setattr(owner, entry, hostile)
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        if phase == "retain":
+            client.retain_repository_workflow_source(attempt)
+        else:
+            verify_original_repository_workflow_source(
+                source, expected_binding=observation.binding
+            )
+    assert calls == []
+    monkeypatch.setattr(owner, entry, original)
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        if phase == "retain":
+            client.retain_repository_workflow_source(attempt)
+        else:
+            verify_original_repository_workflow_source(
+                source, expected_binding=observation.binding
+            )
+
+
+def test_workflow_source_mapping_aliases_identical_origins_and_executable(inputs):
+    from aware_workspace_sdk.repository_workflow import (
+        read_original_repository_workflow_source,
+    )
+
+    root, _, _, package, _, request = inputs
+    (package / "same.py").write_bytes((package / "source.py").read_bytes())
+    (package / "run.sh").write_bytes(b"#!/bin/sh\n")
+    (package / "run.sh").chmod(0o755)
+    # Profile-declared repository file mapping comes from the same canonical selector.
+    (root / "readme.md").write_bytes(b"original mapped document")
+    manifest = root / "aware.repo.toml"
+    text = (
+        manifest.read_text()
+        + '\n[[repository_files]]\nrole="documentation"\nsource_path="readme.md"\ntarget_path="README.md"\n'
+    )
+    manifest.write_text(text)
+    request = replace(
+        request,
+        source_commit=commit(root),
+        profile_digest="sha256:" + hashlib.sha256(manifest.read_bytes()).hexdigest(),
+    )
+    updated = (*inputs[:-1], request)
+    attempt, source, observation = workflow_source(updated)
+    by_output = {row.output_path: row for row in observation.files}
+    mapped = by_output["README.md"]
+    assert mapped.source_path == "readme.md"
+    same = [
+        row
+        for row in observation.files
+        if row.output_path.endswith(("source.py", "same.py"))
+    ]
+    assert len(same) == 2 and same[0].content_digest == same[1].content_digest
+    assert same[0].source_path != same[1].source_path
+    executable = next(
+        row for row in observation.files if row.output_path.endswith("run.sh")
+    )
+    assert executable.git_mode == "100755" and executable.projected_mode == 0o755
+    result = read_original_repository_workflow_source(
+        source, expected_binding=observation.binding, output_paths=("README.md",)
+    )
+    assert result.bodies[0].body == b"original mapped document"
+    assert attempt is not None
+
+
+def test_workflow_source_unknown_held_error_does_not_pin_known_family(inputs):
+    import gc
+    import weakref
+
+    from aware_workspace_sdk.repository_workflow import (
+        observe_original_repository_workflow_source,
+    )
+
+    attempt, source, _ = workflow_source(inputs)
+    reference = weakref.ref(source)
+    try:
+        observe_original_repository_workflow_source(object())
+    except WorkspaceRepositoryWorkflowRefusal as error:
+        held = error
+    del source
+    gc.collect()
+    assert reference() is None
+    assert held is not None and attempt is not None
+
+
+def test_workflow_source_restamp_releases_and_cannot_resume(inputs):
+    from aware_workspace_sdk.repository_workflow import (
+        WorkspaceRepositoryWorkflowSource,
+        observe_original_repository_workflow_source,
+    )
+
+    class Restamped(WorkspaceRepositoryWorkflowSource):
+        __slots__ = ()
+
+    attempt, source, _ = workflow_source(inputs)
+    source.__class__ = Restamped
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        observe_original_repository_workflow_source(source)
+    source.__class__ = WorkspaceRepositoryWorkflowSource
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        observe_original_repository_workflow_source(source)
+    assert attempt is not None
+
+
+def test_workflow_source_parent_release_retires_borrowed_source(inputs):
+    from aware_workspace_sdk.repository_workflow import (
+        observe_original_repository_workflow_source,
+    )
+
+    attempt, source, _ = workflow_source(inputs)
+    inputs[-2].release_repository_workflow(attempt)
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        observe_original_repository_workflow_source(source)
+
+
+@pytest.mark.parametrize("phase", ("retain", "reread"))
+@pytest.mark.parametrize("kind", ("return", "raise", "restore"))
+@pytest.mark.parametrize("entry", ("_tracked_sources", "capture_exact_paths", "read"))
+def test_workflow_source_substitution_after_real_io(
+    inputs, monkeypatch, phase, kind, entry
+):
+    import sys
+
+    from aware_workspace_runtime import source_observation_io
+    from aware_workspace_sdk.repository_workflow import (
+        observe_original_repository_workflow_source,
+        verify_original_repository_workflow_source,
+    )
+
+    client, request = inputs[-2:]
+    attempt = client.open_repository_workflow_attempt(
+        client.plan_repository_workflow(request)
+    )
+    source = observation = None
+    if phase == "reread":
+        source = client.retain_repository_workflow_source(attempt)
+        observation = observe_original_repository_workflow_source(source)
+    owner = (
+        package_checkout.PackageSourceCheckout
+        if entry.startswith("_")
+        else package_checkout
+        if entry == "capture_exact_paths"
+        else os
+    )
+    original = getattr(owner, entry)
+    calls, injected = [], []
+
+    def hostile(*args, **kwargs):
+        calls.append(entry)
+        if kind == "restore":
+            monkeypatch.setattr(owner, entry, original)
+        if kind == "raise":
+            raise AssertionError("nested foreign entrance ran")
+
+    # Fault injection happens after genuine captured IO, without making an
+    # untrusted replacement into an authenticated original primitive.
+    code = source_observation_io.capture_exact_paths.__code__
+    anchor = next(
+        i
+        for i, line in enumerate(
+            Path(source_observation_io.__file__).read_text().splitlines(), 1
+        )
+        if line.strip() == 'body = b"".join(chunks)' and i >= code.co_firstlineno
+    )
+
+    def trace(frame, event, arg):
+        if (
+            event == "line"
+            and frame.f_code is code
+            and frame.f_lineno == anchor
+            and not injected
+        ):
+            injected.append(True)
+            monkeypatch.setattr(owner, entry, hostile)
+        return trace
+
+    previous = sys.gettrace()
+    try:
+        sys.settrace(trace)
+        with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+            if phase == "retain":
+                client.retain_repository_workflow_source(attempt)
+            else:
+                verify_original_repository_workflow_source(
+                    source, expected_binding=observation.binding
+                )
+    finally:
+        sys.settrace(previous)
+        monkeypatch.setattr(owner, entry, original)
+    assert injected and calls == []
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        if phase == "retain":
+            client.retain_repository_workflow_source(attempt)
+        else:
+            verify_original_repository_workflow_source(
+                source, expected_binding=observation.binding
+            )
+
+
+def test_workflow_source_known_failure_does_not_keep_source_in_held_exception(inputs):
+    import gc
+    import weakref
+
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source,
+    )
+
+    attempt, source, observation = workflow_source(inputs)
+    reference = weakref.ref(source)
+    (inputs[3] / "source.py").write_bytes(b"drifted")
+    try:
+        verify_original_repository_workflow_source(
+            source, expected_binding=observation.binding
+        )
+    except WorkspaceRepositoryWorkflowRefusal as error:
+        held = error
+    del source
+    gc.collect()
+    assert reference() is None and held is not None and attempt is not None
+
+
+def test_workflow_source_fork_refuses_without_parent_cleanup(inputs):
+    if not hasattr(os, "fork"):
+        pytest.fail("declared source qualification requires POSIX fork")
+    from aware_workspace_sdk.repository_workflow import (
+        observe_original_repository_workflow_source,
+    )
+
+    attempt, source, observation = workflow_source(inputs)
+    pid = os.fork()
+    if pid == 0:
+        try:
+            try:
+                observe_original_repository_workflow_source(source)
+            except WorkspaceRepositoryWorkflowRefusal:
+                os._exit(0)
+            os._exit(1)
+        except BaseException:  # noqa: BLE001 -- fork child reports failure without running inherited finalizers
+            os._exit(2)
+    _, status = os.waitpid(pid, 0)
+    assert os.waitstatus_to_exitcode(status) == 0
+    assert (
+        observe_original_repository_workflow_source(source).binding
+        == observation.binding
+    )
+    assert attempt is not None
+
+
+def test_workflow_source_missing_body_state_refuses_terminal(inputs):
+    from aware_workspace_sdk.repository_workflow import (
+        _SOURCES,
+        observe_original_repository_workflow_source,
+    )
+
+    attempt, source, _ = workflow_source(inputs)
+    runtime = _SOURCES[source][0]
+    reader = runtime._sources[-1][1].reader
+    original = reader._bodies
+    reader._bodies = original[:-1]
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        observe_original_repository_workflow_source(source)
+    reader._bodies = original
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        observe_original_repository_workflow_source(source)
+    assert attempt is not None
+
+
+def test_workflow_source_interruption_retires_family_and_preserves_identity(inputs):
+    import sys
+
+    from aware_workspace_runtime import source_observation_io
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source,
+    )
+
+    attempt, source, observation = workflow_source(inputs)
+    interruption = KeyboardInterrupt("source read interrupted")
+    code = source_observation_io.capture_exact_paths.__code__
+    raised = []
+
+    def trace(frame, event, arg):
+        if event == "line" and frame.f_code is code and not raised:
+            raised.append(True)
+            raise interruption
+        return trace
+
+    previous = sys.gettrace()
+    try:
+        sys.settrace(trace)
+        with pytest.raises(KeyboardInterrupt) as caught:
+            verify_original_repository_workflow_source(
+                source, expected_binding=observation.binding
+            )
+    finally:
+        sys.settrace(previous)
+    assert caught.value is interruption
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        verify_original_repository_workflow_source(
+            source, expected_binding=observation.binding
+        )
+    assert attempt is not None
+
+
+def test_workflow_source_failure_preserves_original_durable_opening(inputs):
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source,
+    )
+
+    attempt, source, observation = workflow_source(inputs)
+    (inputs[3] / "source.py").write_bytes(b"source changed")
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal) as caught:
+        verify_original_repository_workflow_source(
+            source, expected_binding=observation.binding
+        )
+    evidence = caught.value.evidence
+    assert evidence.persistence_state == "persisted"
+    assert evidence.cleanup.attempt_binding_ref == observation.binding.binding_ref
+    assert evidence.original_evidence_refs
+    assert evidence.cleanup.state == "completed"
+    assert attempt is not None
+
+
+def test_workflow_source_close_failure_clears_custody_without_retry(inputs):
+    from aware_workspace_sdk.repository_workflow import (
+        _SOURCES,
+        release_original_repository_workflow_source,
+    )
+
+    attempt, source, _ = workflow_source(inputs)
+    runtime = _SOURCES[source][0]
+    record = runtime._sources[-1][1]
+    descriptor = record.reader._fd
+    os.close(
+        descriptor
+    )  # actual late physical failure, not a fabricated cleanup callback
+    cleanup = release_original_repository_workflow_source(source)
+    assert cleanup.state == "unknown"
+    assert record.reader is None and record.state == ()
+    assert release_original_repository_workflow_source(source).state == "unknown"
+    assert inputs[-2].release_repository_workflow(attempt).state == "unknown"
+
+
+def test_workflow_source_binding_equality_is_not_dispatched(inputs, monkeypatch):
+    from aware_workspace_sdk.repository_workflow import (
+        verify_original_repository_workflow_source,
+    )
+    from aware_workspace_sdk.repository_workflow_source_values import (
+        WorkspaceWorkflowSourceBinding,
+    )
+
+    attempt, source, observation = workflow_source(inputs)
+    calls = []
+
+    def hostile(*args, **kwargs):
+        calls.append("equality")
+        raise AssertionError("model equality is not original validation")
+
+    monkeypatch.setattr(WorkspaceWorkflowSourceBinding, "__eq__", hostile)
+    verify_original_repository_workflow_source(
+        source, expected_binding=observation.binding
+    )
+    assert not calls and attempt is not None
+
+
+def test_workflow_source_descriptor_substitution_conserves_foreign_custody(inputs):
+    from aware_workspace_sdk.repository_workflow import (
+        _SOURCES,
+        observe_original_repository_workflow_source,
+    )
+
+    attempt, source, _ = workflow_source(inputs)
+    reader = _SOURCES[source][0]._sources[-1][1].reader
+    original = reader._fd
+    foreign = os.open(inputs[3] / "source.py", os.O_RDONLY)
+    try:
+        reader._fd = foreign
+        with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+            observe_original_repository_workflow_source(source)
+        assert os.fstat(foreign).st_size > 0
+        with pytest.raises(OSError):
+            os.fstat(original)
+    finally:
+        os.close(foreign)
+    assert attempt is not None
+
+
+def test_workflow_source_unknown_error_does_not_pin_multiple_families(inputs):
+    import gc
+    import weakref
+
+    from aware_workspace_sdk.repository_workflow import (
+        observe_original_repository_workflow_source,
+    )
+
+    client, request = inputs[-2:]
+    first = client.open_repository_workflow_attempt(
+        client.plan_repository_workflow(request)
+    )
+    second = client.open_repository_workflow_attempt(
+        client.plan_repository_workflow(replace(request, attempt_ref="attempt:2"))
+    )
+    source_a = client.retain_repository_workflow_source(first)
+    source_b = client.retain_repository_workflow_source(second)
+    references = weakref.ref(source_a), weakref.ref(source_b)
+    before = observe_original_repository_workflow_source(source_b)
+    try:
+        observe_original_repository_workflow_source(object())
+    except WorkspaceRepositoryWorkflowRefusal as error:
+        held = error
+    assert (
+        observe_original_repository_workflow_source(source_b).binding == before.binding
+    )
+    del source_a, source_b
+    gc.collect()
+    assert all(reference() is None for reference in references)
+    assert held is not None
+
+
+def workflow_source_root_descriptors(root):
+    """Only descriptors pointing at this disposable source root, not runner IO."""
+    found = set()
+    for name in os.listdir("/proc/self/fd"):
+        try:
+            if os.readlink("/proc/self/fd/" + name) == str(root):
+                found.add(int(name))
+        except FileNotFoundError:
+            pass
+    return found
+
+
+@pytest.mark.parametrize("failure", ("interrupt", "exit", "os_error", "guard_error"))
+@pytest.mark.parametrize("cleanup_failure", (False, True))
+def test_workflow_source_direct_partial_acquisition_cleanup(
+    inputs, failure, cleanup_failure
+):
+    source = inputs[0]
+    before = workflow_source_root_descriptors(source)
+    error = {
+        "interrupt": KeyboardInterrupt("root acquisition interrupted"),
+        "exit": SystemExit(41),
+        "os_error": OSError(5, "root acquisition failed"),
+        "guard_error": ValueError("post-acquisition guard failed"),
+    }[failure]
+    calls = []
+
+    def guard():
+        acquired = workflow_source_root_descriptors(source) - before
+        if acquired:
+            calls.extend(acquired)
+            if cleanup_failure:
+                # Real once-only release failure: the injected acquisition fault
+                # already consumed the physical descriptor. No callback substitute.
+                for descriptor in acquired:
+                    os.close(descriptor)
+            raise error
+
+    with pytest.raises(type(error)) as caught:
+        package_checkout.PackageSourceCheckout(source, _workflow_guard=guard)
+    assert caught.value is error
+    assert len(calls) == 1
+    assert workflow_source_root_descriptors(source) == before
+    assert vars(error)["workspace_source_acquisition_cleanup"] == (
+        "unknown" if cleanup_failure else "completed"
+    )
+    assert error.__cause__ is None
+    if cleanup_failure:
+        cleanup_error = vars(error)["workspace_source_acquisition_cleanup_error"]
+        assert type(cleanup_error) is OSError and cleanup_error.errno == 9
+    assert error.__traceback__ is not None  # keep it held while checking conservation
+
+
+@pytest.mark.parametrize("failure", ("interrupt", "exit", "os_error", "guard_error"))
+@pytest.mark.parametrize("cleanup_failure", (False, True))
+def test_workflow_source_sdk_partial_acquisition_cleanup(
+    inputs, monkeypatch, failure, cleanup_failure
+):
+    from aware_workspace_runtime import repository_workflow as runtime
+
+    source, _, _, _, client, request = inputs
+    attempt = client.open_repository_workflow_attempt(
+        client.plan_repository_workflow(request)
+    )
+    before = workflow_source_root_descriptors(source)
+    error = {
+        "interrupt": KeyboardInterrupt("SDK root acquisition interrupted"),
+        "exit": SystemExit(42),
+        "os_error": OSError(5, "SDK root acquisition failed"),
+        "guard_error": ValueError("SDK post-acquisition guard failed"),
+    }[failure]
+    original = runtime._reader_entries_current
+    acquired = []
+
+    def guard():
+        original()
+        new = workflow_source_root_descriptors(source) - before
+        if new:
+            acquired.extend(new)
+            if cleanup_failure:
+                for descriptor in new:
+                    os.close(descriptor)
+            raise error
+
+    monkeypatch.setattr(runtime, "_reader_entries_current", guard)
+    raised = (
+        type(error)
+        if failure in ("interrupt", "exit")
+        else WorkspaceRepositoryWorkflowRefusal
+    )
+    with pytest.raises(raised) as caught:
+        client.retain_repository_workflow_source(attempt)
+    assert len(acquired) == 1
+    assert workflow_source_root_descriptors(source) == before
+    if failure in ("interrupt", "exit"):
+        assert caught.value is error
+        evidence = vars(error)["workflow_evidence"]
+    else:
+        evidence = caught.value.evidence
+        current = caught.value
+        while current is not error and current.__cause__ is not None:
+            current = current.__cause__
+        assert current is error
+    assert evidence.cleanup.state == ("unknown" if cleanup_failure else "completed")
+    assert evidence.persistence_state == "persisted" and evidence.original_evidence_refs
+    monkeypatch.setattr(runtime, "_reader_entries_current", original)
+    with pytest.raises(WorkspaceRepositoryWorkflowRefusal):
+        client.retain_repository_workflow_source(attempt)
+    assert workflow_source_root_descriptors(source) == before
+    client.release_repository_workflow(attempt)
+
+
+def test_workflow_source_direct_partial_fstat_failure_releases_root(
+    inputs, monkeypatch
+):
+    source = inputs[0]
+    before = workflow_source_root_descriptors(source)
+    original = os.fstat
+    error = OSError(5, "original fstat failure")
+
+    def fail(fd):
+        if fd in workflow_source_root_descriptors(source) - before:
+            raise error
+        return original(fd)
+
+    monkeypatch.setattr(os, "fstat", fail)
+    with pytest.raises(OSError) as caught:
+        package_checkout.PackageSourceCheckout(source)
+    assert caught.value is error
+    assert vars(error)["workspace_source_acquisition_cleanup"] == "completed"
+    assert workflow_source_root_descriptors(source) == before

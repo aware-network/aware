@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
 import tempfile
@@ -224,9 +225,13 @@ class WorkspaceRepositoryDeltaStore:
             record = self._bodies.get(_required(body_ref, "body_ref"))
             if record is None:
                 return None
-            body_path = self._body_path(record.content_digest)
+            digest_hex = record.content_digest.removeprefix("sha256:")
+            body_path = os.path.join(
+                os.fspath(self._body_root), digest_hex[:2], f"{digest_hex}.blob"
+            )
             try:
-                content = body_path.read_bytes()
+                with io.open(body_path, "rb") as stream:  # noqa: UP020 -- preserve pathlib's original IO dispatch
+                    content = stream.read()
             except FileNotFoundError:
                 return None
             self._body_read_count += 1

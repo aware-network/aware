@@ -49,6 +49,16 @@ from .operation import (
     SpecificationObserveRequest,
     SpecificationOperationError,
 )
+from .saved_receipt import (
+    SpecificationSavedReceiptErrorEvidence,
+    SpecificationSavedReceiptOmission,
+    SpecificationSavedReceiptReadCleanup,
+    SpecificationSavedReceiptRequest,
+    SpecificationSavedReceiptResult,
+    SpecificationSavedReceiptSource,
+    decode_specification_saved_receipt_value,
+    encode_specification_saved_receipt_value,
+)
 
 SPECIFICATION_SDK_VALUE_CONTRACT = "aware.specification.sdk-value.v1"
 _CARRIERS = (
@@ -88,10 +98,20 @@ _ERROR_HINTS = {
     "evidence_diagnostics": tuple[str, ...],
     "cleanup_evidence": SpecificationDraftCleanupEvidence | None,
 }
+_SAVED_CARRIERS = (
+    SpecificationSavedReceiptRequest,
+    SpecificationSavedReceiptReadCleanup,
+    SpecificationSavedReceiptSource,
+    SpecificationSavedReceiptOmission,
+    SpecificationSavedReceiptResult,
+    SpecificationSavedReceiptErrorEvidence,
+)
 
 
 def encode_specification_value(value: object) -> bytes:
     """Encode an allowlisted existing value, never a live provider or handle."""
+    if type(value) in _SAVED_CARRIERS:
+        return encode_specification_saved_receipt_value(value)
     try:
         if type(value) not in _CARRIERS:
             raise ValueError("unsupported_sdk_value")
@@ -115,6 +135,11 @@ def decode_specification_value(body: bytes) -> object:
         if type(body) is not bytes:
             raise TypeError("sdk_value_requires_bytes")
         payload = json.loads(body)
+        if (
+            type(payload) is dict
+            and payload.get("contract") == "aware.specification.saved-receipt-value.v1"
+        ):
+            return decode_specification_saved_receipt_value(body)
         _exact_object(payload, {"contract", "type_ref", "value"})
         if (
             payload["contract"] != SPECIFICATION_SDK_VALUE_CONTRACT

@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import errno
 import fcntl
 import os
 import stat
 import subprocess
 from contextlib import contextmanager
 from pathlib import Path
+from uuid import uuid4
 
+from aware_file_system import confined_mutation as retained_reader
 from aware_file_system.confined_mutation import (
     ConfinedFileMutationRequest,
     ConfinedMutationKind,
@@ -22,6 +25,14 @@ from aware_workspace_sdk.architecture_setup import (
     ArchitectureSetupReceipt,
     PackageManagerReceipt,
 )
+from aware_workspace_sdk.architecture_setup_admission_values import (
+    WorkspaceSetupClientCleanup,
+    WorkspaceSetupPrimaryFailure,
+    WorkspaceSetupResourceEvidence,
+)
+
+_A1_CLOSE = os.close
+_A1_FLOCK = fcntl.flock
 
 
 class FilesystemArchitectureSetup:
@@ -37,10 +48,84 @@ class FilesystemArchitectureSetup:
             if stat.S_ISLNK(cursor.lstat().st_mode):
                 raise ArchitectureSetupError("repository_root_symlink_denied")
         self.root = repository_root
-        self.fd = os.open(repository_root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
-        current = os.fstat(self.fd)
-        self.identity = (current.st_dev, current.st_ino)
+        self.fd = -1
         self.uv = uv_executable
+        self._a1_root_resource = WorkspaceSetupResourceEvidence(
+            "setup-root:" + uuid4().hex,
+            "aware.workspace.setup-a1.v1",
+            "root_descriptor",
+            str(repository_root),
+            "unknown",
+            False,
+            "unknown",
+            (),
+        )
+        self._a1_lease_resources = []
+        self._a1_read_resources = []
+        self._a1_read_complete = True
+        self._a1_record_reads = False
+        try:
+            self.fd = os.open(
+                repository_root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+            )
+            current = os.fstat(self.fd)
+            self.identity = (current.st_dev, current.st_ino)
+            row = self._a1_root_resource
+            self._a1_root_resource = WorkspaceSetupResourceEvidence(
+                row.resource_ref,
+                row.provider_ref,
+                row.kind,
+                row.path,
+                "owned",
+                False,
+                "unknown",
+                (),
+            )
+        except BaseException as error:
+            row = self._a1_root_resource
+            if self.fd >= 0:
+                try:
+                    self.release_a1_root()
+                except BaseException:  # noqa: BLE001, S110 - retained resource row already records the uncertain close; never retry
+                    pass
+            elif isinstance(error, OSError) and error.errno in (
+                errno.ENOENT,
+                errno.ENOTDIR,
+                errno.EACCES,
+                errno.EPERM,
+                errno.ELOOP,
+            ):
+                self._a1_root_resource = WorkspaceSetupResourceEvidence(
+                    row.resource_ref,
+                    row.provider_ref,
+                    row.kind,
+                    row.path,
+                    "released",
+                    False,
+                    "confirmed",
+                    (),
+                )
+            confirmed = self._a1_root_resource.release_outcome == "confirmed"
+            failure = ArchitectureSetupError("setup_client_construction_failed")
+            failure.client_cleanup = WorkspaceSetupClientCleanup(
+                "aware.workspace.setup-a1.v1",
+                None,
+                None,
+                (self._a1_root_resource,),
+                True,
+                "confirmed" if confirmed else "unknown",
+                WorkspaceSetupPrimaryFailure(
+                    "observed",
+                    "aware.workspace.setup-a1.v1",
+                    "client_construction",
+                    "setup_client_construction_failed",
+                    type(error).__name__,
+                    not isinstance(error, Exception),
+                ),
+                (),
+                confirmed,
+            )
+            raise failure from error
 
     def current(self):
         if self.fd < 0:
@@ -56,6 +141,98 @@ class FilesystemArchitectureSetup:
             os.close(self.fd)
             self.fd = -1
 
+    def release_a1_root(self):
+        row = self._a1_root_resource
+        if row.release_attempted or self.fd < 0:
+            return row
+        descriptor = self.fd
+        self.fd = -1  # Consume before dispatch; an uncertain fd is never retried.
+        self._a1_root_resource = WorkspaceSetupResourceEvidence(
+            row.resource_ref,
+            row.provider_ref,
+            row.kind,
+            row.path,
+            "unknown",
+            True,
+            "unknown",
+            (),
+        )
+        _A1_CLOSE(descriptor)
+        self._a1_root_resource = WorkspaceSetupResourceEvidence(
+            row.resource_ref,
+            row.provider_ref,
+            row.kind,
+            row.path,
+            "released",
+            True,
+            "confirmed",
+            (),
+        )
+        return self._a1_root_resource
+
+    @contextmanager
+    def lease_a1(self):
+        self.current()
+        if fcntl.flock is not _A1_FLOCK:
+            raise ArchitectureSetupError("setup_original_lease_changed")
+        ref = "setup-lease:" + uuid4().hex
+        self._a1_lease_resources.append(
+            WorkspaceSetupResourceEvidence(
+                ref,
+                "aware.workspace.setup-a1.v1",
+                "lease",
+                str(self.root),
+                "owned",
+                False,
+                "unknown",
+                (),
+            )
+        )
+        position = len(self._a1_lease_resources) - 1
+        try:
+            _A1_FLOCK(self.fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BaseException as error:
+            definite = isinstance(error, OSError) and error.errno in (
+                errno.EAGAIN,
+                errno.EACCES,
+            )
+            self._a1_lease_resources[position] = WorkspaceSetupResourceEvidence(
+                ref,
+                "aware.workspace.setup-a1.v1",
+                "lease",
+                str(self.root),
+                "released" if definite else "unknown",
+                False,
+                "confirmed" if definite else "unknown",
+                (),
+            )
+            raise
+        try:
+            self.current()
+            yield
+        finally:
+            self._a1_lease_resources[position] = WorkspaceSetupResourceEvidence(
+                ref,
+                "aware.workspace.setup-a1.v1",
+                "lease",
+                str(self.root),
+                "unknown",
+                True,
+                "unknown",
+                (),
+            )
+            _A1_FLOCK(self.fd, fcntl.LOCK_UN)
+            self._a1_lease_resources[position] = WorkspaceSetupResourceEvidence(
+                ref,
+                "aware.workspace.setup-a1.v1",
+                "lease",
+                str(self.root),
+                "released",
+                True,
+                "confirmed",
+                (),
+            )
+
     @contextmanager
     def lease(self):
         self.current()
@@ -66,11 +243,49 @@ class FilesystemArchitectureSetup:
         finally:
             fcntl.flock(self.fd, fcntl.LOCK_UN)
 
+    def _adopt_a1_read(self, ledger):
+        unknown = (
+            ledger.acquisition_unknown
+            or ledger.release_unknown
+            or ledger.context_unknown
+        )
+        self._a1_read_complete = self._a1_read_complete and not unknown
+        for row in ledger.resources:
+            self._a1_read_resources.append(
+                WorkspaceSetupResourceEvidence(
+                    row.resource_ref,
+                    "aware.workspace.setup-a1.v1",
+                    row.kind,
+                    row.path,
+                    "unknown" if unknown else "released",
+                    row.spent,
+                    "unknown" if unknown else "confirmed",
+                    (),
+                )
+            )
+
     def read(self, path):
         self.current()
-        observation = observe_confined_file(
-            root=self.root, path=path, maximum_bytes=1024 * 1024
-        )
+        if self._a1_record_reads:
+            if len(self._a1_read_resources) + len(path.split("/")) + 1 > 16384:
+                raise ArchitectureSetupError("setup_resource_record_limit")
+            try:
+                view, _, ledger = retained_reader._observe_confined_file_with_custody(
+                    root=self.root, path=path, maximum_bytes=1048576
+                )
+            except retained_reader.ConfinedFileObservationError as error:
+                ledger = error._original_read_ledger
+                if type(ledger) is retained_reader._ReadLedger:
+                    self._adopt_a1_read(ledger)
+                else:
+                    self._a1_read_complete = False
+                raise
+            self._adopt_a1_read(ledger)
+            observation = view.observation
+        else:
+            observation = observe_confined_file(
+                root=self.root, path=path, maximum_bytes=1048576
+            )
         if observation.outcome is not ConfinedObservationOutcome.OBSERVED:
             raise ArchitectureSetupError(
                 "source_observation_refused:" + str(observation.error_code)

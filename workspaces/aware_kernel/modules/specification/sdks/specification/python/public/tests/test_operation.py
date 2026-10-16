@@ -91,11 +91,14 @@ def test_public_sdk_import_boundary():
             elif isinstance(node, ast.ImportFrom) and node.level == 0:
                 imports.add(node.module.split(".")[0])
     assert imports <= {
+        "__future__",
         "dataclasses",
         "hashlib",
         "enum",
         "json",
+        "math",
         "pathlib",
+        "re",
         "types",
         "typing",
         "unicodedata",

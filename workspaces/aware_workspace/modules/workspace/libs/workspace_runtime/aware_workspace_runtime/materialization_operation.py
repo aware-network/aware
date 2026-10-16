@@ -1312,6 +1312,7 @@ class WorkspaceMaterializeOperation:
             [AdmittedWorkspaceSemanticMaterializationGraphNodeExecution],
             AbstractContextManager[WorkspaceMaterializeGraphNodeUse],
         ] | None = None,
+        graph_selected_input: Callable[[object, WorkspaceMaterializeExecutionPlan], tuple[object, object]] | None = None,
     ) -> None:
         if type(runtime) is not SemanticContractRuntime:
             raise TypeError("operation runtime must be exact SemanticContractRuntime")
@@ -1328,9 +1329,12 @@ class WorkspaceMaterializeOperation:
             raise TypeError("exact selected graph product registration required")
         if graph_node_use is not None and not callable(graph_node_use):
             raise TypeError("graph node use entrance must be callable")
+        if graph_selected_input is not None and (graph_node_use is None or not callable(graph_selected_input)):
+            raise TypeError("original graph selected-input reader required")
         self._runtime = runtime
         self._graph_product_registration = graph_product_registration
         self._graph_node_use = graph_node_use
+        self._graph_selected_input = graph_selected_input
         self._plan_resolver = plan_resolver
         self._publisher = publisher
         self._session_journal = session_journal
@@ -1574,14 +1578,17 @@ class WorkspaceMaterializeOperation:
                     "graph-node resolved closure differs from admission"
                 )
             use.bind_execution_plan(plan)
-            semantic_input = SelectedProviderInvocationClosure(
+            semantic_input: object = SelectedProviderInvocationClosure(
                 plan.invocation, plan.input_bodies, plan.predecessor_body
             )
+            operation_context: object = use
+            if self._graph_selected_input is not None:
+                semantic_input, operation_context = self._graph_selected_input(use, plan)
             execution = issue_selected_provider_execution(
                 self._runtime,
                 registration,
                 semantic_input,
-                operation_context=use,
+                operation_context=operation_context,
             )
             completion = execute_selected_provider(self._runtime, execution)
             if type(completion) is not ExecutionCompletion:

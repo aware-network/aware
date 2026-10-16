@@ -384,11 +384,10 @@ def encode_workspace_semantic_materialization_graph_result_v2(
         ordered_fulfilled_products=value.ordered_fulfilled_products,
         counter_entries=value.counter_entries,
     )
-    if _encode_admitted_wire(expected.to_wire()) != _encode_admitted_wire(
-        value.to_wire()
-    ):
+    expected_wire = _encode_admitted_wire(expected.to_wire())
+    if expected_wire != _encode_admitted_wire(value.to_wire()):
         raise ContractViolation("graph result V2 differs from context")
-    return _encode_admitted_wire(expected.to_wire())
+    return expected_wire
 
 
 def decode_workspace_semantic_materialization_graph_result_v2(

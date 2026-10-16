@@ -156,3 +156,211 @@ class FilesystemSourceProjectionPort:
                     errors.append(error)
             if errors:
                 raise ValueError("source_read_cleanup_incomplete") from errors[0]
+
+    def read_tree_entry(self, path: str, *, maximum_bytes: int = 16777216):
+        """Additive C read profile; v0 read_source retains its 4 MiB contract."""
+        from aware_workspace_sdk.repository_tree_projection_values import (
+            WorkspaceTreeEntryPin,
+            WorkspaceTreeTargetRead,
+        )
+
+        canonical_path(path)
+        if (
+            len(path.encode("utf-8")) > 1024
+            or any(len(part.encode("utf-8")) > 255 for part in path.split("/"))
+            or any(unicodedata.category(char).startswith("C") for char in path)
+            or type(maximum_bytes) is not int
+            or not 0 < maximum_bytes <= 16777216
+        ):
+            raise ValueError("tree_read_bounds_invalid")
+        _TREE_EXECUTION_CHECK(self)
+        descriptors = []
+        chunks = []
+        body = None
+        error = None
+        output = None
+        try:
+            root = os.open(self.root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            descriptors.append(root)
+            root_identity = (os.fstat(root).st_dev, os.fstat(root).st_ino)
+            if root_identity != self.root_identity:
+                raise ValueError("tree_root_identity_changed")
+            directory = root
+            parts = path.split("/")
+            absent = False
+            for part in parts[:-1]:
+                try:
+                    child = os.open(
+                        part,
+                        os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                        dir_fd=directory,
+                    )
+                except FileNotFoundError:
+                    absent = True
+                    break
+                # Deep paths retain only root + current + next, never one fd per depth.
+                descriptors.append(child)
+                if directory != root:
+                    descriptors.remove(directory)
+                    os.close(directory)
+                directory = child
+            before = None
+            if not absent:
+                try:
+                    before = os.stat(parts[-1], dir_fd=directory, follow_symlinks=False)
+                except FileNotFoundError:
+                    absent = True
+            if absent:
+                entry = WorkspaceTreeEntryPin(False, *([None] * 8))
+            elif stat.S_ISDIR(before.st_mode):
+                descriptor = os.open(
+                    parts[-1],
+                    os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                    dir_fd=directory,
+                )
+                descriptors.append(descriptor)
+                after = os.fstat(descriptor)
+                if _tree_stat_pin(before) != _tree_stat_pin(after):
+                    raise ValueError("tree_entry_changed_during_read")
+                entry = _tree_entry_pin(after, None)
+            elif stat.S_ISREG(before.st_mode) and before.st_nlink == 1:
+                descriptor = os.open(
+                    parts[-1],
+                    os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                    dir_fd=directory,
+                )
+                descriptors.append(descriptor)
+                opened = os.fstat(descriptor)
+                if (
+                    _tree_stat_pin(before) != _tree_stat_pin(opened)
+                    or opened.st_size > maximum_bytes
+                ):
+                    raise ValueError("tree_regular_bounded_preimage_required")
+                remaining = maximum_bytes + 1
+                while remaining:
+                    chunk = os.read(descriptor, min(remaining, 65536))
+                    if not chunk:
+                        break
+                    chunks.append(chunk)
+                    remaining -= len(chunk)
+                body = b"".join(chunks)
+                after = os.fstat(descriptor)
+                if len(body) > maximum_bytes or _tree_stat_pin(
+                    opened
+                ) != _tree_stat_pin(after):
+                    raise ValueError("tree_entry_changed_during_read")
+                import hashlib
+
+                entry = _tree_entry_pin(
+                    after, "sha256:" + hashlib.sha256(body).hexdigest()
+                )
+            else:
+                raise ValueError("tree_regular_single_link_or_directory_required")
+            if not absent:
+                current = os.stat(parts[-1], dir_fd=directory, follow_symlinks=False)
+                if _tree_stat_pin(current) != _tree_stat_pin(after):
+                    raise ValueError("tree_entry_changed_during_read")
+            current_root = os.stat(self.root, follow_symlinks=False)
+            if (current_root.st_dev, current_root.st_ino) != root_identity:
+                raise ValueError("tree_root_identity_changed")
+            _TREE_EXECUTION_CHECK(self)
+            output = WorkspaceTreeTargetRead(entry, root_identity, body)
+        except BaseException as caught:  # noqa: BLE001 - preserve interrupts through cleanup
+            error = caught
+        finally:
+            cleanup_errors = []
+            for descriptor in reversed(descriptors):
+                try:
+                    os.close(descriptor)
+                except BaseException as caught:  # noqa: BLE001 - all originals release once
+                    cleanup_errors.append(caught)
+            descriptors.clear()
+            chunks.clear()
+            body = None
+            if cleanup_errors:
+                cleanup = ValueError("tree_read_cleanup_unknown")
+                if error is not None:
+                    error.add_note("tree_read_cleanup_unknown")
+                else:
+                    error = cleanup
+                    cleanup.__cause__ = cleanup_errors[0]
+                output = None
+            cleanup_errors.clear()
+        if error is not None:
+            raise error
+        return output
+
+    def retain_tree_preparation(self, request):
+        # No local writer or substitute preparation when the supplier is absent.
+        from aware_file_system.confined_mutation import ConfinedMutationProfile
+        from aware_file_system.retained_tree_projection import (
+            retain_confined_tree_projection,
+        )
+
+        _TREE_EXECUTION_CHECK(self)
+        return retain_confined_tree_projection(
+            root=self.root,
+            request=request,
+            confinement_profile=ConfinedMutationProfile.DESCRIPTOR_WALK_V1,
+        )
+
+    def create_tree_session(self, binding):
+        _TREE_EXECUTION_CHECK(self)
+        if (
+            type(binding) is not WorkspaceRepositoryBinding
+            or binding.root_path != self.root
+        ):
+            raise ValueError("original_tree_repository_binding_required")
+        return WorkspaceRepositoryObservationSession(
+            binding=binding,
+            provider=FileSystemIndexObservationProvider(
+                binding=binding, cache_dir=self.state_root / "tree-observation"
+            ),
+            observation_mode="command",
+        )
+
+    def create_tree_receipt_store(self, binding, *, capacity):
+        _TREE_EXECUTION_CHECK(self)
+        if (
+            type(binding) is not WorkspaceRepositoryBinding
+            or binding.root_path != self.root
+        ):
+            raise ValueError("Original tree receipt repository binding required")
+        return WorkspaceRepositoryMutationStore(
+            repository_binding_ref=binding.binding_key,
+            state_root=self.state_root / "receipts",
+            capacity=capacity,
+        )
+
+
+_TREE_EXECUTION_CHECK = FilesystemSourceProjectionPort.check_execution
+
+
+def _tree_stat_pin(value):
+    return (
+        value.st_dev,
+        value.st_ino,
+        value.st_size,
+        value.st_mtime_ns,
+        value.st_ctime_ns,
+        value.st_mode,
+        value.st_nlink,
+    )
+
+
+def _tree_entry_pin(value, digest):
+    from aware_workspace_sdk.repository_tree_projection_values import (
+        WorkspaceTreeEntryPin,
+    )
+
+    return WorkspaceTreeEntryPin(
+        True,
+        value.st_dev,
+        value.st_ino,
+        value.st_size,
+        value.st_mtime_ns,
+        value.st_ctime_ns,
+        stat.S_IMODE(value.st_mode),
+        value.st_nlink,
+        digest,
+    )

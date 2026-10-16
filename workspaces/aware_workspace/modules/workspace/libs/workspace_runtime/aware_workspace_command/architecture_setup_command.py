@@ -83,6 +83,22 @@ def _common(parser: argparse.ArgumentParser) -> None:
         "--repository-root", dest="setup_repository_root", type=Path, required=True
     )
     parser.add_argument("--json", action="store_true")
+    # Parser composition stays setup-only; authority suppliers load only on use.
+    for flag in (
+        "governed",
+        "issue-ref",
+        "authority-manifest",
+        "issue-source-sha256",
+        "authority-manifest-sha256",
+        "client-intent-id",
+        "actor-ref",
+        "actor-evidence-ref",
+    ):
+        parser.add_argument(
+            "--" + flag,
+            action="store_true" if flag == "governed" else "store",
+            default=argparse.SUPPRESS,
+        )
 
 
 def _request(args: argparse.Namespace) -> ArchitectureSetupRequest:
@@ -123,6 +139,10 @@ def _emit(payload: dict[str, object], *, json_output: bool) -> None:
 
 
 def handle_workspace_setup_command(args: argparse.Namespace) -> int:
+    if getattr(args, "governed", False):
+        from .architecture_setup_a1_command import handle_a1
+
+        return handle_a1(args)
     payload: dict[str, object] = {
         "contract": _CONTRACT,
         "operation": args.setup_operation,
@@ -130,6 +150,19 @@ def handle_workspace_setup_command(args: argparse.Namespace) -> int:
     }
     effect_started = False
     try:
+        if any(
+            hasattr(args, key)
+            for key in (
+                "issue_ref",
+                "authority_manifest",
+                "issue_source_sha256",
+                "authority_manifest_sha256",
+                "client_intent_id",
+                "actor_ref",
+                "actor_evidence_ref",
+            )
+        ):
+            raise ArchitectureSetupError("authority_options_require_governed_mode")
         locks = args.setup_operation == "locks"
         if not locks:
             if args.apply and not args.expected_plan_sha256:

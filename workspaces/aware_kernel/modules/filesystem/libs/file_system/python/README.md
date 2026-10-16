@@ -48,6 +48,23 @@ not qualify every operation on every OS or Python version permitted by metadata.
 - `retained_package` stages and publishes a new package without replacing an
   existing target. Original custody claims govern resource transfer and
   once-only cleanup; detached observations cannot mint another claim.
+- `retained_tree_projection` is an unreleased physical source checkpoint.
+  It retains native requests, original read pins and fixed scratch coordinates;
+  `apply_next_transition` spends one original ordinal before checks or effects.
+  CREATE is no-replace; UPDATE/DELETE guard exact original preimages. Explicit
+  directories use `0755`, while mode-only changes preserve file identity.
+  `validate_current` retains full-plan semantics; `validate_next_current` checks
+  only the intrinsic next ordinal's root, ancestors, leaf and assigned scratch
+  without spending. Later-leaf drift may therefore leave a valid applied prefix;
+  full final verification is still mandatory. The original root descriptor is
+  borrowed through owner custody, with fresh identity/mode checks and one actual
+  release. All actual acquisition records remain in complete cleanup evidence.
+  `finish` verifies the complete postimage; `validate_consumed_current` remains
+  read-only until release. Refusals retain known effects, uncertain returns and
+  scratch/descriptor cleanup without replay or rollback. Linux mode restoration
+  uses an original descriptor-derived `/proc/self/fd` coordinate; other platforms
+  are not qualified by the source tests. This supplies neither Issue permission
+  nor installed or joined Workspace tree readiness.
 - `local_json_state` provides cooperative POSIX JSON read/write transactions
   for compatibility state. Reading can create a parent or lock file. This is
   not confined source admission and must not substitute for a governed writer.

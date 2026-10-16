@@ -355,3 +355,47 @@ and known cleanup. No scratch files or source mutations are performed.
 
 SDK floor: `>=0.3.3,<0.4.0`. Governed publication dependencies and authority
 remain unchanged. Installed qualification and consumer selection are separate.
+
+## Saved receipt filesystem provider 0.4.4
+
+`SpecificationFsSavedReceiptProvider` implements the accepted SDK's separate
+read-only receipt port. Select the optional `receipts` extra to supply the
+original FileSystem cleanup-qualified reader, `>=0.3.6,<0.4.0`. Default imports
+remain independent of that extra; unavailable or incompatible read ports refuse
+before source access. There is no raw-open fallback or retained writer.
+
+```python
+from aware_specification_fs_sdk_adapter import SpecificationFsSavedReceiptProvider
+from aware_specification_sdk import (
+    SpecificationSavedReceiptClient,
+    SpecificationSavedReceiptRequest,
+)
+
+client = SpecificationSavedReceiptClient(SpecificationFsSavedReceiptProvider())
+result = client.present_draft_receipt(SpecificationSavedReceiptRequest(
+    base_ref="/absolute/normalized/evidence-directory",
+    source_ref="draft-apply.json",
+    expected_source_sha256="sha256:" + "<exact-saved-file-sha256>",
+    view="summary",
+))
+```
+
+The digest placeholder must be replaced with the exact saved file's 64 lowercase
+hex digits; it is not a SPEC document or Protocol manifest digest. The source is
+canonical and relative to the explicit base, never interpreted against cwd.
+The original reader supplies no-follow traversal, regular-file checks, the
+16 MiB bound and once-only descriptor disposal. The SDK validates the whole
+capture before deriving either view; every successful result retains the exact
+full bytes as `full_body_hex`.
+
+Stale, absent, malformed and denied sources refuse without refreshing guards.
+Known read data and cleanup survive late presentation failures; original cleanup
+uncertainty prevents success. Invalid lower returns remain explicitly
+unvalidated with unknown cleanup, not verified observations. The adapter never
+releases a lower-owner descriptor, replays apply, creates a receipt cache or
+restores write authority. Observed-state/cooperative confinement remains the
+physical limit, not continuous confinement or every-write detection.
+
+SDK floor is now `>=0.3.4,<0.4.0`; existing Protocol/governed extras and their
+authority remain unchanged. Registrar mounting, an installed customer command,
+canonical Bundle qualification and public selection are separate steps.

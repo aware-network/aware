@@ -1575,12 +1575,12 @@ async def test_chunked_source_read_rejects_document_above_dev_ceiling(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("maximum_document", [4 * 1024 * 1024, 4 * 1024 * 1024 + 1])
+@pytest.mark.parametrize("maximum_document", [16 * 1024 * 1024, 16 * 1024 * 1024 + 1])
 async def test_chunked_source_read_rejects_above_new_document_or_request_ceiling(
     tmp_path: Path, maximum_document: int,
 ) -> None:
     source = tmp_path / "too-large.aware"
-    source.write_bytes(b"x" * (4 * 1024 * 1024 + 1))
+    source.write_bytes(b"x" * (16 * 1024 * 1024 + 1))
     provider = FakeProvider(tmp_path, _observation((_disk_entry(tmp_path, source.name),)))
     session = _session(tmp_path, provider)
     host = _host(WorkspaceRepositoryLocalServiceParticipant(session, background=False),
@@ -2386,7 +2386,7 @@ async def test_bounded_query_bootstraps_without_full_index_and_reads_exact_sourc
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("document_bytes", [256 * 1024, 1024 * 1024 + 1, 4 * 1024 * 1024, 4 * 1024 * 1024 + 1])
+@pytest.mark.parametrize("document_bytes", [256 * 1024, 1024 * 1024 + 1, 4 * 1024 * 1024, 16 * 1024 * 1024, 16 * 1024 * 1024 + 1])
 async def test_bounded_query_reads_large_exact_source_in_digest_stable_chunks(
     tmp_path: Path, document_bytes: int,
 ) -> None:
@@ -2446,12 +2446,12 @@ async def test_bounded_query_reads_large_exact_source_in_digest_stable_chunks(
                     "offset_bytes": offset,
                     "chunk_index": index,
                     "chunk_size_bytes": 128 * 1024,
-                    "max_document_bytes": 4 * 1024 * 1024,
+                    "max_document_bytes": 16 * 1024 * 1024,
                 },
                 correlation_id=f"query-chunk-{index}",
             )
         )
-        if document_bytes > 4 * 1024 * 1024:
+        if document_bytes > 16 * 1024 * 1024:
             assert result.status is LocalCallStatus.FAILED
             assert result.failure is not None
             assert result.failure.code is LocalFailureCode.INVALID_REQUEST

@@ -1,9 +1,11 @@
 import hashlib
+import io
 from dataclasses import replace
 from datetime import datetime
 
 import pytest
 from aware_issue_fs_adapter import FilesystemIssueOperationProvider
+from aware_issue_fs_adapter import provider as provider_module
 from aware_issue_fs_adapter.provider import (
     FILESYSTEM_ISSUE_DISTRIBUTION,
     FILESYSTEM_ISSUE_PROVIDER_REF,
@@ -185,3 +187,40 @@ def test_unreadable_duplicate_candidate_is_not_silently_skipped(installed):
     other = root / "docs/issues/2026/10/11/fb-2026-10-11-other.md"
     other.write_bytes(b"x" * 262145)
     assert provider.resolve_reading(request).projection is None
+
+
+@pytest.mark.parametrize("duplicate", [False, True])
+def test_large_candidate_body_uses_complete_original_header(
+    installed, duplicate, monkeypatch
+):
+    root, provider, request = installed
+    other = root / "docs/issues/2026/10/11/fb-2026-10-11-other.md"
+    tag = ISSUE if duplicate else "fb/2026-10-11/unrelated"
+    other.write_text(f"# Issue: Other\n- Tag: {tag}\n## Body\n" + "x" * 1_048_576)
+    original = provider_module.read_issue_source_header
+    limits = []
+
+    def capture(stream, *, byte_limit):
+        assert isinstance(stream, io.FileIO)  # No buffered read-ahead of the body.
+        limits.append(byte_limit)
+        return original(stream, byte_limit=byte_limit)
+
+    monkeypatch.setattr(provider_module, "read_issue_source_header", capture)
+    result = provider.resolve_reading(request)
+    assert limits == [262_144]
+    if duplicate:
+        assert result.projection is None
+        assert result.diagnostics == ("issue_identity_duplicate_matches:2",)
+        assert result.observation_ref is None and result.horizon_ref is None
+    else:
+        assert result.projection.source.raw_markdown == SOURCE
+        assert result.observation_ref and result.horizon_ref
+
+
+def test_invalid_body_encoding_still_detects_duplicate_header(installed):
+    root, provider, request = installed
+    other = root / "docs/issues/2026/10/11/fb-2026-10-11-other.md"
+    other.write_bytes(f"- Tag: {ISSUE}\n## Body\n".encode() + b"\xff")
+    result = provider.resolve_reading(request)
+    assert result.projection is None
+    assert result.diagnostics == ("issue_identity_duplicate_matches:2",)

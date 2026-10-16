@@ -58,6 +58,7 @@ from aware_issue_runtime import (
     parse_issue_projection,
     parse_issue_source,
 )
+from aware_issue_runtime.parser import read_issue_source_header
 from aware_issue_sdk import (
     IssueAppendEvidenceRequest,
     IssueAppendUpdateRequest,
@@ -1663,18 +1664,29 @@ class FilesystemIssueOperationProvider:
                 if candidate_resolution.path is None:
                     continue
                 try:
-                    source = (
-                        candidate_resolution.path.read_text(encoding="utf-8")
-                        if self._limits is None and source_limit is None
-                        else self._read_source(
-                            candidate_resolution.path, source_limit=source_limit
-                        ).decode("utf-8")
-                    )
-                    document = parse_issue_source(source)
+                    if self._limits is None and source_limit is None:
+                        document = parse_issue_source(
+                            candidate_resolution.path.read_text(encoding="utf-8")
+                        )
+                    else:
+                        ceiling = (
+                            source_limit
+                            if self._limits is None
+                            else self._limits.source_bytes
+                        )
+                        assert ceiling is not None
+                        if source_limit is not None:
+                            ceiling = min(ceiling, source_limit)
+                        with candidate_resolution.path.open(
+                            "rb", buffering=0
+                        ) as stream:
+                            document = read_issue_source_header(
+                                stream, byte_limit=ceiling
+                            )
                 except (OSError, UnicodeError) as error:
                     if self._limits is not None or source_limit is not None:
-                        # An unreadable candidate may conceal the same identity.
-                        # Refuse before writing; overflow is never a safe skip.
+                        # An incomplete/unreadable header may hide the identity.
+                        # No candidate is skipped on overflow or read failure.
                         return (
                             f"issue_duplicate_candidate_unavailable:{type(error).__name__}",
                         )

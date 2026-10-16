@@ -7,6 +7,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, NoReturn, Self, SupportsIndex
 from weakref import WeakKeyDictionary
 
+from .repository_workflow_source_values import (
+    WorkspaceWorkflowSourceBinding,
+    WorkspaceWorkflowSourceObservation,
+    WorkspaceWorkflowSourceRead,
+)
 from .repository_workflow_values import (
     WorkflowCleanup,
     WorkflowPersistence,
@@ -31,6 +36,11 @@ if TYPE_CHECKING:
 # Exact original entries, captured at selection; lookup never hashes a foreign holder.
 _CLIENTS: WeakKeyDictionary[
     WorkspaceRepositoryWorkflowClient,
+    tuple[WorkspaceRepositoryWorkflowRuntime, type, dict[str, Callable[..., Any]]],
+] = WeakKeyDictionary()
+
+_SOURCES: WeakKeyDictionary[
+    WorkspaceRepositoryWorkflowSource,
     tuple[WorkspaceRepositoryWorkflowRuntime, type, dict[str, Callable[..., Any]]],
 ] = WeakKeyDictionary()
 
@@ -85,6 +95,10 @@ class WorkspaceRepositoryWorkflowAttempt(_Original):
     __slots__ = ()
 
 
+class WorkspaceRepositoryWorkflowSource(_Original):
+    __slots__ = ()
+
+
 class WorkspaceRepositoryWorkflowClient(_Original):
     __slots__ = ()
 
@@ -110,17 +124,9 @@ class WorkspaceRepositoryWorkflowClient(_Original):
             execution_id=execution_id,
         )
         entrances = {
-            name: vars(WorkspaceRepositoryWorkflowRuntime)[name]
-            for name in (
-                "check_current",
-                "retire",
-                "plan",
-                "observe_plan",
-                "open_attempt",
-                "append_evidence",
-                "observe_attempt",
-                "release_attempt",
-            )
+            name: value
+            for name, value in vars(WorkspaceRepositoryWorkflowRuntime).items()
+            if callable(value)
         }
         client = object.__new__(cls)
         _CLIENTS[client] = runtime, WorkspaceRepositoryWorkflowRuntime, entrances
@@ -158,6 +164,102 @@ class WorkspaceRepositoryWorkflowClient(_Original):
     ) -> WorkspaceRepositoryWorkflowCleanupObservation:
         return _invoke(self, "release_attempt", attempt)
 
+    def retain_repository_workflow_source(
+        self, attempt: WorkspaceRepositoryWorkflowAttempt
+    ) -> WorkspaceRepositoryWorkflowSource:
+        source = None
+        try:
+            source = _invoke(self, "retain_source", attempt)
+            _SOURCES[source] = _CLIENTS[self]
+            return source
+        finally:
+            del self, attempt, source
+
+
+def _invoke_source(source: object, name: str, *args: object) -> Any:
+    original = runtime = runtime_class = entrances = None
+    try:
+        for original, (runtime, runtime_class, entrances) in _SOURCES.items():
+            if original is source:
+                # Foreign process rejection precedes inherited owner cleanup and IO.
+                import os
+                import threading
+
+                if (
+                    runtime.pid != os.getpid()
+                    or runtime.thread != threading.get_ident()
+                ):
+                    raise WorkspaceRepositoryWorkflowRefusal(
+                        "foreign_or_retired_handle"
+                    )
+                if type(runtime) is not runtime_class or any(
+                    vars(runtime_class).get(key) is not method
+                    for key, method in entrances.items()
+                ):
+                    entrances["release_source"](runtime, source)
+                    raise WorkspaceRepositoryWorkflowRefusal(
+                        "foreign_or_retired_handle"
+                    )
+                return entrances[name](runtime, source, *args)
+        raise WorkspaceRepositoryWorkflowRefusal("foreign_or_retired_handle")
+    finally:
+        original = runtime = runtime_class = entrances = source = None
+        args = ()
+
+
+def observe_original_repository_workflow_source(
+    source: WorkspaceRepositoryWorkflowSource,
+) -> WorkspaceWorkflowSourceObservation:
+    try:
+        return _invoke_source(source, "observe_source")
+    finally:
+        del source
+
+
+def verify_original_repository_workflow_source(
+    source: WorkspaceRepositoryWorkflowSource,
+    *,
+    expected_binding: WorkspaceWorkflowSourceBinding,
+) -> None:
+    try:
+        _invoke_source(source, "verify_source", expected_binding)
+    finally:
+        del source, expected_binding
+
+
+def read_original_repository_workflow_source(
+    source: WorkspaceRepositoryWorkflowSource,
+    *,
+    expected_binding: WorkspaceWorkflowSourceBinding,
+    output_paths: tuple[str, ...],
+) -> WorkspaceWorkflowSourceRead:
+    try:
+        return _invoke_source(source, "read_source", expected_binding, output_paths)
+    finally:
+        del source, expected_binding, output_paths
+
+
+def verify_original_repository_workflow_source_paths(
+    source: WorkspaceRepositoryWorkflowSource,
+    *,
+    expected_binding: WorkspaceWorkflowSourceBinding,
+    output_paths: tuple[str, ...],
+) -> None:
+    """Validate original selected leaves; does not replace full source validation."""
+    try:
+        _invoke_source(source, "verify_source_paths", expected_binding, output_paths)
+    finally:
+        del source, expected_binding, output_paths
+
+
+def release_original_repository_workflow_source(
+    source: WorkspaceRepositoryWorkflowSource,
+) -> WorkspaceRepositoryWorkflowCleanupObservation:
+    try:
+        return _invoke_source(source, "release_source")
+    finally:
+        del source
+
 
 def _invoke(client: object, name: str, *args: object) -> Any:
     original = runtime = runtime_class = entrances = None
@@ -190,4 +292,10 @@ __all__ = (
     "WorkspaceRepositoryWorkflowClient",
     "WorkspaceRepositoryWorkflowPlan",
     "WorkspaceRepositoryWorkflowRefusal",
+    "WorkspaceRepositoryWorkflowSource",
+    "observe_original_repository_workflow_source",
+    "read_original_repository_workflow_source",
+    "release_original_repository_workflow_source",
+    "verify_original_repository_workflow_source",
+    "verify_original_repository_workflow_source_paths",
 )

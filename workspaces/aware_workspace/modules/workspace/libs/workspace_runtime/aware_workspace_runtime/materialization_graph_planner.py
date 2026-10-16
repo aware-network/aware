@@ -32,12 +32,16 @@ from aware_code_semantic_contract_runtime.retained_input_projection_codec import
     DependencyPlanningInputCodec,
 )
 
+from .declaration_product_membership import (
+    WorkspaceDeclarationProductCorrespondence,
+    read_declaration_product_correspondence_package,
+    validate_declaration_product_planning_input,
+)
+from .declaration_scope_admission import WorkspaceOriginalGraphTargetValidator
 from .materialization_membership_catalog import (
     WorkspaceSemanticMaterializationMembershipResolver,
     WorkspaceSemanticMaterializationPackageEntry,
 )
-from .declaration_scope_admission import WorkspaceOriginalGraphTargetValidator
-from .source_admission_catalog import WorkspaceV3GraphSourceCorrespondence
 from .materialization_selection import (
     WORKSPACE_ADMITTED_PACKAGE_INTENT,
     WORKSPACE_MATERIALIZATION_ROOT_INTENT_ASSOCIATION,
@@ -70,6 +74,7 @@ from .semantic_dependency_graph import (
     _create_planner_node_execution_binding,
     _create_planner_target_resolution,
 )
+from .source_admission_catalog import WorkspaceV3GraphSourceCorrespondence
 
 WORKSPACE_SEMANTIC_ROOT_CODE_PLAN = "aware.workspace.semantic-root-code-plan.v1"
 _WORKSPACE_SEMANTIC_ROOT_CODE_PLAN_V2 = "aware.workspace.semantic-root-code-plan.v2"
@@ -256,14 +261,16 @@ def _validate_state_bound_head_occurrence(
     *,
     entry: WorkspaceSemanticMaterializationPackageEntry,
     head: WorkspaceSemanticPackageHeadObservation,
-    correspondence: WorkspaceV3GraphSourceCorrespondence | None,
+    correspondence: WorkspaceV3GraphSourceCorrespondence | WorkspaceDeclarationProductCorrespondence | None,
 ) -> None:
     """Join retained V4 head identity to the original selected source."""
     head.__post_init__()
     occurrence = head.stored_package_occurrence
     if occurrence is None:
         return
-    if correspondence is None:
+    if type(correspondence) is not WorkspaceV3GraphSourceCorrespondence:
+        # Declaration participation is not a historical occurrence admission.
+        # Do not infer V4 predecessor/current authority from catalog metadata.
         raise WorkspaceSemanticMaterializationPlanningError(
             "head_observation_failed", "graph_derive"
         )
@@ -284,7 +291,7 @@ class WorkspaceSemanticMaterializationGraphPlanner:
         head_reader: WorkspaceSemanticPackageHeadReader,
         planning_source: SemanticDependencySource,
         source_only_target_validator: WorkspaceOriginalGraphTargetValidator | None = None,
-        source_correspondences: tuple[WorkspaceV3GraphSourceCorrespondence, ...] = (),
+        source_correspondences: tuple[WorkspaceV3GraphSourceCorrespondence | WorkspaceDeclarationProductCorrespondence, ...] = (),
     ) -> None:
         if (
             type(workspace_catalog)
@@ -310,9 +317,13 @@ class WorkspaceSemanticMaterializationGraphPlanner:
             raise TypeError("original source correspondence tuple required")
         self._source_correspondences = {}
         for item in source_correspondences:
-            if type(item) is not WorkspaceV3GraphSourceCorrespondence:
+            if type(item) not in (WorkspaceV3GraphSourceCorrespondence, WorkspaceDeclarationProductCorrespondence):
                 raise TypeError("original v3 source correspondence required")
-            package_ref = item.package().package_ref
+            package_ref = (
+                read_declaration_product_correspondence_package(item).package_ref
+                if type(item) is WorkspaceDeclarationProductCorrespondence
+                else item.package().package_ref
+            )
             if package_ref in self._source_correspondences:
                 raise ContractViolation("duplicate graph source correspondence")
             self._source_correspondences[package_ref] = item
@@ -350,7 +361,10 @@ class WorkspaceSemanticMaterializationGraphPlanner:
             raise ContractViolation("owner planning package/source differs")
         correspondence = self._source_correspondences.get(entry.package.package_ref)
         if correspondence is not None:
-            correspondence.validate(entry, value)
+            if type(correspondence) is WorkspaceDeclarationProductCorrespondence:
+                validate_declaration_product_planning_input(correspondence, entry, value)
+            else:
+                correspondence.validate(entry, value)
         elif self._source_correspondences or (
             value.source_identity_digest != entry.source_identity_digest
         ):

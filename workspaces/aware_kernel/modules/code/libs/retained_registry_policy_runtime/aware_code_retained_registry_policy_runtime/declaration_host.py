@@ -8,8 +8,8 @@ result, and revalidate both after provider work and under parent exclusion.
 from __future__ import annotations
 
 import os
-from copy import deepcopy
 from contextlib import contextmanager
+from copy import deepcopy
 from dataclasses import dataclass
 from weakref import WeakKeyDictionary
 
@@ -17,11 +17,13 @@ from aware_code_semantic_contract_runtime.contracts import (
     ContentDigest,
     ContractViolation,
 )
-from aware_code_semantic_contract_runtime.registry_policy import RegistryPolicy
-from aware_code_semantic_contract_runtime.registry_policy import RegistryPolicyGrant
+from aware_code_semantic_contract_runtime.registry_policy import (
+    RegistryPolicy,
+    RegistryPolicyGrant,
+)
 from aware_code_semantic_contract_runtime.retained_declaration_scope import (
-    CodeRetainedDependencyScopeClosureV3,
     CodeDeclarationScopeExpectation,
+    CodeRetainedDependencyScopeClosureV3,
     CodeSelectedPackageSourceBinding,
 )
 from aware_code_semantic_contract_runtime.selected_participant_scope import (
@@ -116,7 +118,8 @@ def _check_declaration_source_locked(host, guard):
     state = direct._HOSTS.get(host)
     prepared = None if state is None else state.declaration_binding
     if (
-        prepared is None
+        state is None
+        or prepared is None
         or prepared.host is not host
         or prepared.state is not state
         or prepared.pid != os.getpid()
@@ -190,6 +193,30 @@ def _selected_binding(host, handle, prepared):
     return binding
 
 
+def _validate_selected_product_declaration(state, closure, view, selected):
+    """Validate live product correspondence before and after policy use.
+
+    The existing stage pair remains validated by its stage entrance. A v3
+    graph_product registration uses the original product retention instead;
+    its portable declaration alone never enrolls an executable.
+    """
+    from .calculation import _plain
+    from .selected_participant_calculation import selected_qualified_occurrence
+
+    _, package, _, declaration = selected_qualified_occurrence(
+        closure, view,
+        (selected.scope_key, selected.module_id, selected.package_id),
+    )
+    profiles = _plain(declaration)["profiles"]
+    if len(profiles) == 1 and profiles[0]["stage"] == "graph_product":
+        products = state.product_retention
+        if products is None:
+            raise ContractViolation("original selected product retention required")
+        products.validate_declared_profile(
+            declaration, package_kind=package.package_kind
+        )
+
+
 def _produce_selected_registry_policy(host, handle):
     from . import direct_host as direct
     from .direct_epoch_tracking import _BINDINGS, _guard, _policy_epoch_use
@@ -211,6 +238,9 @@ def _produce_selected_registry_policy(host, handle):
             state.methods["participant_validate"].call(
                 prepared.handle, handle, view=view
             )
+            _validate_selected_product_declaration(
+                state, prepared.closure, view, binding.expectation
+            )
             eligibility = calculate_declaration_eligibility(
                 prepared.closure, selected_view=view
             )
@@ -226,6 +256,9 @@ def _produce_selected_registry_policy(host, handle):
             )
             state.methods["participant_validate"].call(
                 prepared.handle, handle, view=view
+            )
+            _validate_selected_product_declaration(
+                state, prepared.closure, view, binding.expectation
             )
             state.check(read_catalog=False)
             with _guard(epoch) as guard:
@@ -306,6 +339,9 @@ def _selected_policy_source(host, admission):
             state.methods["participant_validate"].call(
                 prepared.handle, handle, view=view
             )
+            _validate_selected_product_declaration(
+                state, prepared.closure, view, binding.expectation
+            )
             eligibility = calculate_declaration_eligibility(
                 prepared.closure, selected_view=view
             )
@@ -322,6 +358,9 @@ def _selected_policy_source(host, admission):
             )
             state.methods["participant_validate"].call(
                 prepared.handle, handle, view=view
+            )
+            _validate_selected_product_declaration(
+                state, prepared.closure, view, binding.expectation
             )
             state.check(read_catalog=False)
             with _guard(epoch) as guard:

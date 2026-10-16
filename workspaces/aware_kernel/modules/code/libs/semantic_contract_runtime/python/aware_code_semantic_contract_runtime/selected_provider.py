@@ -298,6 +298,13 @@ class _SelectedProviderFactoryProduct:
     private_stage_predecessor_port: Callable[..., object] | None = None
     private_stage_predecessor_input: PrivateStageRoleContract | None = None
     selected_invocation_observer: Callable[[str, SelectedInvocationUse], None] | None = None
+    # Optional original owner production of generic dependency planning meaning.
+    # These are admitted together by product_contribution, never discovered by name.
+    planning_input_declaration: object | None = None
+    planning_input_producer: Callable[..., object] | None = None
+    execution_input_contribution_producer: (
+        Callable[[SelectedProviderProductContribution], object] | None
+    ) = None
 
 
 _PREDECESSOR_INPUT_SLOTS = tuple(

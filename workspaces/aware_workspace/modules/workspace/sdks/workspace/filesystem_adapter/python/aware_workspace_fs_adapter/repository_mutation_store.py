@@ -144,28 +144,29 @@ class WorkspaceRepositoryMutationStore:
         )
         try:
             with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
-                json.dump(
-                    {
-                        "contract_ref": WORKSPACE_REPOSITORY_MUTATION_STORE_CONTRACT_REF,
-                        "contract_version": WORKSPACE_REPOSITORY_MUTATION_STORE_VERSION,
-                        "repository_binding_ref": self._repository_binding_ref,
-                        "records": [
-                            {
-                                "receipt_ref": receipt_ref,
-                                "fingerprint": fingerprint,
-                                "result": repository_authorized_mutation_payload(
-                                    result
-                                ),
-                            }
-                            for receipt_ref, (
-                                fingerprint,
-                                result,
-                            ) in self._records.items()
-                        ],
-                    },
-                    stream,
-                    indent=2,
-                    sort_keys=True,
+                stream.write(
+                    json.dumps(
+                        {
+                            "contract_ref": WORKSPACE_REPOSITORY_MUTATION_STORE_CONTRACT_REF,
+                            "contract_version": WORKSPACE_REPOSITORY_MUTATION_STORE_VERSION,
+                            "repository_binding_ref": self._repository_binding_ref,
+                            "records": [
+                                {
+                                    "receipt_ref": receipt_ref,
+                                    "fingerprint": fingerprint,
+                                    "result": repository_authorized_mutation_payload(
+                                        result
+                                    ),
+                                }
+                                for receipt_ref, (
+                                    fingerprint,
+                                    result,
+                                ) in self._records.items()
+                            ],
+                        },
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    )
                 )
                 stream.write("\n")
                 stream.flush()

@@ -326,7 +326,7 @@ def compose_selected_provider_stage_catalog_input(
     # complete pairs. Keep this input ceiling identical to the eventual host.
     if (
         type(contributions) is not tuple
-        or not 0 < len(contributions) <= 4096
+        or len(contributions) > 4096
         or any(
             type(item) is not SelectedProviderStageContribution
             for item in contributions
@@ -351,6 +351,8 @@ def compose_selected_provider_stage_catalog_input(
         != len(product_contributions)
     ):
         raise ContractViolation("bounded original product contributions required")
+    if not contributions and not product_contributions:
+        raise ContractViolation("at least one original catalog contribution required")
     observed = tuple(
         read_selected_provider_stage_catalog_contribution(item)
         for item in contributions
