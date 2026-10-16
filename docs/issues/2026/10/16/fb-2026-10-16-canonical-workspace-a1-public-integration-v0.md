@@ -2,7 +2,7 @@
 
 - Slug: canonical-workspace-a1-public-integration-v0
 - Tag: fb/2026-10-16/canonical-workspace-a1-public-integration-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -295,6 +295,7 @@
 
 
 
+
 ## Problem
 1. Accepted Workspace A1 layout is not yet integrated against the exact incoming public revision.
 
@@ -303,8 +304,10 @@
 
 
 
+
 ## Goal
 1. Project the reviewed 275-path delta with complete source/notice carriage, preserving contributor governance and predecessor selection.
+
 
 
 
@@ -321,9 +324,18 @@
 
 
 
+
+## Verified-by
+- Independent PASS supplied by Luis; /tmp/aware-a1-integration-review.OaE65poE/integration.xml SHA256 6da299ed70c5efcdb1917272d246ec3db04e2eb7b2bc86f13dc63bb64f4e5af6. Recording and closeout rerun no tests, installation or software changes.
+- git:4da4e03a77cf8fe8efc137eecf44a4870a03e08c
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Projected exact 275-path accepted delta under genuine 279-path scope. Restored original pinned contributor a6 separately after explicit Luis authorization. 28 producer guards and 8 integration checks pass, including fresh offline checkout-hidden 42-package installation, full envelope/source bindings, 14 help entrances, missing identity and reuse refusals. Initial wrong maintainer help vector failure retained; corrected smoke used new environment and unchanged software. Whole-envelope and prepared A1 limits remain; no governed A1/domain matrix/U replay, selection, freeze or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Integrated locally at 1872a6e20a5502749aa34acffdcb9e06c611eb07: exact 279-path implementation matches original receipt; CAS/shared-index applied without debt. 28 guards and 8 integration checks pass. Whole accepted envelope/source/modes and predecessor/contributor selection preserved. Full implementation-range whitespace check clean. Independent bounded review next; Issue remains In Progress. No selection, instruction freeze, remote push, full domain/governed A1 replay or unassisted evaluation. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Luis supplied independent bounded PASS for 1872a6e20a55 / 1b2bb517fc3a. 28 guards and 8 integration checks pass, zero skipped; exact 279-path implementation/two-path handoff and original guards/receipts match with CAS/index completed without debt. Fresh offline hidden-checkout 42 locked packages; restored contributor 0.1.0a6 contract 1.2.1 hash-bound. Independent XML /tmp/aware-a1-integration-review.OaE65poE/integration.xml SHA256 6da299ed70c5efcdb1917272d246ec3db04e2eb7b2bc86f13dc63bb64f4e5af6. No tests/installation rerun recording acceptance. Whole-envelope/A1 limits remain; selection/freeze/push separate. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Bounded local integration accepted independently: exact 279-path implementation, two-path handoff and original receipts match; 28 guards + 8 fresh offline checkout-hidden integration checks pass, 42 locked packages, preserved bytes/modes/source/notices and contributor governance; restored pinned contributor separate. Whole-envelope required; governed A1 execution, A2/tree completion and unassisted onboarding unestablished. Selection, instruction freeze and push remain separate.
