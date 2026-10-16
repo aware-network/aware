@@ -47,3 +47,13 @@ Proof root: `/tmp/aware-a1-public-status.qlBbUCT5`; final fresh environment pare
 `/tmp/aware-a1-status-installed-final.2JPsnX99`. No domain matrix, positive governed
 A1 dispatch, customer workflow or unassisted evaluation was rerun. The independent
 status-alignment review remains next before original-owner closeout.
+
+## Local publication receipt
+
+The exact ten-path implementation is
+`19fba2aa3bad2d389a6afe5f39560db5853955a1`. Original contributor a6 published the
+identical dry-run/apply request under a fresh genuine Issue-byte guard. Actual
+commit paths match its receipt; reference CAS and shared-index projection applied
+without reconciliation debt. The separate Issue/ledger-only handoff leaves all
+thirteen successor pins unchanged. This is local Git publication, not another
+remote push. Both Issues remain In Progress for bounded independent review.
