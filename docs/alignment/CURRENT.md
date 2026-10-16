@@ -11,8 +11,11 @@ The Workspace A1 mount requires prepared owner-admission inputs; it does not
 admit A2 locks, positive tree-C completion, native receiving or materialization.
 Raw deltas are change evidence, not inferred meaning or renewed authority.
 
-The accepted successor is integrated and selected locally. Instructions are frozen
-locally pending independent review, not publicly delivered or publication-authorized.
+The accepted A1 software and original frozen instructions were delivered at
+`8dc511505151e5e23a5d50478b2e1f00194f2c05` on `aware-network/aware/main`.
+[Status alignment](../../releases/canonical-workspace-a1-fs-v1/PUBLIC-STATUS.md)
+tracks the separate review/delivery of this wording correction; historical freeze
+and successor instruction pins remain distinct.
 The [delivery pointer](../../releases/SELECTED.json) binds exact artifacts, not
 package selection or authority. The contributor command stays unchanged.
 [Whole-envelope carriage](../../releases/canonical-workspace-a1-fs-v1/README.md) is required.

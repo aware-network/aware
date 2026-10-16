@@ -1,8 +1,12 @@
 # Workspace A1 whole distribution
 
-Selected locally; public delivery is not yet authorized. Instructions are frozen
-locally pending independent review; [exact byte pins](INSTRUCTIONS.json) and
-[freeze boundaries](INSTRUCTION-FREEZE.md) bind the current guidance.
+Delivered software and original frozen instructions:
+`8dc511505151e5e23a5d50478b2e1f00194f2c05` on `aware-network/aware/main`.
+Acquire that full revision. [Successor byte pins](PUBLIC-INSTRUCTIONS.json) bind
+this guidance; [historical pins](INSTRUCTIONS.json) and
+[freeze boundaries](INSTRUCTION-FREEZE.md) retain their original evidence.
+[Status alignment](PUBLIC-STATUS.md) tracks this separate wording correction
+and its review/delivery boundaries.
 [Local selection](LOCAL-SELECTION.md) records the exact decision and review boundary.
 Envelope `canonical-workspace-a1-source-notice-review-v1.tar.gz`
 is SHA-256 `de8740f8e2fd84be257704407e43ffc9a687d23f219becae3f992798519e739a`; payload SHA-256 is `a62e7f96d93c233302824ef6820d96b944867ef2338a121000976ea8a3ca1fe5`.

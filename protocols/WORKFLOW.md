@@ -1,15 +1,18 @@
 # Aware Workspace A1 onboarding review
 
-Instructions frozen locally pending independent review, not yet public delivery,
-for the accepted SDK-backed preparation candidate: install
-once, initialize explicitly, admit an Issue, configure SPEC and prepare a draft
-for review before explicit invocation. Agent CLI is 0.2.0a6; Protocol SDK/FS are 0.3.2/0.6.5; SPEC SDK is 0.3.4;
+Software and original frozen instructions were delivered at
+`8dc511505151e5e23a5d50478b2e1f00194f2c05` on `aware-network/aware/main`.
+Acquire that full revision. [Status alignment](../releases/canonical-workspace-a1-fs-v1/PUBLIC-STATUS.md)
+tracks this separate wording correction and its review/delivery boundaries.
+Install once, initialize explicitly, admit an Issue, configure SPEC and prepare
+a draft for review before explicit invocation. Agent CLI is 0.2.0a6; Protocol SDK/FS are 0.3.2/0.6.5; SPEC SDK is 0.3.4;
 SPEC FS SDK adapter and CLI are 0.4.4. Issue CLI 0.8.3 / FS 0.9.6 are carried.
 Workspace SDK/runtime/FS are 0.2.9/0.2.12/0.1.8; FileSystem is 0.3.7.
 This internal review envelope carries the exact forty-two-package payload, committed
 `portable_protocols` sources and corresponding notices. Notice/disclosure
-acceptance is candidate-bound; local selection is accepted. Freeze acceptance
-and public delivery remain separate.
+acceptance is candidate-bound; local selection and the historical freeze are
+independently accepted. [Successor instruction pins](../releases/canonical-workspace-a1-fs-v1/PUBLIC-INSTRUCTIONS.json)
+bind this guidance without rewriting the historical freeze.
 Scripted installed proofs do not establish unassisted customer onboarding.
 
 ## Install with the complete envelope
