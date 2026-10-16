@@ -40,7 +40,12 @@ pins were regenerated and the final seven-case replay used a new environment.
 Earlier overlapping replays are not additional distinct proofs. Software and
 operational command/guard behavior never changed.
 
-Original publication receipts will be recorded after successful publication.
+Original a6 publication applied at `995cceac508902a75a6ff97099e2f32f18f3983f`,
+exactly the eleven admitted paths. Identical dry-run/apply used fresh Issue bytes.
+CAS and shared-index projection applied without reconciliation debt. The
+Issue/ledger-only handoff is separately observed and published; it changes none
+of the thirteen pinned instruction/example bytes. Both Issues remain In Progress
+for independent bounded freeze review. This is local, not remote publication.
 Independent bounded review precedes original-owner closeout; publication and
 push require explicit later authorization. Never refresh guards or retry a
 mutation automatically. Keep full evidence and unknown effects.
