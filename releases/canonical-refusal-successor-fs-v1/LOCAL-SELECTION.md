@@ -111,3 +111,20 @@ commands/source/legal carriage, original guards/receipts and fresh installer pro
 Both Issues stay In Progress pending that review. Only after acceptance may the
 owners close them and admit instruction freeze separately. No push or external
 evaluation is included; frozen U/V/R remains unchanged.
+
+## Independent acceptance
+
+The Human supplied independent bounded PASS for producer `c20edf8d3ad7` /
+`4ad2038f29c0` and public implementation `136ab04f2551` / `33d357abf78c`.
+Independent receipt `/tmp/aware-refusal-selection-review.Ni71b58r/selection.xml`,
+SHA-256 `d4c671c3d03c3a8e14e5c735c1fbd7d75ae379dfa27c495817f0dec7a3175349`,
+records seven passing cases, zero failures/errors/skips, including a fresh offline,
+checkout-hidden installation of 42 packages. Exact original scopes, Issue guards,
+CAS/index receipts, 1,626 unaffected files and baseline executable modes were
+independently verified. No correction was requested.
+
+This acceptance records that review without repeating installation or changing
+software, operational commands, installer, sources/notices or contributor selection.
+The original owners may close the two selection Issues. Instruction freeze needs
+a new Issue and exact baseline. Whole-envelope carriage remains required; no
+publication, push, evaluation rerun or change to frozen external U/V/R is admitted.
