@@ -82,3 +82,37 @@ customer instructions, software and accepted layout were not changed. The final
 eight-case replay uses a separate fresh installation root. Both attempts and
 their original command captures are retained; neither is relabelled as the
 other. No broad software-matrix or customer journey was rerun here.
+
+## Local publication and independent review handoff
+
+Implementation f895e45c38848c1595b4a6108914da7789d146c4 publishes the exact
+131 admitted paths through the original contributor owner. Original dry-run
+and apply receipts agree on paths and Issue guard
+sha256:17246aa4cb427a485a826afbf7b9d5ed7f48fde092d4add14aacd8681898faf1.
+Publication reference is git:f895e45c38848c1595b4a6108914da7789d146c4;
+reference_update=cas_applied, shared_index_projection=applied and
+index_reconciliation_pending=false. Actual commit paths agree with the receipt;
+the contributor checkout and index were clean after apply. This report and
+the original Issue then receive a separately governed two-path handoff commit.
+
+Retained replay identities (raw bytes, SHA-256):
+
+- 28-case guards.xml: 5edcee7469262339aff2520d62ef97a0cfe909d8670d47cc1a380b7c7d86f309.
+- Eight-case integration-final.xml: ec67d20a24dc653b503131d33839fc18ecbce0e0b3bbef8173d3bae1a16b22c2.
+- Fresh installed-receipt.json: bae3f316a62fac3308d855d8a5a5244581052093a316ca6a7a6a6285ddd38b3f.
+
+The fresh smoke captures twenty top-level commands, including fifteen help
+entrances. It verifies the full locked closure; it is not a new subprocess
+proof of the governed two-review journey or broad module-origin audit.
+
+Read-only git diff --check from incoming revision
+001457643287a15c9b1e6b379f58c09cecc9def2 to implementation
+f895e45c38848c1595b4a6108914da7789d146c4 exits zero with empty raw stdout
+(SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855).
+No preserved upstream source/legal bytes were normalized.
+
+Independently verify original Issue/open/update/publication evidence, actual
+commit deltas, baseline modes and all accepted postimages; replay the maintainer
+test with a new private scratch environment. The Issue stays In Progress for
+that review. Do not hand-check authored acceptance boxes, infer delivery from
+local integration, or close with a reconstructed publication receipt.
