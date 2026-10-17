@@ -26,6 +26,7 @@
 
 
 
+
 ## Problem
 1. Selected reviewed-workflow customer guidance is draft and includes historical unselected wording without exact current instruction byte pins.
 
@@ -33,8 +34,10 @@
 
 
 
+
 ## Goal
 1. Freeze exact candidate-bound guidance locally with composite provenance, whole-envelope installation, unchanged operational guards and both explicit Workspace review stops.
+
 
 
 
@@ -50,8 +53,10 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Candidate-bound instruction freeze changes exact eleven admitted paths against 30c6cab568c5. Fourteen byte pins include reviewed Workspace guide and canonical typed SPEC example. Seven cases pass including fresh offline hidden-checkout 42-package installation and supported help. Separate installed typed example yields 1142 canonical bytes, genuine SDK/FS cleanup closed, exact codec roundtrip and six purely rendered members; no documents or authority created. Root/Workflow operational blocks, two review decisions, guards, software/installer/sources/notices/contributor remain unchanged. 1581 unaffected files and all 1588 baseline modes preserved. Six preflight cases overlap final seven. Submit for independent freeze review; public delivery unauthorized, no domain/U/CPython action. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Implementation 7a080da87692 publishes exact eleven-path instruction freeze, publication git:7a080da876928c90c2c56ab9591bd6662d2c8066. Original source guard/target paths match actual delta; CAS/index applied without debt and checkout clean. Seven cases and separate pure typed example pass, fourteen pins exact. Full range whitespace passes empty stdout; unchanged software/source/legal/installer and contributor governance. Handoff report retains raw evidence hashes and replay boundaries. Submit for independent bounded review; Issues remain In Progress, public delivery unauthorized and no matrix/governed journey/U or CPython work. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Human supplied bounded independent PASS for producer 44b190df82fc/b1a88edca385 and public 7a080da87692/dedc1eda67dd. Seven checks pass including fresh offline hidden-checkout 42-package installation. Fourteen pins and operational blocks exact; original receipts/Issue guards and actual eleven/two-path deltas agree with CAS/index completed. Separate installed 1142-byte roundtrip and pure six-member rendering have cleanup closed, no output documents or authority. Independent XML hash verified; no tests/install/example replay for acceptance. Whole envelope remains required; record acceptance and close through original owner. Publication target/outgoing range still requires explicit authorization; no broader/U/CPython acceptance. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

@@ -106,3 +106,26 @@ unchanged operational blocks and artifact carriage, original owner scopes,
 guards and receipts, actual deltas and fresh offline proof before closeout.
 Both instruction-freeze Issues remain In Progress. Publication remains a separate
 explicit target/range authorization followed by pinned acquisition proof.
+
+## Independent bounded acceptance
+
+Independent review accepted producer 44b190df82fc / b1a88edca385 and public
+7a080da87692 / dedc1eda67dd, with no blocker in this scope. Seven checks pass,
+including fresh offline checkout-hidden installation of 42 packages. All fourteen
+instruction/example pins and unchanged operational shell blocks verify. Raw
+freeze.xml SHA-256:
+fec7ffbc327d90f776ff3feaa20dd44a917b56184033d2a0a53d1bd630d08bfb.
+
+The separate installed example round-trips 1,142 bytes exactly, renders six
+members and reports cleanup closed, without creating output documents or
+authority. Original eleven-path/two-path deltas match receipts, committed Issue
+guards and completed CAS/index. Software, installer, sources/notices and
+contributor governance remain unchanged.
+
+Record acceptance and close through the original Issue owner using the actual
+applied acceptance publication receipt and fresh Issue guard. No test, example
+or installation is replayed for closeout. Whole-envelope carriage and all
+capability/provenance limits remain mandatory. Publication needs explicit
+authorization for the target and outgoing range; pinned acquisition proof and
+fresh unassisted evaluation follow separately. Authored public acceptance
+checkboxes remain unchanged; Issue closure is not Goal/SPEC approval.
