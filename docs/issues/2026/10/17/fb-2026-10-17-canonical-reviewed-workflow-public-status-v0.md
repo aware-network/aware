@@ -2,7 +2,7 @@
 
 - Slug: canonical-reviewed-workflow-public-status-v0
 - Tag: fb/2026-10-17/canonical-reviewed-workflow-public-status-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -29,6 +29,7 @@
 
 
 
+
 ## Problem
 1. Delivered software still carries frozen preparation-time unselected or pending-review wording across root, SPEC and Workspace customer entrances.
 
@@ -37,8 +38,10 @@
 
 
 
+
 ## Goal
 1. Align status only to exact delivered revision, preserve historical freeze and software/guards/commands/legal carriage, derive successor fourteen-file pins and submit local alignment for independent review without a push.
+
 
 
 
@@ -56,9 +59,18 @@
 
 
 
+
+## Verified-by
+- Human-supplied independent eight-case PASS; replay XML SHA256 a81bba0a8a128b833b3f9a0805e557793a343510cb8b3fc831bf11dbae50c21e; fresh offline hidden-checkout 42 packages.
+- git:21d98edcead6a2678adbf1890c8e90f6bbffd506
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Eight status checks passed, zero skipped, including fresh offline hidden-checkout 42-package installation and fourteen successor pins. All 1583 unaffected files and 1592 baseline modes preserved. Historical freeze/software/commands/guards/legal carriage unchanged; status metadata is checkpoint provenance, not live remote observation or operation authority. Thirteen-path local implementation and two-path evidence handoff only; independent review, extra-range authorization/acquisition and fresh evaluation remain separate. No push, U/V/R or CPython work. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Local implementation 285feba1e2f75462e64c3b5af7f2d70621a89cf6 exactly matches thirteen admitted paths and original receipts. CAS/index applied, no reconciliation debt, checkout clean after apply. Eight status cases pass including fresh hidden-checkout 42-package installation; fourteen successor pins e6668d1d verified. Public main remains delivered software 42a6740e29bb39ec9d332a63d52cb59540655ccd. This two-path ledger/Issue handoff preserves checkpoint provenance and operation boundaries. Independent review next; no additional push or U/V/R authorized. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Human supplied independent bounded PASS for producer bab097b7f71d / 099f8392e2b5 and public implementation 285feba1e2f7 / 5c09eaf582c4. Eight checks passed including fresh offline hidden-checkout 42-package installation; fourteen successor pins and exact13/2path original scope/Issue-guard/CAS-index evidence verified. Replay XML SHA256 a81bba0a8a128b833b3f9a0805e557793a343510cb8b3fc831bf11dbae50c21e. Record acceptance and close through original owners. Whole-envelope delivery remains mandatory; no additional push/evaluation authority, tests rerun or software changes. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independent bounded status alignment PASS accepted; exact local implementation/handoff, fourteen successor pins, original guards and CAS/index evidence verified. Whole-envelope, software and historical freeze unchanged. Additional public range and unassisted evaluation remain separately authorized.
