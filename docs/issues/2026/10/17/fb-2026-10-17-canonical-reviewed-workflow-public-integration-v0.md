@@ -2,7 +2,7 @@
 
 - Slug: canonical-reviewed-workflow-public-integration-v0
 - Tag: fb/2026-10-17/canonical-reviewed-workflow-public-integration-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -147,6 +147,7 @@
 
 
 
+
 ## Problem
 1. Accepted reviewed-workflow layout is not yet integrated against the exact incoming public revision.
 
@@ -155,8 +156,10 @@
 
 
 
+
 ## Goal
 1. Project the reviewed 127-path delta with complete source/notice carriage, preserving contributor governance and predecessor selection.
+
 
 
 
@@ -173,9 +176,18 @@
 
 
 
+
+## Verified-by
+- /tmp/aware-reviewed-integration-review.VPJnaHjH/integration.xml sha256:dbc3fa54c82eb0f1f823acb1c792668e90711ef4d584bf0da286de91cccfb0e5; guards.xml sha256:7d11e71d1c0ed4d3e60ed45f90c730b9648056f7331ded8afdda64ea8657ec55
+- git:3cc36b66b02ed2def58cb1c5cba4af75fc154d7d
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Exact 127-path reviewed-workflow layout projected against unchanged incoming 001457643287. Public scope is 131 paths including four evidence extras. 28 original/successor controls and eight integrated-tree cases pass, no skips. Fresh offline checkout-hidden installation verifies all 42 locked packages, dependency integrity, no editable/direct URL, installed help and identity/reuse refusals. Initial stale maintainer wording assertion retained; accepted customer guidance unchanged. Complete source/legal carriage, all modes, predecessor selection and contributor a6 preserved. Independent review next; no selection, freeze, push, unassisted evaluation, broad matrix or CPython work. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Local implementation f895e45c38848c1595b4a6108914da7789d146c4 applied exact 131-path scope; original publication git:f895e45c38848c1595b4a6108914da7789d146c4. CAS/index applied, no reconciliation debt; actual paths and original Issue guard match. Checkout/index clean after apply. Raw baseline-to-implementation whitespace diagnostic passes with empty stdout; no normalization. Report preserves final/initial replay distinctions and exact hashes. This two-path handoff is submitted for independent bounded integration review. Issue remains In Progress; no selection/freeze/push/CPython work. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Human supplied independent bounded PASS for producer b56327edea9c/0b366b890991 and public f895e45c3884/5af3a8334bd7. Independent 28 controls and eight integration checks pass, including fresh offline hidden-checkout 42-package installation. Exact original public scope/guards/receipts, CAS/index and committed deltas match. Producer captures remain explicitly truncated; actual producer commits checked separately, public original receipts intact. Record acceptance and close bounded integration; next separately governed selection/instruction alignment. No matrix or unassisted replay, software change, selection/freeze/push/GC or CPython action. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independent bounded integration PASS recorded. 28 controls and eight integration checks pass, including fresh offline hidden-checkout 42-package installation. Original public receipts intact; producer terminal-capture limitation retained and commits checked separately. Whole-envelope limits remain. Next separately governed selection/instruction alignment; no push or broader readiness acceptance.
