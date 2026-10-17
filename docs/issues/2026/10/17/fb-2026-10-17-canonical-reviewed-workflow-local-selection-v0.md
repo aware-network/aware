@@ -22,14 +22,17 @@
 
 
 
+
 ## Problem
 1. The accepted locally integrated reviewed-workflow successor is not yet selected; delivery pointer still names its predecessor.
 
 
 
 
+
 ## Goal
 1. Select the exact whole-envelope reviewed-workflow candidate locally, preserve unchanged software and contributor governance, and retain draft instructions and separate publication authority.
+
 
 
 
@@ -42,7 +45,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Local reviewed-workflow delivery selection changes exactly eight admitted paths against 0cde0ef8f89d. Seven checks pass, zero skipped, including fresh offline hidden-checkout installation of 42 locked packages and original identity/reuse refusals. 1580 unaffected baseline bytes and all 1585 baseline modes preserved; complete software/source/notice/installer and predecessor/contributor governance unchanged. Pointer derives exact artifacts and composite index, not a package catalog or authority. Earlier six accounting cases overlap final seven; no broad matrix or governed journey/U replay. Independent review next; instructions draft and public delivery unauthorized. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Local selection implementation 2afca7649095 publishes exact eight paths through original owner, publication git:2afca7649095eccdf42d814f504949f24a66f78f. Original guards/target paths and actual commit match; CAS/index applied with no debt, checkout clean. Seven checks pass including fresh offline hidden-checkout installation of 42 packages; all 1580 unaffected files and 1585 baseline modes preserved. Full range whitespace passes with empty raw stdout. Software/source/notice/installer/contributor unchanged; composite provenance retained, no second package selector. Submit report/Issue-only handoff for independent bounded review; Issue In Progress, instructions draft, no delivery/freeze/push authority. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

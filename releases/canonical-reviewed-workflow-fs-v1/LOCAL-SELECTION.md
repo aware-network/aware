@@ -84,3 +84,27 @@ Independent selection review remains next. This is local selection only;
 instructions are draft, public delivery unauthorized and contributor a6 remains
 the selected contributor command. Record original publication receipts after
 dry-run/apply, then hand off without closing the Issue before independent review.
+
+## Original publication and independent handoff
+
+Implementation 2afca7649095eccdf42d814f504949f24a66f78f publishes exactly the
+eight admitted paths through the unchanged original contributor owner.
+Original Issue guard is
+sha256:bc3fcc262833964f9c2a704e6c8426c079b201dabad95acef4896cfbc1c61bed;
+the actual publication ref is git:2afca7649095eccdf42d814f504949f24a66f78f.
+Dry-run and apply agree on exact paths; actual commit delta matches the receipt.
+reference_update=cas_applied, shared_index_projection=applied and
+index_reconciliation_pending=false. Checkout and index were clean after apply.
+This report and the genuine Issue then receive a separate two-path handoff.
+
+Raw public-implementation-apply.json SHA-256:
+078e84e0b287247d89eb881034e9ea80c91c4177cbf63fc989a968c6ba34c146.
+Baseline-to-implementation git diff --check exits zero with empty raw stdout
+(SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855).
+No preserved legal/source bytes were normalized.
+
+Independently compare baseline, artifact identities, complete unaffected bytes
+and modes, Issue scope/guards, original dry-run/apply receipts and actual commit
+deltas. Replay test_local_selection.py in a fresh private scratch root; it pins
+the original installation proof by exact hash. The Issue remains In Progress
+pending that bounded review. No instruction freeze or push is authorized.
