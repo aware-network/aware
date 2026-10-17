@@ -143,3 +143,28 @@ Issue scope/guards, actual commit deltas, exact source/notice mapping, contribut
 selection and the independent installer replay. Then owners may record acceptance
 and close through their original lifecycle rails. Selection, instruction freeze,
 publication target/range authorization and evaluation remain separate.
+
+## Independent acceptance
+
+On 2026-10-18 (Europe/Madrid), the Human supplied bounded independent PASS for
+producer `a4fee4055576` / `711eaa71de5f` and public implementation
+`6141e4da0005` / handoff `a7d2bf5e1e01`. No correction was requested.
+Independent 28 guards and eight integration cases pass, including a fresh offline,
+checkout-hidden installation of 42 packages. Exact 92-path implementation,
+two-path handoff, original guards/receipts, CAS/index, source/legal carriage,
+context separation, predecessor selection and clean checkout/index are confirmed.
+The retained initial failure is only the old maintainer wording assertion;
+its correction keeps the actual six-gap metadata check. No proof was rerun to
+record acceptance.
+
+Independent receipts are retained at
+`/tmp/aware-refusal-integration-review.YuUEi20l/integration.xml` (SHA-256
+`2277d845d2c061cf78b2c3cf021b1d17249dc94a69a75658e7e8f819efadff18`)
+and `guards.xml` (SHA-256
+`a9048200ea5048b75a5ddb35ca4ea2d58a0fce72b8d9da02abd3b9ad3c034f57`).
+This accepts bounded local integration, not selection, instruction freeze,
+public availability, a domain-matrix replay or unassisted evaluation.
+Close this Issue through the original owner with its real applied publication
+receipt, then separately govern local selection. Whole-envelope carriage and
+all earlier native/legal qualifications remain mandatory. Frozen U/V/R remains
+unchanged; no push is authorized by this acceptance.
