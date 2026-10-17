@@ -108,3 +108,23 @@ and modes, Issue scope/guards, original dry-run/apply receipts and actual commit
 deltas. Replay test_local_selection.py in a fresh private scratch root; it pins
 the original installation proof by exact hash. The Issue remains In Progress
 pending that bounded review. No instruction freeze or push is authorized.
+
+## Independent bounded acceptance
+
+Independent review accepted producer e18da3313d97 / 53b18563df27 and public
+2afca7649095 / ef41794f567c, with no blocker in this scope. Seven independent
+checks passed, including fresh offline checkout-hidden installation of all
+42 packages. Raw selection.xml SHA-256:
+2671c48da6174450533dea9d83e2b79578ceeccae5adccb49e7144cefe206441.
+
+Original receipts, committed Issue guards and actual eight-path/two-path deltas
+match successful CAS/index results. Software, installer, sources/notices,
+predecessor and contributor governance remain unchanged. Composite provenance
+is preserved; portable_protocols remains the sole package selector.
+
+Record acceptance and close through the original Issue owner, using the actual
+applied acceptance publication receipt and fresh Issue guard. No test or install
+is rerun for this closeout. Whole-envelope delivery remains required; instruction
+freeze is the next separately governed task. This is not domain-matrix,
+unassisted-onboarding or publication acceptance. Public authored acceptance
+checkboxes remain unchanged; Issue closure is not Goal/SPEC approval.
