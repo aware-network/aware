@@ -110,3 +110,27 @@ Original complete apply capture SHA-256:
 851a04c78bc11ed4befa154ed130508e10668344e752a114486158cf761058cd.
 The following handoff changes only this ledger and its admitted public Issue;
 independent review and any additional outgoing authorization remain separate.
+
+## Independent status alignment acceptance
+
+The Human supplied independent bounded PASS against producer
+bab097b7f71ddf76efe613ca79d970ca5a72d21d and handoff
+099f8392e2b5a3de3a327bb182ab9a1dd9c5eb10. Eight checks pass, including fresh
+offline checkout-hidden installation of all 42 packages. Independent replay XML
+SHA-256 is a81bba0a8a128b833b3f9a0805e557793a343510cb8b3fc831bf11dbae50c21e.
+The fourteen successor instruction pins, exact thirteen-path public implementation
+and two-path handoff, original Issue guards and completed CAS/index evidence
+were independently confirmed. No blocker was found within this status scope.
+
+Historical freeze, operational blocks, software, installer, sources/notices and
+contributor governance remain unchanged. Remote software delivery remains
+42a6740e29bb39ec9d332a63d52cb59540655ccd; this local alignment and its acceptance
+are not another public delivery. Owners may close the two bounded Issues through
+their original lifecycle operations. This acceptance does not change the fourteen
+instruction pins or checkpoint-provenance flags, and is not publication authority.
+
+Next requires explicit authorization for the additional outgoing public range,
+followed by pinned acquisition verification. Fresh unassisted evaluation remains
+separately admitted. Whole-envelope delivery and the existing capability/legal
+limits remain mandatory. Acceptance recording does not rerun installation, the
+domain matrix, customer operations or U/V/R.
