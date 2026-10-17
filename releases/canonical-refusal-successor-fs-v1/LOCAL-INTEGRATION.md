@@ -117,3 +117,29 @@ The contributor bootstrap JSON remains original setup provenance, not a rewritte
 assertion that the new context insertion was an initial template render or a
 change of contributor command. Actual AGENTS postimage is the independently
 accepted insertion; no consumer/bootstrap authority is substituted.
+
+## Local implementation receipt and independent handoff
+
+Implementation commit: `6141e4da000540ea0fbdb95832e1b153404b29ac`, exactly
+92 paths. Original observed Issue digest and committed Issue-byte SHA-256:
+`b5e8721e07b70017ee3b62f8cb6858688a054ff96b4d7aa06f9a377910348d10`.
+Original publication receipt: `git:6141e4da000540ea0fbdb95832e1b153404b29ac`.
+Dry-run and identical apply bind the exact plan paths; reference CAS and shared
+Git-index projection are applied, with no reconciliation debt. The checkout and
+index are clean after implementation. Full-range whitespace check is empty,
+without normalizing source or legal bytes.
+
+Original complete dry-run/apply JSON streams are retained under the producer
+proof root, not truncated console summaries. Their SHA-256 values are
+`b0bfe0b431643571334c8ed8f5aedae906ddb57942da1bbb0dac2411efd4b6b1` and
+`4dd92a06961c149cc574dabaf2c6591450d8a76a3c7e8882b1153582fd130e05`.
+This report and original Issue receive one separately observed two-path evidence
+handoff; it does not change accepted software, selection or instructions.
+
+The local integration is submitted for independent bounded review, not accepted
+by its author. Both integration Issues remain In Progress; public acceptance
+boxes are authored criteria, not automatically checked verdicts. Confirm original
+Issue scope/guards, actual commit deltas, exact source/notice mapping, contributor
+selection and the independent installer replay. Then owners may record acceptance
+and close through their original lifecycle rails. Selection, instruction freeze,
+publication target/range authorization and evaluation remain separate.

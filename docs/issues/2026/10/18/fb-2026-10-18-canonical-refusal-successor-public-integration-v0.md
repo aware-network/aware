@@ -107,6 +107,7 @@
 
 
 
+
 ## Problem
 1. Accepted refusal-successor layout is not yet integrated against the exact incoming public revision.
 
@@ -114,8 +115,10 @@
 
 
 
+
 ## Goal
 1. Project the reviewed 88-path delta with complete source/notice carriage, preserving contributor governance and predecessor selection.
+
 
 
 
@@ -130,8 +133,10 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Exact reviewed 88-path layout projected after original Issue admitted all 92 paths. 28 original/successor projection guards pass. Fresh offline checkout-hidden 42-package install succeeded. First integration suite has seven passes and one inherited wording assertion failure; accepted README says six detached-wheel gaps. Corrected only maintainer assertion; initial environment/XML retained, fresh final replay runs separately. Accepted layout/software, original contributor selection and delivered predecessor are unchanged; no selection, freeze or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - 28 guard cases and eight final integration cases pass with zero skips. Fresh offline checkout-hidden 42-package installation verifies exact lock, no editables/direct URLs, complete retained envelope, dependency checks, fifteen help entrances, no-identity and no-reuse refusals. Initial seven-pass/one inherited wording-assertion failure and first successful installation remain retained; only maintainer assertion corrected. Exact accepted layout/software unchanged. Ready for observed-guard dry-run then identical 92-path local apply, not selection/freeze/push; independent integration review remains next. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Local implementation git:6141e4da000540ea0fbdb95832e1b153404b29ac publishes exactly all 92 planned paths; original observed and committed Issue digest b5e8721e07b70017ee3b62f8cb6858688a054ff96b4d7aa06f9a377910348d10. Original CAS/index applied without debt; checkout/index clean, range whitespace empty. Full captures retained. 28 guards and eight integration passes, fresh offline source-hidden 42-package install; initial inherited assertion failure retained. Submit for independent review before closing. This two-path evidence handoff changes only Issue/report, no selection, freeze, push, evaluation or software. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
