@@ -116,3 +116,30 @@ commit deltas, baseline modes and all accepted postimages; replay the maintainer
 test with a new private scratch environment. The Issue stays In Progress for
 that review. Do not hand-check authored acceptance boxes, infer delivery from
 local integration, or close with a reconstructed publication receipt.
+
+## Independent bounded acceptance
+
+Independent review accepted implementation f895e45c38848c1595b4a6108914da7789d146c4
+and handoff 5af3a8334bd772819e33d97f2c5511c01e0a13e6, recorded by producer
+b56327edea9c / 0b366b890991. No blocker was found in this bounded scope.
+The reviewer independently reproduced 28 controls and eight integration checks,
+including fresh offline checkout-hidden installation of all 42 packages.
+
+Independent raw XML hashes:
+
+- guards.xml: 7d11e71d1c0ed4d3e60ed45f90c730b9648056f7331ded8afdda64ea8657ec55.
+- integration.xml: dbc3fa54c82eb0f1f823acb1c792668e90711ef4d584bf0da286de91cccfb0e5.
+
+Original public dry-run/apply receipts, committed Issue guards and actual
+131-path/two-path deltas agree, with successful CAS/index and a clean checkout.
+Accepted sources/notices, predecessor selection and contributor governance are
+preserved. Producer implementation terminal captures remain explicitly truncated;
+they are not complete receipts. The reviewer checked actual producer commits
+separately; original public receipts remain intact.
+
+Record acceptance through the original Issue owner, publish this report/update,
+then close the bounded integration Issue with the actual publication receipt.
+The next task is separately governed selection and instruction alignment.
+Whole-envelope delivery remains required. This decision does not authorize a
+push or establish the 743-case matrix, unassisted onboarding, A2/tree completion
+or CPython product readiness. No software or installation is changed for closeout.
