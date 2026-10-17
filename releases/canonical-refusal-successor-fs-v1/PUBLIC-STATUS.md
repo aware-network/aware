@@ -80,3 +80,28 @@ and final command captures are separate; no failed evidence was overwritten.
 Both bounded status Issues remain In Progress for independent review. The exact
 additional public range requires separate authorization; no public push or external
 evaluation was performed. Whole-envelope delivery and all GC holds remain required.
+
+## Local implementation and review handoff
+
+Local implementation `03c8e916247806e8a98e154684b84b9baa75955d` changes exactly
+the thirteen admitted paths. Original publication ref is
+`git:03c8e916247806e8a98e154684b84b9baa75955d`; its observed Issue guard and
+committed Issue bytes are
+`sha256:e0281c8027ce023fb0ce2da347817d8712df3b803ead21e4362dc43ee134d276`.
+Dry-run and identical apply completed reference CAS and shared-index projection
+without reconciliation debt. The complete apply capture is SHA-256
+`887bf7466e18e49996bbf40156f9d5770498aabf39610e302091ef9efe2c4cf1`.
+
+The original public-open console was truncated and is not a complete retained
+creation receipt. It was not replayed. A fresh original SDK read projection
+confirms actual execution, lifecycle and thirteen-path scope; all subsequent
+SDK update and commit streams are retained in full under the proof root.
+This two-path report/Issue handoff changes no successor instruction pin.
+
+Independent review should check exact implementation/handoff scopes, original
+observed guards and complete publication receipts, fourteen pins, unchanged
+software/commands/carriage and the retained-input eight-case proof. Use the
+explicit held installation read-only; do not build, clone or install another copy.
+These are local review-checkpoint coordinates, not another delivered revision.
+Additional publication and fresh V/R remain separate admissions; frozen external
+U/V/R and GC retention/disposition are unchanged.
