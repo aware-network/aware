@@ -440,75 +440,164 @@ def _encode(value: Any, annotation: Any) -> object:
         return None
     if annotation is str or annotation is int or annotation is bool:
         return value
-    origin = get_origin(annotation)
-    if origin in (types.UnionType, getattr(types, "UnionType", object)):
-        return _encode_union(value, annotation)
-    if origin is tuple:
-        item_type = get_args(annotation)[0]
-        return [_encode(item, item_type) for item in value]
-    if isinstance(annotation, type) and issubclass(annotation, Enum):
-        return value.value
-    if annotation is datetime:
-        return _timestamp(value)
-    if is_dataclass(annotation):
-        # Closed metadata is reusable; native fields and recursive values are not.
-        registry = _RECEIPT_FIELDS_BY_ID
-        if (
-            type(registry) is not dict
-            or registry is not _RECEIPT_ORIGINAL_REGISTRY
-            or type(_RECEIPT_ORIGINAL_ENTRIES) is not dict
-        ):
-            raise TypeError("Original receipt compiler registry required")
-        entry = registry.get(id(annotation))
-        if entry is not _RECEIPT_ORIGINAL_ENTRIES.get(id(annotation)) or (
-            entry is not None and (type(entry) is not tuple or len(entry) != 5)
-        ):
-            raise TypeError("Original receipt compiler entry required")
-        # Preserve the original single lazy lookup. It may change the schema;
-        # inspect eligibility only after it returns, before any field reads.
+    _schema_fast = NotImplemented
+    if _RECEIPT_NATIVE_HANDOFF is not None:
+        native_prelude: Any = "_RECEIPT_NATIVE_PRELUDE_"
+        native_context: Any = "_RECEIPT_NATIVE_CONTEXT_"
+        _schema_fast = native_prelude(
+            native_context(),
+            annotation,
+            _RECEIPT_FIELDS_BY_ID,
+            _RECEIPT_ORIGINAL_REGISTRY,
+            _RECEIPT_ORIGINAL_ENTRIES,
+        )
+    if _schema_fast is NotImplemented:
+        closed_record = (
+            type(annotation) is type
+            and type(_RECEIPT_ORIGINAL_ENTRIES) is dict
+            and ((closed := _RECEIPT_ORIGINAL_ENTRIES.get(id(annotation))) is not None)
+            and (type(closed) is tuple)
+            and (len(closed) == 5)
+            and (closed[0] is annotation)
+            and hasattr(annotation, "__dataclass_fields__")
+        )
+        if not closed_record:
+            origin = get_origin(annotation)
+            if origin in (types.UnionType, getattr(types, "UnionType", object)):
+                return _encode_union(value, annotation)
+            if origin is tuple:
+                item_type = get_args(annotation)[0]
+                if item_type is str or item_type is int or item_type is bool:
+                    return [item for item in value]
+                return [_encode(item, item_type) for item in value]
+            if isinstance(annotation, type) and issubclass(annotation, Enum):
+                return value.value
+            if annotation is datetime:
+                return _timestamp(value)
+    else:
+        closed_record = True
+    if closed_record or is_dataclass(annotation):
+        if _schema_fast is NotImplemented:
+            registry = _RECEIPT_FIELDS_BY_ID
+            if (
+                type(registry) is not dict
+                or registry is not _RECEIPT_ORIGINAL_REGISTRY
+                or type(_RECEIPT_ORIGINAL_ENTRIES) is not dict
+            ):
+                raise TypeError("Original receipt compiler registry required")
+            entry = registry.get(id(annotation))
+            if entry is not _RECEIPT_ORIGINAL_ENTRIES.get(id(annotation)) or (
+                entry is not None and (type(entry) is not tuple or len(entry) != 5)
+            ):
+                raise TypeError("Original receipt compiler entry required")
+        else:
+            registry, entry = _schema_fast
         hints = _type_hints(annotation)
-        if entry is not None and entry[0] is annotation and type(value) is annotation:
+        if entry is not None and entry[0] is annotation and (type(value) is annotation):
+            _native_selected = NotImplemented
+            if _RECEIPT_NATIVE_HANDOFF is not None:
+                native_convert: Any = "_RECEIPT_NATIVE_CONVERT_"
+                native_context: Any = "_RECEIPT_NATIVE_CONTEXT_"
+                _native_selected = native_convert(
+                    native_context(), value, entry, registry, hints
+                )
+            if _native_selected is NotImplemented:
+                converter, code = entry[2]
+                namespace = vars(annotation)
+                metadata = namespace.get("__dataclass_fields__")
+                if (
+                    metadata is entry[3]
+                    and type(metadata) is dict
+                    and (tuple(map(id, metadata.values())) == entry[4])
+                    and (type(hints) is dict)
+                ):
+                    if (
+                        _RECEIPT_FIELDS_BY_ID is not registry
+                        or registry.get(id(annotation)) is not entry
+                        or type(converter) is not types.FunctionType
+                        or (converter.__code__ is not code)
+                        or (converter.__defaults__ is not None)
+                        or (converter.__kwdefaults__ is not None)
+                    ):
+                        raise TypeError(
+                            "Original receipt compiler code/defaults required"
+                        )
+                    converted = converter(value, entry[1], hints)
+                    if converted is not None:
+                        return converted
+            else:
+                return _native_selected
+        result = {}
+        for field in fields(annotation):
+            if (
+                annotation is WorkspaceRepositoryMutationReceipt
+                and field.name == "physical_effect"
+                and (value.physical_effect is None)
+            ):
+                continue
+            member = getattr(value, field.name)
+            hint = hints[field.name]
+            result[field.name] = (
+                member
+                if member is None or hint is str or hint is int or (hint is bool)
+                else _encode(member, hint)
+            )
+        return result
+    raise TypeError(f"Unsupported repository evidence annotation: {annotation!r}")
+
+
+def _encode_record_after_hints(
+    value: Any, annotation: Any, registry: Any, entry: Any, hints: Any
+) -> object:
+    """Original post-hint continuation for the retained native graph entrance."""
+    if entry is not None and entry[0] is annotation and (type(value) is annotation):
+        _native_selected = NotImplemented
+        if _RECEIPT_NATIVE_HANDOFF is not None:
+            native_convert: Any = "_RECEIPT_NATIVE_CONVERT_"
+            native_context: Any = "_RECEIPT_NATIVE_CONTEXT_"
+            _native_selected = native_convert(
+                native_context(), value, entry, registry, hints
+            )
+        if _native_selected is NotImplemented:
             converter, code = entry[2]
             namespace = vars(annotation)
             metadata = namespace.get("__dataclass_fields__")
             if (
                 metadata is entry[3]
                 and type(metadata) is dict
-                and tuple(map(id, metadata.values())) == entry[4]
-                and type(hints) is dict
+                and (tuple(map(id, metadata.values())) == entry[4])
+                and (type(hints) is dict)
             ):
                 if (
                     _RECEIPT_FIELDS_BY_ID is not registry
                     or registry.get(id(annotation)) is not entry
                     or type(converter) is not types.FunctionType
-                    or converter.__code__ is not code
-                    or converter.__defaults__ is not None
-                    or converter.__kwdefaults__ is not None
+                    or (converter.__code__ is not code)
+                    or (converter.__defaults__ is not None)
+                    or (converter.__kwdefaults__ is not None)
                 ):
                     raise TypeError("Original receipt compiler code/defaults required")
                 converted = converter(value, entry[1], hints)
                 if converted is not None:
                     return converted
-        result = {}
-        for field in fields(annotation):
-            if (
-                annotation is WorkspaceRepositoryMutationReceipt
-                and field.name == "physical_effect"
-                and value.physical_effect is None
-            ):
-                continue
-            member = getattr(value, field.name)
-            hint = hints[field.name]
-            # Read every original field afresh. Primitive fields need no
-            # recursive schema reflection; this is the same leaf conversion
-            # as below, with no cached value, payload or authority verdict.
-            result[field.name] = (
-                member
-                if member is None or hint is str or hint is int or hint is bool
-                else _encode(member, hint)
-            )
-        return result
-    raise TypeError(f"Unsupported repository evidence annotation: {annotation!r}")
+        else:
+            return _native_selected
+    result = {}
+    for field in fields(annotation):
+        if (
+            annotation is WorkspaceRepositoryMutationReceipt
+            and field.name == "physical_effect"
+            and (value.physical_effect is None)
+        ):
+            continue
+        member = getattr(value, field.name)
+        hint = hints[field.name]
+        result[field.name] = (
+            member
+            if member is None or hint is str or hint is int or (hint is bool)
+            else _encode(member, hint)
+        )
+    return result
 
 
 def _encode_union(value: Any, annotation: Any) -> object:
@@ -710,13 +799,45 @@ def _compile_receipt_fields() -> dict[int, Any]:
                     candidate = None
                 if candidate is str or candidate is int or candidate is bool:
                     scalar = candidate
+            nullable_type = None
+            nullable_index = None
+            if len(arguments) == 2:
+                if arguments[0] is type(None):
+                    nullable_index = 1
+                elif arguments[1] is type(None):
+                    nullable_index = 0
+                if nullable_index is not None:
+                    selected = arguments[nullable_index]
+                    if isinstance(selected, type) and (
+                        selected is datetime
+                        or issubclass(selected, Enum)
+                        or is_dataclass(selected)
+                    ):
+                        nullable_type = selected
+            tuple_args = get_args(hint) if type(hint) is types.GenericAlias else ()
+            primitive_tuple = (
+                get_origin(hint) is tuple
+                and len(tuple_args) == 2
+                and tuple_args[1] is Ellipsis
+                and (
+                    tuple_args[0] is str
+                    or tuple_args[0] is int
+                    or tuple_args[0] is bool
+                )
+            )
             equivalent = f"hint is definitions[{index}][2]"
-            if scalar is not None:
+            if scalar is not None or nullable_type is not None:
                 declared = f"definitions[{index}][2].__args__"
                 equivalent += (
                     " or (type(hint) is types.UnionType and len(hint.__args__) == 2 and ("
                     f"(hint.__args__[0] is {declared}[0] and hint.__args__[1] is {declared}[1]) or "
                     f"(hint.__args__[0] is {declared}[1] and hint.__args__[1] is {declared}[0])))"
+                )
+            if primitive_tuple:
+                equivalent += (
+                    " or (type(hint) is types.GenericAlias and hint.__origin__ is tuple "
+                    "and len(hint.__args__) == 2 and hint.__args__[1] is Ellipsis "
+                    f"and hint.__args__[0] is definitions[{index}][2].__args__[0])"
                 )
             # Keep hint lookup before None handling, exactly as the generic loop.
             lines.append(prefix + "if member is None:")
@@ -734,6 +855,19 @@ def _compile_receipt_fields() -> dict[int, Any]:
                         leaf + "encoded = member",
                     )
                 )
+            elif nullable_type is not None:
+                selected_hint = f"definitions[{index}][2].__args__[{nullable_index}]"
+                lines.extend(
+                    (
+                        leaf + f"selected = {selected_hint}",
+                        leaf + "if not isinstance(member, selected):",
+                        leaf
+                        + "    raise TypeError(f'Value does not match repository evidence union: {hint!r}')",
+                        leaf + "encoded = _encode(member, selected)",
+                    )
+                )
+            elif primitive_tuple:
+                lines.append(leaf + "encoded = [item for item in member]")
             elif isinstance(hint, type) and issubclass(hint, Enum):
                 lines.append(
                     leaf + "encoded = None if member is None else member.value"
@@ -770,6 +904,26 @@ def _compile_receipt_fields() -> dict[int, Any]:
     return compiled
 
 
+_receipt_native_handoff: tuple[Any, ...] | None = None
+_receipt_native_seal: Any = None
+try:
+    from aware_workspace_sdk._tree_native_binding import (
+        prepare_receipts as _prepare_receipts,
+    )
+    from aware_workspace_sdk._tree_native_binding import (
+        seal_receipts as _seal_receipts,
+    )
+except ImportError:
+    # Older supported SDKs keep the unchanged portable conversion.
+    pass
+else:
+    _receipt_native_handoff = _prepare_receipts(globals())
+    _receipt_native_seal = _seal_receipts
+
+_RECEIPT_NATIVE_HANDOFF = _receipt_native_handoff
 _RECEIPT_FIELDS_BY_ID = _compile_receipt_fields()
 _RECEIPT_ORIGINAL_REGISTRY = _RECEIPT_FIELDS_BY_ID
 _RECEIPT_ORIGINAL_ENTRIES = _RECEIPT_FIELDS_BY_ID.copy()
+
+if _RECEIPT_NATIVE_HANDOFF is not None:
+    _receipt_native_seal(globals(), _RECEIPT_NATIVE_HANDOFF)

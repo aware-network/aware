@@ -55,3 +55,22 @@ canonical neutral installation gates remain open.
 Install through the registered module catalog, canonical manifests and locked
 package-manager closure. Do not use a path loader or an unrecorded package
 install to activate it. Keep the Environment-selected governance CLI unchanged.
+
+
+## Reviewed setup retention (unreleased source)
+
+`architecture_setup_review.FilesystemSetupReview` joins the accepted
+`aware_file_system.private_directory` root, CREATE sequences and bounded reads.
+It supplies no alternative writer, directory creation, permission repair, cleanup
+retry or Issue authority. The SDK selects this adapter explicitly; Agent uses
+Workspace's typed records and original Issue requests instead of decoding files.
+
+All paths are flat under one explicit external `0700` root. Chunks precede their
+final descriptor; decisions precede fixed no-replace intents; intents precede
+external dispatch. Each original sequence is released before another begins, and
+child cleanup precedes root cleanup. Effects and unknown cleanup survive failures.
+Stored records are immutable evidence and cannot issue a live plan or admission.
+
+Source tests use genuine original owners in disposable directories. The existing
+0.1.8 artifact does not supply this new module; successor metadata, artifacts and
+installed composition remain separate qualification.

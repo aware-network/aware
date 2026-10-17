@@ -34,6 +34,7 @@ from .declaration_product_membership import (
     validate_declaration_product_planning_input,
 )
 from .declaration_scope_admission import WorkspaceOriginalGraphTargetValidator
+from .direct_cli_product_demands import DirectCLIProductDemands
 from .materialization_graph_coordinator import (
     WorkspaceMaterializationProductionCutoverHeadV1,
     WorkspaceSemanticMaterializationNodePreparation,
@@ -189,6 +190,7 @@ def compose_current_workspace_graph_planner(
     backing: WorkspaceMaterializationGraphBacking,
     source_only_target_validator: WorkspaceOriginalGraphTargetValidator | None = None,
     source_correspondences: tuple[WorkspaceV3GraphSourceCorrespondence | WorkspaceDeclarationProductCorrespondence, ...] = (),
+    retained_product_demands: DirectCLIProductDemands | None = None,
 ) -> WorkspaceSemanticMaterializationGraphPlanner:
     """Bind current original owner readers to the sole neutral graph planner.
 
@@ -261,6 +263,7 @@ def compose_current_workspace_graph_planner(
         planning_source=source,
         source_only_target_validator=source_only_target_validator,
         source_correspondences=source_correspondences,
+        retained_product_demands=retained_product_demands,
     )
 
 
@@ -277,12 +280,16 @@ async def plan_current_workspace_materialization_graph(
     root_plans: tuple[WorkspaceSemanticRootCodePlan, ...],
     source_only_target_validator: WorkspaceOriginalGraphTargetValidator | None = None,
     source_correspondences: tuple[WorkspaceV3GraphSourceCorrespondence | WorkspaceDeclarationProductCorrespondence, ...] = (),
+    retained_product_demands: DirectCLIProductDemands | None = None,
+    allow_unused_sources: bool = False,
 ) -> tuple[WorkspaceSemanticMaterializationGraphPlanResult, bytes]:
     """Plan once and verify final graph coverage and currentness after await."""
     from aware_code_retained_registry_policy_runtime.planning_source_composition import (
         validate_composed_retained_planning_source,
     )
 
+    if type(allow_unused_sources) is not bool:
+        raise TypeError("exact candidate planning mode required")
     planner = compose_current_workspace_graph_planner(
         code_host=code_host,
         catalog_host=catalog_host,
@@ -293,6 +300,7 @@ async def plan_current_workspace_materialization_graph(
         backing=backing,
         source_only_target_validator=source_only_target_validator,
         source_correspondences=source_correspondences,
+        retained_product_demands=retained_product_demands,
     )
     code_admission = catalog_host.read_code_catalog_for_epoch(
         epoch, expected=expected_epoch
@@ -308,7 +316,8 @@ async def plan_current_workspace_materialization_graph(
             key=lambda package: package.package_ref,
         )
     )
-    if reached != package_closure:
+    if (not set(reached).issubset(package_closure)
+        or (not allow_unused_sources and reached != package_closure)):
         raise RuntimeError("reachable graph packages differ from original owner sources")
     validate_composed_retained_planning_source(
         code_host, planner._planning_source, package_closure

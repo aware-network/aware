@@ -7,10 +7,14 @@ import json
 import re
 import types
 import unicodedata
+import weakref
 from dataclasses import fields
 from typing import Any, Literal, NoReturn, cast, get_args, get_origin, get_type_hints
 
 from . import repository_tree_projection_values as values
+from ._tree_native_binding import bind_tree_json as _bind_native_tree_json
+from ._tree_native_binding import prepare as _prepare_native_tree_binding
+from ._tree_native_binding import seal as _seal_native_tree_binding
 from .repository_source_projection_values import RepositoryObservationCoordinate
 from .repository_workflow_source_codec import (
     WorkspaceWorkflowSourceValueError,
@@ -90,6 +94,11 @@ def _compile_hint_shapes() -> dict[int, tuple[Any, Any, tuple[Any, ...]]]:
 
 
 _HINT_SHAPES = _compile_hint_shapes()
+_TREE_JSON_ACTIVE = False
+_TREE_NATIVE_HANDOFF = _prepare_native_tree_binding(globals())
+if _TREE_NATIVE_HANDOFF is not None:
+    _TREE_NATIVE_CONVERT = _TREE_NATIVE_HANDOFF[1]
+    _TREE_NATIVE_VERIFY = _TREE_NATIVE_HANDOFF[2]
 
 
 def _compile_native_fields() -> dict[int, tuple[Any, Any, tuple[Any, ...]]]:
@@ -127,6 +136,23 @@ def _compile_native_fields() -> dict[int, tuple[Any, Any, tuple[Any, ...]]]:
             "def convert(annotation, value, definitions, depth, context):",
             "    converted = {}",
         ]
+        native_root = (
+            _TREE_NATIVE_HANDOFF is not None
+            and cls is values.WorkspaceTreeProjectionBinding
+        )
+        if native_root:
+            lines.extend(
+                (
+                    "    if context is None and type(depth) is int and -(2**31) <= depth <= 24:",
+                    "        native_call = '__workspace_tree_native_call_v1__'",
+                    "        native_context_ref = '__workspace_tree_native_context_v1__'",
+                    "        native_context = native_context_ref()",
+                    "        native_verify = '__workspace_tree_native_verify_v1__'",
+                    "        native_result = native_call(native_context, annotation, value, '', depth)",
+                    "        native_verify(native_context)",
+                    "        return native_result",
+                )
+            )
         for index, (name, _, _, scalar, nullable, floor) in enumerate(rows):
             lines.extend(
                 (
@@ -179,6 +205,21 @@ def _compile_native_fields() -> dict[int, tuple[Any, Any, tuple[Any, ...]]]:
                         )
                     )
                 lines.append(prefix + f"converted[{name!r}] = item")
+            elif (
+                (shape := _HINT_SHAPES.get(id(rows[index][2]))) is not None
+                and shape[0] is rows[index][2]
+                and shape[1] is Literal
+                and all(type(member) is str for member in shape[2])
+            ):
+                # Only closed authored string enums use this path. Preserve
+                # exact type, depth and member order without generic reflection.
+                lines.extend(
+                    (
+                        f"    if type(item) is not str or item not in {shape[2]!r}:",
+                        "        _refuse('unknown tree enum')",
+                        f"    converted[{name!r}] = item",
+                    )
+                )
             else:
                 lines.append(
                     f"    converted[{name!r}] = _convert(definitions[{index}][2], item, "
@@ -192,6 +233,31 @@ def _compile_native_fields() -> dict[int, tuple[Any, Any, tuple[Any, ...]]]:
             namespace,
         )
         convert = namespace["convert"]
+        if native_root:
+            # Finish this declaration before publishing its original code pin.
+            # Runtime dispatch uses immutable code constants, never mutable
+            # globals/defaults or a later code-object replacement.
+            assert _TREE_NATIVE_HANDOFF is not None
+            captured = {
+                # Code objects do not participate in cyclic GC. Keep only a
+                # weak context reference in constants; the original module owns
+                # its strong declaration lifetime through the handoff tuple.
+                "__workspace_tree_native_context_v1__": weakref.ref(
+                    _TREE_NATIVE_HANDOFF[0]
+                ),
+                "__workspace_tree_native_call_v1__": _TREE_NATIVE_HANDOFF[1],
+                "__workspace_tree_native_verify_v1__": _TREE_NATIVE_HANDOFF[2],
+            }
+            constants = convert.__code__.co_consts
+            if any(constants.count(marker) != 1 for marker in captured):
+                raise RuntimeError("ambiguous native tree declaration constant")
+            code = convert.__code__.replace(
+                co_consts=tuple(
+                    captured[item] if type(item) is str and item in captured else item
+                    for item in constants
+                )
+            )
+            convert = types.FunctionType(code, globals(), "convert")
         result[id(cls)] = (cls, definitions, (convert, convert.__code__))
     return result
 
@@ -306,71 +372,13 @@ def _convert(
             if not floor <= cast(int, value) <= 2**64:
                 _refuse("tree integer exceeds bound")
         return value
-    shape = _HINT_SHAPES.get(id(annotation))
-    origin, args = (
-        (shape[1], shape[2])
-        if shape is not None and shape[0] is annotation
-        else (get_origin(annotation), get_args(annotation))
-    )
-    if origin is types.UnionType:
-        if value is None and type(None) in args:
-            return None
-        selected = next(arg for arg in args if arg is not type(None))
-        if selected is str or selected is int or selected is bool:
-            # Preserve the recursive scalar check, without another dispatch or
-            # annotation lookup. None still returns before the deeper check.
-            if depth >= 24:
-                _refuse("tree metadata nesting exceeds bound")
-            if type(value) is not selected:
-                _refuse("tree primitive type differs")
-            if selected is str:
-                try:
-                    text = cast(str, value)
-                    size = len(text) if text.isascii() else len(text.encode("utf-8"))
-                except UnicodeError:
-                    _refuse("tree text must be UTF-8")
-                if size > 16384:
-                    _refuse("tree text exceeds bound")
-            elif selected is int:
-                floor = -(2**63) if field_name in ("mtime_ns", "ctime_ns") else 0
-                if not floor <= cast(int, value) <= 2**64:
-                    _refuse("tree integer exceeds bound")
-            return value
-        return _convert(
-            selected,
-            value,
-            decode=decode,
-            depth=depth + 1,
-            field_name=field_name,
-            context=context,
-        )
-    if origin is Literal:
-        if (type(value) is not str and type(value) is not int) or not any(
-            type(value) is type(item) and value == item for item in args
-        ):
-            _refuse("unknown tree enum")
-        return value
-    if origin is tuple:
-        if field_name == "resources" and context is not None:
-            return context.resources(value, decode=decode)
-        if type(value) is not (list if decode else tuple):
-            _refuse("tree ordered collection type differs")
-        items = cast(list[Any] | tuple[Any, ...], value)
-        limit = _COLLECTION_LIMITS.get(field_name, values.MAX_TREE_RECEIPTS)
-        if len(items) > limit:
-            _refuse("tree ordered collection exceeds bound")
-        converted = [
-            _convert(args[0], item, decode=decode, depth=depth + 1, context=context)
-            for item in items
-        ]
-        return tuple(converted) if decode else converted
-    if _known(annotation):
-        definitions = _DEFINITIONS_BY_ID[id(annotation)][1]
+    definition = _DEFINITIONS_BY_ID.get(id(annotation))
+    if definition is not None and definition[0] is annotation:
+        definitions = definition[1]
         namespace = cast(dict[str, object], vars(annotation))
-        if any(
-            namespace.get(name) is not descriptor for name, descriptor, _ in definitions
-        ):
-            _refuse("tree slot descriptor changed")
+        for name, descriptor, _ in definitions:
+            if namespace.get(name) is not descriptor:
+                _refuse("tree slot descriptor changed")
         memo_key = (annotation, id(value), decode)
         if context is not None and memo_key in context.memo:
             # Conversion may be shared; logical quota usage must not be.
@@ -418,18 +426,119 @@ def _convert(
             context.memo[memo_key] = detached
             context.memo_references[memo_key] = context.references - reference_start
         return detached
+    shape = _HINT_SHAPES.get(id(annotation))
+    origin, args = (
+        (shape[1], shape[2])
+        if shape is not None and shape[0] is annotation
+        else (get_origin(annotation), get_args(annotation))
+    )
+    if origin is types.UnionType:
+        if value is None and type(None) in args:
+            return None
+        selected = next(arg for arg in args if arg is not type(None))
+        if selected is str or selected is int or selected is bool:
+            # Preserve the recursive scalar check, without another dispatch or
+            # annotation lookup. None still returns before the deeper check.
+            if depth >= 24:
+                _refuse("tree metadata nesting exceeds bound")
+            if type(value) is not selected:
+                _refuse("tree primitive type differs")
+            if selected is str:
+                try:
+                    text = cast(str, value)
+                    size = len(text) if text.isascii() else len(text.encode("utf-8"))
+                except UnicodeError:
+                    _refuse("tree text must be UTF-8")
+                if size > 16384:
+                    _refuse("tree text exceeds bound")
+            elif selected is int:
+                floor = -(2**63) if field_name in ("mtime_ns", "ctime_ns") else 0
+                if not floor <= cast(int, value) <= 2**64:
+                    _refuse("tree integer exceeds bound")
+            return value
+        return _convert(
+            selected,
+            value,
+            decode=decode,
+            depth=depth + 1,
+            field_name=field_name,
+            context=context,
+        )
+    if origin is Literal:
+        value_type = type(value)
+        if value_type is str or value_type is int:
+            for item in args:
+                if value_type is type(item) and value == item:
+                    return value
+        _refuse("unknown tree enum")
+    if origin is tuple:
+        if field_name == "resources" and context is not None:
+            return context.resources(value, decode=decode)
+        if type(value) is not (list if decode else tuple):
+            _refuse("tree ordered collection type differs")
+        items = cast(list[Any] | tuple[Any, ...], value)
+        limit = _COLLECTION_LIMITS.get(field_name, values.MAX_TREE_RECEIPTS)
+        if len(items) > limit:
+            _refuse("tree ordered collection exceeds bound")
+        if (
+            items
+            and type(args) is tuple
+            and args
+            and (args[0] is str or args[0] is int or args[0] is bool)
+        ):
+            # These are the same recursive primitive checks, in member order.
+            # Empty tuples do not enter a deeper level or invent a refusal.
+            converted = []
+            member_type = args[0]
+            member_depth = depth + 1
+            for item in items:
+                if member_depth > 24:
+                    _refuse("tree metadata nesting exceeds bound")
+                if type(item) is not member_type:
+                    _refuse("tree primitive type differs")
+                if member_type is str:
+                    try:
+                        text = cast(str, item)
+                        size = (
+                            len(text) if text.isascii() else len(text.encode("utf-8"))
+                        )
+                    except UnicodeError:
+                        _refuse("tree text must be UTF-8")
+                    if size > 16384:
+                        _refuse("tree text exceeds bound")
+                elif member_type is int:
+                    # Original tuple recursion does not pass its parent's name:
+                    # tuple integers stay unsigned even for timestamp callers.
+                    if not 0 <= cast(int, item) <= 2**64:
+                        _refuse("tree integer exceeds bound")
+                converted.append(item)
+        else:
+            converted = [
+                _convert(args[0], item, decode=decode, depth=depth + 1, context=context)
+                for item in items
+            ]
+        return tuple(converted) if decode else converted
     _refuse("unsupported tree metadata type")
 
 
 def _wire(payload: object) -> str:
     try:
-        text = json.dumps(
-            payload,
-            ensure_ascii=False,
-            allow_nan=False,
-            sort_keys=True,
-            separators=(",", ":"),
-        )
+        callee = json.dumps
+        try:
+            if not _TREE_JSON_ACTIVE:
+                text = callee(
+                    payload,
+                    ensure_ascii=False,
+                    allow_nan=False,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+            else:
+                native: Any = "_TREE_JSON_NATIVE_CALL_"
+                context: Any = "_TREE_JSON_NATIVE_CONTEXT_"
+                text = native(context(), callee, payload, json)
+        finally:
+            callee = None
         size = len(text.encode("utf-8"))
     except (ValueError, RecursionError, UnicodeError):
         _refuse("malformed tree JSON")
@@ -441,12 +550,28 @@ def _wire(payload: object) -> str:
 def _path(path: str, *, maximum: int = values.MAX_TREE_PATH_BYTES) -> None:
     ascii_only = path.isascii()
     if ascii_only:
-        if (
-            not path
-            or len(path) > maximum
-            or _ASCII_PATH_INVALID.search(path) is not None
-        ):
+        if type(path) is not str:
+            # Preserve the original short-circuit and exception behavior for
+            # malformed values and subclasses; only exact text takes this cut.
+            if (
+                not path
+                or len(path) > maximum
+                or _ASCII_PATH_INVALID.search(path) is not None
+            ):
+                _refuse("noncanonical tree path")
+            return
+        native_slot: Any = (
+            "__workspace_ascii_path_slot_v2__",
+            None,
+        )
+        native_positive = native_slot[1]
+        if native_positive is not None and native_positive(path, maximum):
+            return
+        if not path or len(path) > maximum or "\\" in path or not path.isprintable():
             _refuse("noncanonical tree path")
+        for part in path.split("/"):
+            if part in ("", ".", "..") or len(part) > 255:
+                _refuse("noncanonical tree path")
         return
     parts = path.split("/")
     if (
@@ -468,7 +593,7 @@ def _path(path: str, *, maximum: int = values.MAX_TREE_PATH_BYTES) -> None:
         _refuse("noncanonical tree path")
 
 
-def _sequence(payload: dict[str, Any]) -> None:
+def _sequence(payload: dict[str, Any]) -> str:
     files, ancestors, limits = (
         payload["files"],
         payload["ancestors"],
@@ -494,11 +619,12 @@ def _sequence(payload: dict[str, Any]) -> None:
         if any("/".join(parts[:i]) not in parents for i in range(1, len(parts))):
             _refuse("tree ancestor set is incomplete")
     # The detached payload is unchanged throughout this complete sequence check.
-    wire_size = len(_wire(payload).encode("utf-8"))
+    wire = _wire(payload)
+    wire_size = len(wire.encode("utf-8"))
     if wire_size > limits["maximum_metadata_bytes"]:
         _refuse("tree metadata exceeds requested byte bound")
     if "before" not in (files[0] if files else {}):
-        return
+        return wire
     combined_bytes = 0
     body_refs: set[str] = set()
     for row in files:
@@ -525,6 +651,7 @@ def _sequence(payload: dict[str, Any]) -> None:
         _path(path, maximum=limits["maximum_path_utf8_bytes"])
     if wire_size > limits["maximum_metadata_bytes"]:
         _refuse("tree metadata exceeds requested byte bound")
+    return wire
 
 
 def _validate(cls: type[Any], payload: dict[str, Any]) -> None:
@@ -641,11 +768,12 @@ def _validate(cls: type[Any], payload: dict[str, Any]) -> None:
         )
     ):
         _refuse("scratch mode differs")
+    sequence_wire = None
     if cls in (
         values.WorkspaceTreeProjectionRequest,
         values.WorkspaceTreeProjectionBinding,
     ):
-        _sequence(payload)
+        sequence_wire = _sequence(payload)
     if (
         cls is values.WorkspaceTreeProjectionRequest
         and payload["workflow_ref"]
@@ -676,8 +804,17 @@ def _validate(cls: type[Any], payload: dict[str, Any]) -> None:
             payload["ancestors"]
         ):
             _refuse("tree complete ordinal count differs")
-        complete = {key: item for key, item in payload.items() if key != "binding_ref"}
-        expected = "sha256:" + hashlib.sha256(_wire(complete).encode()).hexdigest()
+        # Reuse this invocation's unchanged, fully validated canonical text.
+        # In this exact closed schema, ancestors precede binding_ref and
+        # effect_paths follows it. Ancestors have no binding_ref field; quoted
+        # caller text is escaped, so neither delimiter can occur in a string.
+        # Removing that single member yields exactly the original complete
+        # commitment bytes, without serializing all file rows a second time.
+        assert sequence_wire is not None
+        first = sequence_wire.index(',"binding_ref":')
+        following = sequence_wire.index(',"effect_paths":', first)
+        complete_wire = sequence_wire[:first] + sequence_wire[following:]
+        expected = "sha256:" + hashlib.sha256(complete_wire.encode()).hexdigest()
         if payload["binding_ref"] != expected:
             _refuse("tree binding commitment differs")
         return
@@ -1033,3 +1170,7 @@ def repository_tree_projection_value_validate_equal(
             _refuse("descriptive tree values differ")
     finally:
         value = expected_value = actual = expected = None
+
+
+_TREE_JSON_HANDOFF = _bind_native_tree_json(globals())
+_seal_native_tree_binding(globals(), _TREE_NATIVE_HANDOFF)

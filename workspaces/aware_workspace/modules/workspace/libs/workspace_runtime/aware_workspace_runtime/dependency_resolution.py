@@ -12,6 +12,9 @@ from aware_code_semantic_contract_runtime import (
     CodeSemanticRequiredResultProduct,
     ContractViolation,
 )
+from aware_code_semantic_contract_runtime.dependency_admission_interfaces import (
+    RetainedProductPlanningExpectation,
+)
 from aware_code_semantic_contract_runtime.materialization_catalog_codec import (
     encode_code_semantic_contract_match_admission,
 )
@@ -46,13 +49,28 @@ class _Resolution:
     relationships: tuple
 
 
+def _source_snapshot(source):
+    if type(source) is not RetainedProductPlanningExpectation:
+        return _snapshot(source)
+    identities = {"runtime", "epoch_identity", "operation_identity", "selected_provider_registration"}
+    source_input = replace(source.source_input, **{
+        field.name: copy.deepcopy(getattr(source.source_input, field.name))
+        for field in fields(source.source_input)
+        if field.name not in {"source_identity", "operation_identity"}
+    })
+    return replace(source, **{
+        field.name: source_input if field.name == "source_input" else copy.deepcopy(getattr(source, field.name))
+        for field in fields(source) if field.name not in identities
+    })
+
+
 def _freeze(expected):
     identity = {"parent_identity", "epoch_identity", "demand_operation_identity"}
     return replace(
         expected,
         **{
             f.name: (
-                _snapshot(expected.source_planning)
+                _source_snapshot(expected.source_planning)
                 if f.name == "source_planning"
                 else copy.deepcopy(getattr(expected, f.name))
             )

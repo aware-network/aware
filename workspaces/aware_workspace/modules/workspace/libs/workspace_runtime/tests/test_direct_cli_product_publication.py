@@ -1,6 +1,6 @@
 """Original source/factory into the existing coordinator and durable backing."""
 
-from contextlib import ExitStack
+from contextlib import ExitStack, asynccontextmanager
 
 import pytest
 from aware_code_retained_registry_policy_runtime import direct_host, product_execution
@@ -10,6 +10,7 @@ from test_direct_cli_product_execution import authored
 from test_direct_cli_selected_host import _proposal, sources
 from test_direct_cli_selected_host import factory as _factory
 
+# isort: split
 from aware_workspace_runtime import direct_cli_product_execution as execution
 from aware_workspace_runtime import direct_cli_product_publication as publication
 from aware_workspace_runtime import direct_cli_selected_host as local
@@ -31,6 +32,286 @@ from aware_workspace_runtime.semantic_materialization_publication import (
 )
 
 factory = _factory
+
+
+@asynccontextmanager
+async def _local_graph_source_scope(tmp_path, monkeypatch, *, with_input=True):
+    """Real Workspace source/input lifetime; graph metadata is a local fixture."""
+    import os
+    from threading import get_ident
+    from types import SimpleNamespace
+
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value) as node:
+            if with_input:
+                node.prepare_source_expectation(
+                    use_ref="graph-window", stage="pre_request",
+                    source_coordinates=value.coordinates,
+                )
+            entry, intent, required = object(), object(), object()
+            pair = SimpleNamespace(workspace=SimpleNamespace(package=lambda _: entry))
+            value.command.catalog_host._result = pair
+            product = SimpleNamespace(
+                host=SimpleNamespace(code_host=value.host, catalog_pair=pair),
+                policy=object(), package_ref="local-graph-fixture",
+            )
+            binding = SimpleNamespace(package_entry=entry, code_intent=intent,
+                                      required_result_products=(required,))
+            planned = SimpleNamespace(plan=SimpleNamespace(
+                graph=SimpleNamespace(edges=()),
+                graph_execution_binding=SimpleNamespace(ordered_node_bindings=(binding,)),
+            ))
+            state = publication._Scope(
+                value.command, value.selected, product, planned, None, os.getpid(), get_ident(),
+                prepared=SimpleNamespace(node=node),
+            )
+            holder = object.__new__(publication._DirectCLIProductGraphScope)
+            publication._SCOPES.append((holder, state))
+            observed = []
+
+            def host_check(original):
+                assert original is product
+                observed.append(value.issuer._semantic_source_window is not None)
+
+            monkeypatch.setattr(publication, "validate_direct_cli_selected_host", host_check)
+            monkeypatch.setattr(publication, "derive_selected_root_intent", lambda *args: (intent, required))
+            try:
+                yield value, holder, state, observed
+            finally:
+                publication._SCOPES[:] = [(key, record) for key, record in publication._SCOPES if key is not holder]
+
+
+@pytest.mark.parametrize("with_input", [False, True])
+async def test_graph_window_reuses_only_original_registered_input(tmp_path, monkeypatch, with_input):
+    async with _local_graph_source_scope(tmp_path, monkeypatch, with_input=with_input) as (value, holder, state, observed):
+        validate_direct_cli_graph_scope(holder)
+        assert observed == [with_input]
+        assert value.issuer._semantic_source_window is None
+        assert not state.terminal
+
+
+@pytest.mark.parametrize("target", ["body", "declaration", "interrupt"])
+async def test_graph_window_terminal_checks_reject_and_cannot_resume(tmp_path, monkeypatch, target):
+    async with _local_graph_source_scope(tmp_path, monkeypatch) as (value, holder, state, _):
+        original = publication.derive_selected_root_intent
+        path = value.root / (
+            "workspaces/network/modules/main/package/a.bin" if target == "body"
+            else "workspaces/network/aware.workspace.toml"
+        )
+        before = path.read_bytes()
+
+        def poison(*args):
+            result = original(*args)
+            if target == "interrupt":
+                raise KeyboardInterrupt("graph-window interruption")
+            path.write_bytes(before + b"\nchanged")
+            return result
+
+        with monkeypatch.context() as patch:
+            patch.setattr(publication, "derive_selected_root_intent", poison)
+            with pytest.raises((RuntimeError, ValueError, BaseExceptionGroup, KeyboardInterrupt)):
+                validate_direct_cli_graph_scope(holder)
+        path.write_bytes(before)
+        assert value.issuer._semantic_source_window is None
+        assert state.terminal
+        with pytest.raises(ContractViolation, match="terminal"):
+            validate_direct_cli_graph_scope(holder)
+
+
+@pytest.mark.parametrize("binding", ["scope", "input_reader", "dispatch"])
+@pytest.mark.parametrize("mode", ["return", "raise", "restore"])
+async def test_graph_window_rejects_substituted_entrances_without_calls(tmp_path, monkeypatch, binding, mode):
+    async with _local_graph_source_scope(tmp_path, monkeypatch) as (value, holder, state, _):
+        owner, name = ((publication, "_scope") if binding == "scope" else
+                       (composition, "_selected_input_read_record" if binding == "input_reader" else "_original_group_method"))
+        original = getattr(owner, name)
+        calls = []
+
+        def hostile(*args, **kwargs):
+            calls.append(True)
+            if mode == "restore":
+                setattr(owner, name, original)
+                return original(*args, **kwargs)
+            if mode == "raise":
+                raise AssertionError("substituted entrance executed")
+            return None
+
+        with monkeypatch.context() as patch:
+            patch.setattr(owner, name, hostile)
+            with pytest.raises(ContractViolation, match="entrance changed"):
+                validate_direct_cli_graph_scope(holder)
+        assert not calls
+        assert state.terminal
+        assert value.issuer._semantic_source_window is None
+        with pytest.raises(ContractViolation, match="terminal"):
+            validate_direct_cli_graph_scope(holder)
+
+
+@pytest.mark.parametrize("target", ["initial_descriptor", "terminal_input_alias", "terminal_input_code", "terminal_read_return"])
+@pytest.mark.parametrize("mode", ["return", "raise", "restore"])
+async def test_graph_window_rejects_late_dispatch_substitution(tmp_path, monkeypatch, target, mode):
+    import sys
+
+    async with _local_graph_source_scope(tmp_path, monkeypatch) as (value, holder, state, _):
+        scope_code = publication._scope.__code__
+        original_scope = publication._scope
+        input_reader = composition._selected_input_read_record
+        input_code = input_reader.__code__
+        original_descriptor = publication.inspect.getattr_static
+        calls = []
+        probe = {"calls": calls, "mode": mode, "original": input_reader, "code": input_code}
+        reached = []
+
+        def hostile(*args, **kwargs):
+            calls.append(True)
+            if mode == "raise":
+                raise AssertionError("late substituted dispatch executed")
+            if mode == "restore":
+                if target == "initial_descriptor":
+                    publication.inspect.getattr_static = original_descriptor
+                    return original_descriptor(*args, **kwargs)
+                if target == "terminal_read_return":
+                    publication._scope = original_scope
+                    return original_scope(*args, **kwargs)
+                composition._selected_input_read_record = input_reader
+                return input_reader(*args, **kwargs)
+            return None
+
+        # A closure-free replacement exercises mutation of the captured function
+        # itself, rather than replacing only the module's alias.
+        def poison(*args, **kwargs):
+            current_probe = globals()["_graph_window_probe"]
+            current_probe["calls"].append(True)
+            if current_probe["mode"] == "raise":
+                raise AssertionError("late substituted function code executed")
+            if current_probe["mode"] == "restore":
+                current_probe["original"].__code__ = current_probe["code"]
+                return current_probe["original"](*args, **kwargs)
+            return None
+
+        poisoned_code = poison.__code__
+
+        def at_original_return(frame, event, result):
+            if (
+                target == "terminal_read_return" and len(reached) == 2
+                and event == "return" and frame.f_code is input_code
+            ):
+                publication._scope = hostile
+            if event == "return" and frame.f_code is scope_code:
+                reached.append(True)
+                desired = 1 if target == "initial_descriptor" else 2
+                if len(reached) == desired:
+                    if target == "initial_descriptor":
+                        publication.inspect.getattr_static = hostile
+                    elif target == "terminal_input_alias":
+                        composition._selected_input_read_record = hostile
+                    elif target == "terminal_input_code":
+                        input_reader.__code__ = poisoned_code
+
+        prior = sys.getprofile()
+        with monkeypatch.context() as patch:
+            patch.setitem(input_reader.__globals__, "_graph_window_probe", probe)
+            try:
+                sys.setprofile(at_original_return)
+                with pytest.raises(ContractViolation, match="entrance changed"):
+                    validate_direct_cli_graph_scope(holder)
+            finally:
+                sys.setprofile(prior)
+                publication.inspect.getattr_static = original_descriptor
+                publication._scope = original_scope
+                composition._selected_input_read_record = input_reader
+                input_reader.__code__ = input_code
+        assert len(reached) == (1 if target == "initial_descriptor" else 2)
+        assert calls == []
+        assert state.terminal
+        assert value.issuer._semantic_source_window is None
+        with pytest.raises(ContractViolation, match="terminal"):
+            validate_direct_cli_graph_scope(holder)
+
+
+@pytest.mark.parametrize("target", ["input_return", "first_retained_return", "window_return"])
+@pytest.mark.parametrize("binding", ["alias", "code"])
+@pytest.mark.parametrize("mode", ["return", "raise", "restore"])
+async def test_graph_window_checks_each_original_dispatch(tmp_path, monkeypatch, target, binding, mode):
+    import sys
+
+    async with _local_graph_source_scope(tmp_path, monkeypatch) as (value, holder, state, _):
+        state.prepared.node.prepare_source_expectation(
+            use_ref="graph-window-second", stage="pre_request", source_coordinates=value.coordinates,
+        )
+        original = composition._original_group_method
+        owner = original.__globals__
+        code = original.__code__
+        input_code = composition._selected_input_read_record.__code__
+        calls, triggered = [], []
+        probe = {"calls": calls, "mode": mode, "original": original, "code": code}
+
+        def hostile(*args, **kwargs):
+            calls.append(True)
+            if mode == "raise":
+                raise AssertionError("substituted graph dispatcher executed")
+            if mode == "restore":
+                composition._original_group_method = original
+                return original(*args, **kwargs)
+            return None
+
+        def poison_code():
+            one = two = three = four = None
+
+            def poison(*args, **kwargs):
+                _ = (one, two, three, four)
+                current_probe = globals()["_graph_dispatch_probe"]
+                current_probe["calls"].append(True)
+                if current_probe["mode"] == "raise":
+                    raise AssertionError("substituted dispatcher code executed")
+                if current_probe["mode"] == "restore":
+                    current_probe["original"].__code__ = current_probe["code"]
+                    return current_probe["original"](*args, **kwargs)
+                return None
+
+            return poison.__code__
+
+        replacement_code = poison_code()
+        assert len(replacement_code.co_freevars) == len(code.co_freevars)
+
+        def at_original_return(frame, event, result):
+            if event != "return" or triggered:
+                return
+            selected = (
+                target == "input_return" and frame.f_code is input_code
+            ) or (
+                frame.f_code is code and frame.f_locals.get("name") == (
+                    "_pre_request_record" if target == "first_retained_return"
+                    else "_original_semantic_source_window" if target == "window_return"
+                    else None
+                )
+            )
+            if selected:
+                triggered.append(True)
+                if binding == "alias":
+                    composition._original_group_method = hostile
+                else:
+                    original.__code__ = replacement_code
+
+        prior = sys.getprofile()
+        with monkeypatch.context() as patch:
+            patch.setitem(owner, "_graph_dispatch_probe", probe)
+            try:
+                sys.setprofile(at_original_return)
+                with pytest.raises(ContractViolation, match="entrance changed"):
+                    validate_direct_cli_graph_scope(holder)
+            finally:
+                sys.setprofile(prior)
+                composition._original_group_method = original
+                original.__code__ = code
+        assert triggered == [True]
+        assert calls == []
+        assert state.terminal
+        assert value.issuer._semantic_source_window is None
+        with pytest.raises(ContractViolation, match="terminal"):
+            validate_direct_cli_graph_scope(holder)
 
 
 async def test_original_local_graph_executes_publishes_and_rereads(

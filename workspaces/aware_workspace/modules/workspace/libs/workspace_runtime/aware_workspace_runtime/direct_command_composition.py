@@ -1642,43 +1642,75 @@ def _resolve_direct_workspace_selected_provider_keys(
     return tuple(resolved)
 
 
-def _resolve_direct_workspace_exact_provider_key(
-    command: _DirectWorkspaceCommandResources,
-    selected: WorkspaceSelectedPackageSource,
-) -> str:
-    """Derive an installation request from the authenticated exact participant view.
+def _bind_original_provider_resolution(dispatch):
+    """Retain Source's original scope for one closed provider-key calculation."""
+    from types import FunctionType
 
-    Complete observed declarations remain retained. Code interprets profile
-    applicability; this key grants no factory, registration or execution.
-    """
-    from aware_code_retained_registry_policy_runtime.declaration_eligibility import (
-        calculate_declaration_eligibility,
+    namespace = globals()
+    code, defaults, keywords, cells = (
+        dispatch.__code__, dispatch.__defaults__, dispatch.__kwdefaults__,
+        dispatch.__closure__,
     )
+    contents = tuple(cell.cell_contents for cell in cells or ())
+    frozen = FunctionType(
+        code, dispatch.__globals__, dispatch.__name__, defaults,
+        None if cells is None else tuple(type(cell)(member) for cell, member in zip(cells, contents, strict=True)),
+    )
+    frozen.__kwdefaults__ = keywords
 
-    _require_live_direct_workspace_command(command)
-    sources = command.sources
-    if type(sources) is not _DirectWorkspaceDeclarationSources:
-        raise TypeError("original declaration source required")
-    issuer = sources.declaration_scope_runtime
-    binding = issuer.read_selected_package_source(selected)
-    view = _read_direct_workspace_selected_participants(command, selected)
-    closure = issuer.read_declaration_scope(sources.declaration_scope)
-    eligibility = calculate_declaration_eligibility(closure, selected_view=view)
-    key = (
-        binding.expectation.scope_key, binding.expectation.module_id,
-        binding.expectation.package_id,
-    )
-    matches = tuple(row for row in eligibility.packages if row.occurrence_key == key)
-    if eligibility.closure_digest != closure.closure_digest or len(matches) != 1:
-        raise RuntimeError("exact selected provider declaration unavailable")
-    issuer.validate_selected_participant_view(
-        sources.declaration_scope, selected, view=view
-    )
-    issuer.validate_selected_package_source(
-        selected, expectation=binding.expectation, binding_digest=binding.binding_digest
-    )
-    _require_live_direct_workspace_command(command)
-    return matches[0].provider_key
+    def check_dispatch():
+        if (namespace.get("_original_group_method") is not dispatch
+            or dispatch.__code__ is not code or dispatch.__defaults__ is not defaults
+            or dispatch.__kwdefaults__ is not keywords or dispatch.__closure__ is not cells
+            or any(cell.cell_contents is not member for cell, member in zip(cells or (), contents, strict=True))):
+            raise RuntimeError("original provider-resolution source dispatcher changed")
+
+    def _resolve_direct_workspace_exact_provider_key(
+        command: _DirectWorkspaceCommandResources,
+        selected: WorkspaceSelectedPackageSource,
+    ) -> str:
+        """Derive an installation request from the authenticated exact participant view.
+
+        Complete observed declarations remain retained. Code interprets profile
+        applicability; this key grants no factory, registration or execution.
+        """
+        from aware_code_retained_registry_policy_runtime.declaration_eligibility import (
+            calculate_declaration_eligibility,
+        )
+
+        _require_live_direct_workspace_command(command)
+        sources = command.sources
+        if type(sources) is not _DirectWorkspaceDeclarationSources:
+            raise TypeError("original declaration source required")
+        issuer = sources.declaration_scope_runtime
+        check_dispatch()
+        with frozen(issuer, "_original_participant_source_window", sources.declaration_scope, selected):
+            binding = issuer.read_selected_package_source(selected)
+            view = _read_direct_workspace_selected_participants(command, selected)
+            closure = issuer.read_declaration_scope(sources.declaration_scope)
+            eligibility = calculate_declaration_eligibility(closure, selected_view=view)
+            key = (
+                binding.expectation.scope_key, binding.expectation.module_id,
+                binding.expectation.package_id,
+            )
+            matches = tuple(row for row in eligibility.packages if row.occurrence_key == key)
+            if eligibility.closure_digest != closure.closure_digest or len(matches) != 1:
+                raise RuntimeError("exact selected provider declaration unavailable")
+            issuer.validate_selected_participant_view(
+                sources.declaration_scope, selected, view=view
+            )
+            issuer.validate_selected_package_source(
+                selected, expectation=binding.expectation, binding_digest=binding.binding_digest
+            )
+        check_dispatch()
+        _require_live_direct_workspace_command(command)
+        return matches[0].provider_key
+
+    return _resolve_direct_workspace_exact_provider_key
+
+
+_resolve_direct_workspace_exact_provider_key = _bind_original_provider_resolution(_original_group_method)
+del _bind_original_provider_resolution
 
 
 def _validate_direct_workspace_root_plan_closure(
@@ -3219,40 +3251,6 @@ class _CommandOwnedSelectedInputReadSession:
         finally:
             record = self = None  # noqa: PLW0642 - clear rejection custody
 
-    def prepare_source_expectation(
-        self, *, use_ref, stage, source_coordinates, context_contracts=()
-    ):
-        """Own the existing issuer's context, without rewriting its identity."""
-        record = expected = None
-        try:
-            _SELECTED_INPUT_READ_VALIDATE(self)
-            record = _selected_input_read_record(self)
-            if record.assembly_binding is not None:
-                raise RuntimeError("selected-input assembly is already frozen")
-            if len(record.expectations) >= 32:
-                raise RuntimeError("selected-input retained source limit exceeded")
-            issuer = record.command.sources.declaration_scope_runtime
-            assert record.stack is not None
-            expected = record.stack.enter_context(
-                issuer.original_pre_request_input(
-                    record.selected,
-                    use_ref=use_ref,
-                    stage=stage,
-                    source_coordinates=source_coordinates,
-                    context_contracts=context_contracts,
-                )
-            )
-            _retain_selected_input_expectation(record, expected, depth=1)
-            _SELECTED_INPUT_READ_VALIDATE(self)
-            return expected
-        except BaseException as error:
-            _clear_selected_input_rejection_frames(error)
-            if record is not None:
-                _retire_selected_input_read(record)
-            raise
-        finally:
-            record = expected = self = None  # noqa: PLW0642 - clear rejection custody
-            issuer = source_coordinates = context_contracts = None
 
     def prepare_selected_source_expectation(
         self,
@@ -3316,46 +3314,6 @@ class _CommandOwnedSelectedInputReadSession:
             record = expected = issuer = host = registration = result = None
             self = selection_expected = source_contracts = context_contracts = None  # noqa: PLW0642 - clear rejection custody
 
-    def retain_source_result(self, host, registration, *, expected, result) -> None:
-        """Associate one original Code return with a node-owned expectation.
-
-        Producer hosts, registrations and returned results remain borrowed.
-        Their owning composer must keep them live and release them separately.
-        """
-        record = None
-        try:
-            _SELECTED_INPUT_READ_VALIDATE(self)
-            record = _selected_input_read_record(self)
-            if record.assembly_binding is not None:
-                raise RuntimeError("selected-input assembly is already frozen")
-            if (
-                not any(item is expected for item in record.expectations)
-                or any(item[2] is expected for item in record.results)
-                or len(record.results) >= 32
-            ):
-                raise RuntimeError("foreign, replayed or excessive source result")
-            from aware_code_semantic_contract_runtime.semantic_input_producer import (
-                validate_registered_semantic_input_result,
-            )
-
-            validate_registered_semantic_input_result(
-                host,
-                registration,
-                source_admission=record.selected,
-                expected=expected,
-                result=result,
-            )
-            record.results += ((host, registration, expected, result),)
-            if _selected_input_retained_bytes(record) > 32 * 1024 * 1024:
-                raise RuntimeError("selected-input result retention budget exceeded")
-            _SELECTED_INPUT_READ_VALIDATE(self)
-        except BaseException as error:
-            _clear_selected_input_rejection_frames(error)
-            if record is not None:
-                _retire_selected_input_read(record)
-            raise
-        finally:
-            record = self = host = registration = expected = result = None  # noqa: PLW0642 - clear rejection custody
 
     def admit_dependency_products(self, operation, resolution, fulfillment, *, body):
         """Use the existing consumer only for this node's original admissions."""
@@ -3386,49 +3344,6 @@ class _CommandOwnedSelectedInputReadSession:
             record = originals = consumer = admission = self = None  # noqa: PLW0642 - clear rejection custody
             operation = resolution = fulfillment = body = None
 
-    def assemble_inputs(
-        self, semantic_input, input_bodies, *, source_input_roles=(),
-        context_input_roles=(), dependency_input_role=None,
-    ):
-        """Construct the shared value from the complete node-retained closure."""
-        record = assembly = sources = fields = binding = None
-        try:
-            _SELECTED_INPUT_READ_VALIDATE(self)
-            record = _selected_input_read_record(self)
-            if record.assembly_binding is not None:
-                raise RuntimeError("selected-input assembly replay")
-            if not record.results or len(record.results) != len(record.expectations):
-                raise RuntimeError("selected-input source-result closure incomplete")
-            _selected_input_slots(_INPUT_ASSEMBLY_KIND, _INPUT_ASSEMBLY_FIELDS, _INPUT_ASSEMBLY_SLOTS)
-            _selected_input_slots(_INPUT_SOURCE_KIND, _INPUT_SOURCE_FIELDS, _INPUT_SOURCE_SLOTS)
-            sources = tuple(_INPUT_SOURCE_KIND(host, registration, record.selected, expected, result)
-                            for host, registration, expected, result in record.results)
-            assembly = _INPUT_ASSEMBLY_KIND(
-                semantic_input, input_bodies, sources,
-                source_input_roles=source_input_roles, context_input_roles=context_input_roles,
-                dependency_products=(None if record.dependency_binding is None
-                                     else record.dependency_binding.admission),
-                dependency_input_role=dependency_input_role,
-            )
-            fields = tuple(slot.__get__(assembly) for slot in _INPUT_ASSEMBLY_SLOTS)
-            binding = _SelectedInputAssemblyBinding(
-                assembly, fields,
-                tuple((source, tuple(slot.__get__(source) for slot in _INPUT_SOURCE_SLOTS))
-                      for source in sources),
-                ((fields[3], tuple(row for row in fields[3])),
-                 (fields[4], tuple(row for row in fields[4]))),
-            )
-            record.assembly_binding = binding
-            _SELECTED_INPUT_READ_VALIDATE(self)
-            return assembly
-        except BaseException as error:
-            _clear_selected_input_rejection_frames(error)
-            if record is not None:
-                _retire_selected_input_read(record)
-            raise
-        finally:
-            record = assembly = sources = fields = binding = self = None  # noqa: PLW0642 - clear rejection custody
-            semantic_input = input_bodies = source_input_roles = context_input_roles = dependency_input_role = None
 
     def close(self) -> None:
         record = None
@@ -3444,6 +3359,191 @@ class _CommandOwnedSelectedInputReadSession:
                 _retire_selected_input_read(record)
         finally:
             record = self = None  # noqa: PLW0642 - clear rejection custody
+
+
+def _bind_selected_input_source_operations(dispatch):
+    """Keep one original source bracket around synchronous input metadata only."""
+    from types import FunctionType
+
+    from . import declaration_scope_admission as source_values
+
+    namespace = globals()
+    source_namespace = vars(source_values)
+    prekind = source_values._PreRequestInputRecord
+    grouped_slot = type.__getattribute__(prekind, "__dict__")["grouped_origin"]
+    code, defaults, keywords, cells = (
+        dispatch.__code__, dispatch.__defaults__, dispatch.__kwdefaults__,
+        dispatch.__closure__,
+    )
+    contents = tuple(cell.cell_contents for cell in cells or ())
+    frozen = FunctionType(
+        code, dispatch.__globals__, dispatch.__name__, defaults,
+        None if cells is None else tuple(type(cell)(member) for cell, member in zip(cells, contents, strict=True)),
+    )
+    frozen.__kwdefaults__ = keywords
+
+    def check_dispatch():
+        if (namespace.get("_original_group_method") is not dispatch
+            or dispatch.__code__ is not code or dispatch.__defaults__ is not defaults
+            or dispatch.__kwdefaults__ is not keywords or dispatch.__closure__ is not cells
+            or any(cell.cell_contents is not member for cell, member in zip(cells or (), contents, strict=True))
+            or source_namespace.get("_PreRequestInputRecord") is not prekind
+            or type.__getattribute__(prekind, "__dict__").get("grouped_origin") is not grouped_slot):
+            raise RuntimeError("original selected-input source operation changed")
+
+    @contextmanager
+    def source_operation(record):
+        issuer = retained = None
+        try:
+            check_dispatch()
+            issuer = record.command.sources.declaration_scope_runtime
+            retained = tuple(frozen(issuer, "_pre_request_record", record.selected, expected)
+                             for expected in record.expectations)
+            check_dispatch()
+            if any(type(item) is not prekind for item in retained):
+                raise RuntimeError("original selected-input source record required")
+            # A grouped source retains its independent existing family/lifetime.
+            # Do not merge package roots or authorize a foreign source window.
+            if any(grouped_slot.__get__(item, prekind) is not None for item in retained):
+                yield
+            else:
+                with frozen(issuer, "_original_participant_source_window",
+                            record.command.sources.declaration_scope, record.selected):
+                    yield
+            check_dispatch()
+        finally:
+            record = issuer = retained = None
+
+    def prepare_source_expectation(
+        self, *, use_ref, stage, source_coordinates, context_contracts=()
+    ):
+        """Own the existing issuer's context, without rewriting its identity."""
+        record = expected = None
+        try:
+            _SELECTED_INPUT_READ_VALIDATE(self)
+            record = _selected_input_read_record(self)
+            with source_operation(record):
+                if record.assembly_binding is not None:
+                    raise RuntimeError("selected-input assembly is already frozen")
+                if len(record.expectations) >= 32:
+                    raise RuntimeError("selected-input retained source limit exceeded")
+                issuer = record.command.sources.declaration_scope_runtime
+                assert record.stack is not None
+                expected = record.stack.enter_context(
+                    issuer.original_pre_request_input(
+                        record.selected,
+                        use_ref=use_ref,
+                        stage=stage,
+                        source_coordinates=source_coordinates,
+                        context_contracts=context_contracts,
+                    )
+                )
+                _retain_selected_input_expectation(record, expected, depth=1)
+                _SELECTED_INPUT_READ_VALIDATE(self)
+                return expected
+        except BaseException as error:
+            _clear_selected_input_rejection_frames(error)
+            if record is not None:
+                _retire_selected_input_read(record)
+            raise
+        finally:
+            record = expected = self = None
+            issuer = source_coordinates = context_contracts = None
+    def retain_source_result(self, host, registration, *, expected, result) -> None:
+        """Associate one original Code return with a node-owned expectation.
+
+        Producer hosts, registrations and returned results remain borrowed.
+        Their owning composer must keep them live and release them separately.
+        """
+        record = None
+        try:
+            _SELECTED_INPUT_READ_VALIDATE(self)
+            record = _selected_input_read_record(self)
+            with source_operation(record):
+                if record.assembly_binding is not None:
+                    raise RuntimeError("selected-input assembly is already frozen")
+                if (
+                    not any(item is expected for item in record.expectations)
+                    or any(item[2] is expected for item in record.results)
+                    or len(record.results) >= 32
+                ):
+                    raise RuntimeError("foreign, replayed or excessive source result")
+                from aware_code_semantic_contract_runtime.semantic_input_producer import (
+                    validate_registered_semantic_input_result,
+                )
+
+                validate_registered_semantic_input_result(
+                    host,
+                    registration,
+                    source_admission=record.selected,
+                    expected=expected,
+                    result=result,
+                )
+                record.results += ((host, registration, expected, result),)
+                if _selected_input_retained_bytes(record) > 32 * 1024 * 1024:
+                    raise RuntimeError("selected-input result retention budget exceeded")
+                _SELECTED_INPUT_READ_VALIDATE(self)
+        except BaseException as error:
+            _clear_selected_input_rejection_frames(error)
+            if record is not None:
+                _retire_selected_input_read(record)
+            raise
+        finally:
+            record = self = host = registration = expected = result = None
+    def assemble_inputs(
+        self, semantic_input, input_bodies, *, source_input_roles=(),
+        context_input_roles=(), dependency_input_role=None,
+    ):
+        """Construct the shared value from the complete node-retained closure."""
+        record = assembly = sources = fields = binding = None
+        try:
+            _SELECTED_INPUT_READ_VALIDATE(self)
+            record = _selected_input_read_record(self)
+            with source_operation(record):
+                if record.assembly_binding is not None:
+                    raise RuntimeError("selected-input assembly replay")
+                if not record.results or len(record.results) != len(record.expectations):
+                    raise RuntimeError("selected-input source-result closure incomplete")
+                _selected_input_slots(_INPUT_ASSEMBLY_KIND, _INPUT_ASSEMBLY_FIELDS, _INPUT_ASSEMBLY_SLOTS)
+                _selected_input_slots(_INPUT_SOURCE_KIND, _INPUT_SOURCE_FIELDS, _INPUT_SOURCE_SLOTS)
+                sources = tuple(_INPUT_SOURCE_KIND(host, registration, record.selected, expected, result)
+                                for host, registration, expected, result in record.results)
+                assembly = _INPUT_ASSEMBLY_KIND(
+                    semantic_input, input_bodies, sources,
+                    source_input_roles=source_input_roles, context_input_roles=context_input_roles,
+                    dependency_products=(None if record.dependency_binding is None
+                                         else record.dependency_binding.admission),
+                    dependency_input_role=dependency_input_role,
+                )
+                fields = tuple(slot.__get__(assembly) for slot in _INPUT_ASSEMBLY_SLOTS)
+                binding = _SelectedInputAssemblyBinding(
+                    assembly, fields,
+                    tuple((source, tuple(slot.__get__(source) for slot in _INPUT_SOURCE_SLOTS))
+                          for source in sources),
+                    ((fields[3], tuple(row for row in fields[3])),
+                     (fields[4], tuple(row for row in fields[4]))),
+                )
+                record.assembly_binding = binding
+                _SELECTED_INPUT_READ_VALIDATE(self)
+                return assembly
+        except BaseException as error:
+            _clear_selected_input_rejection_frames(error)
+            if record is not None:
+                _retire_selected_input_read(record)
+            raise
+        finally:
+            record = assembly = sources = fields = binding = self = None
+            semantic_input = input_bodies = source_input_roles = context_input_roles = dependency_input_role = None
+
+    return prepare_source_expectation, retain_source_result, assemble_inputs
+
+
+(_CommandOwnedSelectedInputReadSession.prepare_source_expectation,  # pyright: ignore[reportAttributeAccessIssue]
+ _CommandOwnedSelectedInputReadSession.retain_source_result,  # pyright: ignore[reportAttributeAccessIssue]
+ _CommandOwnedSelectedInputReadSession.assemble_inputs) = _bind_selected_input_source_operations(  # pyright: ignore[reportAttributeAccessIssue]
+    _original_group_method,
+)
+del _bind_selected_input_source_operations
 
 
 _SELECTED_INPUT_READ_VALIDATE = _CommandOwnedSelectedInputReadSession.validate
@@ -4389,6 +4489,7 @@ def _compose_direct_workspace_policy_host(staged, **coordinates):
     expected = None
     epoch_bound = False
     code_closed = False
+    _product_admission_origin = None
     errors = []
     try:
         if declaration_v3:
@@ -4439,19 +4540,28 @@ def _compose_direct_workspace_policy_host(staged, **coordinates):
             issuer._bind_original_authority_validator(
                 authority_contexts.authority_context_validator(host)
             )
-        if has_stages and (
+        if (has_stages or (declaration_v3 and staged.product_contributions)) and (
             declaration_v3 or type(command.sources.scope_runtime) is WorkspaceDependencyScopeRuntime
         ):
             issuer._bind_original_dependency_validator(
-                dependency_contexts.retained_dependency_operation_validator(host)
+                dependency_contexts.retained_dependency_operation_validator(host),
+                **({"product_source": True} if not has_stages else {}),
             )
-        if has_stages and (
+        if (has_stages or (declaration_v3 and staged.product_contributions)) and (
             declaration_v3 or type(command.sources.scope_runtime) is WorkspaceDependencyScopeRuntime
         ):
             issuer._bind_original_resolution_resources(
                 target_origin=assemble_target_context_origin(host),
                 catalog=joint.read_code_catalog_for_epoch(epoch, expected=expected),
             )
+        if declaration_v3 and staged.product_contributions and not has_stages:
+            from aware_code_retained_registry_policy_runtime.retained_input_admission import (
+                assemble_retained_input_admission_origin,
+            )
+
+            # Retain this original Code association for the product-only host.
+            # It issues no staged input; dependency intake uses the same issuer.
+            _product_admission_origin = assemble_retained_input_admission_origin(host)
         _POLICY_HOSTS[host] = staged
         _SELECTED_INPUT_FACTORIES[host] = factory
         yield host
@@ -4467,6 +4577,7 @@ def _compose_direct_workspace_policy_host(staged, **coordinates):
         try:
             close_code(host)
             code_closed = True
+            _product_admission_origin = None
         except BaseException as error:
             errors.append(error)
         try:

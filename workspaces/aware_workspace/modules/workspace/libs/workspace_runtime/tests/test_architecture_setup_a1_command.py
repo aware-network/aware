@@ -189,6 +189,14 @@ def test_agent_preview_apply_real_creation_and_closed_receipts(root, capsys):
     assert result.workspace_result.original_receipt.written_paths == (
         "aware.repo.toml",
     )
+    from aware_workspace_command.architecture_setup_a1_presentation import (
+        render_a1_review,
+    )
+
+    displayed = render_a1_review(result, supplied_final_paths=("aware.repo.toml",))
+    assert "Historical execution release: unknown" in displayed
+    assert "Workspace plan: confirmed" in displayed
+    assert "Issue admission: phase=" in displayed
     assert (
         result.plan_cleanup.release == result.admission_cleanup.outcome == "confirmed"
     )
@@ -617,3 +625,140 @@ def test_execution_drift_terminally_revokes_original_issue_right(root, monkeypat
     assert not (root / "aware.repo.toml").exists()
     issuer.release_client()
     workspace.release_client()
+
+
+@pytest.mark.parametrize("kind", ["missing", "extra", "duplicate", "scratch"])
+def test_allowlist_refusal_is_typed_before_admission_and_preserves_files(
+    root, monkeypatch, kind
+):
+    from aware_workspace_command.architecture_setup_a1_command_values import (
+        command_value_to_payload,
+    )
+
+    (root / "unrelated.bin").write_bytes(b"untouched\x00")
+    (root / "unrelated.bin").chmod(0o640)
+    preview, code = run_a1(arguments(root))
+    assert code == 0
+    binding = preview.workspace_observation.binding
+    supplied = {
+        "missing": (),
+        "extra": ("aware.repo.toml", "unrelated.bin"),
+        "duplicate": ("aware.repo.toml", "aware.repo.toml"),
+        "scratch": ("aware.repo.toml", binding.file_transitions[0].scratch_path),
+    }[kind]
+    calls = []
+
+    def forbidden(*args, **kwargs):
+        calls.append(True)
+        raise AssertionError("allowlist refusal must precede Issue admission")
+
+    monkeypatch.setattr(
+        IssueWorkspaceSetupAdmissionClient, "prepare_setup_admission", forbidden
+    )
+    guards = preview.review_guards
+    extra = [
+        "--apply",
+        "--issue-source-sha256",
+        guards.issue_source_sha256,
+        "--authority-manifest-sha256",
+        guards.authority_manifest_sha256,
+        "--expected-plan-sha256",
+        guards.plan_sha256,
+    ]
+    for path in supplied:
+        extra.extend(("--allowed-path", path))
+    before = files(root)
+    mode = (root / "unrelated.bin").stat().st_mode
+    evidence, code = run_a1(arguments(root, *extra))
+    assert code == 2 and not calls
+    assert evidence.primary_failure.code == "setup_write_scope_mismatch"
+    assert evidence.issue_observation is None and evidence.workspace_result is None
+    assert not evidence.authorizes_retry and not evidence.completion_verified
+    assert evidence.plan_cleanup.release == "confirmed"
+    assert (
+        evidence.client_cleanup.issue.outcome
+        == evidence.client_cleanup.workspace.outcome
+        == "confirmed"
+    )
+    assert evidence.diagnostics[0] == 'expected_final_paths: ["aware.repo.toml"]'
+    assert evidence.diagnostics[1] == "supplied_final_paths: " + json.dumps(
+        supplied, separators=(",", ":")
+    )
+    assert "refresh guards automatically" in evidence.diagnostics[2]
+    payload = command_value_to_payload(evidence)
+    restored = command_value_from_payload(WorkspaceSetupA1CommandEvidence, payload)
+    assert restored.primary_failure.code == "setup_write_scope_mismatch"
+    assert restored.review_guards == guards
+    assert files(root) == before and (root / "unrelated.bin").stat().st_mode == mode
+    assert not tuple(root.glob(".aware-cas-*"))
+
+
+def test_human_preview_presents_owner_paths_guards_and_complete_json(root, capsys):
+    from aware_workspace_command.architecture_setup_a1_command import handle_a1
+
+    before = files(root)
+    assert handle_a1(arguments(root)) == 0
+    human, raw = capsys.readouterr().out.split("Complete owner evidence JSON:\n", 1)
+    evidence = command_value_from_payload(
+        WorkspaceSetupA1CommandEvidence, json.loads(raw)
+    )
+    assert "Final files (--allowed-path; each exactly once):" in human
+    assert (
+        "Complete physical effect scope (Issue; includes temporary/auxiliary paths):"
+        in human
+    )
+    assert (
+        evidence.workspace_observation.binding.file_transitions[0].scratch_path in human
+    )
+    assert evidence.review_guards.plan_sha256 in human
+    assert "Issue admission: not observed" in human
+    assert "Historical execution release: not observed" in human
+    assert "Workspace plan: confirmed" in human
+    assert "authorizes retry: false" in human
+    assert files(root) == before
+    assert handle_a1(arguments(root, "--json")) == 0
+    json_only = capsys.readouterr().out
+    assert (
+        json_only.startswith("{") and "Complete owner evidence JSON:" not in json_only
+    )
+    payload = json.loads(json_only)
+    assert (
+        len(payload) == 19
+        and payload["contract"] == "aware.workspace.architecture-setup-a1-command.v1"
+    )
+    command_value_from_payload(WorkspaceSetupA1CommandEvidence, payload)
+
+
+def test_human_allowlist_refusal_has_exact_expected_supplied_and_no_apply(root, capsys):
+    from aware_workspace_command.architecture_setup_a1_command import handle_a1
+
+    preview, code = run_a1(arguments(root))
+    assert code == 0
+    guards = preview.review_guards
+    before = files(root)
+    assert (
+        handle_a1(
+            arguments(
+                root,
+                "--apply",
+                "--allowed-path",
+                "wrong.toml",
+                "--issue-source-sha256",
+                guards.issue_source_sha256,
+                "--authority-manifest-sha256",
+                guards.authority_manifest_sha256,
+                "--expected-plan-sha256",
+                guards.plan_sha256,
+            )
+        )
+        == 2
+    )
+    human, raw = capsys.readouterr().out.split("Complete owner evidence JSON:\n", 1)
+    assert '"aware.repo.toml"' in human and '"wrong.toml"' in human
+    assert "Refusal/failure: setup_write_scope_mismatch" in human
+    assert "Do not refresh guards or retry automatically." in human
+    evidence = command_value_from_payload(
+        WorkspaceSetupA1CommandEvidence, json.loads(raw)
+    )
+    assert evidence.issue_observation is None and evidence.workspace_result is None
+    assert evidence.review_guards == guards and files(root) == before

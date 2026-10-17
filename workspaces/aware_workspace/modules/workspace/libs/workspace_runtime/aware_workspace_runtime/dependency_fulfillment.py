@@ -2,12 +2,14 @@
 
 import copy
 import inspect
+import json
 import os
 from dataclasses import dataclass
 from threading import current_thread
 from types import MethodType
 
 from aware_code_semantic_contract_runtime import (
+    ContentDigest,
     SemanticBody,
     SemanticDependencyCoordinate,
     canonical_json_bytes,
@@ -16,6 +18,7 @@ from aware_code_semantic_contract_runtime.dependency_admission_interfaces import
     RetainedDependencyFulfillmentExpectation,
 )
 from aware_code_semantic_contract_runtime.dependency_input_codec import (
+    SEMANTIC_DEPENDENCY_PRODUCT_INPUT_REF,
     decode_dependency_product_input,
     dependency_product_input_body,
 )
@@ -27,7 +30,73 @@ from aware_code_semantic_contract_runtime.materialization_catalog_codec import (
     decode_code_semantic_contract_match_admission,
 )
 
+from . import declaration_product_membership as _product_sources
+from .materialization_membership_catalog import (
+    WorkspaceSemanticMaterializationPackageEntry,
+)
 from .observed_semantic_issuers import _unavailable
+
+
+def _bind_original_source_reader():
+    validate = _product_sources.validate_declaration_product_source
+    validate_entry = _product_sources.validate_declaration_product_correspondence
+    codes = validate.__code__, validate_entry.__code__
+
+    def check():
+        if (
+            _product_sources.validate_declaration_product_source is not validate
+            or _product_sources.validate_declaration_product_correspondence is not validate_entry
+            or (validate.__code__, validate_entry.__code__) != codes
+        ):
+            _unavailable("original_dependency_source_correspondence_changed")
+
+    def bind(issuer, pairs):
+        if type(pairs) is not tuple or len(pairs) > 256:
+            _unavailable("original_dependency_source_correspondences_required")
+        rows = []
+        for pair in pairs:
+            if type(pair) is not tuple or len(pair) != 2:
+                _unavailable("original_dependency_source_correspondence_pair_required")
+            correspondence, entry = pair
+            if (type(correspondence) is not _product_sources.WorkspaceDeclarationProductCorrespondence
+                or type(entry) is not WorkspaceSemanticMaterializationPackageEntry):
+                _unavailable("original_dependency_source_correspondence_pair_required")
+            wire = canonical_json_bytes(entry.to_wire())
+            check()
+            validate_entry(correspondence, entry)
+            check()
+            if canonical_json_bytes(entry.to_wire()) != wire:
+                _unavailable("dependency_source_correspondence_changed")
+            snapshot = json.loads(wire)
+            rows.append((correspondence, entry, wire, snapshot["source_identity_digest"]))
+        if len({entry.package.package_ref for _, entry, _, _ in rows}) != len(rows):
+            _unavailable("duplicate_dependency_source_correspondence")
+        retained = tuple(rows)
+
+        class SourceReader:
+            def digest(self, package, selected_digest):
+                if not retained:
+                    # Existing staged issuers use the selected-source identity.
+                    return selected_digest
+                matches = tuple(row for row in retained if row[1].package == package)
+                if len(matches) != 1:
+                    _unavailable("dependency_source_correspondence_unavailable")
+                correspondence, entry, wire, digest = matches[0]
+                if canonical_json_bytes(entry.to_wire()) != wire:
+                    _unavailable("dependency_source_correspondence_changed")
+                check()
+                validate(correspondence, entry, issuer=issuer, package=package, source_identity_digest=selected_digest)
+                check()
+                if canonical_json_bytes(entry.to_wire()) != wire:
+                    _unavailable("dependency_source_correspondence_changed")
+                return ContentDigest(digest)
+
+        return SourceReader()
+
+    return bind
+
+
+_original_source_reader = _bind_original_source_reader()
 
 
 class WorkspaceDependencyFulfillmentAdmission:
@@ -66,6 +135,26 @@ def _verify_original_entry(runtime, *, require_publisher=False):
         _WorkspaceEmptyDependencyFulfillmentRuntime._check_live(runtime)
 
 
+def _dependency_body(value, original):
+    """Use only the selected profile retained by the original resolution.
+
+    This is a projection after original resolution validation, not a caller
+    role argument or a new admission. Source-only profiles retain the existing
+    comparison envelope; Code cannot consume it as an undeclared recipe input.
+    """
+    inputs = original.catalog_match.selected_binding.profile_declaration.inputs
+    declared = tuple(item for item in inputs if item.contract == SEMANTIC_DEPENDENCY_PRODUCT_INPUT_REF)
+    if (len(declared) > 1 or any(
+        item.contract.key == SEMANTIC_DEPENDENCY_PRODUCT_INPUT_REF.key
+        and item.contract != SEMANTIC_DEPENDENCY_PRODUCT_INPUT_REF
+        for item in inputs
+    )):
+        _unavailable("dependency_product_input_role_ambiguous_or_foreign")
+    if not declared:
+        return dependency_product_input_body(value)
+    return dependency_product_input_body(value, role=declared[0].role)
+
+
 class _WorkspaceEmptyDependencyFulfillmentRuntime:
     def __init__(self, resolutions):
         self.resolutions = resolutions
@@ -88,13 +177,15 @@ class _WorkspaceEmptyDependencyFulfillmentRuntime:
         ):
             _unavailable("dependency_fulfillment_lifetime_unavailable")
 
-    def bind_publisher(self, publisher):
+    def bind_publisher(self, publisher, *, source_correspondences=()):
         """Fixed composition supplies a borrowed original publisher, never a callback."""
         from .semantic_materialization_publication import (
             WorkspaceSemanticMaterializationPublisher,
         )
 
         _verify_original_entry(self)
+        if type(source_correspondences) is not tuple:
+            _unavailable("original_dependency_source_correspondences_required")
         if type(publisher) is not WorkspaceSemanticMaterializationPublisher:
             _unavailable("original_dependency_publisher_required")
         if self.publisher is not None or self.records or self.issued:
@@ -103,6 +194,9 @@ class _WorkspaceEmptyDependencyFulfillmentRuntime:
             publisher._state_store,
             publisher._body_store,
             publisher._state_namespace,
+        )
+        source_reader = _original_source_reader(
+            self.resolutions.issuer if source_correspondences else None, source_correspondences,
         )
         entrances = []
         for receiver, name in (
@@ -117,6 +211,7 @@ class _WorkspaceEmptyDependencyFulfillmentRuntime:
             (self, "_call_publisher"),
             (self, "_check_publisher"),
             (self, "_check_live"),
+            (source_reader, "digest"),
         ):
             descriptor = inspect.getattr_static(receiver, name)
             method = getattr(receiver, name)
@@ -195,6 +290,9 @@ class _WorkspaceEmptyDependencyFulfillmentRuntime:
             _unavailable("dependency_fulfillment_replay")
         if len(self.records) >= 128:
             _unavailable("dependency_fulfillment_capacity")
+        # Reserve this original resolution before body construction. A failed
+        # profile/role join must not become reusable by restoring its fields.
+        self.issued.append(resolution)
         original = record.expected
         products = SemanticDependencyProductInput(
             copy.deepcopy(original.planning_input.package),
@@ -207,11 +305,10 @@ class _WorkspaceEmptyDependencyFulfillmentRuntime:
             (),
             copy.deepcopy(original.planning_context.code_intent),
         )
-        body = dependency_product_input_body(products)
+        body = _dependency_body(products, original)
         self._resolution(resolution, original)
         handle = object.__new__(WorkspaceDependencyFulfillmentAdmission)
         self.records[handle] = _Fulfillment(resolution, body)
-        self.issued.append(resolution)
         return handle
 
     def _products(self, resolution, expected):
@@ -243,6 +340,9 @@ class _WorkspaceEmptyDependencyFulfillmentRuntime:
             match = decode_code_semantic_contract_match_admission(
                 wire, context=context, resolver=self.resolutions.resolver
             )
+            source_digest = self.publisher_entrances[11][3](
+                context.package, sources[0].context.source_identity_digest,
+            )
             h1 = self.publisher_entrances[8][3](
                 0, context.package.package_ref, observation_role="dependency_h1"
             )
@@ -262,7 +362,7 @@ class _WorkspaceEmptyDependencyFulfillmentRuntime:
                 len(required) != 1
                 or base.package != context.package
                 or base.source_identity_digest
-                != sources[0].context.source_identity_digest
+                != source_digest
                 or base.code_intent_digest != context.code_intent.intent_digest
                 or base.code_match_digest != match.match_digest
                 or base.result_coordinate.role != required[0].role
@@ -367,7 +467,7 @@ class _WorkspaceEmptyDependencyFulfillmentRuntime:
             products,
             copy.deepcopy(original.planning_context.code_intent),
         )
-        body = dependency_product_input_body(value)
+        body = _dependency_body(value, original)
         self._resolution(resolution, expected, empty=False)
         handle = object.__new__(WorkspaceDependencyFulfillmentAdmission)
         self.records[handle] = _Fulfillment(resolution, body, heads)
@@ -395,8 +495,12 @@ class _WorkspaceEmptyDependencyFulfillmentRuntime:
                 original = decode_dependency_product_input(record.body.canonical_body)
                 if products != original.products or heads != record.heads:
                     _unavailable("dependency_product_currentness_changed")
+                current = self.resolutions.records[resolution]
             else:
-                self._resolution(resolution, expected)
+                current = self._resolution(resolution, expected)
+            value = decode_dependency_product_input(record.body.canonical_body)
+            if record.body != _dependency_body(value, current.expected):
+                _unavailable("dependency_product_input_role_changed")
             return copy.deepcopy(record.body)
         except BaseException:
             record.retire()
@@ -411,9 +515,10 @@ class _WorkspaceEmptyDependencyFulfillmentRuntime:
             if type(expected) is not RetainedDependencyFulfillmentExpectation:
                 _unavailable("exact_fulfillment_expectation_required")
             body = self.read(handle, resolution, expected.resolution)
+            original = self.resolutions.records[resolution].expected
             if (
                 body.coordinate != expected.dependency_products_coordinate
-                or body != dependency_product_input_body(expected.dependency_products)
+                or body != _dependency_body(expected.dependency_products, original)
             ):
                 _unavailable("dependency_products_correspondence_differs")
             self._resolution(resolution, expected.resolution, empty=False)

@@ -21,6 +21,7 @@ from aware_workspace_runtime.repository_delta_store_contract import (
 )
 
 from .repository_delta_store import WorkspaceRepositoryDeltaStore
+from .repository_index_journal import IndexJournal
 
 _LOCK = threading.RLock()
 _FACTORIES = WeakKeyDictionary()
@@ -56,6 +57,7 @@ class _OwnerRecord:
     pid: int
     phase: str = "allocated"
     binding: str | None = None
+    journal_origin: tuple | None = None
 
 
 def _factory(factory):
@@ -89,14 +91,20 @@ class FilesystemDeltaRetentionFactory(_Original):
     __slots__ = ()
 
     @classmethod
-    def filesystem(cls, *, state_root: Path):
+    def filesystem(cls, *, state_root: Path, index_format: str = "json_v1"):
         if cls is not FilesystemDeltaRetentionFactory or not isinstance(
             state_root, Path
         ):
             raise DeltaRetentionOwnerRefusal("retention_owner_mismatch")
+        if type(index_format) is not str or index_format not in (
+            "json_v1",
+            "events_v2",
+            "auto",
+        ):
+            raise DeltaRetentionOwnerRefusal("retention_index_format_invalid")
         factory = object.__new__(cls)
         with _LOCK:
-            _FACTORIES[factory] = (state_root, os.getpid())
+            _FACTORIES[factory] = (state_root, os.getpid(), index_format)
         return factory
 
     def verify_original_factory(self):
@@ -131,8 +139,22 @@ class FilesystemDeltaRetentionFactory(_Original):
             raise DeltaRetentionOwnerRefusal("retention_binding_mismatch")
         owner = object.__new__(FilesystemDeltaRetentionOwner)
         with _LOCK:
+            journal = vars(original_store).get("_index_journal")
+            if type(journal) is not IndexJournal:
+                raise DeltaRetentionOwnerRefusal("retention_index_origin_unknown")
             _OWNERS[owner] = _OwnerRecord(
-                self, original_store, os.getpid(), "active", binding
+                self,
+                original_store,
+                os.getpid(),
+                "active",
+                binding,
+                (
+                    journal,
+                    IndexJournal,
+                    vars(IndexJournal)["__dict__"],
+                    WorkspaceRepositoryDeltaStore,
+                    vars(WorkspaceRepositoryDeltaStore)["__dict__"],
+                ),
             )
         return owner
 
@@ -195,6 +217,7 @@ class FilesystemDeltaRetentionOwner(_Original):
                 maximum_bytes=maximum_bytes,
                 capture_capacity=capture_capacity,
                 delta_capacity=delta_capacity,
+                index_format=_FACTORIES[record.factory][2],
             )
         except BaseException:
             with _LOCK:
@@ -204,6 +227,17 @@ class FilesystemDeltaRetentionOwner(_Original):
         with _LOCK:
             if record.phase != "initializing":
                 raise DeltaRetentionOwnerRefusal("retention_not_active")
+            journal = vars(store).get("_index_journal")
+            if type(journal) is not IndexJournal:
+                record.phase = "refused"
+                raise DeltaRetentionOwnerRefusal("retention_index_origin_unknown")
+            record.journal_origin = (
+                journal,
+                IndexJournal,
+                vars(IndexJournal)["__dict__"],
+                WorkspaceRepositoryDeltaStore,
+                vars(WorkspaceRepositoryDeltaStore)["__dict__"],
+            )
             record.phase = "active"
 
     def _active_store(self):
@@ -212,6 +246,16 @@ class FilesystemDeltaRetentionOwner(_Original):
         with _LOCK:
             if record.phase != "active":
                 raise DeltaRetentionOwnerRefusal("retention_not_active")
+            origin = record.journal_origin
+            if (
+                origin is None
+                or type(origin[0]) is not origin[1]
+                or type(record.store) is not origin[3]
+                or origin[4].__get__(record.store, origin[3]).get("_index_journal")
+                is not origin[0]
+            ):
+                record.phase = "refused"
+                raise DeltaRetentionOwnerRefusal("retention_index_origin_unknown")
             return record.store
 
     @property
@@ -221,8 +265,31 @@ class FilesystemDeltaRetentionOwner(_Original):
     def retire_owner(self):
         record = _record(self)
         with _LOCK:
+            store, origin = record.store, record.journal_origin
             record.phase = "released"
-            record.store = None
+            record.store = record.journal_origin = None
+        if store is None:
+            return
+        if origin is None:
+            if type(store) is not WorkspaceRepositoryDeltaStore:
+                raise DeltaRetentionOwnerRefusal("retention_index_origin_unknown")
+            if vars(store).get("_index_journal") is not None:
+                raise DeltaRetentionOwnerRefusal("retention_index_origin_unknown")
+            return
+        journal, kind, storage, store_kind, store_storage = origin
+        if (
+            type(store) is not store_kind
+            or type(journal) is not kind
+            or vars(kind).get("__dict__") is not storage
+            or "failure_evidence" in vars(kind)
+            or store_storage.__get__(store, store_kind).get("_index_journal")
+            is not journal
+        ):
+            raise DeltaRetentionOwnerRefusal("retention_index_origin_unknown")
+        if storage.__get__(journal, kind).get("failure_evidence") is not None:
+            # Original custody is spent, uncertainty never delegates to a
+            # substituted getter or renews after restoring the store field.
+            raise DeltaRetentionOwnerRefusal("retention_index_cleanup_unknown")
 
     def snapshot(self) -> WorkspaceRepositoryDeltaStoreSnapshot:
         return self._active_store().snapshot()

@@ -1601,7 +1601,9 @@ def test_fresh_wire_reuses_only_unchanged_sequence_measurement(monkeypatch, exam
 
     monkeypatch.setattr(codec, "_wire", measure)
     repository_tree_projection_value_validate_equal(example, expected_value=example)
-    expected = 4 if type(example) is v.WorkspaceTreeProjectionBinding else 2
+    # Each operand measures its full wire once; binding commitment bytes are
+    # derived losslessly from that same text in the later aggregate admission.
+    expected = 2
     assert len(measures) == expected
     # Each complete operand conversion owns fresh detached containers.
     assert measures[0] is not measures[expected // 2]
@@ -1710,6 +1712,22 @@ def test_fresh_wire_preserves_frozen_functions_and_prior_test_declarations():
             else predecessor
         )
         for name in names:
+            # Later admissions have their own literal predecessor census.
+            if pin["path"].endswith("codec.py") and name in {
+                "_path",
+                "_sequence",
+                "_convert",
+                "_validate",
+                "_compile_native_fields",
+            }:
+                continue
+            if not pin["path"].endswith("codec.py") and name in {
+                "test_traversal_keeps_all_nonadmitted_declarations_and_previous_tests",
+                "test_fresh_wire_preserves_frozen_functions_and_prior_test_declarations",
+                "test_fresh_wire_reuses_only_unchanged_sequence_measurement",
+                "test_ascii_path_keeps_every_nonadmitted_declaration_and_prior_test",
+            }:
+                continue
             assert current[name] == predecessor[name], name
 
 
@@ -1742,3 +1760,600 @@ def test_fresh_wire_row_preserves_exact_original_byte_boundary(
         else:
             assert context.index(row) == 0
             assert len(context.pool) == 1
+
+
+@pytest.fixture(scope="module")
+def traversal_predecessor_codec():
+    """Literal admitted predecessor, with the same original descriptive classes."""
+    import subprocess
+    import sys
+    import types
+
+    packet = json.loads(
+        (
+            ROOT
+            / "docs/reports/workspace-binding-fresh-traversal-performance-inputs-20261014.json"
+        ).read_text()
+    )
+    pin = packet["preimages"][0]
+    source = subprocess.check_output(
+        ["git", "show", packet["capture_revision"] + ":" + pin["path"]], cwd=ROOT
+    )
+    assert hashlib.sha256(source).hexdigest() == pin["sha256"]
+    name = "aware_workspace_sdk._traversal_literal_predecessor"
+    module = types.ModuleType(name)
+    module.__package__ = "aware_workspace_sdk"
+    sys.modules[name] = module
+    exec(compile(source, pin["path"], "exec"), vars(module))  # noqa: S102 -- pinned literal test predecessor
+    return module
+
+
+@pytest.mark.parametrize("example", examples(), ids=lambda value: type(value).__name__)
+def test_traversal_preserves_every_original_wire_and_roundtrip(
+    traversal_predecessor_codec, example
+):
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    old = traversal_predecessor_codec
+    assert codec.repository_tree_projection_value_to_json(
+        example
+    ) == old.repository_tree_projection_value_to_json(example)
+    payload = codec.repository_tree_projection_value_to_payload(example)
+    assert codec.repository_tree_projection_value_from_payload(
+        type(example), payload
+    ) == old.repository_tree_projection_value_from_payload(type(example), payload)
+    assert codec.repository_tree_projection_value_digest(
+        example
+    ) == old.repository_tree_projection_value_digest(example)
+
+
+@pytest.mark.parametrize("decode", (False, True))
+@pytest.mark.parametrize("depth", (22, 23, 24, 25))
+@pytest.mark.parametrize(
+    "kind,items",
+    (
+        (str, ()),
+        (str, ("ascii", "é", "日本語")),
+        (str, ("x" * 16384,)),
+        (str, ("x" * 16385,)),
+        (str, ("\ud800",)),
+        (str, ("é" * 8192,)),
+        (str, ("é" * 8193,)),
+        (str, (False,)),
+        (int, ()),
+        (int, (0, 2**64)),
+        (int, (-1,)),
+        (int, (2**64 + 1,)),
+        (int, (True,)),
+        (bool, (False, True)),
+        (bool, (1,)),
+    ),
+)
+def test_traversal_scalar_tuple_depth_type_and_byte_parity(
+    traversal_predecessor_codec, decode, depth, kind, items
+):
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    value = list(items) if decode else items
+    outcomes = []
+    for module in (traversal_predecessor_codec, codec):
+        try:
+            outcomes.append(
+                (
+                    "value",
+                    module._convert(
+                        tuple[kind, ...],
+                        value,
+                        decode=decode,
+                        depth=depth,
+                        field_name="mtime_ns",
+                    ),
+                )
+            )
+        except ValueError as error:
+            outcomes.append(("refusal", str(error)))
+    assert outcomes[0] == outcomes[1]
+
+
+@pytest.mark.parametrize("decode", (False, True))
+@pytest.mark.parametrize("kind", (str, int, bool))
+def test_traversal_collection_limit_precedes_member_dispatch(
+    traversal_predecessor_codec, decode, kind
+):
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    calls = []
+
+    class Foreign:
+        def __eq__(self, _other):
+            calls.append("equality")
+            raise AssertionError("foreign member")
+
+    items = (Foreign(),) * (v.MAX_TREE_RECEIPTS + 1)
+    value = list(items) if decode else items
+    for module in (traversal_predecessor_codec, codec):
+        with pytest.raises(ValueError, match="ordered collection exceeds bound"):
+            module._convert(tuple[kind, ...], value, decode=decode)
+    assert calls == []
+
+
+@pytest.mark.parametrize("kind", (str, int))
+def test_traversal_subclasses_never_dispatch_foreign_primitive_behavior(
+    traversal_predecessor_codec, kind
+):
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    calls = []
+
+    class Foreign(kind):
+        def isascii(self):
+            calls.append("ascii")
+            raise AssertionError("foreign primitive")
+
+        def encode(self, *_args):
+            calls.append("encoding")
+            raise AssertionError("foreign primitive")
+
+        def __le__(self, _other):
+            calls.append("comparison")
+            raise AssertionError("foreign primitive")
+
+    value = Foreign("value" if kind is str else 1)
+    for module in (traversal_predecessor_codec, codec):
+        with pytest.raises(ValueError, match="primitive type"):
+            module._convert(tuple[kind, ...], (value,), decode=False)
+    assert calls == []
+
+
+@pytest.mark.parametrize("value", ("a", "b", 1, 0, True, False, None, object()))
+def test_traversal_literal_mixed_types_preserve_original_order(
+    traversal_predecessor_codec, value
+):
+    from typing import Literal
+
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    outcomes = []
+    for module in (traversal_predecessor_codec, codec):
+        try:
+            outcomes.append(
+                (
+                    "value",
+                    module._convert(Literal[True, "a", 1, False], value, decode=False),
+                )
+            )
+        except ValueError as error:
+            outcomes.append(("refusal", str(error)))
+    assert outcomes[0] == outcomes[1]
+
+
+@pytest.mark.parametrize("decode", (False, True))
+def test_traversal_resources_keep_original_context_dispatch_before_scalar_checks(
+    traversal_predecessor_codec, decode
+):
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    class Context:
+        def __init__(self):
+            self.calls = []
+
+        def resources(self, value, *, decode):
+            self.calls.append((value, decode))
+            return "delegated"
+
+    for module in (traversal_predecessor_codec, codec):
+        context = Context()
+        value = object()
+        assert (
+            module._convert(
+                tuple[str, ...],
+                value,
+                decode=decode,
+                field_name="resources",
+                context=context,
+            )
+            == "delegated"
+        )
+        assert context.calls == [(value, decode)]
+
+
+def test_traversal_descriptor_refusal_still_precedes_value_fields(
+    traversal_predecessor_codec, monkeypatch
+):
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    value = binding()
+    calls = []
+
+    class Foreign:
+        def __get__(self, *_args):
+            calls.append("descriptor")
+            raise AssertionError("foreign descriptor")
+
+    monkeypatch.setattr(type(value), "files", Foreign())
+    for module in (traversal_predecessor_codec, codec):
+        with pytest.raises(ValueError, match="slot descriptor"):
+            module.repository_tree_projection_value_to_payload(value)
+    assert calls == []
+
+
+def test_traversal_keeps_all_nonadmitted_declarations_and_previous_tests():
+    import ast
+
+    packet = json.loads(
+        (
+            ROOT
+            / "docs/reports/workspace-binding-fresh-traversal-performance-inputs-20261014.json"
+        ).read_text()
+    )
+    for pin in packet["preimages"]:
+        nodes = {
+            node.name: hashlib.sha256(
+                ast.dump(node, include_attributes=False).encode()
+            ).hexdigest()
+            for node in ast.parse((ROOT / pin["path"]).read_bytes()).body
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+        }
+        for name, digest in pin["declarations"].items():
+            if pin["path"].endswith("codec.py") and name in set(
+                packet["admitted_existing_symbols"]
+            ) | {
+                "_path",
+                "_sequence",
+                "_convert",
+                "_validate",
+                "_compile_native_fields",
+            }:
+                continue
+            if not pin["path"].endswith("codec.py") and name in {
+                "test_traversal_keeps_all_nonadmitted_declarations_and_previous_tests",
+                "test_fresh_wire_preserves_frozen_functions_and_prior_test_declarations",
+                "test_fresh_wire_reuses_only_unchanged_sequence_measurement",
+                "test_ascii_path_keeps_every_nonadmitted_declaration_and_prior_test",
+            }:
+                continue
+            assert nodes[name] == digest, name
+
+
+@pytest.mark.parametrize("decode", (False, True))
+@pytest.mark.parametrize("empty", (False, True))
+def test_traversal_unparameterized_tuple_keeps_lazy_argument_lookup(
+    traversal_predecessor_codec, decode, empty
+):
+    import typing
+
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    values = () if empty else ("value",)
+    value = list(values) if decode else values
+    outcomes = []
+    for module in (traversal_predecessor_codec, codec):
+        try:
+            outcomes.append(
+                (
+                    "value",
+                    module._convert(typing.__dict__["Tuple"], value, decode=decode),
+                )
+            )
+        except (ValueError, IndexError) as error:
+            outcomes.append((type(error).__name__, str(error)))
+    assert outcomes[0] == outcomes[1]
+
+
+def test_traversal_changed_non_tuple_hint_arguments_keep_original_fallback(
+    traversal_predecessor_codec, monkeypatch
+):
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    annotation = tuple[object, ...]
+    outcomes = []
+
+    class Arguments:
+        def __init__(self):
+            self.calls = []
+
+        def __getitem__(self, index):
+            self.calls.append(index)
+            return str if len(self.calls) == 1 else int
+
+        def __bool__(self):
+            raise AssertionError("fallback must not invent a truthiness call")
+
+    for module in (traversal_predecessor_codec, codec):
+        arguments = Arguments()
+        with monkeypatch.context() as patch:
+            patch.setitem(
+                module._HINT_SHAPES, id(annotation), (annotation, tuple, arguments)
+            )
+            value = module._convert(annotation, ("value", 1), decode=False)
+        outcomes.append((value, arguments.calls))
+    assert outcomes[0] == outcomes[1] == (["value", 1], [0, 0])
+
+
+@pytest.fixture(scope="module")
+def ascii_path_predecessor_codec():
+    """Load the literal accepted source preimage, without replacing any owner."""
+    import subprocess
+    import sys
+    import types
+
+    packet = json.loads(
+        (
+            ROOT
+            / "docs/reports/workspace-ascii-path-validation-performance-inputs-20261014.json"
+        ).read_text()
+    )
+    pin = packet["preimages"][0]
+    source = subprocess.check_output(
+        ["git", "show", packet["capture_revision"] + ":" + pin["path"]], cwd=ROOT
+    )
+    assert hashlib.sha256(source).hexdigest() == pin["sha256"]
+    name = "aware_workspace_sdk._ascii_path_literal_predecessor"
+    module = types.ModuleType(name)
+    module.__package__ = "aware_workspace_sdk"
+    sys.modules[name] = module
+    exec(compile(source, pin["path"], "exec"), vars(module))  # noqa: S102 -- pinned literal test predecessor
+    return module
+
+
+def _ascii_path_outcome(module, path, maximum):
+    try:
+        return ("return", module._path(path, maximum=maximum))
+    except (ValueError, TypeError, AttributeError, RuntimeError) as error:
+        return ("raise", type(error).__name__, str(error))
+
+
+def test_ascii_path_literal_string_decisions(ascii_path_predecessor_codec):
+    import itertools
+    import random
+
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    vectors = {
+        "",
+        "/",
+        ".",
+        "..",
+        "a",
+        "a/b",
+        "a b",
+        "a//b",
+        "a/./b",
+        "a/../b",
+        "a/",
+        "/a",
+        "a\\b",
+        "é",
+        "e\u0301",
+        "\ud800",
+        "a/é",
+        "a/\u200d",
+    }
+    for size in (1, 2, 3, 254, 255, 256, 257, 1023, 1024, 1025):
+        vectors.update(("x" * size, "x" * size + "/a", "a/" + "x" * size, "é" * size))
+    for char in map(chr, range(128)):
+        vectors.update((char, "a" + char + "b", "a/" + char + "/b", char + "/a"))
+    for count in range(6):
+        for parts in itertools.product(
+            ("a", "", ".", "..", "x" * 255, "x" * 256), repeat=count
+        ):
+            if len(vectors) > 18000:
+                break
+            vectors.add("/".join(parts))
+    randomizer = random.Random(141026)
+    while len(vectors) < 20000:
+        vectors.add(
+            "".join(
+                randomizer.choice("abc/.\\ \x00\n\x7f")
+                for _ in range(randomizer.randrange(1, 45))
+            )
+        )
+    assert len(vectors) == 20000
+    for path in sorted(vectors):
+        for maximum in (0, 1, 255, 1024, 4096):
+            assert _ascii_path_outcome(codec, path, maximum) == _ascii_path_outcome(
+                ascii_path_predecessor_codec, path, maximum
+            ), (repr(path), maximum)
+
+
+@pytest.mark.parametrize("maximum", (0, 1, 1024, 4096))
+@pytest.mark.parametrize(
+    "path",
+    (
+        b"a",
+        b"",
+        b"/",
+        b"a/b",
+        b"\xff",
+        bytearray(b"a"),
+        bytearray(),
+        memoryview(b"a"),
+        memoryview(b""),
+        None,
+        0,
+        False,
+        [],
+        {},
+        (),
+    ),
+)
+def test_ascii_path_malformed_exception_parity(
+    ascii_path_predecessor_codec, path, maximum
+):
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    assert _ascii_path_outcome(codec, path, maximum) == _ascii_path_outcome(
+        ascii_path_predecessor_codec, path, maximum
+    )
+
+
+def test_ascii_path_bytes_keeps_original_typeerror_message(
+    ascii_path_predecessor_codec,
+):
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    assert (
+        _ascii_path_outcome(codec, b"a", 4096)
+        == _ascii_path_outcome(ascii_path_predecessor_codec, b"a", 4096)
+        == ("raise", "TypeError", "cannot use a string pattern on a bytes-like object")
+    )
+
+
+@pytest.mark.parametrize("path", ("a", "a/b", "/a", "a//b", "x" * 256, "é", "e\u0301"))
+def test_ascii_path_subclasses_keep_original_dispatch(
+    ascii_path_predecessor_codec, path
+):
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    class Path(str):
+        def isprintable(self):
+            raise AssertionError("original ASCII regex never dispatched this method")
+
+        def split(self, *args, **kwargs):
+            raise RuntimeError("original Unicode split")
+
+    assert _ascii_path_outcome(codec, Path(path), 4096) == _ascii_path_outcome(
+        ascii_path_predecessor_codec, Path(path), 4096
+    )
+
+
+@pytest.mark.parametrize("maximum", (0, 1, 4096))
+def test_ascii_path_duck_inputs_keep_original_effect_order(
+    ascii_path_predecessor_codec, maximum
+):
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    results = []
+    for module in (ascii_path_predecessor_codec, codec):
+
+        class Path:
+            def __init__(self):
+                self.calls = []
+
+            def isascii(self):
+                self.calls.append("isascii")
+                return True
+
+            def __bool__(self):
+                self.calls.append("bool")
+                return True
+
+            def __len__(self):
+                self.calls.append("len")
+                return 2
+
+        path = Path()
+        results.append((_ascii_path_outcome(module, path, maximum), path.calls))
+    assert results[0] == results[1]
+
+
+@pytest.mark.parametrize("example", examples(), ids=lambda value: type(value).__name__)
+def test_ascii_path_preserves_every_original_wire(
+    ascii_path_predecessor_codec, example
+):
+    from aware_workspace_sdk import repository_tree_projection_codec as codec
+
+    old = ascii_path_predecessor_codec
+    assert codec.repository_tree_projection_value_to_payload(
+        example
+    ) == old.repository_tree_projection_value_to_payload(example)
+    assert codec.repository_tree_projection_value_to_json(
+        example
+    ) == old.repository_tree_projection_value_to_json(example)
+    assert codec.repository_tree_projection_value_digest(
+        example
+    ) == old.repository_tree_projection_value_digest(example)
+    payload = codec.repository_tree_projection_value_to_payload(example)
+    assert (
+        codec.repository_tree_projection_value_from_payload(type(example), payload)
+        == example
+    )
+
+
+def test_ascii_path_keeps_every_nonadmitted_declaration_and_prior_test():
+    import ast
+    import subprocess
+
+    packet = json.loads(
+        (
+            ROOT
+            / "docs/reports/workspace-ascii-path-validation-performance-inputs-20261014.json"
+        ).read_text()
+    )
+    for pin in packet["preimages"]:
+        nodes = {
+            node.name: hashlib.sha256(
+                ast.dump(node, include_attributes=False).encode()
+            ).hexdigest()
+            for node in ast.parse((ROOT / pin["path"]).read_bytes()).body
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+        }
+        for name, digest in pin["declarations"].items():
+            if pin["path"].endswith("codec.py") and name in {
+                "_path",
+                "_sequence",
+                "_convert",
+                "_validate",
+                "_compile_native_fields",
+            }:
+                continue
+            if not pin["path"].endswith("codec.py") and name in {
+                "test_traversal_keeps_all_nonadmitted_declarations_and_previous_tests",
+                "test_fresh_wire_preserves_frozen_functions_and_prior_test_declarations",
+                "test_fresh_wire_reuses_only_unchanged_sequence_measurement",
+                "test_ascii_path_keeps_every_nonadmitted_declaration_and_prior_test",
+            }:
+                continue
+            assert nodes[name] == digest, name
+    tree = ast.parse((ROOT / packet["preimages"][0]["path"]).read_bytes())
+    function = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef) and node.name == "_path"
+    )
+    assert (
+        hashlib.sha256(
+            ast.dump(function.args, include_attributes=False).encode()
+        ).hexdigest()
+        == packet["path_signature_ast_sha256"]
+    )
+    assert (
+        hashlib.sha256(
+            "".join(
+                ast.dump(node, include_attributes=False) for node in function.body[2:]
+            ).encode()
+        ).hexdigest()
+        == packet["unicode_branch_ast_sha256"]
+    )
+    historical = subprocess.check_output(
+        [
+            "git",
+            "show",
+            packet["capture_revision"] + ":" + packet["preimages"][0]["path"],
+        ],
+        cwd=ROOT,
+    )
+    assert hashlib.sha256(historical).hexdigest() == packet["preimages"][0]["sha256"]
+    historical_tree = ast.parse(historical)
+    assert (
+        hashlib.sha256(
+            "".join(
+                ast.dump(node, include_attributes=False)
+                for node in historical_tree.body
+                if not (isinstance(node, ast.FunctionDef) and node.name == "_path")
+            ).encode()
+        ).hexdigest()
+        == packet["other_top_level_ast_sha256"]
+    )
+    # Preserve the historical seal and compare every node outside the later
+    # exact admission; the aggregate census separately checks those five names.
+    allowed = {"_path", "_compile_native_fields", "_convert", "_sequence", "_validate"}
+
+    def outside_admission(module):
+        return [
+            ast.dump(node, include_attributes=False)
+            for node in module.body
+            if not (isinstance(node, ast.FunctionDef) and node.name in allowed)
+        ]
+
+    assert outside_admission(tree) == outside_admission(historical_tree)

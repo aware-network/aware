@@ -1,7 +1,9 @@
 """Reuse admitted interpretation while preserving original byte-currentness."""
 
 import copy
+import gc
 import sys
+from contextlib import asynccontextmanager
 from dataclasses import replace
 
 import pytest
@@ -12,6 +14,147 @@ from aware_workspace_runtime import declaration_scope_admission as admission_mod
 from aware_workspace_runtime import source_observation as source_module
 from aware_workspace_runtime.composition import RetainedWorkspaceCompositionProvider
 from aware_workspace_runtime.source_observation_io import SourceObservationUnavailable
+
+_ORIGINAL_DECLARATION_COPY_CODE = (
+    admission_module._declaration_validation.copy_retained_declaration_scope.__code__
+)
+
+
+def _declaration_copy_event(frame, event, projection, active):
+    """Track genuine copy entry/return despite deliberate argument cleanup."""
+    if frame.f_code is not _ORIGINAL_DECLARATION_COPY_CODE:
+        return False
+    key = id(frame)
+    if event == "call" and frame.f_locals.get("value") is projection:
+        active.add(key)
+    matches = key in active
+    if event == "return":
+        active.discard(key)
+    return matches
+
+
+@pytest.mark.parametrize("stage", ["opening", "after_check"])
+async def test_projection_error_does_not_retain_new_original_journal(
+    tmp_path, monkeypatch, stage,
+):
+    from aware_code_semantic_contract_runtime.retained_declaration_scope_validation import (
+        RetainedDeclarationScopeCoordinate,
+    )
+    from test_selected_input_read_node import open_read, read_fixture
+
+    held = None
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        issuer = value.issuer
+        coordinate_id = id(issuer._checked_declaration_origin(
+            issuer._selected_record(value.selected).declaration_record,
+        ).projection_coordinate)
+        target = (type(issuer).read_selected_package_source if stage == "opening"
+                  else type(issuer)._occurrence).__code__
+        projection = type(issuer)._source_projection_values.__code__
+        armed = []
+
+        def profile(frame, event, arg):
+            if (event == "call" and frame.f_code is target
+                and frame.f_back.f_code is projection and not armed):
+                armed.append(True)
+                raise RuntimeError("held projection failure")
+
+        with open_read(value):
+            previous = sys.getprofile()
+            try:
+                sys.setprofile(profile)
+                issuer.inspect_inputs(value.selected)
+            except RuntimeError as error:
+                assert str(error) == "held projection failure"
+                held = error
+            finally:
+                sys.setprofile(previous)
+        assert armed and held is not None
+        traceback = held.__traceback__
+        checked = False
+        while traceback is not None:
+            if traceback.tb_frame.f_code is projection:
+                checked = True
+                assert traceback.tb_frame.f_locals.get("origin") is None
+            traceback = traceback.tb_next
+        assert checked
+    # The genuine immutable journal is private to the original issuer. After
+    # its natural close, retaining the error must not retain this new custody.
+    gc.collect()
+    assert not any(type(item) is RetainedDeclarationScopeCoordinate
+                   and id(item) == coordinate_id for item in gc.get_objects())
+    assert held is not None
+
+
+async def test_source_projection_checks_fields_without_full_closure_digest_build(
+    tmp_path, monkeypatch,
+):
+    from aware_code_semantic_contract_runtime.retained_declaration_scope import (
+        CodeRetainedDependencyScopeClosureV3,
+    )
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value):
+            getter = CodeRetainedDependencyScopeClosureV3.closure_digest.fget.__code__
+            calls = []
+
+            def profile(frame, event, arg):
+                if event == "call" and frame.f_code is getter:
+                    calls.append(True)
+
+            previous = sys.getprofile()
+            try:
+                sys.setprofile(profile)
+                context, inventory, manifest, _, _, _ = value.issuer._source_projection_values(value.selected)
+            finally:
+                sys.setprofile(previous)
+            assert inventory.package == context.package
+            assert context.package.manifest_digest == admission_module.ContentDigest.of_bytes(manifest)
+            assert calls == []
+
+
+@pytest.mark.parametrize("target", ["detached", "original", "record"])
+async def test_source_projection_uses_independent_commitment_after_original_read(
+    tmp_path, monkeypatch, target,
+):
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value):
+            issuer = value.issuer
+            original = issuer._checked_declaration_origin(issuer._selected_record(value.selected).declaration_record)
+            read_code = type(issuer).read_declaration_scope.__code__
+            projection_code = type(issuer)._source_projection_values.__code__
+            changed = []
+            restore = []
+
+            def profile(frame, event, arg):
+                if (event != "return" or frame.f_code is not read_code
+                    or frame.f_back.f_code is not projection_code or changed):
+                    return
+                changed.append(True)
+                if target == "record":
+                    record = original.record
+                    old = record.digest
+                    restore.append(lambda: object.__setattr__(record, "digest", old))
+                    object.__setattr__(record, "digest", admission_module.ContentDigest.of_bytes(b"restamped"))
+                else:
+                    projection = arg if target == "detached" else original.projection
+                    old = projection.consumer_scope_key
+                    restore.append(lambda: object.__setattr__(projection, "consumer_scope_key", old))
+                    object.__setattr__(projection, "consumer_scope_key", "forged")
+
+            previous = sys.getprofile()
+            try:
+                sys.setprofile(profile)
+                with pytest.raises(SourceObservationUnavailable):
+                    issuer._source_projection_values(value.selected)
+            finally:
+                sys.setprofile(previous)
+                for action in restore:
+                    action()
+            assert changed
 
 
 async def test_source_window_shares_one_projection_without_dropping_source_brackets(
@@ -46,7 +189,7 @@ async def test_source_window_shares_one_projection_without_dropping_source_brack
                 )
                 separate = counts.copy()
                 counts.update(dict.fromkeys(counts, 0))
-                binding, closure = value.issuer._read_source_projection_pair(value.selected)
+                binding, closure = value.issuer._read_source_projection_pair(value.selected, terminal=True)
                 shared = counts.copy()
             finally:
                 sys.setprofile(previous)
@@ -883,10 +1026,13 @@ async def test_genuine_copy_and_terminal_io_restamping_refuses(
             object.__setattr__(record, "digest", projection.closure_digest)
             state["mutated"] = True
 
+        copy_frames = set()
+
         def profile(frame, event, result):
+            copy_event = _declaration_copy_event(frame, event, projection, copy_frames)
             # Observe the genuine function; do not replace deepcopy or its
             # dispatchers. Mutate after entry checks, while it is running.
-            if frame.f_code is genuine_copy.__code__ and frame.f_locals.get("x") is projection:
+            if copy_event:
                 if event == "call" and phase in ("copy_entry", "copy_restore"):
                     mutate()
                 if event == "return":
@@ -948,10 +1094,12 @@ async def test_original_association_replaced_at_genuine_copy_return_refuses(tmp_
         genuine_copy = copy.deepcopy
         replaced = []
 
+        copy_frames = set()
+
         def profile(frame, event, result):
+            copy_event = _declaration_copy_event(frame, event, record.projection, copy_frames)
             if (
-                event == "return" and frame.f_code is genuine_copy.__code__
-                and frame.f_locals.get("x") is record.projection
+                event == "return" and copy_event
             ):
                 issuer._declarations[declaration] = replace(record)
                 replaced.append(True)
@@ -1020,9 +1168,11 @@ async def test_original_coordinate_validator_substitution_is_zero_call_and_termi
             if action == "restore":
                 monkeypatch.setattr(validation, entrance, original)
 
+        copy_frames = set()
+
         def profile(frame, event, value):
-            if (phase == "after_copy" and event == "return"
-                and frame.f_code is copy.deepcopy.__code__ and frame.f_locals.get("x") is projection):
+            copy_event = _declaration_copy_event(frame, event, projection, copy_frames)
+            if (phase == "after_copy" and event == "return" and copy_event):
                 monkeypatch.setattr(validation, entrance, poison)
 
         if phase == "entry":
@@ -1290,6 +1440,8 @@ def test_scalar_retention_checks_original_owner_return_before_store_access(tmp_p
     from aware_workspace_fs_adapter.repository_delta_store import (
         WorkspaceRepositoryDeltaStore,
     )
+
+    # isort: split
     from aware_workspace_runtime.repository_delta_retention import (
         WorkspaceRepositoryDeltaRetentionRefusal,
         WorkspaceRepositoryDeltaRetentionRuntime,
@@ -1345,3 +1497,1856 @@ def test_scalar_retention_checks_original_owner_return_before_store_access(tmp_p
         state.owner, state.binding = owner, binding
         runtime.release(state)
     assert runtime.observe(state).phase == "released"
+
+
+async def test_semantic_window_preserves_original_entry_and_terminal_source_checks(
+    tmp_path, monkeypatch,
+):
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value) as node:
+            expected = node.prepare_source_expectation(
+                use_ref="window-owned-close", stage="pre_request",
+                source_coordinates=value.coordinates,
+            )
+            source_code = source_module.WorkspaceSourceObservationRuntime.revalidate_selected_package.__code__
+            declaration_code = source_module.WorkspaceSourceObservationRuntime.revalidate_declarations.__code__
+            validator_code = admission_module.WorkspaceDeclarationScopeRuntime._validate_semantic_input_source.__code__
+            counts = {source_code: 0, declaration_code: 0, validator_code: 0}
+
+            def profile(frame, event, _arg):
+                if event == "call" and frame.f_code in counts:
+                    counts[frame.f_code] += 1
+
+            previous = sys.getprofile()
+            try:
+                sys.setprofile(profile)
+                with value.issuer._original_semantic_source_window(value.selected, expected):
+                    assert counts[source_code] == 1
+                    assert counts[declaration_code] == 2
+                    value.issuer.validate_semantic_input_source(value.selected, expected=expected)
+                    assert counts[source_code] == 1
+                assert counts[source_code] == 2
+                assert counts[declaration_code] == 4
+                assert counts[validator_code] == 1
+            finally:
+                sys.setprofile(previous)
+            assert value.issuer._semantic_source_window is None
+
+
+@pytest.mark.parametrize("target", ["binding", "closure", "binding_restored"])
+async def test_provisional_window_checks_captured_projection_after_closing_io(
+    tmp_path, monkeypatch, target,
+):
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value) as node:
+            expected = node.prepare_source_expectation(
+                use_ref="window-provisional-poison", stage="pre_request",
+                source_coordinates=value.coordinates,
+            )
+            retained = value.issuer._pre_request_record(value.selected, expected)
+            pair_code = admission_module.WorkspaceDeclarationScopeRuntime._read_source_projection_pair.__code__
+            window_code = admission_module.WorkspaceDeclarationScopeRuntime._original_semantic_source_window.__wrapped__.__code__
+            poisoned = None
+            original = None
+            fired = restored = False
+
+            def profile(frame, event, arg):
+                nonlocal poisoned, original, fired, restored
+                if not fired and event == "return" and frame.f_code is pair_code:
+                    fired = True
+                    binding, closure = arg
+                    poisoned = closure if target == "closure" else binding.expectation
+                    field = "consumer_scope_key" if target == "closure" else "package_id"
+                    original = getattr(poisoned, field)
+                    object.__setattr__(poisoned, field, "forged")
+                elif (target == "binding_restored" and fired and not restored
+                      and event == "return" and frame.f_code is window_code):
+                    object.__setattr__(poisoned, "package_id", original)
+                    restored = True
+
+            previous = sys.getprofile()
+            try:
+                sys.setprofile(profile)
+                with pytest.raises((SourceObservationUnavailable, BaseExceptionGroup)):
+                    node.validate()
+            finally:
+                sys.setprofile(previous)
+                if poisoned is not None:
+                    field = "consumer_scope_key" if target == "closure" else "package_id"
+                    object.__setattr__(poisoned, field, original)
+            assert fired
+            assert restored == (target == "binding_restored")
+            assert not retained.live
+            assert value.issuer._semantic_source_window is None
+            with pytest.raises(RuntimeError, match="terminal"):
+                node.validate()
+
+
+@pytest.mark.parametrize("mode", ["return", "raise", "restore"])
+async def test_closing_window_never_dispatches_late_binding_digest_property(
+    tmp_path, monkeypatch, mode,
+):
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value) as node:
+            expected = node.prepare_source_expectation(
+                use_ref="late-binding-property", stage="pre_request",
+                source_coordinates=value.coordinates,
+            )
+            code = admission_module.WorkspaceDeclarationScopeRuntime._read_source_projection_pair.__code__
+            kind = admission_module.CodeSelectedPackageSourceBinding
+            original = vars(kind)["binding_digest"]
+            calls = []
+            fired = False
+
+            def hostile(_self):
+                calls.append(True)
+                if mode == "restore":
+                    monkeypatch.setattr(kind, "binding_digest", original)
+                if mode == "raise":
+                    raise AssertionError("late binding property executed")
+                return None
+
+            def profile(frame, event, _arg):
+                nonlocal fired
+                if (not fired and event == "return" and frame.f_code is code
+                    and frame.f_locals.get("closing") is not None):
+                    fired = True
+                    monkeypatch.setattr(kind, "binding_digest", property(hostile))
+
+            previous = sys.getprofile()
+            try:
+                sys.setprofile(profile)
+                with value.issuer._original_semantic_source_window(value.selected, expected):
+                    value.issuer.validate_semantic_input_source(value.selected, expected=expected)
+            finally:
+                sys.setprofile(previous)
+                monkeypatch.setattr(kind, "binding_digest", original)
+            assert fired and calls == []
+            assert value.issuer._semantic_source_window is None
+
+
+@pytest.mark.parametrize("entrance", ["capture_selected_source_binding_coordinate", "validate_selected_source_binding_coordinate"])
+@pytest.mark.parametrize("mode", ["return", "raise", "restore"])
+@pytest.mark.parametrize("phase", ["entry", "closing"])
+async def test_binding_coordinate_dispatch_rejects_substituted_code_entrance(
+    tmp_path, monkeypatch, entrance, mode, phase,
+):
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value) as node:
+            expected = node.prepare_source_expectation(
+                use_ref="binding-coordinate-origin", stage="pre_request",
+                source_coordinates=value.coordinates,
+            )
+            retained = value.issuer._pre_request_record(value.selected, expected)
+            module = admission_module._declaration_validation
+            original = getattr(module, entrance)
+            code = admission_module.WorkspaceDeclarationScopeRuntime._read_source_projection_pair.__code__
+            calls = []
+            fired = False
+
+            def hostile(*args, **kwargs):
+                calls.append(True)
+                if mode == "restore":
+                    monkeypatch.setattr(module, entrance, original)
+                if mode == "raise":
+                    raise AssertionError("substituted binding coordinate entrance")
+
+            def install():
+                nonlocal fired
+                fired = True
+                monkeypatch.setattr(module, entrance, hostile)
+
+            def profile(frame, event, _arg):
+                if (not fired and event == "return" and frame.f_code is code
+                    and frame.f_locals.get("closing") is not None):
+                    install()
+
+            previous = sys.getprofile()
+            try:
+                if phase == "entry":
+                    install()
+                else:
+                    sys.setprofile(profile)
+                with pytest.raises((SourceObservationUnavailable, BaseExceptionGroup)):
+                    node.validate()
+            finally:
+                sys.setprofile(previous)
+                monkeypatch.setattr(module, entrance, original)
+            assert fired and calls == []
+            assert not retained.live
+            assert value.issuer._semantic_source_window is None
+            with pytest.raises(RuntimeError, match="terminal"):
+                node.validate()
+
+
+@pytest.mark.parametrize("action", ["read", "validate"])
+async def test_participant_window_keeps_complete_opening_and_closing_checks(
+    tmp_path, monkeypatch, action,
+):
+    from test_selected_input_read_node import read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        declaration = value.issuer._selected_record(value.selected).declaration
+        view = value.issuer.read_selected_participant_view(declaration, value.selected)
+        selected_code = source_module.WorkspaceSourceObservationRuntime.revalidate_selected_package.__code__
+        declaration_code = source_module.WorkspaceSourceObservationRuntime.revalidate_declarations.__code__
+        closure_code = admission_module.WorkspaceDeclarationScopeRuntime._closure.__code__
+        counts = {selected_code: 0, declaration_code: 0, closure_code: 0}
+
+        def profile(frame, event, _arg):
+            if event == "call" and frame.f_code in counts:
+                counts[frame.f_code] += 1
+
+        previous = sys.getprofile()
+        try:
+            sys.setprofile(profile)
+            if action == "read":
+                returned = value.issuer.read_selected_participant_view(declaration, value.selected)
+                assert returned == view
+            else:
+                value.issuer.validate_selected_participant_view(declaration, value.selected, view=view)
+        finally:
+            sys.setprofile(previous)
+        assert counts == {selected_code: 2, declaration_code: 4, closure_code: 2}
+        assert value.issuer._semantic_source_window is None
+
+
+@pytest.mark.parametrize("target", ["body", "profile", "interrupt"])
+async def test_participant_window_finishes_source_checks_and_node_cleanup(
+    tmp_path, monkeypatch, target,
+):
+    from test_selected_input_read_node import open_read, read_fixture
+
+    # isort: split
+    from aware_code_retained_registry_policy_runtime.selected_participant_calculation import (
+        validate_selected_participant_view,
+    )
+
+    # isort: split
+    from aware_workspace_runtime import direct_command_composition as composition
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value) as node:
+            original_record = composition._selected_input_read_record(node)
+            path = value.root / (
+                "workspaces/network/modules/main/package/a.bin" if target == "body"
+                else "workspaces/network/aware.workspace.toml"
+            )
+            before = path.read_bytes()
+            fired = False
+
+            def profile(frame, event, _arg):
+                nonlocal fired
+                if (not fired and event == "return"
+                    and frame.f_code is validate_selected_participant_view.__code__):
+                    fired = True
+                    if target == "interrupt":
+                        raise KeyboardInterrupt("participant computation interrupted")
+                    path.write_bytes(before + b"\nchanged")
+
+            previous = sys.getprofile()
+            try:
+                sys.setprofile(profile)
+                with pytest.raises((SourceObservationUnavailable, KeyboardInterrupt, BaseExceptionGroup)):
+                    node.validate()
+            finally:
+                sys.setprofile(previous)
+                path.write_bytes(before)
+            assert fired
+            assert value.issuer._semantic_source_window is None
+            assert original_record.command is original_record.factory is original_record.stack is None
+            assert original_record.expectations == original_record.results == ()
+            with pytest.raises(RuntimeError, match="terminal"):
+                node.validate()
+
+
+@pytest.mark.parametrize("target", ["binding", "closure"])
+async def test_participant_window_checks_provisional_values_after_closing_io(
+    tmp_path, monkeypatch, target,
+):
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value) as node:
+            pair_code = admission_module.WorkspaceDeclarationScopeRuntime._read_source_projection_pair.__code__
+            read_code = admission_module.WorkspaceDeclarationScopeRuntime._read_source_projection_pair.__code__
+            provisional = original = None
+            fired = False
+
+            def profile(frame, event, arg):
+                nonlocal provisional, original, fired
+                if event == "return" and frame.f_code is pair_code and provisional is None:
+                    binding, closure = arg
+                    provisional = binding.expectation if target == "binding" else closure
+                    original = getattr(provisional, "package_id" if target == "binding" else "consumer_scope_key")
+                elif (not fired and provisional is not None and event == "return"
+                      and frame.f_code is read_code and frame.f_locals.get("closing") is not None):
+                    fired = True
+                    object.__setattr__(provisional, "package_id" if target == "binding" else "consumer_scope_key", "forged")
+
+            previous = sys.getprofile()
+            try:
+                sys.setprofile(profile)
+                with pytest.raises((SourceObservationUnavailable, BaseExceptionGroup)):
+                    node.validate()
+            finally:
+                sys.setprofile(previous)
+                if provisional is not None:
+                    object.__setattr__(provisional, "package_id" if target == "binding" else "consumer_scope_key", original)
+            assert fired
+            assert value.issuer._semantic_source_window is None
+            with pytest.raises(RuntimeError, match="terminal"):
+                node.validate()
+
+
+@pytest.mark.parametrize("location", ["instance", "class", "table"])
+@pytest.mark.parametrize("mode", ["return", "raise", "restore"])
+async def test_participant_window_uses_guarded_original_dispatch(
+    tmp_path, monkeypatch, location, mode,
+):
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value) as node:
+            name = "_original_participant_source_window"
+            original = admission_module._GROUP_METHOD_FUNCTIONS[name]
+            calls = []
+
+            def restore():
+                if location == "table":
+                    admission_module._GROUP_METHOD_FUNCTIONS[name] = original
+                elif location == "instance":
+                    delattr(value.issuer, name)
+                else:
+                    setattr(type(value.issuer), name, original)
+
+            def hostile(*args, **kwargs):
+                calls.append(True)
+                if mode == "restore":
+                    restore()
+                if mode == "raise":
+                    raise AssertionError("substituted participant window")
+
+            if location == "table":
+                monkeypatch.setitem(admission_module._GROUP_METHOD_FUNCTIONS, name, hostile)
+            elif location == "instance":
+                monkeypatch.setattr(value.issuer, name, hostile)
+            else:
+                monkeypatch.setattr(type(value.issuer), name, hostile)
+            try:
+                with pytest.raises((SourceObservationUnavailable, BaseExceptionGroup)):
+                    node.validate()
+            finally:
+                restore()
+            assert calls == []
+            assert value.issuer._semantic_source_window is None
+            with pytest.raises(RuntimeError, match="terminal"):
+                node.validate()
+
+
+async def test_participant_window_releases_publication_interruption_before_yield(
+    tmp_path, monkeypatch,
+):
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value) as node:
+            code = admission_module.WorkspaceDeclarationScopeRuntime._original_participant_source_window.__wrapped__.__code__
+            fired = False
+
+            def trace(frame, event, _arg):
+                nonlocal fired
+                if (not fired and event == "line" and frame.f_code is code
+                    and value.issuer._semantic_source_window is not None):
+                    fired = True
+                    raise KeyboardInterrupt("participant window publication interrupted")
+                return trace
+
+            previous = sys.gettrace()
+            try:
+                sys.settrace(trace)
+                with pytest.raises((KeyboardInterrupt, BaseExceptionGroup)):
+                    node.validate()
+            finally:
+                sys.settrace(previous)
+            assert fired
+            assert value.issuer._semantic_source_window is None
+            with pytest.raises(RuntimeError, match="terminal"):
+                node.validate()
+
+
+@asynccontextmanager
+async def _original_scoped_result(tmp_path, monkeypatch):
+    from test_selected_input_read_node import open_read, read_fixture
+    from test_v3_source_admission import _coordinate
+
+    # isort: split
+    from aware_code_semantic_contract_runtime import (
+        ContentDigest,
+        SemanticConfigurationCoordinate,
+        SemanticImplementationCoordinate,
+    )
+    from aware_code_semantic_contract_runtime import semantic_input_producer as inputs
+    from aware_code_semantic_contract_runtime.retained_input_projection_codec import (
+        PACKAGE_CONTEXT_INPUT_REF,
+    )
+    from aware_code_semantic_contract_runtime.runtime import SemanticBody
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        host = inputs.SemanticInputProducerHost()
+        contexts = (inputs.SemanticInputContextContract("package_context", PACKAGE_CONTEXT_INPUT_REF),)
+        output = SemanticBody(_coordinate("prepared", b"prepared"), b"prepared")
+
+        async def produce(_):
+            assert value.issuer._semantic_source_window is None
+            return output
+
+        registration = inputs.register_semantic_input_producer(
+            host, declaration=inputs.SemanticInputProducerDeclaration(
+                "fixture.original-scope", "fixture.original-scope.v1",
+                SemanticImplementationCoordinate("fixture/scope", ContentDigest.of_bytes(b"code")),
+                SemanticConfigurationCoordinate("fixture/scope", ContentDigest.of_bytes(b"config")),
+                (inputs.SemanticInputSourceContract("raw_source", value.coordinates[0].coordinate.contract),),
+                "prepared", output.coordinate.contract, context_contracts=contexts,
+            ), producer=produce, validator=value.issuer,
+            validator_entrance=value.issuer.validate_semantic_input_source,
+            reader=value.issuer, reader_entrance=value.issuer.read_semantic_input_sources,
+            context_validator_entrance=value.issuer.validate_semantic_input_context,
+            retain_result=True,
+            validation_scope_entrance=inputs.capture_semantic_input_validation_scope(value.issuer),
+        )
+        try:
+            session = open_read(value)
+            node = session.__enter__()
+            try:
+                expected = node.prepare_source_expectation(
+                    use_ref="original-result-scope", stage="pre_request",
+                    source_coordinates=value.coordinates, context_contracts=contexts,
+                )
+                result = await inputs.execute_registered_semantic_input(
+                    host, registration, source_admission=value.selected, expected=expected,
+                )
+                yield value, host, registration, expected, result
+            finally:
+                try:
+                    session.__exit__(None, None, None)
+                except BaseExceptionGroup as error:
+                    # Expected source-family retirement is also reported at close.
+                    _, unexpected = error.split(SourceObservationUnavailable)
+                    if unexpected is not None:
+                        raise unexpected
+        finally:
+            host.close()
+
+
+def _verify_scoped_result(values):
+    from aware_code_semantic_contract_runtime import semantic_input_producer as inputs
+
+    value, host, registration, expected, result = values
+    inputs.validate_registered_semantic_input_result(
+        host, registration, source_admission=value.selected, expected=expected, result=result,
+    )
+
+
+async def test_original_result_scope_shares_source_context_but_keeps_callbacks(tmp_path, monkeypatch):
+    async with _original_scoped_result(tmp_path, monkeypatch) as values:
+        value = values[0]
+        cls = type(value.issuer)
+        codes = {
+            "capture": source_module.WorkspaceSourceObservationRuntime.revalidate_selected_package.__code__,
+            "source": cls.validate_semantic_input_source.__code__,
+            "context": cls.validate_semantic_input_context.__code__,
+        }
+        counts = dict.fromkeys(codes, 0)
+
+        def profile(frame, event, _):
+            if event == "call":
+                for name, code in codes.items():
+                    if frame.f_code is code:
+                        counts[name] += 1
+
+        previous = sys.getprofile()
+        try:
+            sys.setprofile(profile)
+            _verify_scoped_result(values)
+        finally:
+            sys.setprofile(previous)
+        assert counts == {"capture": 2, "source": 4, "context": 2}
+        assert value.issuer._semantic_source_window is None
+        assert values[1]._results
+
+
+@pytest.mark.parametrize("phase", ["source", "context", "closing"])
+@pytest.mark.parametrize("mutation", ["result", "expected", "closure"])
+async def test_original_result_scope_rejects_late_mutation_and_restoration(
+    tmp_path, monkeypatch, phase, mutation,
+):
+    from aware_code_semantic_contract_runtime import ContractViolation
+
+    async with _original_scoped_result(tmp_path, monkeypatch) as values:
+        value, host, _, expected, result = values
+        cls = type(value.issuer)
+        code = {
+            "source": cls._validate_semantic_input_source.__code__,
+            "context": cls.validate_semantic_input_context.__code__,
+            "closing": cls._read_source_projection_pair.__code__,
+        }[phase]
+        target = original = None
+        changed = False
+        provisional = None
+
+        def profile(frame, event, _):
+            nonlocal target, original, changed, provisional
+            if not changed and event == "return" and frame.f_code is code:
+                window = value.issuer._semantic_source_window
+                if window is not None:
+                    provisional = window.closure
+                if phase == "closing":
+                    closing = frame.f_locals.get("closing")
+                    if closing is None:
+                        return
+                    provisional = closing.closure
+                changed = True
+                target = result if mutation == "result" else expected if mutation == "expected" else window.closure if window else provisional
+                if target is None:
+                    changed = False
+                    return
+                field = "canonical_body" if mutation == "result" else "use_ref" if mutation == "expected" else "consumer_scope_key"
+                original = getattr(target, field)
+                object.__setattr__(target, field, b"forged" if mutation == "result" else "forged")
+
+        previous = sys.getprofile()
+        try:
+            sys.setprofile(profile)
+            with pytest.raises((ContractViolation, SourceObservationUnavailable, BaseExceptionGroup)):
+                _verify_scoped_result(values)
+        finally:
+            sys.setprofile(previous)
+            if target is not None:
+                field = "canonical_body" if mutation == "result" else "use_ref" if mutation == "expected" else "consumer_scope_key"
+                object.__setattr__(target, field, original)
+        assert changed and not host._results
+        assert value.issuer._semantic_source_window is None
+        with pytest.raises((ContractViolation, SourceObservationUnavailable)):
+            _verify_scoped_result(values)
+        # Code owns result retirement; borrowed source-family cleanup is separate.
+
+
+async def test_original_result_scope_interrupted_publication_releases_window(tmp_path, monkeypatch):
+    async with _original_scoped_result(tmp_path, monkeypatch) as values:
+        value, host, _, _, _ = values
+        code = type(value.issuer)._original_semantic_source_window.__wrapped__.__code__
+        fired = False
+
+        def trace(frame, event, _):
+            nonlocal fired
+            if (not fired and event == "line" and frame.f_code is code
+                and value.issuer._semantic_source_window is not None):
+                fired = True
+                raise KeyboardInterrupt("interrupted scope publication")
+            return trace
+
+        previous = sys.gettrace()
+        try:
+            sys.settrace(trace)
+            with pytest.raises(KeyboardInterrupt, match="scope publication"):
+                _verify_scoped_result(values)
+        finally:
+            sys.settrace(previous)
+        assert fired and not host._results
+        assert value.issuer._semantic_source_window is None
+
+
+@pytest.mark.parametrize("location", ["instance", "class"])
+@pytest.mark.parametrize("mode", ["return", "raise", "restore"])
+async def test_original_result_scope_rejects_substituted_scope_without_calls(
+    tmp_path, monkeypatch, location, mode,
+):
+    from aware_code_semantic_contract_runtime import ContractViolation
+
+    async with _original_scoped_result(tmp_path, monkeypatch) as values:
+        value, host, _, _, _ = values
+        name = "semantic_input_validation_scope"
+        genuine = admission_module._GROUP_METHOD_FUNCTIONS[name]
+        calls = []
+
+        def restore():
+            if location == "instance":
+                delattr(value.issuer, name)
+            elif location == "class":
+                setattr(type(value.issuer), name, genuine)
+            else:
+                admission_module._GROUP_METHOD_FUNCTIONS[name] = genuine
+
+        def poison(*args, **kwargs):
+            calls.append(True)
+            if mode == "restore":
+                restore()
+            if mode == "raise":
+                raise RuntimeError("foreign scope")
+
+        if location == "table":
+            monkeypatch.setitem(admission_module._GROUP_METHOD_FUNCTIONS, name, poison)
+        else:
+            monkeypatch.setattr(value.issuer if location == "instance" else type(value.issuer), name, poison)
+        try:
+            with pytest.raises((ContractViolation, SourceObservationUnavailable)):
+                _verify_scoped_result(values)
+        finally:
+            restore()
+        assert not calls and not host._results
+        assert value.issuer._semantic_source_window is None
+        with pytest.raises((ContractViolation, SourceObservationUnavailable)):
+            _verify_scoped_result(values)
+
+
+async def test_original_result_scope_rejects_source_edit_before_terminal_return(tmp_path, monkeypatch):
+    from aware_code_semantic_contract_runtime import ContractViolation
+
+    async with _original_scoped_result(tmp_path, monkeypatch) as values:
+        value, host, _, _, _ = values
+        target = value.root / "workspaces/network/modules/main/package/a.bin"
+        original = target.read_bytes()
+        code = type(value.issuer)._validate_semantic_input_source.__code__
+        changed = False
+
+        def profile(frame, event, _):
+            nonlocal changed
+            if not changed and event == "return" and frame.f_code is code:
+                changed = True
+                target.write_bytes(b"changed during synchronous original checks")
+
+        previous = sys.getprofile()
+        try:
+            sys.setprofile(profile)
+            with pytest.raises((ContractViolation, SourceObservationUnavailable, BaseExceptionGroup)):
+                _verify_scoped_result(values)
+        finally:
+            sys.setprofile(previous)
+            target.write_bytes(original)
+        assert changed and not host._results
+        assert value.issuer._semantic_source_window is None
+        with pytest.raises((ContractViolation, SourceObservationUnavailable)):
+            _verify_scoped_result(values)
+
+
+@pytest.mark.parametrize("target", ["code", "closure"])
+@pytest.mark.parametrize("phase", ["entry", "dispatch", "yield"])
+async def test_original_result_scope_native_origin_rejects_restamping(
+    tmp_path, monkeypatch, target, phase,
+):
+    import inspect
+
+    from aware_code_semantic_contract_runtime import ContractViolation
+    from aware_code_semantic_contract_runtime import semantic_input_producer as inputs
+
+    async with _original_scoped_result(tmp_path, monkeypatch) as values:
+        value, host, _, _, _ = values
+        function = type(value.issuer).semantic_input_validation_scope
+        original_code = function.__code__
+        cell = function.__closure__[0]
+        original_cell = cell.cell_contents
+        calls = []
+        changed = False
+
+        def make_poison():
+            captured = None
+
+            def poison(self, source_admission, *, expected):
+                if captured:
+                    raise AssertionError("replacement scope executed")
+
+            return poison
+
+        poison = make_poison()
+
+        def install():
+            nonlocal changed
+            changed = True
+            if target == "code":
+                function.__code__ = poison.__code__
+            else:
+                cell.cell_contents = poison
+
+        helper = inputs._original_result_validation_scope.__wrapped__
+        lines, first = inspect.getsourcelines(helper)
+        dispatch_line = first + next(i for i, text in enumerate(lines) if text.strip() == "function = type(origin[0])(")
+
+        def trace(frame, event, _):
+            if event == "call" and frame.f_code is poison.__code__:
+                calls.append(True)
+            if not changed and (
+                (
+                    phase == "dispatch" and event == "line"
+                    and frame.f_code is helper.__code__ and frame.f_lineno == dispatch_line
+                ) or (
+                    phase == "yield" and event == "return" and frame.f_code is original_code
+                )
+            ):
+                install()
+            return trace
+
+        if phase == "entry":
+            install()
+        previous = sys.gettrace()
+        try:
+            sys.settrace(trace)
+            with pytest.raises((ContractViolation, SourceObservationUnavailable, BaseExceptionGroup)):
+                _verify_scoped_result(values)
+        finally:
+            sys.settrace(previous)
+            function.__code__ = original_code
+            cell.cell_contents = original_cell
+        assert changed and not calls and not host._results
+        assert value.issuer._semantic_source_window is None
+        with pytest.raises((ContractViolation, SourceObservationUnavailable)):
+            _verify_scoped_result(values)
+
+
+async def test_selected_policy_scope_shares_projections_keeps_callbacks_and_closes(tmp_path, monkeypatch):
+    from contextlib import contextmanager
+
+    from test_selected_input_read_node import read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        issuer, source = value.issuer, value.selected
+        declaration = issuer._selected_record(source).declaration
+        expected = issuer._declarations[declaration].expectation
+        binding = issuer.read_selected_package_source(source)
+        view = issuer.read_selected_participant_view(declaration, source)
+        kind = type(issuer)
+        names = ("validate_declaration_scope", "validate_selected_package_source",
+                 "validate_selected_participant_view")
+        codes = {name: getattr(kind, name).__code__ for name in names}
+        capture = source_module.WorkspaceSourceObservationRuntime.revalidate_declarations.__code__
+        counts = {code: 0 for code in (*codes.values(), capture)}
+
+        def profile(frame, event, arg):
+            if event == "call" and frame.f_code in counts:
+                counts[frame.f_code] += 1
+
+        def original_checks():
+            issuer.validate_declaration_scope(declaration, expectation=expected)
+            issuer.read_declaration_scope(declaration)
+            issuer.validate_declaration_scope(declaration, expectation=expected)
+            issuer.read_selected_package_source(source)
+            issuer.validate_selected_package_source(source, expectation=binding.expectation)
+            issuer.validate_selected_participant_view(declaration, source, view=view)
+
+        previous = sys.getprofile()
+        try:
+            sys.setprofile(profile)
+            original_checks()
+            separate = counts.copy()
+            counts.update(dict.fromkeys(counts, 0))
+            with contextmanager(issuer.selected_source_validation_scope)(declaration, source):
+                original_checks()
+            shared = counts.copy()
+        finally:
+            sys.setprofile(previous)
+        assert issuer._semantic_source_window is None
+        assert all(shared[code] == separate[code] > 0 for code in codes.values())
+        assert shared[capture] == 4 and separate[capture] == 18
+
+
+@pytest.mark.parametrize("change", ["source", "declaration", "projection", "interrupt"])
+async def test_selected_policy_scope_performs_terminal_original_checks(tmp_path, change):
+    from contextlib import contextmanager
+
+    async with fixture(tmp_path) as (root, _, observer, issuer, observed, expected):
+        declaration = issuer.capture_declaration_scope(
+            observation=observed, consumer_scope_key="workspaces/network/aware.workspace.toml",
+            expectation=expected,
+        )
+        selected = observer.observe_selected_package(
+            declaration=observed, workspace_manifest_path="workspaces/network/aware.workspace.toml",
+            module_id="main", package_id="example",
+        )
+        source = issuer.bind_selected_package_source(declaration=declaration, selected=selected)
+        with (
+            pytest.raises(KeyboardInterrupt if change == "interrupt" else SourceObservationUnavailable),
+            contextmanager(issuer.selected_source_validation_scope)(declaration, source),
+        ):
+            issuer.read_declaration_scope(declaration)
+            if change == "source":
+                (root / "workspaces/network/modules/main/package/body.bin").write_bytes(b"changed")
+            elif change == "declaration":
+                (root / "workspaces/network/aware.workspace.toml").write_text("changed")
+            elif change == "projection":
+                record = issuer._declarations[declaration]
+                object.__setattr__(record.projection, "consumer_scope_key", "forged")
+            else:
+                raise KeyboardInterrupt("original policy validation interrupted")
+        assert issuer._semantic_source_window is None
+
+@pytest.mark.parametrize("consumer", ["execution", "planning", "root", "catalog"])
+@pytest.mark.parametrize("change", [None, "source", "projection", "interrupt"])
+async def test_pure_consumer_verification_uses_original_scope_and_terminal_checks(
+    tmp_path, monkeypatch, change, consumer,
+):
+    import inspect
+    from contextlib import contextmanager
+    from pathlib import Path
+
+    import test_direct_cli_product_publication as qualification
+
+    # isort: split
+    from aware_code_retained_registry_policy_runtime import direct_host
+    from aware_code_retained_registry_policy_runtime import (
+        product_execution_inputs as recipe,
+    )
+    from aware_code_retained_registry_policy_runtime import (
+        product_planning_source as planning,
+    )
+    from aware_code_retained_registry_policy_runtime import (
+        selected_catalog_eligibility as catalog,
+    )
+    from aware_code_retained_registry_policy_runtime import (
+        selected_root_intent as root,
+    )
+    from aware_code_retained_registry_policy_runtime.declaration_host import (
+        _selected_policy_source,
+    )
+    from aware_code_semantic_contract_runtime import semantic_input_producer as inputs
+    from aware_code_semantic_contract_runtime.contracts import ContractViolation
+
+    validation_code = {
+        "execution": recipe.validate_execution_input_assembly,
+        "planning": planning.RetainedProductPlanningDependencySource.read_dependencies,
+        "root": root._derive_selected_root_intent,
+        "catalog": catalog._derive,
+    }[consumer].__code__
+    result_code = inputs.validate_registered_semantic_input_result.__code__
+    selected_code = source_module.WorkspaceSourceObservationRuntime.revalidate_selected_package.__code__
+    source_code = admission_module.WorkspaceDeclarationScopeRuntime._original_participant_source_window.__wrapped__.__code__
+    active = []
+    outcomes = []
+    holder = {}
+
+    def profile(frame, event, _arg):
+        if event == "call" and frame.f_code is validation_code:
+            source_state = planning._SOURCES[frame.f_locals["self"]] if consumer == "planning" else None
+            host = source_state.host if source_state is not None else frame.f_locals["host"]
+            policy = source_state.policy if source_state is not None else frame.f_locals["policy"]
+            issuer = direct_host._HOSTS[host].methods["scope"].receiver
+            borrowed = issuer._semantic_source_window
+            if borrowed is not None:
+                assert borrowed.selected is direct_host._POLICIES[policy][1]
+            active.append({
+                "selected": 0, "results": 0, "borrowed": borrowed is not None,
+                "required": len(frame.f_locals["assembly"].source_results) if consumer == "execution" else None,
+            })
+            holder["host"] = host
+        elif event == "call" and active and frame.f_code is selected_code:
+            active[-1]["selected"] += 1
+        elif event == "call" and active and frame.f_code is source_code:
+            holder["issuer"] = frame.f_locals["self"]
+        elif (event == "return" and active and frame.f_code is result_code
+              and frame.f_back.f_code is validation_code):
+            active[-1]["results"] += 1
+        elif event == "return" and active and frame.f_code is validation_code:
+            row = active.pop()
+            row["returned"] = _arg is not None or consumer == "execution"
+            outcomes.append(row)
+
+    scope_function = _selected_policy_source.__wrapped__
+    scope_lines, scope_first = inspect.getsourcelines(scope_function)
+    close_line = scope_first + [i for i, line in enumerate(scope_lines)
+                                if line.strip() == "if not _verification_only:"][1]
+
+    def trace(frame, event, _arg):
+        if frame.f_code is not scope_function.__code__:
+            return None
+        if (event == "line" and frame.f_lineno == close_line and active
+                and change is not None and "changed" not in holder):
+            holder["changed"] = True
+            issuer = holder["issuer"]
+            assert issuer._semantic_source_window is not None
+            if change == "source":
+                selected = issuer._semantic_source_window.record
+                evidence = selected.source_record[2]
+                relative = next(item.relative_path for item in evidence.bodies if item.relative_path.endswith(".aware"))
+                path = Path(issuer._source._session.binding.root_path) / evidence.package_root / relative
+                holder["path"], holder["bytes"] = path, path.read_bytes()
+                path.write_bytes(holder["bytes"] + b"\nchanged during pure verification\n")
+            elif change == "projection":
+                closure = issuer._semantic_source_window.closure
+                holder["closure"], holder["consumer"] = closure, closure.consumer_scope_key
+                object.__setattr__(closure, "consumer_scope_key", "forged")
+            else:
+                raise KeyboardInterrupt("pure consumer verification interrupted")
+        return trace
+
+    previous_trace = sys.gettrace()
+    previous = sys.getprofile()
+    try:
+        with contextmanager(qualification.factory.__wrapped__)() as factory:
+            sys.setprofile(profile)
+            if change is not None:
+                sys.settrace(trace)
+            if change is None:
+                await qualification.test_original_local_graph_executes_publishes_and_rereads(
+                    tmp_path, factory, monkeypatch,
+                )
+            else:
+                with pytest.raises((ContractViolation, SourceObservationUnavailable, RuntimeError, KeyboardInterrupt, BaseExceptionGroup)):
+                    await qualification.test_original_local_graph_executes_publishes_and_rereads(
+                        tmp_path, factory, monkeypatch,
+                    )
+    finally:
+        sys.setprofile(previous)
+        sys.settrace(previous_trace)
+        if "path" in holder:
+            holder["path"].write_bytes(holder["bytes"])
+        if "closure" in holder:
+            object.__setattr__(holder["closure"], "consumer_scope_key", holder["consumer"])
+    if change is None:
+        successful = [row for row in outcomes if row["returned"]]
+        assert successful
+        assert all(row["selected"] == (0 if row["borrowed"] else 2) and (row["required"] is None or row["results"] == row["required"]) for row in successful), (consumer, outcomes)
+    else:
+        assert holder["changed"]
+        with pytest.raises(ContractViolation):
+            direct_host._state(holder["host"])
+    assert holder["issuer"]._semantic_source_window is None
+    holder.clear()
+
+
+@pytest.mark.parametrize("phase", ["entry", "after_copy"])
+@pytest.mark.parametrize("entrance", ["validate_retained_declaration_scope_coordinate", "validate_detached_declaration_scope_coordinate"])
+async def test_native_delegation_cell_substitution_is_zero_call_and_terminal(tmp_path, phase, entrance):
+    from aware_code_semantic_contract_runtime import (
+        retained_declaration_scope_validation as validation,
+    )
+
+    async with fixture(tmp_path) as (_, _, _, issuer, observed, expected):
+        declaration = issuer.capture_declaration_scope(
+            observation=observed, consumer_scope_key="workspaces/network/aware.workspace.toml", expectation=expected,
+        )
+        unrelated = issuer.capture_declaration_scope(
+            observation=observed, consumer_scope_key="workspaces/kernel/aware.workspace.toml", expectation=expected,
+        )
+        function = getattr(validation, entrance)
+        cells = dict(zip(function.__code__.co_freevars, function.__closure__, strict=True))
+        cell = cells["native"]
+        original = cell.cell_contents
+        projection = issuer._declarations[declaration].projection
+        calls = []
+
+        class Foreign:
+            def __getattribute__(self, name):
+                calls.append(name)
+                raise AssertionError("foreign native delegation")
+
+        substitute = (Foreign(), Foreign(), Foreign())
+
+        copy_frames = set()
+
+        def profile(frame, event, value):
+            copy_event = _declaration_copy_event(frame, event, projection, copy_frames)
+            if (phase == "after_copy" and event == "return" and copy_event):
+                cell.cell_contents = substitute
+
+        previous = sys.getprofile()
+        try:
+            if phase == "entry":
+                cell.cell_contents = substitute
+            sys.setprofile(profile)
+            with pytest.raises(SourceObservationUnavailable, match="coordinate_validator_changed"):
+                issuer.read_declaration_scope(declaration)
+        finally:
+            sys.setprofile(previous)
+            cell.cell_contents = original
+        assert calls == []
+        with pytest.raises(SourceObservationUnavailable, match="projection_changed"):
+            issuer.read_declaration_scope(declaration)
+        assert issuer.read_declaration_scope(unrelated).consumer_scope_key == "workspaces/kernel/aware.workspace.toml"
+
+
+@pytest.mark.parametrize("phase", ["entry", "after_copy"])
+@pytest.mark.parametrize("action", ["return", "raise", "restore"])
+async def test_fresh_copy_original_binding_rejects_before_foreign_dispatch(
+    tmp_path, monkeypatch, phase, action,
+):
+    validation = admission_module._declaration_validation
+    async with fixture(tmp_path) as (_, _, _, issuer, observed, expected):
+        handle = issuer.capture_declaration_scope(
+            observation=observed, consumer_scope_key="workspaces/network/aware.workspace.toml",
+            expectation=expected,
+        )
+        unrelated = issuer.capture_declaration_scope(
+            observation=observed, consumer_scope_key="workspaces/kernel/aware.workspace.toml",
+            expectation=expected,
+        )
+        original = validation.copy_retained_declaration_scope
+        projection = issuer._declarations[handle].projection
+        calls = []
+        copy_frames = set()
+
+        def poison(*args):
+            calls.append(True)
+            if action == "raise":
+                raise RuntimeError("foreign copier")
+            if action == "restore":
+                monkeypatch.setattr(validation, "copy_retained_declaration_scope", original)
+            return projection
+
+        def profile(frame, event, result):
+            copying = _declaration_copy_event(frame, event, projection, copy_frames)
+            if phase == "after_copy" and event == "return" and copying:
+                monkeypatch.setattr(validation, "copy_retained_declaration_scope", poison)
+
+        previous = sys.getprofile()
+        try:
+            if phase == "entry":
+                monkeypatch.setattr(validation, "copy_retained_declaration_scope", poison)
+            sys.setprofile(profile)
+            with pytest.raises(SourceObservationUnavailable, match="coordinate_validator_changed"):
+                issuer.read_declaration_scope(handle)
+        finally:
+            sys.setprofile(previous)
+            monkeypatch.setattr(validation, "copy_retained_declaration_scope", original)
+        assert calls == []
+        with pytest.raises(SourceObservationUnavailable, match="projection_changed"):
+            issuer.read_declaration_scope(handle)
+        assert issuer.read_declaration_scope(unrelated).consumer_scope_key == "workspaces/kernel/aware.workspace.toml"
+
+
+@pytest.mark.parametrize("phase", ["entry", "after_copy"])
+@pytest.mark.parametrize("target", ["code", "schema", "builtin"])
+async def test_fresh_copy_origin_restoration_never_resumes_retired_family(
+    tmp_path, phase, target,
+):
+    validation = admission_module._declaration_validation
+    async with fixture(tmp_path) as (_, _, _, issuer, observed, expected):
+        handle = issuer.capture_declaration_scope(
+            observation=observed, consumer_scope_key="workspaces/network/aware.workspace.toml",
+            expectation=expected,
+        )
+        unrelated = issuer.capture_declaration_scope(
+            observation=observed, consumer_scope_key="workspaces/kernel/aware.workspace.toml",
+            expectation=expected,
+        )
+        function = validation.copy_retained_declaration_scope
+        projection = issuer._declarations[handle].projection
+        cells = dict(zip(function.__code__.co_freevars, function.__closure__, strict=True))
+        key = "copy_schema" if target == "schema" else "kind_of"
+        cell = cells.get(key)
+        original = function.__code__ if target == "code" else cell.cell_contents
+        calls = []
+        copy_frames = set()
+
+        def hostile(*args):
+            calls.append(True)
+            raise AssertionError("foreign copy origin")
+
+        def change():
+            if target == "code":
+                # The same function object cannot smuggle changed executable code.
+                function.__code__ = function.__code__.replace(co_name="substituted_copy")
+            else:
+                cell.cell_contents = hostile
+
+        def profile(frame, event, result):
+            copying = _declaration_copy_event(frame, event, projection, copy_frames)
+            if phase == "after_copy" and event == "return" and copying:
+                change()
+
+        previous = sys.getprofile()
+        try:
+            if phase == "entry":
+                change()
+            sys.setprofile(profile)
+            with pytest.raises(SourceObservationUnavailable, match="coordinate_validator_changed"):
+                issuer.read_declaration_scope(handle)
+        finally:
+            sys.setprofile(previous)
+            if target == "code":
+                function.__code__ = original
+            else:
+                cell.cell_contents = original
+        assert calls == []
+        with pytest.raises(SourceObservationUnavailable, match="projection_changed"):
+            issuer.read_declaration_scope(handle)
+        assert issuer.read_declaration_scope(unrelated).consumer_scope_key == "workspaces/kernel/aware.workspace.toml"
+
+
+@pytest.mark.parametrize("error_type", [KeyboardInterrupt, SystemExit])
+async def test_fresh_copy_interruption_retires_only_original_family(tmp_path, error_type):
+    async with fixture(tmp_path) as (_, _, _, issuer, observed, expected):
+        handle = issuer.capture_declaration_scope(
+            observation=observed, consumer_scope_key="workspaces/network/aware.workspace.toml",
+            expectation=expected,
+        )
+        unrelated = issuer.capture_declaration_scope(
+            observation=observed, consumer_scope_key="workspaces/kernel/aware.workspace.toml",
+            expectation=expected,
+        )
+        projection = issuer._declarations[handle].projection
+        active = set()
+        raised = []
+        previous = sys.getprofile()
+
+        def profile(frame, event, result):
+            if frame.f_code is _ORIGINAL_DECLARATION_COPY_CODE:
+                if event == "call" and frame.f_locals.get("value") is projection:
+                    active.add(id(frame))
+                return
+            if (active and event == "return" and frame.f_code.co_name == "visit"
+                and frame.f_back is not None and not raised):
+                raised.append(True)
+                raise error_type("copy interrupted")
+
+        held = None
+        try:
+            sys.setprofile(profile)
+            issuer.read_declaration_scope(handle)
+        except error_type as error:
+            held = error
+        finally:
+            sys.setprofile(previous)
+        assert held is not None and raised == [True]
+        trace = held.__traceback__
+        while trace:
+            frame = trace.tb_frame
+            if frame.f_code.co_name == "copy_value":
+                assert "value" not in frame.f_locals
+                assert frame.f_locals["memo"] == {}
+            if frame.f_code.co_name == "copy_declaration":
+                assert not {"self", "origin", "value", "result"} & frame.f_locals.keys()
+            trace = trace.tb_next
+        with pytest.raises(SourceObservationUnavailable, match="projection_changed"):
+            issuer.read_declaration_scope(handle)
+        assert issuer.read_declaration_scope(unrelated).consumer_scope_key == "workspaces/kernel/aware.workspace.toml"
+
+
+@pytest.mark.parametrize("change", ["source", "declaration", "original", "detached", "binding", "interrupt"])
+async def test_owned_closing_reconstructs_before_freshness_and_retires_on_failure(
+    tmp_path, monkeypatch, change,
+):
+    from aware_code_semantic_contract_runtime import ContractViolation
+
+    async with _original_scoped_result(tmp_path, monkeypatch) as values:
+        value, host, _, _, _ = values
+        issuer = value.issuer
+        code = type(issuer)._source_projection_pair.__code__
+        reader_code = type(issuer)._read_source_projection_pair.__code__
+        changed = False
+        restore = []
+
+        def profile(frame, event, result):
+            nonlocal changed
+            if changed or event != "return" or frame.f_code is not code:
+                return
+            parent = frame.f_back
+            while parent is not None and parent.f_code is not reader_code:
+                parent = parent.f_back
+            closing = parent is not None and parent.f_locals.get("closing") is not None
+            parent = None
+            if closing:
+                changed = True
+                assert issuer._semantic_source_window is None
+                if change in {"source", "declaration"}:
+                    path = value.root / (
+                        "workspaces/network/modules/main/package/a.bin"
+                        if change == "source" else "workspaces/network/aware.workspace.toml"
+                    )
+                    original = path.read_bytes()
+                    restore.append(lambda: path.write_bytes(original))
+                    path.write_bytes(original + b"\nchanged during closing reconstruction\n")
+                elif change == "interrupt":
+                    raise KeyboardInterrupt("closing reconstruction interrupted")
+                else:
+                    binding, closure = result
+                    target = (
+                        issuer._selected_record(value.selected).declaration_record.projection
+                        if change == "original" else closure if change == "detached"
+                        else binding.expectation
+                    )
+                    field = "scope_key" if change == "binding" else "consumer_scope_key"
+                    original = getattr(target, field)
+                    restore.append(lambda: object.__setattr__(target, field, original))
+                    object.__setattr__(target, field, "forged")
+
+        previous = sys.getprofile()
+        try:
+            sys.setprofile(profile)
+            with pytest.raises((ContractViolation, SourceObservationUnavailable, KeyboardInterrupt, BaseExceptionGroup)):
+                _verify_scoped_result(values)
+        finally:
+            sys.setprofile(previous)
+            for action in reversed(restore):
+                action()
+        assert changed and not host._results
+        assert issuer._semantic_source_window is None
+        with pytest.raises((ContractViolation, SourceObservationUnavailable)):
+            _verify_scoped_result(values)
+
+
+@pytest.mark.parametrize("foreign", ["unknown", "copied", "nonterminal"])
+async def test_owned_closing_requires_exact_current_window_without_source_dispatch(
+    tmp_path, monkeypatch, foreign,
+):
+    import copy
+
+    async with _original_scoped_result(tmp_path, monkeypatch) as values:
+        value, _, _, expected, _ = values
+        issuer = value.issuer
+        source_code = source_module.WorkspaceSourceObservationRuntime.revalidate_selected_package.__code__
+        calls = []
+
+        def profile(frame, event, _):
+            if event == "call" and frame.f_code is source_code:
+                calls.append(True)
+
+        with issuer._original_semantic_source_window(value.selected, expected):
+            current = issuer._semantic_source_window
+            closing = object() if foreign == "unknown" else copy.copy(current) if foreign == "copied" else current
+            previous = sys.getprofile()
+            try:
+                sys.setprofile(profile)
+                with pytest.raises(SourceObservationUnavailable, match="semantic_source_window_origin_changed"):
+                    issuer._read_source_projection_pair(
+                        value.selected, terminal=foreign != "nonterminal", closing=closing,
+                    )
+            finally:
+                sys.setprofile(previous)
+            assert not calls and issuer._semantic_source_window is current
+        assert issuer._semantic_source_window is None
+        _verify_scoped_result(values)
+
+
+async def test_owned_closing_rechecks_declarations_after_final_retained_body_reread(
+    tmp_path, monkeypatch,
+):
+    from aware_code_semantic_contract_runtime import ContractViolation
+
+    async with _original_scoped_result(tmp_path, monkeypatch) as values:
+        value, host, _, _, _ = values
+        issuer = value.issuer
+        code = source_module.WorkspaceSourceObservationRuntime._reread.__code__
+        selected_code = source_module.WorkspaceSourceObservationRuntime.revalidate_selected_package.__code__
+        reader_code = type(issuer)._read_source_projection_pair.__code__
+        path = value.root / "workspaces/network/aware.workspace.toml"
+        original = path.read_bytes()
+        changed = False
+
+        def profile(frame, event, _):
+            nonlocal changed
+            if (changed or event != "return" or frame.f_code is not code
+                or frame.f_back.f_code is not selected_code
+                or "started" not in frame.f_back.f_locals):
+                return
+            parent = frame.f_back
+            while parent is not None and parent.f_code is not reader_code:
+                parent = parent.f_back
+            closing = parent is not None and parent.f_locals.get("closing") is not None
+            parent = None
+            if closing:
+                changed = True
+                path.write_bytes(original + b"\nchanged after final retained body read\n")
+
+        previous = sys.getprofile()
+        try:
+            sys.setprofile(profile)
+            with pytest.raises((ContractViolation, SourceObservationUnavailable, BaseExceptionGroup)):
+                _verify_scoped_result(values)
+        finally:
+            sys.setprofile(previous)
+            path.write_bytes(original)
+        assert changed and not host._results
+        assert issuer._semantic_source_window is None
+        with pytest.raises((ContractViolation, SourceObservationUnavailable)):
+            _verify_scoped_result(values)
+
+
+@pytest.mark.parametrize("field", ["thread_id", "selected", "record"])
+@pytest.mark.parametrize("mode", ["return", "raise", "restore"])
+async def test_owned_closing_does_not_dispatch_unused_window_metadata(
+    tmp_path, monkeypatch, field, mode,
+):
+    import inspect
+
+    async with _original_scoped_result(tmp_path, monkeypatch) as values:
+        issuer = values[0].issuer
+        kind = admission_module._SemanticSourceValidationWindow
+        descriptor = vars(kind)[field]
+        function = type(issuer)._original_semantic_source_window.__wrapped__
+        lines, start = inspect.getsourcelines(function)
+        point = start + next(i for i, line in enumerate(lines)
+                             if "fresh_binding = _original_group_method(" in line)
+        calls = []
+        installed = False
+
+        def hostile(value):
+            calls.append(True)
+            if mode == "restore":
+                setattr(kind, field, descriptor)
+            if mode == "raise":
+                raise AssertionError("unused window metadata dispatched")
+            return descriptor.__get__(value, kind)
+
+        def trace(frame, event, _):
+            nonlocal installed
+            if (not installed and event == "line" and frame.f_code is function.__code__
+                and frame.f_lineno == point):
+                installed = True
+                setattr(kind, field, property(hostile))
+            return trace
+
+        previous = sys.gettrace()
+        try:
+            sys.settrace(trace)
+            _verify_scoped_result(values)
+        finally:
+            sys.settrace(previous)
+            setattr(kind, field, descriptor)
+        assert installed and not calls and values[1]._results
+        assert issuer._semantic_source_window is None
+        _verify_scoped_result(values)
+
+
+async def test_another_original_handle_cannot_spend_the_owning_context_success(
+    tmp_path, monkeypatch,
+):
+    import inspect
+
+    from aware_code_semantic_contract_runtime import ContractViolation
+
+    async with _original_scoped_result(tmp_path, monkeypatch) as values:
+        value, host, _, _, _ = values
+        issuer = value.issuer
+        record = issuer._selected_record(value.selected)
+        another = issuer.bind_selected_package_source(
+            declaration=record.declaration, selected=record.observation,
+        )
+        original_binding = issuer.read_selected_package_source(value.selected)
+        assert issuer.read_selected_package_source(another) == original_binding
+        function = type(issuer)._original_semantic_source_window.__wrapped__
+        lines, start = inspect.getsourcelines(function)
+        point = start + next(i for i, line in enumerate(lines)
+                             if "fresh_binding = _original_group_method(" in line)
+        spent = False
+
+        def trace(frame, event, _):
+            nonlocal spent
+            if (not spent and event == "line" and frame.f_code is function.__code__
+                and frame.f_lineno == point):
+                spent = True
+                # This private reconstruction returns consistent, non-authorizing
+                # metadata. It cannot substitute for the owner's original close.
+                result = issuer._read_source_projection_pair(
+                    another, terminal=True, closing=issuer._semantic_source_window,
+                )
+                assert result[0] == original_binding
+            return trace
+
+        previous = sys.gettrace()
+        try:
+            sys.settrace(trace)
+            with pytest.raises((ContractViolation, SourceObservationUnavailable, BaseExceptionGroup)):
+                _verify_scoped_result(values)
+        finally:
+            sys.settrace(previous)
+        assert spent and not host._results and issuer._semantic_source_window is None
+        with pytest.raises((ContractViolation, SourceObservationUnavailable)):
+            _verify_scoped_result(values)
+        # A genuine unrelated handle remains a valid source; no approval or
+        # authority was obtained from the detached reconstruction.
+        assert issuer.read_selected_package_source(another) == original_binding
+        issuer.release_selected_package_source(another)
+
+
+@pytest.mark.parametrize("entrance", ["declaration", "selected", "pair"])
+async def test_bracketed_reconstruction_does_not_redeliver_discarded_bodies(
+    tmp_path, monkeypatch, entrance,
+):
+    from test_selected_input_read_node import read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        issuer = value.issuer
+        declaration = issuer._selected_record(value.selected).declaration
+        functions = {
+            "delivery": source_module.WorkspaceSourceObservationRuntime.read_declarations,
+            "broad": source_module.WorkspaceSourceObservationRuntime.revalidate_declarations,
+            "selected": source_module.WorkspaceSourceObservationRuntime.revalidate_selected_package,
+            "copy": type(issuer)._copy_original_declaration_scope,
+        }
+        codes = {function.__code__: name for name, function in functions.items()}
+        counts = dict.fromkeys(functions, 0)
+
+        def profile(frame, event, arg):
+            if event == "call" and frame.f_code in codes:
+                counts[codes[frame.f_code]] += 1
+
+        previous = sys.getprofile()
+        try:
+            sys.setprofile(profile)
+            if entrance == "declaration":
+                result = issuer.read_declaration_scope(declaration)
+            elif entrance == "selected":
+                result = issuer.read_selected_package_source(value.selected)
+            else:
+                result = issuer._read_source_projection_pair(value.selected, terminal=True)
+        finally:
+            sys.setprofile(previous)
+        assert result is not None
+        assert counts == {
+            "delivery": 0,
+            "broad": 2 if entrance == "declaration" else 4,
+            "selected": 0 if entrance == "declaration" else 2,
+            "copy": 1,
+        }
+        # The original delivery remains available and verifies actual bytes.
+        original = issuer._declaration_record(declaration)
+        rows = issuer._source.read_declarations(original.observation)
+        assert rows and all(type(body) is bytes for _, body in rows)
+
+
+@pytest.mark.parametrize("phase", ["copy_entry", "copy_return"])
+@pytest.mark.parametrize("target", ["declaration", "selected", "retained_declaration"])
+async def test_reconstruction_preserves_terminal_byte_checks_and_node_retirement(
+    tmp_path, monkeypatch, phase, target,
+):
+    from hashlib import sha256
+
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        issuer = value.issuer
+        record = issuer._selected_record(value.selected).declaration_record
+        projection = issuer._checked_declaration_origin(record).projection
+        path = value.root / (
+            "workspaces/network/modules/main/package/a.bin" if target == "selected"
+            else "workspaces/network/aware.workspace.toml"
+        )
+        before = path.read_bytes()
+        if target == "retained_declaration":
+            digest = sha256(before).hexdigest()
+            path, = tmp_path.rglob(digest + ".blob")
+            assert path.read_bytes() == before
+        with open_read(value) as node:
+            node.prepare_source_expectation(
+                use_ref="discarded-delivery-bytes", stage="pre_request",
+                source_coordinates=value.coordinates,
+            )
+            frames = set()
+            changed = []
+
+            def profile(frame, event, result):
+                if (_declaration_copy_event(frame, event, projection, frames)
+                    and event == ("call" if phase == "copy_entry" else "return")
+                    and not changed):
+                    changed.append(True)
+                    path.write_bytes(before + b"\nchanged")
+
+            previous = sys.getprofile()
+            try:
+                sys.setprofile(profile)
+                with pytest.raises((RuntimeError, ValueError, BaseExceptionGroup)):
+                    node.validate()
+            finally:
+                sys.setprofile(previous)
+                path.write_bytes(before)
+            assert changed
+            assert issuer._semantic_source_window is None
+            with pytest.raises(RuntimeError, match="terminal"):
+                node.validate()
+            # A failed read does not dispose its borrowed Source owner.
+            assert not issuer._source._closed
+
+
+@pytest.mark.parametrize("phase", ["copy_entry", "copy_return"])
+async def test_reconstruction_interruption_retires_node_and_releases_window(
+    tmp_path, monkeypatch, phase,
+):
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        issuer = value.issuer
+        record = issuer._selected_record(value.selected).declaration_record
+        projection = issuer._checked_declaration_origin(record).projection
+        with open_read(value) as node:
+            node.prepare_source_expectation(
+                use_ref="discarded-delivery-interrupt", stage="pre_request",
+                source_coordinates=value.coordinates,
+            )
+            frames = set()
+            raised = []
+
+            def profile(frame, event, result):
+                if (_declaration_copy_event(frame, event, projection, frames)
+                    and event == ("call" if phase == "copy_entry" else "return")
+                    and not raised):
+                    raised.append(True)
+                    raise KeyboardInterrupt("reconstruction interrupted")
+
+            previous = sys.getprofile()
+            try:
+                sys.setprofile(profile)
+                with pytest.raises((KeyboardInterrupt, BaseExceptionGroup)):
+                    node.validate()
+            finally:
+                sys.setprofile(previous)
+            assert raised
+            assert issuer._semantic_source_window is None
+            with pytest.raises(RuntimeError, match="terminal"):
+                node.validate()
+
+
+@pytest.mark.parametrize("foreign", ["unknown", "copied"])
+async def test_bracketed_copy_requires_exact_private_origin_without_foreign_behavior(
+    tmp_path, monkeypatch, foreign,
+):
+    from test_selected_input_read_node import read_fixture
+
+    calls = []
+
+    class Foreign:
+        def __eq__(self, other):
+            calls.append("equality")
+            raise AssertionError("foreign equality dispatched")
+
+        def __hash__(self):
+            calls.append("hash")
+            raise AssertionError("foreign hash dispatched")
+
+        def __getattribute__(self, name):
+            calls.append("attribute")
+            raise AssertionError("foreign attribute dispatched")
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        issuer = value.issuer
+        record = issuer._selected_record(value.selected).declaration_record
+        origin = issuer._checked_declaration_origin(record)
+        substituted = Foreign() if foreign == "unknown" else copy.copy(origin)
+        with pytest.raises(SourceObservationUnavailable, match="copy_origin_differs"):
+            issuer._closure(
+                record.observation, record.consumer_scope_key,
+                _bracketed_origin=substituted,
+            )
+        assert calls == []
+        # Neither foreign nor copied metadata may retire the genuine family.
+        issuer.read_selected_package_source(value.selected)
+        issuer.read_declaration_scope(origin.handle)
+
+
+async def test_input_metadata_operation_closes_source_window_before_return(tmp_path, monkeypatch):
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value) as node:
+            expected = node.prepare_source_expectation(
+                use_ref='scoped-input-preparation',stage='pre_request',source_coordinates=value.coordinates,
+            )
+            assert expected.source_identity is value.selected
+            assert value.issuer._semantic_source_window is None
+            node.validate()
+            assert value.issuer._semantic_source_window is None
+
+
+@pytest.mark.parametrize('target',['selected','declaration','retained_declaration'])
+async def test_input_metadata_operation_rejects_late_source_change(tmp_path, monkeypatch, target):
+    from hashlib import sha256
+
+    from aware_code_semantic_contract_runtime.semantic_input_producer import (
+        SemanticInputProductionExpectation,
+    )
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        path=value.root/('workspaces/network/modules/main/package/a.bin' if target=='selected' else 'workspaces/network/aware.workspace.toml')
+        before=path.read_bytes()
+        if target=='retained_declaration':
+            path,=tmp_path.rglob(sha256(before).hexdigest()+'.blob')
+        target_code=SemanticInputProductionExpectation.create.__func__.__code__
+        armed=[]
+
+        def profile(frame,event,arg):
+            if event=='return' and frame.f_code is target_code and not armed:
+                assert value.issuer._semantic_source_window is not None
+                armed.append(True);path.write_bytes(before+b'\nchanged')
+
+        with open_read(value) as node:
+            old=sys.getprofile()
+            try:
+                sys.setprofile(profile)
+                with pytest.raises((RuntimeError,ValueError,BaseExceptionGroup)):
+                    node.prepare_source_expectation(use_ref='scoped-input-late-change',stage='pre_request',source_coordinates=value.coordinates)
+            finally:
+                sys.setprofile(old);path.write_bytes(before)
+            assert armed
+            assert value.issuer._semantic_source_window is None
+            with pytest.raises(RuntimeError,match='terminal'):
+                node.validate()
+            assert not value.issuer._source._closed
+
+
+async def test_input_metadata_operation_source_counts(tmp_path, monkeypatch):
+    from test_selected_input_read_node import open_read, read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        functions=(source_module.WorkspaceSourceObservationRuntime.revalidate_declarations,source_module.WorkspaceSourceObservationRuntime.revalidate_selected_package,source_module.WorkspaceSourceObservationRuntime.read_declarations)
+        codes={f.__code__:f.__name__ for f in functions};counts=dict.fromkeys(codes.values(),0)
+
+        def profile(frame,event,arg):
+            if event=='call' and frame.f_code in codes:counts[codes[frame.f_code]]+=1
+
+        with open_read(value) as node:
+            old=sys.getprofile()
+            try:
+                sys.setprofile(profile)
+                node.prepare_source_expectation(use_ref='source-operation-counts',stage='pre_request',source_coordinates=value.coordinates)
+            finally:
+                sys.setprofile(old)
+            print('SOURCE_OPERATION_COUNTS',counts)
+            assert value.issuer._semantic_source_window is None
+
+
+@pytest.mark.parametrize("mode", ["return", "raise", "restore"])
+@pytest.mark.parametrize("phase", ["entry", "late"])
+async def test_input_metadata_operation_original_dispatch(tmp_path, monkeypatch, mode, phase):
+    from aware_code_semantic_contract_runtime.semantic_input_producer import (
+        SemanticInputProductionExpectation,
+    )
+    from test_selected_input_read_node import open_read, read_fixture
+
+    # isort: split
+    from aware_workspace_runtime import direct_command_composition as composition
+
+    original = composition._original_group_method
+    target = SemanticInputProductionExpectation.create.__func__.__code__
+    calls, armed = [], []
+
+    def hostile(*args, **kwargs):
+        calls.append(True)
+        if mode == "restore":
+            monkeypatch.setattr(composition, "_original_group_method", original)
+        if mode == "raise":
+            raise RuntimeError("foreign dispatcher executed")
+
+    def profile(frame, event, result):
+        if event == "return" and frame.f_code is target and not armed:
+            armed.append(True)
+            monkeypatch.setattr(composition, "_original_group_method", hostile)
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value) as node:
+            previous = sys.getprofile()
+            try:
+                if phase == "entry":
+                    armed.append(True)
+                    monkeypatch.setattr(composition, "_original_group_method", hostile)
+                else:
+                    sys.setprofile(profile)
+                with pytest.raises((RuntimeError, SourceObservationUnavailable, BaseExceptionGroup)):
+                    node.prepare_source_expectation(
+                        use_ref="source-operation-dispatch", stage="pre_request",
+                        source_coordinates=value.coordinates,
+                    )
+            finally:
+                sys.setprofile(previous)
+                monkeypatch.setattr(composition, "_original_group_method", original)
+            assert armed and calls == []
+            assert value.issuer._semantic_source_window is None
+            with pytest.raises(RuntimeError, match="terminal"):
+                node.validate()
+            assert not value.issuer._source._closed
+
+
+@pytest.mark.parametrize("change", ["original", "restamped", "interrupt"])
+async def test_input_metadata_operation_terminal_original_and_interruption(
+    tmp_path, monkeypatch, change,
+):
+    from aware_code_semantic_contract_runtime.semantic_input_producer import (
+        SemanticInputProductionExpectation,
+    )
+    from test_selected_input_read_node import open_read, read_fixture
+
+    target = SemanticInputProductionExpectation.create.__func__.__code__
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        original = value.issuer._selected_record(value.selected).declaration_record
+        before = original.projection.consumer_scope_key
+        digest = original.digest
+        armed = []
+        restamped = []
+
+        def profile(frame, event, result):
+            if event == "return" and frame.f_code is target and not armed:
+                armed.append(True)
+                assert value.issuer._semantic_source_window is not None
+                if change == "interrupt":
+                    raise KeyboardInterrupt("source-operation interruption")
+                object.__setattr__(original.projection, "consumer_scope_key", "workspaces/kernel/aware.workspace.toml")
+                if change == "restamped":
+                    object.__setattr__(original, "digest", original.projection.closure_digest)
+                    restamped.append(True)
+
+        with open_read(value) as node:
+            previous = sys.getprofile()
+            held = None
+            try:
+                sys.setprofile(profile)
+                try:
+                    node.prepare_source_expectation(
+                        use_ref="source-operation-terminal", stage="pre_request",
+                        source_coordinates=value.coordinates,
+                    )
+                except BaseException as error:  # noqa: BLE001 - inspect retained rejection and interruption custody
+                    held = error
+            finally:
+                sys.setprofile(previous)
+                object.__setattr__(original.projection, "consumer_scope_key", before)
+                object.__setattr__(original, "digest", digest)
+            assert held is not None and armed
+            if change == "restamped":
+                assert restamped, "canonical changed projection must restamp successfully"
+            assert value.issuer._semantic_source_window is None
+            assert not value.issuer._pre_request_inputs
+            with pytest.raises(RuntimeError, match="terminal"):
+                node.validate()
+            assert not value.issuer._source._closed
+            # The held exception must not preserve Workspace's command/read custody.
+            traceback = held.__traceback__
+            while traceback is not None:
+                if traceback.tb_frame.f_code.co_filename.endswith("direct_command_composition.py"):
+                    assert traceback.tb_frame.f_locals.get("record") is None
+                traceback = traceback.tb_next
+
+
+
+async def test_provider_resolution_operation_original_counts(tmp_path, monkeypatch):
+    from test_selected_input_read_node import read_fixture
+
+    # isort: split
+    from aware_workspace_runtime import direct_command_composition as composition
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        counts = {"broad": 0, "selected": 0}
+        codes = {
+            source_module.WorkspaceSourceObservationRuntime.revalidate_declarations.__code__: "broad",
+            source_module.WorkspaceSourceObservationRuntime.revalidate_selected_package.__code__: "selected",
+        }
+
+        def observe(frame, event, result):
+            if event == "call" and frame.f_code in codes:
+                counts[codes[frame.f_code]] += 1
+
+        previous = sys.getprofile()
+        try:
+            sys.setprofile(observe)
+            key = composition._resolve_direct_workspace_exact_provider_key(value.command, value.selected)
+        finally:
+            sys.setprofile(previous)
+        assert type(key) is str and key
+        assert value.issuer._semantic_source_window is None
+        print("PROVIDER_RESOLUTION_COUNTS", counts)
+
+
+
+@pytest.mark.parametrize("target", ["source", "declaration", "retained", "original", "restamped", "interrupt"])
+async def test_provider_resolution_operation_terminal_protection(tmp_path, monkeypatch, target):
+    from aware_code_retained_registry_policy_runtime.declaration_eligibility import (
+        calculate_declaration_eligibility,
+    )
+    from test_selected_input_read_node import read_fixture
+
+    # isort: split
+    from aware_workspace_runtime import direct_command_composition as composition
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        record = value.issuer._selected_record(value.selected).declaration_record
+        projection = record.projection
+        old_scope, old_digest = projection.consumer_scope_key, record.digest
+        path = value.root / (
+            "workspaces/network/modules/main/package/a.bin" if target == "source"
+            else "workspaces/network/aware.workspace.toml"
+        )
+        before = path.read_bytes()
+        if target == "retained":
+            from hashlib import sha256
+
+            path, = tmp_path.rglob(sha256(before).hexdigest() + ".blob")
+        armed, restamped = [], []
+
+        def observe(frame, event, result):
+            if event == "return" and frame.f_code is calculate_declaration_eligibility.__code__ and not armed:
+                armed.append(True)
+                assert value.issuer._semantic_source_window is not None
+                if target == "interrupt":
+                    raise KeyboardInterrupt("provider resolution interrupted")
+                if target in {"source", "declaration", "retained"}:
+                    path.write_bytes(before + b"\nchanged")
+                else:
+                    object.__setattr__(projection, "consumer_scope_key", "workspaces/kernel/aware.workspace.toml")
+                    if target == "restamped":
+                        object.__setattr__(record, "digest", projection.closure_digest)
+                        restamped.append(True)
+
+        previous = sys.getprofile()
+        try:
+            sys.setprofile(observe)
+            with pytest.raises((RuntimeError, ValueError, KeyboardInterrupt, BaseExceptionGroup)):
+                composition._resolve_direct_workspace_exact_provider_key(value.command, value.selected)
+        finally:
+            sys.setprofile(previous)
+            path.write_bytes(before)
+            object.__setattr__(projection, "consumer_scope_key", old_scope)
+            object.__setattr__(record, "digest", old_digest)
+        assert armed
+        if target == "restamped":
+            assert restamped
+        assert value.issuer._semantic_source_window is None
+        # This read owns its bracket, not the borrowed command or Source issuer.
+        assert not value.issuer._source._closed
+
+
+@pytest.mark.parametrize("mode", ["return", "raise", "restore"])
+@pytest.mark.parametrize("phase", ["entry", "late"])
+async def test_provider_resolution_operation_original_dispatch(tmp_path, monkeypatch, mode, phase):
+    from aware_code_retained_registry_policy_runtime.declaration_eligibility import (
+        calculate_declaration_eligibility,
+    )
+    from test_selected_input_read_node import read_fixture
+
+    # isort: split
+    from aware_workspace_runtime import direct_command_composition as composition
+
+    original = composition._original_group_method
+    calls, armed = [], []
+
+    def hostile(*args, **kwargs):
+        calls.append(True)
+        if mode == "restore":
+            monkeypatch.setattr(composition, "_original_group_method", original)
+        if mode == "raise":
+            raise RuntimeError("foreign dispatcher executed")
+
+    def observe(frame, event, result):
+        if event == "return" and frame.f_code is calculate_declaration_eligibility.__code__ and not armed:
+            armed.append(True)
+            monkeypatch.setattr(composition, "_original_group_method", hostile)
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        previous = sys.getprofile()
+        try:
+            if phase == "entry":
+                armed.append(True)
+                monkeypatch.setattr(composition, "_original_group_method", hostile)
+            else:
+                sys.setprofile(observe)
+            with pytest.raises((RuntimeError, ValueError, BaseExceptionGroup)):
+                composition._resolve_direct_workspace_exact_provider_key(value.command, value.selected)
+        finally:
+            sys.setprofile(previous)
+            monkeypatch.setattr(composition, "_original_group_method", original)
+        assert armed and calls == []
+        assert value.issuer._semantic_source_window is None

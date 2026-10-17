@@ -1,6 +1,6 @@
 [project]
 name = "aware-workspace-fs-adapter"
-version = "0.1.8"
+version = "0.1.9"
 description = "Original Workspace filesystem publication and retained-store authority providers."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -8,9 +8,9 @@ license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "AWARE Team" }]
 dependencies = [
-  "aware-file-system>=0.3.7,<0.4.0",
-  "aware-workspace-runtime>=0.2.12,<0.3.0",
-  "aware-workspace-sdk>=0.2.9,<0.3.0",
+  "aware-file-system>=0.3.8,<0.4.0",
+  "aware-workspace-runtime>=0.2.15,<0.3.0",
+  "aware-workspace-sdk>=0.2.10,<0.3.0",
   "pydantic>=2.8.2,<3.0.0",
 ]
 

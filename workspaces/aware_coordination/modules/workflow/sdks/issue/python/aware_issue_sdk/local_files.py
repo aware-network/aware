@@ -94,7 +94,12 @@ def render_issue_document(*, document: IssueDocument) -> str:
     rendered.append("")
     for index, section in enumerate(document.sections):
         rendered.append(f"## {section.heading}")
-        rendered.extend(section.lines)
+        # Parsed sections retain the separator before the next heading. Own
+        # that boundary here once; keep authored spacing inside the body intact.
+        body_end = len(section.lines)
+        while body_end and not section.lines[body_end - 1].strip():
+            body_end -= 1
+        rendered.extend(section.lines[:body_end])
         if index != len(document.sections) - 1:
             rendered.append("")
     rendered.append("")

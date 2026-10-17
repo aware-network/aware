@@ -67,7 +67,7 @@ def apply_local(root, capsys, *arguments):
 def test_only_original_setup_port_mounts_and_duplicates_are_not_overwritten():
     registry = AwareCommandRegistry()
     client.register_family_commands(registry, "workspace")
-    assert registry.names() == ("setup",)
+    assert registry.names() == ("setup", "review")
     original = registry.require("setup")
     with pytest.raises(CommandRegistrationError):
         client.register_family_commands(registry, "workspace")
@@ -362,11 +362,15 @@ def test_source_metadata_requires_actual_setup_ports_without_service_extra():
         (Path(__file__).parents[1] / "pyproject.toml").read_text()
     )["project"]
     requirements = {r.name: r for r in map(Requirement, metadata["dependencies"])}
-    assert metadata["version"] == "0.2.0a5"
+    assert metadata["version"] == "0.2.0a7"
     sdk = requirements["aware-workspace-sdk"]
     runtime = requirements["aware-workspace-runtime"]
-    assert sdk.extras == {"preparation", "setup"}
-    assert "0.2.7" in sdk.specifier and "0.2.6" not in sdk.specifier
-    assert "0.2.10" in runtime.specifier and "0.2.9" not in runtime.specifier
+    assert sdk.extras == {"preparation", "setup", "setup_admission", "setup_review"}
+    assert "0.2.10" in sdk.specifier and "0.2.9" not in sdk.specifier
+    assert "0.2.15" in runtime.specifier and "0.2.14" not in runtime.specifier
     assert "0.3.0" not in sdk.specifier and "0.3.0" not in runtime.specifier
-    assert runtime.extras == set()
+    assert runtime.extras == {"setup_admission", "setup_review"}
+    issue = requirements["aware-issue-sdk"]
+    assert issue.extras == {"workspace_setup_admission"}
+    assert "0.10.6" in issue.specifier and "0.10.5" not in issue.specifier
+    assert "0.11.0" not in issue.specifier

@@ -290,6 +290,7 @@ class _ReadLedger:
     closed: int = 0
     diagnostics: list[str] = field(default_factory=list)
     first_cleanup_error: BaseException | None = None
+    private_root: object = None
 
     def diagnostic(self, value: str) -> None:
         if len(self.diagnostics) < 16:
@@ -328,7 +329,13 @@ class _ReadLedger:
         self.resources.append(resource)
         descriptor = None
         try:
-            if mode is None:
+            if self.private_root is not None and dir_fd is None:
+                # The original read ledger owns the duplicate before any
+                # fallible read. Never reopen an unrelated pathname root.
+                from .private_directory import _private_io_call
+
+                descriptor = _private_io_call("duplicate", self.private_root)
+            elif mode is None:
                 descriptor = os.open(path, flags, dir_fd=dir_fd)
             else:
                 descriptor = os.open(path, flags, mode, dir_fd=dir_fd)
@@ -1001,6 +1008,7 @@ def _observe_confined_file_with_custody(
     root: Path,
     path: str,
     maximum_bytes: int = DEFAULT_CONFINED_MUTATION_MAX_BYTES,
+    _private_root: object = None,
 ) -> tuple[ConfinedFileObservationWithCleanup, os.stat_result | None, _ReadLedger]:
     """Original bounded read plus once-only cleanup, never write authority.
 
@@ -1008,7 +1016,7 @@ def _observe_confined_file_with_custody(
     normalization/error semantics; no physical algorithm is copied here.
     All failures, including interruption, retain original owner evidence.
     """
-    ledger = _ReadLedger()
+    ledger = _ReadLedger(private_root=_private_root)
     captured_stat = None
     root_locator = normalized_path = None
     observation = None
@@ -1162,6 +1170,41 @@ def _observe_confined_file_with_custody(
         raise failure from error
 
 
+def _confined_read_value_to_payload(value, *, _budget=None, _depth=0):
+    """Internal data-only read evidence join; never performs a read."""
+    from .private_directory import _owner_to_payload
+
+    return _owner_to_payload(
+        value,
+        (
+            ConfinedFileObservation,
+            ConfinedFileReadCleanup,
+            ConfinedFileObservationWithCleanup,
+        ),
+        _budget=_budget,
+        _depth=_depth,
+        _owner="read",
+    )
+
+
+def _confined_read_value_from_payload(value_type, source, *, _budget=None, _depth=0):
+    """Internal closed inverse for the original read value classes."""
+    from .private_directory import _owner_from_payload
+
+    return _owner_from_payload(
+        value_type,
+        source,
+        (
+            ConfinedFileObservation,
+            ConfinedFileReadCleanup,
+            ConfinedFileObservationWithCleanup,
+        ),
+        _budget=_budget,
+        _depth=_depth,
+        _owner="read",
+    )
+
+
 def _open_parent(
     *,
     root: Path,
@@ -1249,6 +1292,9 @@ def _read_current(
     maximum_bytes: int,
     _read_ledger: _ReadLedger | None = None,
 ) -> tuple[bytes | None, os.stat_result | None] | str:
+    # The original writer also supplies its original _SequenceIO here. Legacy
+    # IO owners have no private context; preserve that additive distinction.
+    private_root = getattr(_read_ledger, "private_root", None)
     if _read_ledger is not None:
         _read_ledger.stage = "leaf_stat"
     try:
@@ -1274,6 +1320,10 @@ def _read_current(
         before = os.fstat(descriptor)
         if not _same_stat(before, path_stat) or before.st_size > maximum_bytes:
             return "target_changed_or_exceeds_byte_bound"
+        if private_root is not None:
+            from .private_directory import _private_io_call
+
+            _private_io_call("leaf", private_root, before)
         chunks: list[bytes] = []
         remaining = maximum_bytes + 1
         while remaining:
@@ -1288,6 +1338,8 @@ def _read_current(
         if _read_ledger is not None:
             _read_ledger.stage = "leaf_stat_after"
         after = os.fstat(descriptor)
+        if private_root is not None:
+            _private_io_call("leaf", private_root, after)
         if len(content) > maximum_bytes or not _same_stat(before, after):
             return "target_changed_or_exceeds_byte_bound"
         return content, after

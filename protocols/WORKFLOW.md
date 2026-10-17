@@ -1,19 +1,12 @@
-# Aware Workspace A1 onboarding review
+# Aware filesystem workflow
 
-Software and original frozen instructions were delivered at
-`8dc511505151e5e23a5d50478b2e1f00194f2c05` on `aware-network/aware/main`.
-Acquire that full revision. [Status alignment](../releases/canonical-workspace-a1-fs-v1/PUBLIC-STATUS.md)
-tracks this separate wording correction and its review/delivery boundaries.
-Install once, initialize explicitly, admit an Issue, configure SPEC and prepare
-a draft for review before explicit invocation. Agent CLI is 0.2.0a6; Protocol SDK/FS are 0.3.2/0.6.5; SPEC SDK is 0.3.4;
-SPEC FS SDK adapter and CLI are 0.4.4. Issue CLI 0.8.3 / FS 0.9.6 are carried.
-Workspace SDK/runtime/FS are 0.2.9/0.2.12/0.1.8; FileSystem is 0.3.7.
-This internal review envelope carries the exact forty-two-package payload, committed
-`portable_protocols` sources and corresponding notices. Notice/disclosure
-acceptance is candidate-bound; local selection and the historical freeze are
-independently accepted. [Successor instruction pins](../releases/canonical-workspace-a1-fs-v1/PUBLIC-INSTRUCTIONS.json)
-bind this guidance without rewriting the historical freeze.
-Scripted installed proofs do not establish unassisted customer onboarding.
+Prepared unselected reviewed-workflow successor; instructions remain draft.
+One installation supplies the original Issue, Protocol and SPEC entrances and
+the bounded repository-manifest Workspace review flow. Agent is 0.2.0a7;
+Workspace SDK/runtime/FS are 0.2.10/0.2.15/0.1.9; FileSystem is 0.3.8 and Issue
+SDK is 0.10.6. Existing Issue CLI, Protocol and SPEC operations remain carried.
+The old delivered candidate remains selected; this private layout is not public
+availability, a new historical aggregate PASS or unassisted onboarding proof.
 
 ## Install with the complete envelope
 
@@ -365,7 +358,7 @@ work or upgrades filesystem evidence into resident authority.
 
 ## Sources and notices
 
-`SOURCE-INDEX.json` binds 1,286 committed selected files to `portable_protocols`
+`SOURCE-INDEX.json` binds 1,329 committed selected files to `portable_protocols`
 and the exact wheels. It is evidence, not a second selector. Full discovery
 inventory remains producer-side. Customer `aware.protocol.toml` configures
 record selection/authority, not software packages.
@@ -420,67 +413,16 @@ repository currentness, repeats an operation, refreshes guards, renews admission
 or changes an unknown outcome into success. Preserve correlation, effects,
 cleanup and uncertainty when handing the summary to another execution.
 
-## Workspace setup: A1 only
+## Workspace A1 with two explicit reviews
 
-The unified client now mounts the original Workspace registrar. Inspect the
-owner's exact inputs before selecting an operation:
+Use [the reviewed repository-manifest guide](workspace/REVIEWED-SETUP.md).
+Init supplies configuration for this qualified fresh-repository route, not Issue
+admission, scope approval or permission to apply. The original SDKs retain guards
+and full evidence across prepare, explicit physical-scope acceptance, a second
+preview and explicit final-file apply. Do not copy guards or fabricate records.
+Missing inputs stop; stale/spent requests do not silently refresh or retry.
 
-```bash
-"$AWARE" workspace setup --help
-"$AWARE" workspace setup repository --help
-"$AWARE" workspace setup workspace --help
-"$AWARE" workspace setup module --help
-"$AWARE" workspace setup python-package --help
-"$AWARE" workspace setup align --help
-```
-
-A1 qualifies repository/workspace/module creation, authored Python-package
-creation and alignment through Workspace SDK → neutral runtime → original
-FileSystem owners, under genuine Issue scope/admission. Select exact paths and
-review the owner plan before explicitly applying; help is discovery, not
-authority. Init prepares a repository and protocol guidance/configuration; it
-does not automatically create or register a Workspace package.
-
-For the qualified fresh-repository path, init's `aware.protocol.toml` supplies
-the authority-manifest binding. It does not admit an Issue or authorize apply.
-Governed A1 still requires explicit `--governed`, a genuine In Progress Issue,
-reviewed complete effect scope, current Issue/manifest byte guards, client intent
-and actor/evidence coordinates. Apply uses the unchanged reviewed plan digest
-and the final-file `--allowed-path` list; that list is not the full effect scope.
-Follow [first governed repository setup](workspace/FIRST-SETUP.md) for the explicit
-preview → review → scope → preview → review → apply sequence. A completed preview
-is not Issue admission. Missing or stale inputs mean stop, not fabricated
-records, automatic refresh or omission of `--governed`. Unassisted A1 onboarding
-remains unproved.
-
-`portable_protocols` remains the sole producer-side package selector.
-Workspace setup writes or aligns authored repository/workspace/module/package
-manifests through their existing owners. It does not introduce a consumer JSON
-package catalog or silently resolve software packages from `aware.protocol.toml`.
-
-The `locks` help entrance and standalone script are carried, but A2 lock updates
-and their governed receiving workflow are not qualified by this candidate.
-Tree-C execution/postimage completion, `.aware` package creation/materialization
-and positive native dispatch are also not admitted. Do not bypass these limits
-through a standalone launcher or infer readiness from import/script presence.
-
-Both complete SDK-contract/Meta type-schema libraries are shared neutral
-infrastructure, not Meta/Object or materialization products. Raw filesystem
-deltas do not infer meaning or operation authority. Service/API, object
-execution, materialization, native receiving and Experience authority stay
-separate from this filesystem-first installation.
-
-The seven changed third-party wheels have current hash-bound source/legal inputs.
-Inherited pydantic-core/rpds crate notices are historical coverage evidence, not an
-attestation of the current binary's linkage. Current Cargo inputs are attached
-for component review. Source-correlated Cython terms do not identify the actual
-wheel publisher's build toolchain. Bounded notice/disclosure dispositions bind
-this exact envelope; conservative accounts do not prove exact binary linkage,
-exhaustive clearance or a legal warranty. Predecessor clearance does not transfer
-automatically.
-
-This installation does not replace aware-dev's selected contributor command.
-A scripted successor observation of saved evidence is not cross-execution
-recovery or unassisted evaluation. Public availability, independent freeze
-acceptance and unassisted onboarding remain separate. Local instruction pins
-do not authorize delivery or change the candidate's capability limits.
+The predecessor's manual setup guide remains carried history. This successor's
+bounded receiving proof covers the repository-manifest review route, not every
+carried Workspace operation. A2, tree completion, services, objects,
+materialization and native performance remain unaccepted.

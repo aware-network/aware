@@ -524,6 +524,21 @@ def _coordinate_token(value: RepositoryObservationCoordinate) -> str:
 
 
 def _relative_path(value: str) -> str:
+    # Exact, already canonical strings need no PurePosixPath allocation. Check
+    # every component afresh; normalization and unfamiliar values keep the
+    # original path below, including its return value and refusal ordering.
+    if (
+        type(value) is str
+        and value
+        and "\\" not in value
+        and value == value.strip()
+        and value[0] != "/"
+        and value[-1] != "/"
+        and "//" not in value
+    ):
+        parts = value.split("/")
+        if "." not in parts and ".." not in parts:
+            return value
     normalized = value.strip().replace("\\", "/")
     path = PurePosixPath(normalized)
     if (

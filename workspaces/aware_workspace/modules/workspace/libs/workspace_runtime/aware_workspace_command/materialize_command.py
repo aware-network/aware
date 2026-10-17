@@ -337,6 +337,8 @@ async def _continue_direct_materialize_profile(
     """
     from aware_code_semantic_contract_runtime.contracts import ContractViolation
 
+    # isort: split
+
     from aware_workspace_runtime.direct_cli_product_planning import (
         plan_direct_cli_selected_product,
     )
@@ -346,6 +348,7 @@ async def _continue_direct_materialize_profile(
     from aware_workspace_runtime.direct_cli_selected_host import (
         DirectCLIProviderFactoryUnavailable,
         DirectCLISelectedDeclarationUnavailable,
+        compose_direct_cli_product_candidates,
         compose_direct_cli_selected_product,
     )
     from aware_workspace_runtime.direct_command_composition import (
@@ -361,7 +364,11 @@ async def _continue_direct_materialize_profile(
         else:
             selected_started_ns = time.perf_counter_ns()
             try:
-                with ExitStack() as retained, compose_direct_cli_selected_product(command, selected) as product:
+                with (
+                    ExitStack() as retained,
+                    compose_direct_cli_product_candidates(command, selected) as candidates,
+                    compose_direct_cli_selected_product(command, selected, participating_sources=candidates) as product,
+                ):
                     inspection = replace(
                         inspection, selected_catalog_count=1,
                         selected_catalog_timing_ns=product.catalog_timing_ns,
@@ -369,18 +376,21 @@ async def _continue_direct_materialize_profile(
                     if not product.package_membership_present:
                         diagnostic = "selected_product_package_membership_unavailable: " + product.package_ref
                     else:
-                        planned = await plan_direct_cli_selected_product(command, selected, product)
-                        inspection = replace(
-                            inspection, graph_plan_wire=planned.wire,
-                            graph_plan_timing_ns=planned.elapsed_ns,
-                            graph_node_count=len(planned.plan.graph.nodes),
-                            graph_edge_count=len(planned.plan.graph.edges),
-                        )
-                        diagnostic = None
-                        if not proposal.plan_only:
-                            published = await publish_direct_cli_selected_product(
-                                command, selected, product, planned, retention=retained,
+                        with ExitStack() as planning_retained:
+                            planned = await plan_direct_cli_selected_product(command, selected, product,
+                                retention=None if proposal.plan_only else planning_retained,
+                                allow_unused_sources=True)
+                            inspection = replace(
+                                inspection, graph_plan_wire=planned.wire,
+                                graph_plan_timing_ns=planned.elapsed_ns,
+                                graph_node_count=len(planned.plan.graph.nodes),
+                                graph_edge_count=len(planned.plan.graph.edges),
                             )
+                            diagnostic = None
+                            if not proposal.plan_only:
+                                published = await publish_direct_cli_selected_product(
+                                    command, selected, product, planned, retention=retained,
+                                )
             except DirectCLISelectedDeclarationUnavailable as error:
                 diagnostic = f"selected_participant_admission_unavailable: {error}"
             except DirectCLIProviderFactoryUnavailable as error:

@@ -12,6 +12,7 @@ from types import SimpleNamespace
 import pytest
 from aware_code_semantic_contract_runtime import (
     CodeSemanticContractCatalogResolver,
+    CodeSemanticContractMatch,
     CodeSemanticMaterializationIntent,
     CodeSemanticMaterializationProfileBinding,
     CodeSemanticPackagePlanningContext,
@@ -28,7 +29,9 @@ from aware_code_semantic_contract_runtime.dependency_admission_interfaces import
     RetainedDependencyFulfillmentExpectation,
 )
 from aware_code_semantic_contract_runtime.dependency_input_codec import (
+    SEMANTIC_DEPENDENCY_PRODUCT_INPUT_REF,
     decode_dependency_product_input,
+    dependency_product_input_body,
 )
 from aware_code_semantic_contract_runtime.dependency_inputs import (
     SemanticAuthoredDependency,
@@ -42,7 +45,20 @@ from aware_code_semantic_contract_runtime.materialization_catalog import (
 from aware_code_semantic_contract_runtime.materialization_catalog_codec import (
     encode_code_semantic_contract_match_admission,
 )
+from aware_code_semantic_contract_runtime.profile import ProfileInputDeclaration
 from aware_local_service_runtime import InMemoryLocalOperationalStateStore
+from aware_workspace_runtime import SourceObservationUnavailable
+from aware_workspace_runtime import direct_command_composition as composition
+from aware_workspace_runtime.dependency_fulfillment import (
+    WorkspaceDependencyFulfillmentAdmission,
+    _WorkspaceEmptyDependencyFulfillmentRuntime,
+)
+from aware_workspace_runtime.semantic_materialization_publication import (
+    DEFAULT_SEMANTIC_MATERIALIZATION_STATE_NAMESPACE,
+    WorkspaceSemanticMaterializationPublisher,
+    WorkspaceSemanticMaterializationRequestV3,
+    _body_ref,
+)
 from test_materialization_catalog import _binding, _catalog, _execution_closure
 from test_semantic_materialization_publication import (
     EFFECT,
@@ -55,19 +71,6 @@ from test_semantic_materialization_publication import (
     _JsonCodec,
     _profile,
     _Provider,
-)
-
-from aware_workspace_runtime import SourceObservationUnavailable
-from aware_workspace_runtime import direct_command_composition as composition
-from aware_workspace_runtime.dependency_fulfillment import (
-    WorkspaceDependencyFulfillmentAdmission,
-    _WorkspaceEmptyDependencyFulfillmentRuntime,
-)
-from aware_workspace_runtime.semantic_materialization_publication import (
-    DEFAULT_SEMANTIC_MATERIALIZATION_STATE_NAMESPACE,
-    WorkspaceSemanticMaterializationPublisher,
-    WorkspaceSemanticMaterializationRequestV3,
-    _body_ref,
 )
 
 
@@ -246,6 +249,7 @@ def published_dependency():
         ),
         demand_set=demand_set,
         planning_context=context,
+        catalog_match=match,
     )
     resolution, target = object(), object()
     source = SimpleNamespace(
@@ -312,6 +316,119 @@ def issue(fixture):
 
 def read(fixture, handle):
     return fixture.fulfillment.read(handle, fixture.resolution, fixture.expected)
+
+
+def _selected_dependency_roles(fixture, roles, *, contract=SEMANTIC_DEPENDENCY_PRODUCT_INPUT_REF):
+    """Fixture resolution owns this selection; this is not Code admission.
+
+    Production obtains the same field through the original frozen resolution
+    and its retained Code verifier, never through this test helper.
+    """
+    binding = fixture.expected.catalog_match.selected_binding
+    profile = replace(binding.profile_declaration, inputs=tuple(sorted(
+        (*(item for item in binding.profile_declaration.inputs
+           if item.contract.key != SEMANTIC_DEPENDENCY_PRODUCT_INPUT_REF.key),
+         *(ProfileInputDeclaration(role, contract) for role in roles)), key=lambda item: item.role,
+    )))
+    selected = CodeSemanticMaterializationProfileBinding.create(**{
+        field: profile if field == "profile_declaration" else getattr(binding, field)
+        for field in binding.__dataclass_fields__ if field != "binding_digest"
+    })
+    fixture.expected.catalog_match = CodeSemanticContractMatch.create(
+        context=fixture.expected.planning_context, selected_binding=selected,
+    )
+
+
+def _empty_resolution(fixture):
+    old = fixture.expected.demand_set
+    fixture.expected.planning_input = replace(fixture.expected.planning_input, dependencies=())
+    fixture.expected.demand_set = SemanticDependencyDemandSet.create(
+        package=old.package, intent=fixture.expected.planning_context.code_intent,
+        profile_ref=old.profile_ref, profile_digest=old.profile_digest,
+        contract_profile_binding_digest=old.contract_profile_binding_digest,
+        planner_implementation_ref=old.planner_implementation_ref,
+        planner_implementation_digest=old.planner_implementation_digest,
+        planner_configuration=SemanticConfigurationCoordinate(
+            old.planner_configuration_ref, old.planner_configuration_digest), demands=(),
+    )
+    fixture.resolutions.records[fixture.resolution].targets = ()
+
+
+@pytest.mark.parametrize("role", ("dependency_products", "owner_dependency_input"))
+def test_original_issuer_binds_selected_profile_role_without_changing_products(published_dependency, role):
+    f = published_dependency
+    _selected_dependency_roles(f, (role,))
+    handle = issue(f)
+    body = read(f, handle)
+    assert body.coordinate.role == role
+    value = decode_dependency_product_input(body.canonical_body)
+    # The complete product envelope and all original supplier-body coordinates
+    # remain byte-identical. Only original issuance selects its consumer role.
+    default = dependency_product_input_body(value)
+    assert body.canonical_body == default.canonical_body
+    assert body.coordinate == replace(default.coordinate, role=role)
+    assert all(product.body.coordinate == f.request.result_coordinate for product in value.products)
+    f.fulfillment.validate(handle, f.resolution,
+        RetainedDependencyFulfillmentExpectation(f.expected, body.coordinate, value))
+
+
+def test_empty_original_issuance_uses_the_same_selected_role(published_dependency):
+    f = published_dependency
+    _selected_dependency_roles(f, ("dependency_products",))
+    _empty_resolution(f)
+    prior_reads = f.body_store.reads
+    handle = f.fulfillment.issue_products(f.resolution, f.expected)
+    body = read(f, handle)
+    assert body.coordinate.role == "dependency_products"
+    value = decode_dependency_product_input(body.canonical_body)
+    assert value.products == ()
+    assert f.body_store.reads == prior_reads
+    f.fulfillment.validate(handle, f.resolution,
+        RetainedDependencyFulfillmentExpectation(f.expected, body.coordinate, value))
+
+
+def test_relabelled_expectation_refuses_and_cannot_restore_original_admission(published_dependency):
+    f = published_dependency
+    _selected_dependency_roles(f, ("dependency_products",))
+    handle = issue(f)
+    body = read(f, handle)
+    value = decode_dependency_product_input(body.canonical_body)
+    wrong = replace(body.coordinate, role="semantic_dependencies")
+    with pytest.raises(SourceObservationUnavailable, match="dependency_products_correspondence_differs"):
+        f.fulfillment.validate(handle, f.resolution,
+            RetainedDependencyFulfillmentExpectation(f.expected, wrong, value))
+    with pytest.raises(SourceObservationUnavailable, match="terminal"):
+        read(f, handle)
+
+
+def test_changed_profile_role_retires_even_after_selection_restoration(published_dependency):
+    f = published_dependency
+    _selected_dependency_roles(f, ("dependency_products",))
+    original = f.expected.catalog_match
+    handle = issue(f)
+    # Replace the fixture-owned selected profile while preserving every body.
+    _selected_dependency_roles(f, ("changed_role",))
+    with pytest.raises(SourceObservationUnavailable, match="dependency_product_input_role_changed"):
+        read(f, handle)
+    f.expected.catalog_match = original
+    with pytest.raises(SourceObservationUnavailable, match="terminal"):
+        read(f, handle)
+
+
+@pytest.mark.parametrize("foreign", (False, True), ids=("ambiguous-role", "foreign-codec"))
+def test_ambiguous_or_foreign_role_selection_cannot_mint_or_retry(published_dependency, foreign):
+    f = published_dependency
+    original = f.expected.catalog_match
+    contract = (replace(SEMANTIC_DEPENDENCY_PRODUCT_INPUT_REF, schema_digest=ContentDigest.of_bytes(b"foreign codec"))
+                if foreign else SEMANTIC_DEPENDENCY_PRODUCT_INPUT_REF)
+    _selected_dependency_roles(f, ("dependency_products",) if foreign else ("a", "b"), contract=contract)
+    _empty_resolution(f)
+    with pytest.raises(SourceObservationUnavailable, match="ambiguous_or_foreign"):
+        f.fulfillment.issue_products(f.resolution, f.expected)
+    assert f.fulfillment.records == {}
+    f.expected.catalog_match = original
+    with pytest.raises(SourceObservationUnavailable, match="replay"):
+        f.fulfillment.issue_products(f.resolution, f.expected)
 
 
 def test_original_published_body_preserves_each_demand(published_dependency):
@@ -759,11 +876,10 @@ def test_foreign_resolution_entry_rejection_does_not_spend_original(
 
 def _use_v4_read_fixture(f):
     """Codec/read fixture, not an installed output-state publication admission."""
-    from test_semantic_materialization_publication import _state_bound_head_fixture
-
     from aware_workspace_runtime.semantic_materialization_publication import (
         WorkspaceSemanticMaterializationHeadV4,
     )
+    from test_semantic_materialization_publication import _state_bound_head_fixture
 
     _, _, prototype, bodies, _, _, _, _ = _state_bound_head_fixture()
     record = f.store.read(
@@ -908,14 +1024,13 @@ async def test_original_workspace_source_brackets_published_products(
     mutate,
 ):
     """Original source and publisher; Code demand validation stays fixture grade."""
+    from aware_workspace_runtime.declaration_scope_admission import (
+        WorkspaceDeclarationInventoryAdmission,
+    )
     from test_declaration_scope_admission import fixture
     from test_materialization_declaration_selection import _selection
     from test_v3_dependency_issuer import _author_imported_target
     from test_v3_source_admission import _expected, _Validator
-
-    from aware_workspace_runtime.declaration_scope_admission import (
-        WorkspaceDeclarationInventoryAdmission,
-    )
 
     f = published_dependency
     async with fixture(tmp_path) as (root, _, borrowed, _, _, _):

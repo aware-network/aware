@@ -775,6 +775,13 @@ class PackageSourceCheckout:
         _guard(self)
         if not paths:
             return ()
+        # Only immutable exact source names use operation-local hashing. Other
+        # inputs preserve the original sequence membership and its behavior.
+        membership = (
+            frozenset(paths)
+            if type(paths) is tuple and all(type(path) is str for path in paths)
+            else paths
+        )
         rows = []
         for raw in _read_git(self, "ls-files", "--stage", "-z", "--", *paths).split(
             b"\0"
@@ -784,7 +791,11 @@ class PackageSourceCheckout:
             metadata, path_wire = raw.split(b"\t", 1)
             mode, _, stage = metadata.decode().split()
             path = path_wire.decode("utf-8")
-            if path not in paths or stage != "0" or mode not in {"100644", "100755"}:
+            if (
+                path not in membership
+                or stage != "0"
+                or mode not in {"100644", "100755"}
+            ):
                 raise PackageCheckoutError(
                     "repository file is not one tracked regular file"
                 )
@@ -833,42 +844,138 @@ class PackageSourceCheckout:
         output_paths: tuple[str, ...],
         *,
         _guard: Callable[..., None] = _check_retained_reader,
+        _original_capture: tuple[tuple[Any, ...], tuple[Any, ...]] | None = None,
     ) -> None:
         """Recheck original selected leaves; full membership is a separate boundary."""
-        _guard(self)
-        self._check()
-        if self._inventory is None:
-            raise PackageCheckoutError("checkout is not resolved")
-        if (
-            type(output_paths) is not tuple
-            or len(output_paths) > _LIMITS.maximum_files
-            or any(type(path) is not str for path in output_paths)
-        ):
-            raise PackageCheckoutError("invalid selected output paths")
-        if tuple(sorted(set(output_paths))) != output_paths:
-            raise PackageCheckoutError("selected outputs are duplicated or reordered")
-        # Both tuples are original immutable capture evidence, pinned by the owner.
-        outputs = {target: (mode, source) for mode, target, source in self._output_rows}
-        if any(path not in outputs for path in output_paths):
-            raise PackageCheckoutError(
-                "selected output is outside the original capture"
-            )
-        modes = {outputs[path][1]: outputs[path][0] for path in output_paths}
-        source_paths = tuple(sorted(modes))
-        if source_paths:
+        originals: tuple[Any, ...] = ()
+        original_bodies: tuple[Any, ...] = ()
+        captured: Any = None
+        outputs = modes = actual = expected = None
+        source_paths = row = None
+        try:
             _guard(self)
-            if self._tracked_exact_sources(source_paths) != tuple(
-                (modes[path], path) for path in source_paths
+            self._check()
+            if self._inventory is None:
+                raise PackageCheckoutError("checkout is not resolved")
+            if (
+                type(output_paths) is not tuple
+                or len(output_paths) > _LIMITS.maximum_files
+                or any(type(path) is not str for path in output_paths)
             ):
-                raise PackageCheckoutError("selected source membership or mode changed")
+                raise PackageCheckoutError("invalid selected output paths")
+            if tuple(sorted(set(output_paths))) != output_paths:
+                raise PackageCheckoutError(
+                    "selected outputs are duplicated or reordered"
+                )
+            if _original_capture is not None:
+                # The original Workflow owner supplies its retained immutable
+                # tuples. Recheck after Git/guard callbacks, before any lookup;
+                # identity checks never iterate a substituted live container.
+                if (
+                    type(_original_capture) is not tuple
+                    or len(_original_capture) != 2
+                    or type(_original_capture[0]) is not tuple
+                    or type(_original_capture[1]) is not tuple
+                    or self._output_rows is not _original_capture[0]
+                    or self._bodies is not _original_capture[1]
+                ):
+                    raise PackageCheckoutError("retained capture substituted")
+                originals, original_bodies = _original_capture
+                outputs = {}
+                for path in output_paths:
+                    lower, upper = 0, len(originals)
+                    while lower < upper:
+                        middle = (lower + upper) // 2
+                        if originals[middle][1] < path:
+                            lower = middle + 1
+                        else:
+                            upper = middle
+                    if lower == len(originals) or originals[lower][1] != path:
+                        raise PackageCheckoutError(
+                            "selected output is outside the original capture"
+                        )
+                    row = originals[lower]
+                    outputs[path] = (row[0], row[2])
+            else:
+                # Standalone/unretained callers retain their original behavior.
+                outputs = {
+                    target: (mode, source) for mode, target, source in self._output_rows
+                }
+                if any(path not in outputs for path in output_paths):
+                    raise PackageCheckoutError(
+                        "selected output is outside the original capture"
+                    )
+            modes = {outputs[path][1]: outputs[path][0] for path in output_paths}
+            source_paths = tuple(sorted(modes))
+            if source_paths:
+                _guard(self)
+                if self._tracked_exact_sources(source_paths) != tuple(
+                    (modes[path], path) for path in source_paths
+                ):
+                    raise PackageCheckoutError(
+                        "selected source membership or mode changed"
+                    )
+                _guard(self)
+                if _original_capture is None:
+                    captured = dict(self._bodies)
+                elif (
+                    self._output_rows is not originals
+                    or self._bodies is not original_bodies
+                ):
+                    raise PackageCheckoutError("retained capture substituted")
+                actual = capture_exact_paths(
+                    self._fd, source_paths, _LIMITS, _verify=self._reader_guard
+                )
+                if _original_capture is None:
+                    expected = tuple((path, captured[path]) for path in source_paths)
+                else:
+                    if (
+                        self._output_rows is not originals
+                        or self._bodies is not original_bodies
+                    ):
+                        raise PackageCheckoutError("retained capture substituted")
+                    expected = []
+                    for path in source_paths:
+                        lower, upper = 0, len(original_bodies)
+                        while lower < upper:
+                            middle = (lower + upper) // 2
+                            if original_bodies[middle][0] < path:
+                                lower = middle + 1
+                            else:
+                                upper = middle
+                        if (
+                            lower == len(original_bodies)
+                            or original_bodies[lower][0] != path
+                        ):
+                            raise KeyError(path)
+                        expected.append(original_bodies[lower])
+                    expected = tuple(expected)
+                if actual != expected:
+                    raise PackageCheckoutError("selected checkout sources changed")
             _guard(self)
-            captured = dict(self._bodies)
-            if capture_exact_paths(
-                self._fd, source_paths, _LIMITS, _verify=self._reader_guard
-            ) != tuple((path, captured[path]) for path in source_paths):
-                raise PackageCheckoutError("selected checkout sources changed")
-        _guard(self)
-        self._check()
+            self._check()
+            if _original_capture is not None and (
+                self._output_rows is not originals
+                or self._bodies is not original_bodies
+            ):
+                raise PackageCheckoutError("retained capture substituted")
+        finally:
+            # Held errors may retain frames, never this borrowed body inventory.
+            del (
+                self,
+                output_paths,
+                _guard,
+                _original_capture,
+                originals,
+                original_bodies,
+                outputs,
+                modes,
+                captured,
+                actual,
+                expected,
+                source_paths,
+                row,
+            )
 
     def write(self, destination: str | Path) -> dict[str, Any]:
         """Copy exact captured package roots; refuse existing/inside-repo targets."""

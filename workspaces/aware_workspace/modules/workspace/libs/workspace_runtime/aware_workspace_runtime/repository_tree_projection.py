@@ -72,6 +72,16 @@ from .repository_tree_capacity import (
     enforce_capacity,
     require_forecast_origin,
 )
+from .repository_tree_preparation_copy import (
+    copy_preparation_observation as _copy_preparation_observation,
+)
+
+_PREPARATION_COPIER = (
+    _copy_preparation_observation,
+    _copy_preparation_observation.__code__,
+    _copy_preparation_observation.__defaults__,
+    _copy_preparation_observation.__kwdefaults__,
+)
 
 _CAPACITY_ENTRANCES = tuple(
     (name, function, function.__code__, function.__defaults__, function.__kwdefaults__)
@@ -121,8 +131,14 @@ class WorkspaceRepositoryTreeProjectionRuntime:
                 "retain_tree_preparation",
                 "create_tree_session",
                 "create_tree_receipt_store",
+                "read_tree_receipt_store_cleanup",
             )
         }
+        self.receipt_cleanup_reader = self.physical_methods[
+            "read_tree_receipt_store_cleanup"
+        ]
+        self.receipt_cleanup_reader_code = self.receipt_cleanup_reader.__code__
+        self.receipt_cleanup_observed = False
         self.physical_fields = dict(vars(physical))
         self.pid = os.getpid()
         self.thread = threading.get_ident()
@@ -178,6 +194,65 @@ class WorkspaceRepositoryTreeProjectionRuntime:
             if row.kind != "observation_session"
         ]
         try:
+            if (
+                state["receipt_store"] is not None
+                and not state["receipt_cleanup_observed"]
+            ):
+                # Spend the observation before dispatch. This is cleanup data,
+                # not publication/currentness authority or another disposal.
+                state["receipt_cleanup_observed"] = True
+                known, diagnostics = False, ("receipt_index_origin_unknown",)
+                reader = state["receipt_cleanup_reader"]
+                physical = state["physical"]
+                try:
+                    if (
+                        type(physical) is not state["physical_class"]
+                        or vars(state["physical_class"]).get(
+                            "read_tree_receipt_store_cleanup"
+                        )
+                        is not reader
+                        or reader.__code__ is not state["receipt_cleanup_reader_code"]
+                        or any(
+                            vars(physical).get(name) is not value
+                            for name, value in state["physical_fields"].items()
+                        )
+                    ):
+                        raise ValueError("Original receipt cleanup reader required")
+                    returned = reader(
+                        physical, state["repository_binding"], state["receipt_store"]
+                    )
+                    if (
+                        reader.__code__ is not state["receipt_cleanup_reader_code"]
+                        or vars(state["physical_class"]).get(
+                            "read_tree_receipt_store_cleanup"
+                        )
+                        is not reader
+                        or type(returned) is not tuple
+                        or len(returned) != 2
+                        or type(returned[0]) is not bool
+                        or type(returned[1]) is not tuple
+                        or len(returned[1]) > 3
+                        or any(
+                            type(label) is not str or len(label) > 64
+                            for label in returned[1]
+                        )
+                    ):
+                        raise ValueError("Original receipt cleanup result required")
+                    known, diagnostics = returned
+                except BaseException as cleanup_error:  # noqa: BLE001 -- preserve original execution failure
+                    diagnostics = (_exception_kind(cleanup_error),)
+                if not known:
+                    resources.append(
+                        WorkspaceTreeResourceCleanup(
+                            "receipt-index:" + state["generation"],
+                            "repository_index_metadata",
+                            None,
+                            "owned",
+                            True,
+                            "unknown",
+                            diagnostics,
+                        )
+                    )
             preparation = state["preparation"]
             if preparation is not None:
                 state["preparation"] = None
@@ -428,9 +503,21 @@ class WorkspaceRepositoryTreeProjectionRuntime:
                             row.path, row.intent, before, row.requested_mode
                         )
                     )
+                # The original SDK owns this optional representation ABI. Older
+                # SDKs retain their original constructor; provider/authority
+                # selection never comes from this metadata representation.
+                format_abi = vars(WorkspaceRepositoryDeltaRetentionFactory).get(
+                    "repository_index_format_abi"
+                )
+                format_arguments = (
+                    {"index_format": "auto"}
+                    if type(format_abi) is int and format_abi == 2
+                    else {}
+                )
                 self.retention = WorkspaceRepositoryDeltaRetentionFactory.filesystem(
                     state_root=self.physical_fields["state_root"]
-                    / ("tree-retention-" + self.generation)
+                    / ("tree-retention-" + self.generation),
+                    **format_arguments,
                 ).allocate_delta_retention()
                 self.retention_methods = {
                     name: vars(type(self.retention))[name]
@@ -744,6 +831,79 @@ class WorkspaceRepositoryTreeProjectionRuntime:
                 _verify_source_and_bodies(self)
                 await _settled_physical(self, "validate_consumed_current")
                 _release_physical(self)
+                state = _RUNTIME_STORAGE.__get__(
+                    self, WorkspaceRepositoryTreeProjectionRuntime
+                )
+                resources = list(self.cleanup.resources)
+                if (
+                    state["receipt_store"] is not None
+                    and not state["receipt_cleanup_observed"]
+                ):
+                    # Spend the observation before dispatch. This is cleanup data,
+                    # not publication/currentness authority or another disposal.
+                    state["receipt_cleanup_observed"] = True
+                    known, diagnostics = False, ("receipt_index_origin_unknown",)
+                    reader = state["receipt_cleanup_reader"]
+                    physical = state["physical"]
+                    try:
+                        if (
+                            type(physical) is not state["physical_class"]
+                            or vars(state["physical_class"]).get(
+                                "read_tree_receipt_store_cleanup"
+                            )
+                            is not reader
+                            or reader.__code__
+                            is not state["receipt_cleanup_reader_code"]
+                            or any(
+                                vars(physical).get(name) is not value
+                                for name, value in state["physical_fields"].items()
+                            )
+                        ):
+                            raise ValueError("Original receipt cleanup reader required")
+                        returned = reader(
+                            physical,
+                            state["repository_binding"],
+                            state["receipt_store"],
+                        )
+                        if (
+                            reader.__code__ is not state["receipt_cleanup_reader_code"]
+                            or vars(state["physical_class"]).get(
+                                "read_tree_receipt_store_cleanup"
+                            )
+                            is not reader
+                            or type(returned) is not tuple
+                            or len(returned) != 2
+                            or type(returned[0]) is not bool
+                            or type(returned[1]) is not tuple
+                            or len(returned[1]) > 3
+                            or any(
+                                type(label) is not str or len(label) > 64
+                                for label in returned[1]
+                            )
+                        ):
+                            raise ValueError("Original receipt cleanup result required")
+                        known, diagnostics = returned
+                    except BaseException as cleanup_error:  # noqa: BLE001 -- preserve original execution failure
+                        diagnostics = (_exception_kind(cleanup_error),)
+                    if not known:
+                        resources.append(
+                            WorkspaceTreeResourceCleanup(
+                                "receipt-index:" + state["generation"],
+                                "repository_index_metadata",
+                                None,
+                                "owned",
+                                True,
+                                "unknown",
+                                diagnostics,
+                            )
+                        )
+                if len(resources) != len(self.cleanup.resources):
+                    self.cleanup = replace(
+                        self.cleanup,
+                        resources=tuple(resources),
+                        cleanup_state="unknown",
+                        ledger_complete=False,
+                    )
                 self.phase = "complete"
                 self.final_observation = _tree_observation(self, "complete")
                 result = _issue_handle(self, WorkspaceTreeProjectionResult)
@@ -1397,14 +1557,35 @@ def _release_physical(runtime):
         raise WorkspaceTreeProjectionRefusal("cleanup_unknown", cleanup=runtime.cleanup)
 
 
+_owner_json_handoff: tuple[Any, ...] | None = None
+
+
 def _canonical(value):
-    return json.dumps(
-        value,
-        sort_keys=True,
-        ensure_ascii=False,
-        separators=(",", ":"),
-        allow_nan=False,
-    ).encode("utf-8")
+    callee = json.dumps
+    if _owner_json_handoff is None:
+        text = callee(
+            value,
+            sort_keys=True,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
+    else:
+        native: Any = "_OWNER_JSON_NATIVE_CALL_"
+        context: Any = "_OWNER_JSON_NATIVE_CONTEXT_"
+        keyword_names: Any = "_OWNER_JSON_NATIVE_KEYWORDS_"
+        text = native(context(), callee, value, json, keyword_names)
+    return text.encode("utf-8")
+
+
+try:
+    from aware_workspace_sdk._tree_native_binding import (
+        bind_owner_json as _bind_owner_json,
+    )
+except ImportError:
+    pass
+else:
+    _owner_json_handoff = _bind_owner_json(globals(), "_canonical")
 
 
 async def _prepare_original_plan(runtime):
@@ -1514,7 +1695,15 @@ async def _prepare_original_plan(runtime):
             or any(pins[path].exists for path in scratch_paths)
         ):
             raise WorkspaceTreeProjectionRefusal("physical_refused")
-        runtime.preparation_observation = _canonical(asdict(observed))
+        copier, code, defaults, keyword_defaults = _PREPARATION_COPIER
+        if (
+            _copy_preparation_observation is not copier
+            or copier.__code__ is not code
+            or copier.__defaults__ is not defaults
+            or copier.__kwdefaults__ is not keyword_defaults
+        ):
+            raise WorkspaceTreeProjectionRefusal("physical_refused")
+        runtime.preparation_observation = _canonical(copier(observed))
         _verify_preparation(runtime)
         runtime.session_methods = {
             name: vars(WorkspaceRepositoryObservationSession)[name]
@@ -1650,9 +1839,17 @@ def _verify_preparation(runtime, *, next_ordinal=False):
     observed = methods["observe_preparation"](handle)
     from aware_file_system.confined_mutation import ConfinedTreePreparationObservation
 
-    if type(observed) is not ConfinedTreePreparationObservation or (
-        _canonical(asdict(observed)) != runtime.preparation_observation
+    if type(observed) is not ConfinedTreePreparationObservation:
+        raise WorkspaceTreeProjectionRefusal("physical_refused")
+    copier, code, defaults, keyword_defaults = _PREPARATION_COPIER
+    if (
+        _copy_preparation_observation is not copier
+        or copier.__code__ is not code
+        or copier.__defaults__ is not defaults
+        or copier.__kwdefaults__ is not keyword_defaults
     ):
+        raise WorkspaceTreeProjectionRefusal("physical_refused")
+    if _canonical(copier(observed)) != runtime.preparation_observation:
         raise WorkspaceTreeProjectionRefusal("physical_refused")
 
 

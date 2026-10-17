@@ -5,19 +5,111 @@ import sys
 import textwrap
 from pathlib import Path
 
+import pytest
 from aware_issue_runtime import parse_issue_source
 from aware_issue_sdk import (
     FeedLocalFileSdk,
+    IssueDocument,
+    IssueSection,
     append_day_index_update,
     append_feed_line,
     build_issue_document,
     parse_issue_document,
     parse_issue_document_text,
+    render_issue_document,
     snapshot_issue_document,
     status_token_to_display,
     upsert_day_index_entry,
     write_issue_document,
 )
+
+
+@pytest.mark.parametrize("separator_count", (0, 1, 3, 8))
+@pytest.mark.parametrize("last_body", ([], ["last content"]))
+def test_issue_section_boundary_spacing_is_stable_and_does_not_mutate_document(
+    separator_count, last_body
+):
+    document = IssueDocument(
+        title="Stable boundaries",
+        sections=[
+            IssueSection(
+                heading="Problem",
+                lines=["1. Approved problem.", *([""] * separator_count)],
+            ),
+            IssueSection(heading="Empty", lines=["", " \t", ""]),
+            IssueSection(heading="Goal", lines=[*last_body, "", ""]),
+        ],
+    )
+    original = document.model_dump()
+    rendered = render_issue_document(document=document)
+    assert "1. Approved problem.\n\n## Empty\n\n## Goal\n" in rendered
+    assert rendered.endswith("last content\n" if last_body else "## Goal\n")
+    assert document.model_dump() == original
+    for _ in range(8):
+        successor = render_issue_document(
+            document=parse_issue_document_text(text=rendered)
+        )
+        assert successor == rendered
+        rendered = successor
+
+
+def test_issue_renderer_preserves_spacing_inside_section_content():
+    lines = [
+        "",
+        "First paragraph.",
+        "",
+        "",
+        "Second paragraph.",
+        "",
+        "```python",
+        "def example():",
+        "    return 1",
+        "",
+        "",
+        "# Keep blank lines inside the fence.",
+        "```",
+        "",
+        "1. Item",
+        "",
+        "    Nested paragraph.",
+        "",
+        "- Final item",
+    ]
+    document = IssueDocument(
+        title="Content remains authored",
+        sections=[
+            IssueSection(heading="Custom", lines=[*lines, "", ""]),
+            IssueSection(heading="Goal", lines=["Keep content."]),
+        ],
+    )
+    rendered = render_issue_document(document=document)
+    assert "## Custom\n" + "\n".join(lines) + "\n\n## Goal\n" in rendered
+    for _ in range(8):
+        assert (
+            render_issue_document(document=parse_issue_document_text(text=rendered))
+            == rendered
+        )
+
+
+def test_issue_sdk_written_and_reparsed_file_does_not_grow_blank_space(tmp_path):
+    issue = tmp_path / "issue.md"
+    issue.write_text(
+        "# Issue: Existing inflated record\n\n- Tag: fb/2026-10-16/spacing\n\n"
+        "## Problem\n1. Original problem.\n\n\n\n\n"
+        "## Goal\n1. Original goal.\n\n\n"
+        "## Updates (append-only)\n- Original receipt.\n",
+        encoding="utf-8",
+    )
+    first = None
+    for _ in range(8):
+        document = parse_issue_document(issue_doc_path=issue)
+        write_issue_document(issue_doc_path=issue, document=document)
+        if first is None:
+            first = issue.read_bytes()
+        assert issue.read_bytes() == first
+        assert b"1. Original problem.\n\n## Goal" in first
+        assert b"1. Original goal.\n\n## Updates" in first
+        assert b"- Original receipt.\n" in first
 
 
 def test_issue_sdk_writes_and_parses_local_issue_document(tmp_path: Path) -> None:

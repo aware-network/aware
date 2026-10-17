@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import importlib
 import json
 import subprocess
@@ -184,6 +185,9 @@ def test_original_public_handler_identities_are_mounted(family):
         )
 
         register_workspace_setup_commands(expected)
+        from aware_agent_cli.workspace_review import register_workspace_review_command
+
+        register_workspace_review_command(expected)
     else:
         from aware_specification_cli.draft_commands import register_draft_commands
         from aware_specification_cli.read_commands import register_read_commands
@@ -203,10 +207,9 @@ def test_original_public_handler_identities_are_mounted(family):
         )
 
 
-def test_owned_metadata_is_finite_neutral_and_explicit():
-    project = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())
+def _assert_owned_metadata(project):
     assert project["project"]["name"] == "aware-agent-cli"
-    assert project["project"]["version"] == "0.2.0a5"
+    assert project["project"]["version"] == "0.2.0a7"
     assert project["project"]["scripts"] == {"aware": "aware_agent_cli.main:main"}
     dependencies = [Requirement(raw) for raw in project["project"]["dependencies"]]
     assert {r.name for r in dependencies} == {
@@ -234,5 +237,95 @@ def test_owned_metadata_is_finite_neutral_and_explicit():
     ).extras == {
         "governed",
     }
+    # A1 admission is a neutral extra, not permission to add a Service rail.
+    expected = (
+        "aware-command-runtime>=0.1.1,<0.2.0",
+        "aware-issue-cli>=0.8.0,<0.9.0",
+        "aware-protocol-cli[bootstrap,specification-setup]>=0.3.5,<0.4.0",
+        "aware-workspace-sdk[preparation,setup,setup_admission,setup_review]>=0.2.10,<0.3.0",
+        "aware-workspace-runtime[setup_admission,setup_review]>=0.2.15,<0.3.0",
+        "aware-specification-cli[governed]>=0.4.3,<0.5.0",
+        "aware-issue-sdk[workspace_setup_admission]>=0.10.6,<0.11.0",
+        "aware-issue-fs-adapter>=0.9.6,<0.10.0",
+        "aware-protocol-sdk>=0.3.2,<0.4.0",
+        "aware-protocol-fs-adapter>=0.6.5,<0.7.0",
+        "aware-protocol-runtime>=0.1.1,<0.2.0",
+        "aware-specification-sdk>=0.3.3,<0.4.0",
+        "aware-specification-fs-sdk-adapter[governed]>=0.4.3,<0.5.0",
+        "aware-specification-runtime>=0.1.0,<0.2.0",
+    )
+    assert len(dependencies) == len(expected)
+    assert {str(r) for r in dependencies} == {str(Requirement(r)) for r in expected}
+    assert all(r.marker is None and r.url is None for r in dependencies)
     assert all(any(s.operator == ">=" for s in r.specifier) for r in dependencies)
     assert all(any(s.operator == "<" for s in r.specifier) for r in dependencies)
+
+
+def test_owned_metadata_is_finite_neutral_and_explicit():
+    project = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())
+    _assert_owned_metadata(project)
+
+
+@pytest.mark.parametrize(
+    "change",
+    (
+        "version",
+        "entrypoint",
+        "sdk-extra",
+        "runtime-extra",
+        "issue-extra",
+        "sdk-floor",
+        "runtime-floor",
+        "issue-floor",
+        "sdk-ceiling",
+        "service",
+        "marker",
+        "direct-url",
+    ),
+)
+def test_owned_metadata_rejects_stale_or_widened_candidate_contract(change):
+    project = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())
+    altered = copy.deepcopy(project)
+    metadata = altered["project"]
+    if change == "version":
+        metadata["version"] = "0.2.0a5"
+    elif change == "entrypoint":
+        metadata["scripts"] = {"aware": "other_rail:main"}
+    elif change == "service":
+        metadata["dependencies"].append("aware-local-service>=0.1.0,<0.2.0")
+    else:
+        name, before, after = {
+            "sdk-extra": ("aware-workspace-sdk", ",setup_admission", ""),
+            "runtime-extra": (
+                "aware-workspace-runtime",
+                "[setup_admission,setup_review]",
+                "",
+            ),
+            "issue-extra": (
+                "aware-issue-sdk",
+                "[workspace_setup_admission]",
+                "",
+            ),
+            "sdk-floor": ("aware-workspace-sdk", ">=0.2.10", ">=0.2.9"),
+            "runtime-floor": ("aware-workspace-runtime", ">=0.2.15", ">=0.2.14"),
+            "issue-floor": ("aware-issue-sdk", ">=0.10.6", ">=0.10.5"),
+            "sdk-ceiling": ("aware-workspace-sdk", "<0.3.0", "<0.4.0"),
+            "marker": (
+                "aware-workspace-sdk",
+                "<0.3.0",
+                '<0.3.0; python_version < "3.12"',
+            ),
+            "direct-url": (
+                "aware-workspace-sdk",
+                "[preparation,setup,setup_admission,setup_review]>=0.2.10,<0.3.0",
+                " @ file:///unqualified-test-only.whl",
+            ),
+        }[change]
+        dependencies = metadata["dependencies"]
+        index = next(
+            i for i, raw in enumerate(dependencies) if Requirement(raw).name == name
+        )
+        assert dependencies[index].count(before) == 1
+        dependencies[index] = dependencies[index].replace(before, after)
+    with pytest.raises(AssertionError):
+        _assert_owned_metadata(altered)

@@ -12,7 +12,7 @@ import os
 import threading
 from collections.abc import Iterator
 from contextlib import ExitStack, contextmanager
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, replace
 from pathlib import PurePosixPath
 from typing import Any, NamedTuple, cast
 from weakref import WeakKeyDictionary
@@ -41,6 +41,7 @@ from aware_code_semantic_contract_runtime.contracts import (
 from aware_code_semantic_contract_runtime.dependency_admission_interfaces import (
     RetainedDependencyFulfillmentExpectation,
     RetainedDependencyResolutionExpectation,
+    RetainedProductPlanningExpectation,
 )
 from aware_code_semantic_contract_runtime.dependency_inputs import (
     SemanticDependencyTarget,
@@ -277,13 +278,14 @@ class _SelectedRecord:
 @dataclass(frozen=True, slots=True)
 class _SemanticRecord:
     selected: WorkspaceSelectedPackageSource
-    expectation: RetainedSemanticAdmissionExpectation
+    expectation: RetainedSemanticAdmissionExpectation | RetainedProductPlanningExpectation
     context: CodeSemanticPackageContextInput
     inventory: CodeSemanticDeclarationTargetInventory
     namespace: str
     owned_roots: tuple[str, ...]
     closure_digest: ContentDigest
     targets: tuple[_V3TargetRecord, ...]
+    product_dependency: RetainedDependencyResolutionExpectation | None = None
 
     @property
     def source(self) -> _SemanticRecord:
@@ -349,6 +351,12 @@ class WorkspaceOriginalGraphTargetValidator:
                 raise SourceObservationUnavailable("graph_target_source_closure_differs")
 
     def validate_target(self, *, package, dependency_kind, dependency_ref, target):
+        if (
+            type(package) is not SemanticPackageCoordinate
+            or type(target) is not SemanticDependencyTarget
+            or type(dependency_kind) is not str or type(dependency_ref) is not str
+        ):
+            raise SourceObservationUnavailable("original_graph_target_coordinates_required")
         issuer, selected = self._origin(self)
         with issuer._lock:
             issuer._check_origin()
@@ -367,6 +375,22 @@ class WorkspaceOriginalGraphTargetValidator:
             )
             if len(declarations) != 1 or target not in declarations[0].targets:
                 raise SourceObservationUnavailable("graph_target_declaration_differs")
+            # Source-only graph planning already retains the selected target
+            # under this issuer and command. Verify that original occurrence
+            # directly; this does not mint a dependency-resolution admission.
+            selected_targets = tuple(
+                handle for handle in selected
+                if issuer._semantic_values(handle)[0].package == target.package
+            )
+            if selected_targets:
+                if len(selected_targets) != 1:
+                    raise SourceObservationUnavailable("graph_target_membership_differs")
+                selected_target, = selected_targets
+                if issuer._semantic_values(selected_target)[3] != target.semantic_root_refs:
+                    raise SourceObservationUnavailable("graph_target_roots_differ")
+                if issuer._semantic_values(owner)[1] != inventory:
+                    raise SourceObservationUnavailable("graph_target_declaration_differs")
+                return
             records = issuer._selected_targets.get(owner)
             if records is None:
                 raise SourceObservationUnavailable("graph_target_admission_unavailable")
@@ -433,16 +457,52 @@ def _bind_original_declaration_coordinate_entrances():
     capture = _declaration_validation.capture_retained_declaration_scope
     validate = _declaration_validation.validate_retained_declaration_scope_coordinate
     detached = _declaration_validation.validate_detached_declaration_scope_coordinate
+    copy_value = _declaration_validation.copy_retained_declaration_scope
+    binding_capture = _declaration_validation.capture_selected_source_binding_coordinate
+    binding_validate = _declaration_validation.validate_selected_source_binding_coordinate
     coordinate_type = _declaration_validation.RetainedDeclarationScopeCoordinate
     capture_code, validate_code = capture.__code__, validate.__code__
     detached_code = detached.__code__
+    binding_capture_code, binding_validate_code = binding_capture.__code__, binding_validate.__code__
+    # Independently retain the complete callable origins before any owner IO.
+    # This also authenticates optional native delegation cells at terminal return.
+    callable_origins = tuple(
+        (function, function.__code__, function.__defaults__, function.__kwdefaults__,
+         function.__closure__,
+         () if function.__closure__ is None else tuple(
+             cell.cell_contents for cell in function.__closure__
+         ),
+         () if function.__kwdefaults__ is None else tuple(function.__kwdefaults__.items()))
+        for function in (capture, validate, detached, binding_capture, binding_validate, copy_value)
+    )
 
     def origins():
+        for function, code, defaults, keywords, cells, contents, keyword_items in callable_origins:
+            if (function.__code__ is not code
+                or function.__defaults__ is not defaults
+                or function.__kwdefaults__ is not keywords
+                or function.__closure__ is not cells
+                or (cells is not None and any(
+                    cell.cell_contents is not expected
+                    for cell, expected in zip(cells, contents, strict=True)
+                ))
+                or (keywords is not None and (
+                    len(keywords) != len(keyword_items)
+                    or any(key is not old_key or value is not old_value
+                           for (key, value), (old_key, old_value)
+                           in zip(keywords.items(), keyword_items, strict=True))
+                ))):
+                raise SourceObservationUnavailable("original_declaration_coordinate_validator_changed")
         if (namespace.get("capture_retained_declaration_scope") is not capture
             or namespace.get("validate_retained_declaration_scope_coordinate") is not validate
             or namespace.get("validate_detached_declaration_scope_coordinate") is not detached
+            or namespace.get("copy_retained_declaration_scope") is not copy_value
+            or namespace.get("capture_selected_source_binding_coordinate") is not binding_capture
+            or namespace.get("validate_selected_source_binding_coordinate") is not binding_validate
             or capture.__code__ is not capture_code or validate.__code__ is not validate_code
-            or detached.__code__ is not detached_code):
+            or detached.__code__ is not detached_code
+            or binding_capture.__code__ is not binding_capture_code
+            or binding_validate.__code__ is not binding_validate_code):
             raise SourceObservationUnavailable("original_declaration_coordinate_validator_changed")
 
     def issue(self, value):
@@ -485,7 +545,45 @@ def _bind_original_declaration_coordinate_entrances():
         finally:
             del self, origin, value
 
-    return issue, check
+    def binding_issue(self, value):
+        try:
+            origins()
+            coordinate = binding_capture(value)
+            origins()
+            return coordinate
+        finally:
+            del self, value
+
+    def binding_check(self, coordinate, value, *, detached):
+        try:
+            origins()
+            binding_validate(coordinate, value, detached=detached)
+            origins()
+        except ContractViolation as error:
+            raise SourceObservationUnavailable("selected_source_binding_changed") from error
+        finally:
+            del self, coordinate, value, detached
+
+    def copy_declaration(self, origin, value):
+        result = None
+        try:
+            origins()
+            try:
+                result = copy_value(value)
+            except ContractViolation as error:
+                raise SourceObservationUnavailable("declaration_projection_changed") from error
+            origins()
+            return result
+        except BaseException:
+            if (type(origin) is _DeclarationOrigin
+                and any(item is origin for item in self._declaration_origins)
+                and not any(item is origin.record for item in self._retired_declaration_records)):
+                self._retired_declaration_records.append(origin.record)
+            raise
+        finally:
+            del self, origin, value, result
+
+    return issue, check, binding_issue, binding_check, copy_declaration
 
 
 def _bind_source_origin_checks(kind):
@@ -597,7 +695,10 @@ def _build_declaration_scope_runtime():
             validate_registered_semantic_input_result,
         )
         (_capture_original_declaration_coordinate,
-         _check_original_declaration_coordinate) = _bind_original_declaration_coordinate_entrances()
+         _check_original_declaration_coordinate,
+         _capture_original_binding_coordinate,
+         _check_original_binding_coordinate,
+         _copy_original_declaration_scope) = _bind_original_declaration_coordinate_entrances()
 
         def __init__(self, *, observation_runtime: WorkspaceSourceObservationRuntime):
             if type(observation_runtime) is not WorkspaceSourceObservationRuntime:
@@ -689,6 +790,8 @@ def _build_declaration_scope_runtime():
             self,
             observation: WorkspaceRetainedDeclarationObservation,
             consumer_scope_key: str,
+            *,
+            _bracketed_origin: _DeclarationOrigin | None = None,
         ) -> CodeRetainedDependencyScopeClosureV3:
             # Interpretation belongs to the original admission. Every caller still
             # performs its original live/retained-byte rereads around this projection.
@@ -700,16 +803,23 @@ def _build_declaration_scope_runtime():
                 ):
                     original = origin.record
                     self._checked_declaration_origin(original)
-                    self._call("read_declarations", observation)
+                    if _bracketed_origin is None:
+                        self._call("read_declarations", observation)
+                    elif _bracketed_origin is not origin:
+                        raise SourceObservationUnavailable("declaration_copy_origin_differs")
                     self._checked_declaration_origin(original)
                     if (
                         type(original.projection) is not CodeRetainedDependencyScopeClosureV3
                     ):
                         raise SourceObservationUnavailable("declaration_projection_changed")
                     _original_group_method(self, "_check_original_declaration_coordinate", origin)
-                    detached = copy.deepcopy(original.projection)
+                    detached = _original_group_method(
+                        self, "_copy_original_declaration_scope", origin, original.projection,
+                    )
                     self._check_declaration_projection_result(origin, detached)
                     return detached
+            if _bracketed_origin is not None:
+                raise SourceObservationUnavailable("declaration_copy_origin_differs")
             evidence, bodies, provider, description = self._retained_bodies(observation)
             targets = provider.qualified_repository_membership()
             if consumer_scope_key not in targets.values() or len(targets) > MAX_SCOPES:
@@ -960,7 +1070,9 @@ def _build_declaration_scope_runtime():
                         if record is not semantic_window.record.declaration_record:
                             raise SourceObservationUnavailable("declaration_source_replaced")
                         _original_group_method(self, "_check_original_declaration_coordinate", origin, semantic_window.closure)
-                        detached = copy.deepcopy(semantic_window.closure)
+                        detached = _original_group_method(
+                            self, "_copy_original_declaration_scope", origin, semantic_window.closure,
+                        )
                         self._check_declaration_projection_result(origin, detached)
                         return detached
                 window = self._dependency_source_window
@@ -971,11 +1083,19 @@ def _build_declaration_scope_runtime():
                 ):
                     if record is not window.declaration_record:
                         raise SourceObservationUnavailable("declaration_source_replaced")
-                    detached = copy.deepcopy(window.closure)
+                    detached = _original_group_method(
+                        self, "_copy_original_declaration_scope", origin, window.closure,
+                    )
                     self._check_declaration_projection_result(origin, detached)
                     return detached
                 self._call("revalidate_declarations", record.observation)
-                closure = self._closure(record.observation, record.consumer_scope_key)
+                # The original byte revalidations bracket this reconstruction.
+                # Copy the already admitted interpretation rather than deliver
+                # and discard the complete retained declaration bodies again.
+                closure = _original_group_method(
+                    self, "_closure", record.observation, record.consumer_scope_key,
+                    _bracketed_origin=origin,
+                )
                 self._call("revalidate_declarations", record.observation)
                 self._check_origin()
                 self._check_declaration_projection_result(origin, closure)
@@ -1147,7 +1267,13 @@ def _build_declaration_scope_runtime():
             """Keep the declaration copy already used to derive this binding."""
             origin = self._checked_declaration_origin(record)
             evidence = self._call("selected_package_evidence", selected)
-            closure = _original_group_method(self, "_closure", record.observation, record.consumer_scope_key)
+            # Original selected-source validation brackets every admitted use
+            # of this private reconstruction, including the owning window's
+            # terminal check. No extra declaration delivery supplies its bytes.
+            closure = _original_group_method(
+                self, "_closure", record.observation, record.consumer_scope_key,
+                _bracketed_origin=origin,
+            )
             scope = next(
                 (
                     s
@@ -1197,17 +1323,37 @@ def _build_declaration_scope_runtime():
             return result, closure
 
         def _read_source_projection_pair(
-            self, handle: WorkspaceSelectedPackageSource,
+            self, handle: WorkspaceSelectedPackageSource, *, terminal: bool,
+            closing: _SemanticSourceValidationWindow | None = None,
         ) -> tuple[CodeSelectedPackageSourceBinding, CodeRetainedDependencyScopeClosureV3]:
-            """Read both projections within the same original source brackets.
+            """Read an original pair; only its owning window may defer closing.
 
-        This is synchronous setup only. No owner execution or currentness reuse
-        enters the bracket, and neither detached result escapes before it closes.
+        With terminal=False these are provisional setup values. The synchronous
+        semantic validation window must perform its full closing source read and
+        immutable checks before returning. No owner execution or await is allowed.
+        An original owning window may close after reconstruction instead of
+        starting another standalone before/after bracket. Its entry check has
+        already run; the terminal selected-source check below remains mandatory.
         """
+            if type(terminal) is not bool:
+                raise TypeError("exact terminal-check mode required")
             with self._lock:
                 record = self._selected_record(handle)
                 origin = self._checked_declaration_origin(record.declaration_record)
-                self._call("revalidate_selected_package", record.observation)
+                if closing is None:
+                    self._call("revalidate_selected_package", record.observation)
+                else:
+                    if (not terminal
+                        or type(closing) is not _SemanticSourceValidationWindow
+                        or self._semantic_source_window is not closing):
+                        raise SourceObservationUnavailable("semantic_source_window_origin_changed")
+                    # Only the original window can spend its closing path.
+                    # Its mutable metadata must not dispatch a descriptor or
+                    # select the source. Use the original handle/record above;
+                    # the owner checks its independent entry journals below.
+                    # Disable reuse before reconstruction; all fresh source I/O
+                    # runs afterwards, before the immutable terminal checks.
+                    self._semantic_source_window = None
                 binding, closure = _original_group_method(
                     self, "_source_projection_pair", record.declaration_record, record.observation,
                 )
@@ -1217,7 +1363,8 @@ def _build_declaration_scope_runtime():
                 if (binding_digest != record.digest.value
                     or binding.expectation != record.expectation):
                     raise SourceObservationUnavailable("selected_source_binding_changed")
-                self._call("revalidate_selected_package", record.observation)
+                if terminal:
+                    self._call("revalidate_selected_package", record.observation)
                 self._check_origin()
                 if (self._selected_record(handle) is not record
                     or self._checked_declaration_origin(record.declaration_record) is not origin
@@ -1352,16 +1499,19 @@ def _build_declaration_scope_runtime():
                 source = self._selected_record(selected)
                 if source.declaration is not declaration or source.declaration_record is not record:
                     raise SourceObservationUnavailable("selected_participant_origin_differs")
-                closure = self.read_declaration_scope(declaration)
-                binding = self.read_selected_package_source(selected)
-                view = derive_selected_participant_view(
-                    closure,
-                    scope_key=binding.expectation.scope_key,
-                    module_id=binding.expectation.module_id,
-                    package_id=binding.expectation.package_id,
-                )
-                self.validate_selected_participant_view(declaration, selected, view=view)
-                return view
+                with _original_group_method(
+                    self, "_original_participant_source_window", declaration, selected,
+                ):
+                    closure = self.read_declaration_scope(declaration)
+                    binding = self.read_selected_package_source(selected)
+                    view = derive_selected_participant_view(
+                        closure,
+                        scope_key=binding.expectation.scope_key,
+                        module_id=binding.expectation.module_id,
+                        package_id=binding.expectation.package_id,
+                    )
+                    self.validate_selected_participant_view(declaration, selected, view=view)
+                    return view
 
         def validate_selected_participant_view(
             self,
@@ -1382,31 +1532,147 @@ def _build_declaration_scope_runtime():
                     raise SourceObservationUnavailable("selected_participant_origin_differs")
                 if type(view) is not CodeSelectedParticipantViewV1:
                     raise TypeError("exact Code selected-participant view required")
-                view.__post_init__()
-                binding = self.read_selected_package_source(selected)
-                root = view.root
-                if (
-                    view.declaration_closure_digest != record.digest
-                    or (root.scope_key, root.module_id, root.package_id)
-                    != (
-                        binding.expectation.scope_key,
-                        binding.expectation.module_id,
-                        binding.expectation.package_id,
-                    )
+                with _original_group_method(
+                    self, "_original_participant_source_window", declaration, selected,
                 ):
-                    raise SourceObservationUnavailable("selected_participant_root_differs")
-                closure = self.read_declaration_scope(declaration)
-                validate_selected_participant_view(closure, view)
-                self.validate_selected_package_source(
-                    selected,
-                    expectation=binding.expectation,
-                    binding_digest=binding.binding_digest,
-                )
-                self.validate_declaration_scope(
-                    declaration,
-                    expectation=record.expectation,
-                    closure_digest=record.digest,
-                )
+                    view.__post_init__()
+                    binding = self.read_selected_package_source(selected)
+                    root = view.root
+                    if (
+                        view.declaration_closure_digest != record.digest
+                        or (root.scope_key, root.module_id, root.package_id)
+                        != (
+                            binding.expectation.scope_key,
+                            binding.expectation.module_id,
+                            binding.expectation.package_id,
+                        )
+                    ):
+                        raise SourceObservationUnavailable("selected_participant_root_differs")
+                    closure = self.read_declaration_scope(declaration)
+                    validate_selected_participant_view(closure, view)
+                    self.validate_selected_package_source(
+                        selected,
+                        expectation=binding.expectation,
+                        binding_digest=binding.binding_digest,
+                    )
+                    self.validate_declaration_scope(
+                        declaration,
+                        expectation=record.expectation,
+                        closure_digest=record.digest,
+                    )
+
+        def _read_product_projection_inputs(
+            self, declaration: WorkspaceDeclarationScope, selected: WorkspaceSelectedPackageSource,
+        ):
+            """Read original metadata under one synchronous source bracket.
+
+            Product interpretation/execution stays outside this window. Every
+            original reader still runs; the window performs terminal source and
+            independent immutable-coordinate checks before returning any tuple.
+            """
+            binding = closure = view = inputs = origin = None
+            try:
+                origin = self._checked_declaration_origin(self._declaration_record(declaration))
+                with _original_group_method(
+                    self, "_original_participant_source_window", declaration, selected,
+                ):
+                    binding = _original_group_method(self, "read_selected_package_source", selected)
+                    closure = _original_group_method(self, "read_declaration_scope", declaration)
+                    view = _original_group_method(self, "read_selected_participant_view", declaration, selected)
+                    inputs = _original_group_method(self, "inspect_inputs", selected)
+                _original_group_method(self, "_check_declaration_projection_result", origin, closure)
+                return binding, closure, view, inputs
+            finally:
+                del self, declaration, selected, binding, closure, view, inputs, origin
+
+        def selected_source_validation_scope(
+            self, declaration: WorkspaceDeclarationScope, selected: WorkspaceSelectedPackageSource,
+        ) -> Iterator[None]:
+            """Lend the original window to synchronous Code policy checks only."""
+            try:
+                with scope_dispatch(
+                    self, "_original_participant_source_window", declaration, selected,
+                ):
+                    yield
+            except BaseException as error:
+                _clear_group_failure_frames(error)
+                raise
+            finally:
+                del self, declaration, selected
+
+        @contextmanager
+        def _original_participant_source_window(
+            self, declaration: WorkspaceDeclarationScope, selected: WorkspaceSelectedPackageSource,
+        ) -> Iterator[None]:
+            """Share projections only within one synchronous participant calculation.
+
+        This is not an admission. Original methods still validate every input;
+        full source checks bracket the calculation before any result can return.
+        Existing semantic/dependency windows keep their original ownership.
+        """
+            record = source = origin = binding = closure = coordinate = fresh = current = None
+            owns_window = False
+            try:
+                with self._lock:
+                    record = _original_group_method(self, "_declaration_record", declaration)
+                    source = _original_group_method(self, "_selected_record", selected)
+                    if source.declaration is not declaration or source.declaration_record is not record:
+                        raise SourceObservationUnavailable("selected_participant_origin_differs")
+                    current = self._semantic_source_window
+                    if current is not None:
+                        if current.thread_id != threading.get_ident():
+                            raise SourceObservationUnavailable("semantic_source_window_origin_changed")
+                        if current.selected is selected:
+                            if current.record is not source:
+                                raise SourceObservationUnavailable("semantic_source_window_origin_changed")
+                        else:
+                            # A dependency supplier may be checked within a
+                            # consumer's metadata window. Do not borrow that
+                            # window: original foreign-source readers perform
+                            # their full checks and leave its custody intact.
+                            current = None
+                    elif self._dependency_source_window is None:
+                        origin = self._checked_declaration_origin(record)
+                        binding, closure = _original_group_method(
+                            self, "_read_source_projection_pair", selected, terminal=False,
+                        )
+                        coordinate = _original_group_method(
+                            self, "_capture_original_binding_coordinate", binding,
+                        )
+                        current = _SemanticSourceValidationWindow(
+                            threading.get_ident(), selected, source, closure, binding,
+                        )
+                        owns_window = True
+                        self._semantic_source_window = current
+                try:
+                    yield
+                finally:
+                    if owns_window:
+                        with self._lock:
+                            if self._dependency_source_window is not None:
+                                raise SourceObservationUnavailable("participant_source_window_changed")
+                            fresh = _original_group_method(
+                                self, "_read_source_projection_pair", selected,
+                                terminal=True, closing=current,
+                            )[0]
+                            _original_group_method(
+                                self, "_check_original_binding_coordinate", coordinate,
+                                binding, detached=fresh,
+                            )
+                            _original_group_method(
+                                self, "_check_declaration_projection_result", origin, closure,
+                            )
+                            if (_original_group_method(self, "_selected_record", selected) is not source
+                                or _original_group_method(self, "_declaration_record", declaration) is not record):
+                                raise SourceObservationUnavailable("selected_participant_origin_differs")
+            except BaseException as error:
+                _clear_group_failure_frames(error)
+                raise
+            finally:
+                if owns_window and self._semantic_source_window is current:
+                    self._semantic_source_window = None
+                del self, declaration, selected, record, source, origin
+                del binding, closure, coordinate, fresh, current
 
         def check_selected_package_source_locked(
             self,
@@ -1546,10 +1812,17 @@ def _build_declaration_scope_runtime():
         Execution admission adds the occurrence assignments separately.
         """
             record = self._selected_record(selected)
-            binding = self.read_selected_package_source(selected)
-            closure = self.read_declaration_scope(record.declaration)
-            if closure.closure_digest != record.declaration_record.digest:
-                raise SourceObservationUnavailable("declaration_closure_changed")
+            origin = self._checked_declaration_origin(record.declaration_record)
+            try:
+                binding = self.read_selected_package_source(selected)
+                closure = self.read_declaration_scope(record.declaration)
+                # Match the independently retained original commitment instead
+                # of serializing this complete declaration closure again.
+                _original_group_method(self, "_check_declaration_projection_result", origin, closure)
+                if self._checked_declaration_origin(record.declaration_record) is not origin:
+                    raise SourceObservationUnavailable("declaration_projection_changed")
+            finally:
+                del origin
             choice = binding.expectation
             package, occurrence = self._occurrence(
                 closure, choice.scope_key, choice.module_id, choice.package_id
@@ -2360,6 +2633,42 @@ def _build_declaration_scope_runtime():
                 )
                 del family, root_fields, origin, expected
 
+        def semantic_input_validation_scope(
+            self, source_admission: object, *, expected: SemanticInputProductionExpectation,
+        ) -> Iterator[None]:
+            """Bracket synchronous Code retained-result checks, never execution.
+
+        Grouped inputs keep their original distinct-member scopes. This port
+        lends no authority: every original source/context callback still runs.
+        """
+            retained = None
+            try:
+                scope_dispatch(self, "_check_origin")
+                with self._lock:
+                    retained = scope_dispatch(
+                        self, "_pre_request_record", source_admission, expected,
+                    )
+                if retained.grouped_origin is not None:
+                    yield
+                else:
+                    with scope_dispatch(
+                        self, "_original_semantic_source_window", source_admission, expected,
+                    ):
+                        yield
+                if scope_dispatch(
+                    self, "_pre_request_record", source_admission, expected,
+                ) is not retained:
+                    raise SourceObservationUnavailable("pre_request_source_changed")
+            except BaseException as error:
+                if retained is not None:
+                    retained.live = False
+                    retained.selection_origin = None
+                    retained.grouped_origin = None
+                _clear_group_failure_frames(error)
+                raise
+            finally:
+                del self, source_admission, expected, retained
+
         def validate_semantic_input_source(
             self, source_admission: object, *, expected: SemanticInputProductionExpectation,
         ) -> None:
@@ -2471,8 +2780,9 @@ def _build_declaration_scope_runtime():
             self, selected: object, expected: SemanticInputProductionExpectation,
         ) -> Iterator[None]:
             retained = current = binding = closure = None
+            source_record = declaration_origin = binding_coordinate = fresh_binding = None
+            owns_window = False
             try:
-                owns_window = False
                 with self._lock:
                     retained = _original_group_method(self, "_pre_request_record", selected, expected)
                     current = self._semantic_source_window
@@ -2482,17 +2792,26 @@ def _build_declaration_scope_runtime():
                             or current.record is not retained.selected_record):
                             raise SourceObservationUnavailable("semantic_source_window_origin_changed")
                     else:
-                        # Existing readers perform complete declaration/source checks.
-                        # Reuse starts only after both original projections agree.
+                        # Only this synchronous window may defer the pair's
+                        # closing source check. The full closing read below is
+                        # mandatory before any validation result can escape.
+                        source_record = retained.selected_record
+                        declaration_origin = self._checked_declaration_origin(
+                            source_record.declaration_record,
+                        )
                         binding, closure = _original_group_method(
                             self, "_read_source_projection_pair", retained.selected,
+                            terminal=False,
+                        )
+                        binding_coordinate = _original_group_method(
+                            self, "_capture_original_binding_coordinate", binding,
                         )
                         current = _SemanticSourceValidationWindow(
                             threading.get_ident(), retained.selected, retained.selected_record,
                             closure, binding,
                         )
-                        self._semantic_source_window = current
                         owns_window = True
+                        self._semantic_source_window = current
                 if not owns_window:
                     yield
                     return
@@ -2504,15 +2823,27 @@ def _build_declaration_scope_runtime():
                     # End reuse before final full checks, also on cancellation/failure.
                     # No detached result escapes this caller until these checks pass.
                     with self._lock:
-                        self._semantic_source_window = None
-                        _original_group_method(self, "read_selected_package_source", retained.selected)
+                        fresh_binding = _original_group_method(
+                            self, "_read_source_projection_pair", retained.selected,
+                            terminal=True, closing=current,
+                        )[0]
+                        _original_group_method(
+                            self, "_check_original_binding_coordinate", binding_coordinate,
+                            binding, detached=fresh_binding,
+                        )
+                        _original_group_method(
+                            self, "_check_declaration_projection_result", declaration_origin, closure,
+                        )
                         if completed:
                             _original_group_method(self, "_pre_request_record", selected, expected)
             except BaseException as error:
                 _clear_group_failure_frames(error)
                 raise
             finally:
+                if owns_window and self._semantic_source_window is current:
+                    self._semantic_source_window = None
                 del self, selected, expected, retained, current, binding, closure
+                del source_record, declaration_origin, binding_coordinate, fresh_binding
 
         def _validate_semantic_input_source(
             self, source_admission: object, *, expected: SemanticInputProductionExpectation,
@@ -2761,6 +3092,10 @@ def _build_declaration_scope_runtime():
             if type(admission) is not kind or admission not in self._semantic:
                 raise SourceObservationUnavailable("foreign_semantic_admission")
             record = self._semantic[admission]
+            if type(record.expectation) is RetainedProductPlanningExpectation:
+                return self._validate_product_dependency_inventory(
+                    admission, expected=expected,
+                )
             if type(expected) is not RetainedSemanticAdmissionExpectation:
                 raise SourceObservationUnavailable("exact_semantic_expectation_required")
             for field in fields(expected):
@@ -2806,11 +3141,13 @@ def _build_declaration_scope_runtime():
                 if namespace != record.namespace or owned_roots != record.owned_roots:
                     raise SourceObservationUnavailable("occurrence_assignment_differs")
 
-        def _bind_original_dependency_validator(self, validator) -> None:
+        def _bind_original_dependency_validator(self, validator, *, product_source=False) -> None:
             """Retain Code's original demand validator, never a caller callback."""
             with self._lock:
                 self._check_origin()
-                if self._planning_validator is None or self._dependency_validator is not None:
+                if (type(product_source) is not bool
+                    or (not product_source and self._planning_validator is None)
+                    or self._dependency_validator is not None):
                     raise SourceObservationUnavailable("dependency_validator_binding_unavailable")
                 name = "validate_retained_dependency_operation"
                 descriptor = inspect.getattr_static(validator, name)
@@ -2822,6 +3159,129 @@ def _build_declaration_scope_runtime():
                 ):
                     raise SourceObservationUnavailable("original_dependency_validator_required")
                 self._dependency_validator = (validator, descriptor, method)
+
+        def issue_product_dependency_inventory(self, operation, *, expected):
+            """Bind the actual returned Code product demand to this issuer's source.
+
+            The freely constructible expectation is verified by the original
+            Code validator before source identity is inspected. No stage,
+            context or registry admission is reconstructed.
+            """
+            from .dependency_resolution import _freeze
+
+            with self._lock:
+                self._check_origin()
+                if (
+                    type(expected) is not RetainedDependencyResolutionExpectation
+                    or type(expected.source_planning) is not RetainedProductPlanningExpectation
+                    or expected.demand_operation_identity is not operation
+                    or self._dependency_validator is None
+                ):
+                    raise SourceObservationUnavailable("original_product_demand_required")
+                validator, descriptor, method = self._dependency_validator
+                if inspect.getattr_static(validator, "validate_retained_dependency_operation") is not descriptor:
+                    raise SourceObservationUnavailable("dependency_validator_substituted")
+                if method(operation, expected=expected) is not None:
+                    raise SourceObservationUnavailable("dependency_validator_result_invalid")
+                if inspect.getattr_static(validator, "validate_retained_dependency_operation") is not descriptor:
+                    raise SourceObservationUnavailable("dependency_validator_substituted")
+                retained = _freeze(expected)
+                source_planning = retained.source_planning
+                if type(source_planning) is not RetainedProductPlanningExpectation:
+                    raise SourceObservationUnavailable("original_product_source_required")
+                selected = source_planning.source_input.source_identity
+                if type(selected) is not WorkspaceSelectedPackageSource:
+                    raise SourceObservationUnavailable("original_product_selected_source_required")
+                if any(
+                    self._semantic_contexts.get(handle) is operation
+                    for handle in self._semantic
+                ) or len(self._semantic) >= 128:
+                    raise SourceObservationUnavailable("product_inventory_replay_or_capacity")
+                original_input = self._original_product_dependency_source_input(source_planning)
+                self.validate_semantic_input_source(selected, expected=original_input)
+                values = self._semantic_values(selected)
+                if (values[0].package != source_planning.package
+                    or values[0].source_identity_digest != source_planning.source_identity_digest):
+                    raise SourceObservationUnavailable("product_inventory_source_differs")
+                targets = self._retain_targets(selected, values[6])
+                record = _SemanticRecord(
+                    selected, source_planning, values[0], values[1],
+                    values[2], values[3], self._selected_record(selected).declaration_record.digest,
+                    targets, retained,
+                )
+                inventory = object.__new__(WorkspaceDeclarationInventoryAdmission)
+                self._semantic[inventory] = record
+                self._semantic_contexts[inventory] = operation
+                try:
+                    self._validate_dependency_inventory(operation, inventory, expected=expected)
+                except BaseException:
+                    self._semantic.pop(inventory, None)
+                    self._semantic_contexts.pop(inventory, None)
+                    raise
+                return inventory
+
+        def _original_product_dependency_source_input(self, source):
+            """Find this issuer's original input; the Code snapshot is comparison only."""
+            if type(source) is not RetainedProductPlanningExpectation:
+                raise SourceObservationUnavailable("original_product_source_required")
+            selected, comparison = source.source_input.source_identity, source.source_input
+            matches = tuple(
+                item.expected for item in self._pre_request_inputs.values()
+                if item.live and item.selected is selected
+                and item.expected.use_ref == comparison.use_ref
+                and item.expected.input_digest == comparison.input_digest
+            )
+            if len(matches) != 1:
+                raise SourceObservationUnavailable("original_product_input_unavailable")
+            original, = matches
+            self._pre_request_record(selected, original)
+            return original
+
+        def _validate_product_dependency_inventory(self, admission, *, expected):
+            record = self._semantic.get(admission)
+            if (
+                type(record) is not _SemanticRecord
+                or type(expected) is not RetainedProductPlanningExpectation
+                or type(record.product_dependency) is not RetainedDependencyResolutionExpectation
+                or record.product_dependency.source_planning is not record.expectation
+                or self._dependency_validator is None
+            ):
+                raise SourceObservationUnavailable("original_product_inventory_required")
+            operation = self._semantic_contexts.get(admission)
+            if operation is not record.product_dependency.demand_operation_identity:
+                raise SourceObservationUnavailable("product_inventory_operation_differs")
+            validator, descriptor, method = self._dependency_validator
+            comparison = replace(record.product_dependency, source_planning=expected)
+            for check in (record.product_dependency, comparison):
+                if inspect.getattr_static(validator, "validate_retained_dependency_operation") is not descriptor:
+                    raise SourceObservationUnavailable("dependency_validator_substituted")
+                if method(operation, expected=check) is not None:
+                    raise SourceObservationUnavailable("dependency_validator_result_invalid")
+                if inspect.getattr_static(validator, "validate_retained_dependency_operation") is not descriptor:
+                    raise SourceObservationUnavailable("dependency_validator_substituted")
+            if expected.source_input.source_identity is not record.selected:
+                raise SourceObservationUnavailable("product_inventory_selected_source_differs")
+            original_input = self._original_product_dependency_source_input(expected)
+            self.validate_semantic_input_source(record.selected, expected=original_input)
+            values = self._semantic_values(record.selected)
+            if (
+                values[:4] != (record.context, record.inventory, record.namespace, record.owned_roots)
+                or values[0].package != expected.package
+                or values[0].source_identity_digest != expected.source_identity_digest
+                or self._selected_record(record.selected).declaration_record.digest != record.closure_digest
+                or tuple((item.address, item.context.package.package_ref) for item in record.targets) != values[6]
+            ):
+                raise SourceObservationUnavailable("product_inventory_source_changed")
+            for target in record.targets:
+                self._target_source(target.membership)
+            if method(operation, expected=comparison) is not None:
+                raise SourceObservationUnavailable("dependency_validator_result_invalid")
+            if inspect.getattr_static(validator, "validate_retained_dependency_operation") is not descriptor:
+                raise SourceObservationUnavailable("dependency_validator_substituted")
+            self._check_origin()
+            if self._semantic.get(admission) is not record or self._semantic_contexts.get(admission) is not operation:
+                raise SourceObservationUnavailable("product_inventory_retired")
+            return record
 
         def _validate_dependency_inventory(self, operation, inventory_admission, *, expected):
             with self._lock:
@@ -2995,13 +3455,13 @@ def _build_declaration_scope_runtime():
                     raise SourceObservationUnavailable("dependency_fulfillment_unavailable")
                 return self._dependency_fulfillment.issue(resolution_admission, expected)
 
-        def _bind_original_dependency_product_publisher(self, publisher):
+        def _bind_original_dependency_product_publisher(self, publisher, *, source_correspondences=()):
             """Retain borrowed HEAD/body readers on the original command issuer."""
             with self._lock:
                 self._check_origin()
                 if self._dependency_fulfillment is None:
                     raise SourceObservationUnavailable("dependency_fulfillment_unavailable")
-                self._dependency_fulfillment.bind_publisher(publisher)
+                self._dependency_fulfillment.bind_publisher(publisher, source_correspondences=source_correspondences)
 
         def issue_dependency_fulfillment(self, resolution_admission, *, expected):
             """Fulfill exact demands from original published heads, never supplied bodies."""
@@ -3164,19 +3624,28 @@ def _build_declaration_scope_runtime():
             "_original_pre_request_input",
             "_validate_semantic_input_source",
             "validate_semantic_input_source",
+            "semantic_input_validation_scope",
             "_validate_retained_semantic_inputs",
             "_call_original_code_result_validator",
             "_original_semantic_source_window",
+            "_original_participant_source_window",
+            "selected_source_validation_scope",
             "_pre_request_context_bytes",
             "_grouped_declaration_body",
             "read_declaration_scope",
             "read_selected_package_source",
+            "read_selected_participant_view",
+            "inspect_inputs",
+            "_read_product_projection_inputs",
             "_source_projection_pair",
             "_read_source_projection_pair",
             "_closure",
             "_check_declaration_projection_result",
             "_capture_original_declaration_coordinate",
             "_check_original_declaration_coordinate",
+            "_copy_original_declaration_scope",
+            "_capture_original_binding_coordinate",
+            "_check_original_binding_coordinate",
             "_declaration_record",
             "_selected_record",
         )
@@ -3195,6 +3664,8 @@ def _build_declaration_scope_runtime():
     _original_group_method = _bind_original_group_method(
         _check_group_methods, _GROUP_METHOD_DESCRIPTORS, _GROUP_METHOD_FUNCTIONS,
     )
+
+    scope_dispatch = _original_group_method
 
     return (WorkspaceDeclarationScopeRuntime, _GROUP_METHOD_DESCRIPTORS,
             _GROUP_METHOD_FUNCTIONS, _check_group_methods, _original_group_method)

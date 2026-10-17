@@ -5,8 +5,10 @@ execution is fabricated. The public CLI separately uses installed intake.
 """
 
 import re
+import sys
 from contextlib import asynccontextmanager
 from dataclasses import fields
+from pathlib import Path
 
 import pytest
 from aware_code_semantic_contract_runtime import ContractViolation
@@ -23,6 +25,158 @@ from test_observed_semantic_issuers import PROVIDER, occurrence
 from test_single_product_command_composition import _attention_repository, _coordinates
 
 factory = _factory
+
+
+async def test_membership_metadata_window_reduces_captures_and_closes_before_projection(
+    tmp_path, factory,
+):
+    from aware_workspace_runtime import source_observation as source
+
+    async with prepared(tmp_path, factory) as (_, command, selected, _, original, entry):
+        issuer = command.sources.declaration_scope_runtime
+        state = membership._state(original)
+        capture = source.WorkspaceSourceObservationRuntime.revalidate_declarations.__code__
+        reads = {
+            getattr(type(issuer), name).__code__: name
+            for name in ("read_selected_package_source", "read_declaration_scope",
+                         "read_selected_participant_view", "inspect_inputs")
+        }
+        captures = []
+        windows = []
+
+        def profile(frame, event, arg):
+            if event == "call" and frame.f_code is capture:
+                captures.append(True)
+            if event == "call" and frame.f_code in reads:
+                windows.append((reads[frame.f_code], issuer._semantic_source_window is not None))
+            if event == "call" and frame.f_code is membership.project_declared_product.__code__:
+                assert issuer._semantic_source_window is None
+
+        previous = sys.getprofile()
+        try:
+            sys.setprofile(profile)
+            issuer.read_selected_package_source(selected)
+            issuer.read_declaration_scope(state.declaration)
+            issuer.read_selected_participant_view(state.declaration, selected)
+            issuer.inspect_inputs(selected)
+            separate = len(captures)
+            captures.clear()
+            windows.clear()
+            original.validate_catalog_entry(entry)
+            shared = len(captures)
+        finally:
+            sys.setprofile(previous)
+        assert 0 < shared < separate
+        assert {name for name, active in windows if active} == set(reads.values())
+        assert issuer._semantic_source_window is None
+
+
+@asynccontextmanager
+async def _membership_retirement_proof(tmp_path, factory):
+    completed = False
+    try:
+        async with prepared(tmp_path, factory) as value:
+            yield value
+            completed = True
+    except SourceObservationUnavailable:
+        # An intentionally retired original declaration must also refuse the
+        # command fixture's final currentness check. Do not suppress body errors.
+        if not completed:
+            raise
+
+
+@pytest.mark.parametrize("method", ["_read_product_projection_inputs", "read_selected_participant_view", "inspect_inputs"])
+@pytest.mark.parametrize("location", ["instance", "class"])
+@pytest.mark.parametrize("mode", ["return", "raise", "restore"])
+async def test_membership_metadata_rejects_changed_original_readers_without_dispatch(
+    tmp_path, factory, monkeypatch, method, location, mode,
+):
+    async with prepared(tmp_path, factory) as (_, command, _, _, original, entry):
+        issuer = command.sources.declaration_scope_runtime
+        state = membership._state(original)
+        holder = issuer if location == "instance" else type(issuer)
+        descriptor = getattr(type(issuer), method)
+        calls = []
+
+        def restore():
+            if location == "instance":
+                delattr(holder, method)
+            else:
+                setattr(holder, method, descriptor)
+
+        def hostile(*args, **kwargs):
+            calls.append(True)
+            if mode == "restore":
+                restore()
+            if mode == "raise":
+                raise AssertionError("substituted membership reader executed")
+
+        monkeypatch.setattr(holder, method, hostile)
+        try:
+            with pytest.raises((RuntimeError, SourceObservationUnavailable)):
+                original.validate_catalog_entry(entry)
+        finally:
+            restore()
+        assert not calls and state.terminal
+        assert issuer._semantic_source_window is None
+        with pytest.raises(RuntimeError, match="unavailable"):
+            original.validate_catalog_entry(entry)
+
+
+@pytest.mark.parametrize("change", ["source", "detached", "original", "record", "interrupt"])
+async def test_membership_metadata_window_preserves_terminal_checks_and_cleanup(
+    tmp_path, factory, change,
+):
+    from aware_workspace_runtime import declaration_scope_admission as admission
+
+    async with _membership_retirement_proof(tmp_path, factory) as (_, command, _, _, original, entry):
+        issuer = command.sources.declaration_scope_runtime
+        state = membership._state(original)
+        target = type(issuer).inspect_inputs.__code__
+        changed = []
+        restore = []
+
+        def profile(frame, event, arg):
+            if (event != "return" or frame.f_code is not target or changed
+                or issuer._semantic_source_window is None):
+                return
+            changed.append(True)
+            window = issuer._semantic_source_window
+            if change == "interrupt":
+                raise KeyboardInterrupt("membership metadata interrupted")
+            if change == "source":
+                evidence = window.record.source_record[2]
+                relative = next(item.relative_path for item in evidence.bodies
+                                if item.relative_path.endswith(".aware"))
+                path = Path(issuer._source._session.binding.root_path) / evidence.package_root / relative
+                body = path.read_bytes()
+                restore.append(lambda: path.write_bytes(body))
+                path.write_bytes(body + b"\nchanged inside membership metadata window\n")
+            elif change == "record":
+                record = window.record.declaration_record
+                old = record.digest
+                restore.append(lambda: object.__setattr__(record, "digest", old))
+                object.__setattr__(record, "digest", admission.ContentDigest.of_bytes(b"coherent replacement"))
+            else:
+                projection = (window.closure if change == "detached"
+                              else issuer._checked_declaration_origin(window.record.declaration_record).projection)
+                old = projection.consumer_scope_key
+                restore.append(lambda: object.__setattr__(projection, "consumer_scope_key", old))
+                object.__setattr__(projection, "consumer_scope_key", "forged")
+
+        previous = sys.getprofile()
+        try:
+            sys.setprofile(profile)
+            with pytest.raises((SourceObservationUnavailable, KeyboardInterrupt, BaseExceptionGroup)):
+                original.validate_catalog_entry(entry)
+        finally:
+            sys.setprofile(previous)
+            for action in restore:
+                action()
+        assert changed and state.terminal
+        assert issuer._semantic_source_window is None
+        with pytest.raises(RuntimeError, match="unavailable"):
+            original.validate_catalog_entry(entry)
 
 
 @pytest.fixture(scope="module")
@@ -304,6 +458,9 @@ async def test_substituted_original_method_never_dispatches_and_restoration_is_t
             changes.setattr(issuer, name, hostile)
             with pytest.raises(RuntimeError, match="substituted"):
                 correspondence.validate_catalog_entry(entry)
+        # monkeypatch restores a bound-method instance alias. Restore the
+        # original descriptor lookup before the command's final source check.
+        vars(issuer).pop(name, None)
         assert calls == []
         with pytest.raises(RuntimeError, match="unavailable"):
             correspondence.validate_catalog_entry(entry)

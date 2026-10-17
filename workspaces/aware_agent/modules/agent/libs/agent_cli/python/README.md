@@ -1,6 +1,6 @@
 # Neutral Agent CLI composition
 
-Source preview **0.2.0a5** supplies one `aware` entrance over the accepted family
+Source preview **0.2.0a7** supplies one `aware` entrance over the accepted family
 registrars and Kernel's command runtime. It is a composition library with a CLI
 entrypoint, not a new Agent SDK, evaluator or authority provider.
 
@@ -198,13 +198,12 @@ and exact allowed-path checks are not Issue authorization. Neither generic
 context, a digest, an allowed-path list nor publication afterward substitutes
 for a genuine single-use admission.
 
-**Governed setup remains held pending real A1/A2 joins:** A1 admits architecture
-and alignment effects, including parent registrations, metadata and directory
-effects; A2 separately admits lock updates against their actual resolution
-roots and tool/input identity. Local source tests demonstrate the existing
-Workspace capability, not those admissions. This source cut publishes no
-governed apply recipe and grants no new authority. No automatic guard refresh,
-scope expansion, lock update, retry or rollback is added.
+The original setup mount remains unchanged. The new `review` composition below
+uses genuine A1 admission for repository-manifest creation only. It does not
+admit broader setup/alignment or A2 lock updates. Those operations require their
+separate admissions against actual resolution roots and tool/input identity.
+No automatic guard refresh, scope expansion, lock update, retry or rollback is
+added.
 
 Workspace locks require an explicitly selected absolute UV executable,
 version **0.11.19**. A selected Repository/registered Workspace resolution
@@ -212,14 +211,102 @@ root is distinct from package ownership; no executable is inferred or downloaded
 by Agent. The original operation preserves completed failures and uncertain
 post-effect evidence; inspect it before considering any new operation.
 
-Agent requires SDK `[preparation,setup]>=0.2.7,<0.3.0` and the registrar-bearing
-runtime `>=0.2.10,<0.3.0`, without the Service extra. Missing ports refuse
-before dispatch, with no provider or environment fallback. This does not qualify
-new wheels, update shared locks or replace an installed client.
+Agent 0.2.0a7 requires Workspace SDK
+`[preparation,setup,setup_admission,setup_review]>=0.2.10,<0.3.0`, Runtime
+`[setup_admission,setup_review]>=0.2.15,<0.3.0` and Issue SDK
+`[workspace_setup_admission]>=0.10.6,<0.11.0`. The supplier extras select
+Workspace FS adapter 0.1.9 and FileSystem >=0.3.8,<0.4.0. No Service extra is
+added. Missing ports refuse without provider/environment fallback. This source
+cut does not qualify wheels, update shared locks or replace an installed client.
 
-The accepted setup FS 0.1.5 wheel remains an exact artifact input; its current
-expanded source tree must not be rebuilt under that old identity. Full workflow
-FS 0.1.6 qualification remains separate. Parent Bundle owns exact canonical
-`portable_protocols` capture, installed parity and eventual delivery after the
-relevant authority gates. The accepted Agent 0.2.0a4 target-fit correction can
-be delivered independently; do not couple it to this held governed setup cut.
+Parent Bundle owns one exact canonical `portable_protocols` capture, joined
+installed parity, source/notice carriage and separately authorized delivery.
+Qualified predecessor artifacts remain immutable; do not overlay new visible
+source on old wheels or rebuild under an old identity.
+
+## SDK carried repository setup reviews
+
+This source successor adds `aware workspace review`. It supports A1 repository
+manifest creation, not package creation, A2, materialization or publication.
+Use an initialized repository with an active Issue. The evidence directory must
+already exist, be private to the effective user and be outside and disjoint from
+the repository. Agent does not create, repair or choose it implicitly.
+
+```bash
+aware workspace review prepare \
+  --repository-root "$repository_root" --evidence-root "$evidence_root" \
+  --issue-ref fb/2026-10-17/repository-setup \
+  --issue-path docs/issues/2026/10/17/fb-2026-10-17-repository-setup.md \
+  --name example --license-expression MIT \
+  --actor-ref "$execution_id" --actor-evidence-ref "$declared_actor_evidence" \
+  --client-intent-id repository-preview --include-issue-lifecycle
+```
+
+Stop and review the original request, preserved scope, full physical-effect
+scope and final-file set. `--include-issue-lifecycle` is an explicit choice to
+include this task's Issue record in the scope proposal; omit it if those edits
+are not part of the approved task. No Issue binding or setup apply occurs in
+prepare. Evidence retention itself has explicit private-directory effects.
+
+The returned reference is exact SDK-issued `SetupEvidenceRef` JSON. Reuse that
+single opaque value unchanged; do not author a record, copy its guards, extract
+a replacement digest, parse Markdown or select a latest file. References are
+descriptive coordinates, not permits. The following variables denote the exact
+reference values returned by the preceding commands, not file paths:
+
+```bash
+aware workspace review scope \
+  --repository-root "$repository_root" --evidence-root "$evidence_root" \
+  --reference "$first_review_reference" \
+  --client-intent-id repository-scope --accept-reviewed-effect-scope
+```
+
+This explicit first decision accepts the SDK's exact proposed union of existing
+Issue scope and complete physical effects. It preserves other approved work,
+retains intent, submits the original SDK-returned Issue scope request once and
+retains its actual return. Only a successful original join produces the second
+preview. The second-preview intent is deterministically
+`<scope-client-intent-id>:second-preview`; it is validated before the scope
+mutation and is never changed to work around a collision.
+
+Stop again. Review the second preview, including the intentional Issue-byte
+change and any unexpected drift. The apply allowlist is the SDK's exact final
+file set, not scratch paths or the complete Issue scope:
+
+```bash
+aware workspace review apply \
+  --repository-root "$repository_root" --evidence-root "$evidence_root" \
+  --reference "$second_review_reference" \
+  --client-intent-id repository-apply --accept-reviewed-final-files
+```
+
+Apply uses the second-reviewed guards unchanged, retains its intent before the
+one original driver call and obtains genuine Issue admission. Staleness means
+stop and deliberately prepare/review again; no automatic refresh, retry,
+scope repair or partial-plan apply. Success does not commit or close the Issue.
+
+Default output is a concise presentation with the owner result, both path sets,
+evidence reference and client-cleanup status. Original Workspace release,
+effect and durability qualifications are shown separately: later complete
+client cleanup does not turn an original `release=unknown` into confirmation.
+Human paths and request coordinates use quoted, escaped ASCII display; the
+original SDK values and full evidence remain unchanged. Long path lists are
+explicitly truncated; use `show --json` to inspect all reviewed inputs before deciding.
+`--json` returns the separate Agent presentation envelope containing the original
+SDK projections and receipts; it does not change full command JSON v1.
+
+`review show --reference "$reference"` reads historical review data without
+granting current use. A different execution must obtain its own admission and
+fresh reviews after lawful transfer. `review evidence --reference "$reference"`
+returns the original UTF-8 capture bytes unchanged on stdout, with independent
+client cleanup on stderr. Both commands require the same explicit roots.
+No Agent file reader, record writer, private plan access or decoder is involved.
+
+If retention is incomplete after an effect, output falls back to full available
+evidence rather than presenting an unsupported concise success. Exit 0 is
+completed action/read, 2 refusal, 3 incomplete retention/cleanup/output, and 130
+an interruption (with incomplete status when retention is incomplete).
+Successful effects and complete client cleanup do not erase incomplete retention.
+Preserve known scope/publication effects even when later steps
+fail. Inspect durable evidence after lost output; never redispatch to recreate
+a receipt. Client release does not delete retained records.

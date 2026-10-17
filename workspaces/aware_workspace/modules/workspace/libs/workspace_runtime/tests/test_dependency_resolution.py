@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 import pytest
 from aware_code_semantic_contract_runtime import (
+    CodeSemanticContractMatch,
     ContentDigest,
     SemanticDependencyDemand,
     SemanticDependencyTargetConstraint,
@@ -210,7 +211,8 @@ def test_empty_fulfillment_retains_exact_body_and_resolution():
         demands=(),
     )
     expected = SimpleNamespace(
-        planning_input=planning, demand_set=demands, planning_context=context
+        planning_input=planning, demand_set=demands, planning_context=context,
+        catalog_match=CodeSemanticContractMatch.create(context=context, selected_binding=binding),
     )
     resolution = object()
 

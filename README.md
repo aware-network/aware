@@ -9,34 +9,31 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-The reviewed Workspace A1 software and original frozen instructions were delivered
-at `8dc511505151e5e23a5d50478b2e1f00194f2c05` on `aware-network/aware/main`.
-Use that full revision for acquisition. The [delivery pointer](releases/SELECTED.json)
-binds the exact whole envelope; [status alignment](releases/canonical-workspace-a1-fs-v1/PUBLIC-STATUS.md)
-tracks the separate review and delivery of this wording correction.
-[Onboarding instruction pins](releases/canonical-workspace-a1-fs-v1/ONBOARDING-INSTRUCTIONS.json)
-preserve the [historical freeze](releases/canonical-workspace-a1-fs-v1/INSTRUCTIONS.json).
-The [onboarding integration](releases/canonical-workspace-a1-fs-v1/ONBOARDING-INTEGRATION.md)
-tracks this guidance successor's separate review and delivery status.
-Do not overlay installations or silently migrate contributor commands.
+This is a **prepared, unselected reviewed-workflow successor**. Instructions
+remain draft. The unchanged [delivery pointer](releases/SELECTED.json) still
+selects the [delivered A1 predecessor](releases/canonical-workspace-a1-fs-v1/README.md).
+This proposed tree and its installer do not establish public availability of
+the successor. Integration, selection, instruction freeze and publication remain
+separate gates. Do not overlay installations or migrate contributor commands.
 
-## Understand the shared rules
+## Understand the rules
 
 Read [coherence](protocols/COHERENCE.md), [Issues](protocols/issues/README.md),
-[repository publication](protocols/repository/README.md) and [SPEC drafts](protocols/specification/README.md).
-Readable protocols explain shared rules; tooling applies separately admitted
-operations. Installing tooling, configuring a repository and starting a service
-are different decisions. This filesystem composition starts no service.
+[publication](protocols/repository/README.md) and [SPEC drafts](protocols/specification/README.md).
+Readable guidance explains shared rules; tooling invokes separately admitted
+operations. Tool installation, repository configuration and service startup are
+distinct. This filesystem composition starts no service.
 
 ## Inspect terms and install once
 
 Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Read
-[complete distribution terms and source](releases/canonical-workspace-a1-fs-v1/README.md)
-before installing. Keep LICENSE, NOTICE, corresponding source, upstream inputs
-and raw audit with the software. Six package-local legal gaps remain unresolved;
-detached wheels, stripped bundles and registry publication are unaccepted.
+[complete distribution terms and source](releases/canonical-reviewed-workflow-fs-v1/README.md)
+before installation. Keep the entire envelope: terms, sources, corresponding
+source, component evidence and raw audit. Six detached-wheel legal gaps remain
+unrepaired; wheel-only acquisition, stripped bundles and registry publication
+are unaccepted.
 
-From this reviewed checkout root:
+From the root of this prepared checkout:
 
 ```sh
 set -eu
@@ -50,17 +47,17 @@ AWARE="$aware_init_env/bin/aware"
 "$AWARE" --help
 ```
 
-After acquisition installation is offline. The original installer verifies and
-retains the whole envelope, including terms and source, before delegating to its
-payload installer. It returns the absolute `retained_source_and_notices` directory.
-Keep it; set `aware_envelope_root` to that exact directory for the typed example.
-Reuse refuses. No editable checkout or development source is required.
+Installation is offline after acquisition. The original installer verifies and
+retains the whole envelope, prints its absolute `retained_source_and_notices`
+directory, and delegates to the existing payload installer. Keep that directory;
+the workflow's `aware_envelope_root` names it for the typed input example.
+Environment reuse refuses. No editable checkout or development source is needed.
 
-## Initialize and admit work
+## Initialize and admit an Issue
 
-Use your genuine harness with exactly one nonblank `CODEX_THREAD_ID` or
-`CLAUDE_CODE_SESSION_ID`. Do not fabricate or borrow identities. Set
-`aware_repo_root` to an explicit absolute target under an existing parent:
+Use a genuine harness with exactly one nonblank `CODEX_THREAD_ID` or
+`CLAUDE_CODE_SESSION_ID`; do not borrow or invent identities. Set
+`aware_repo_root` to your explicit absolute target under an existing parent:
 
 ```sh
 "$AWARE" init --repo-root "$aware_repo_root" \
@@ -69,103 +66,68 @@ Use your genuine harness with exactly one nonblank `CODEX_THREAD_ID` or
   --create-repository --apply --format json
 ```
 
-New targets must be absent or empty. For existing Git repositories omit
-`--create-repository`. Preview supplies Workspace preparation and prospective
-Protocol inputs, not two admitted plans. Apply obtains fresh Protocol admission
-after repository preparation. Existing configuration/guidance refuses.
-Init normally prepares Issue directories, `aware.protocol.toml` and readable
-`AGENTS.md`; read them. It stages nothing, creates no seed commit or remote,
-opens no Issue, approves no SPEC and starts no service. Preserve both owner
-receipts, effects and cleanup. Nonzero exit is not rollback or permission to retry.
+For an existing Git repository omit `--create-repository`. Existing configuration
+or guidance refuses rather than overwriting. Preview gives Workspace preparation
+and prospective Protocol inputs, not two admitted owner plans. Apply obtains
+fresh Protocol admission after repository preparation.
+
+Init supplies the Protocol configuration used by this qualified fresh-repository
+workflow. It does not admit an Issue, approve scope or authorize Workspace apply.
+It stages nothing, creates no seed commit or remote and starts no service.
+Preserve both owners' effects and cleanup; non-success is not rollback or retry
+permission. Read the init-created `AGENTS.md` and `aware.protocol.toml`.
 
 `--issue-ref` is `fb/YYYY-MM-DD/lowercase-hyphenated-slug`, not a UUID, title or
-Markdown path. Follow [the first-Issue example](protocols/issues/FIRST-ISSUE.md)
-to create the record, observe its exact bytes, bind scope and start progress.
-Choose outcome and scope first. Missing identity, invalid references and stale
-guards refuse; retain diagnostics rather than guessing or silently refreshing.
+Markdown path. Follow [the first-Issue guide](protocols/issues/FIRST-ISSUE.md)
+to create/observe the record, choose scope and start progress. Keep reference and
+record path distinct. Missing identity, invalid references and stale guards stop;
+do not guess retries, fabricate authority or silently refresh guards.
 
-## Check target fit then review and invoke
+## Review Workspace setup in two decisions
 
-Use [the complete workflow](protocols/WORKFLOW.md) for Issue-governed SPEC setup,
-typed input preparation, draft preview/apply and observation. No prequalified
-package or approved iteration is needed. One 42-package installation supports
-`aware issue`, `aware protocol`, `aware spec`, the setup-only `aware workspace`
-mount and explicit `aware init`.
+Follow [reviewed repository setup](protocols/workspace/REVIEWED-SETUP.md).
+The original SDKs retain guards, complete physical scope, final files and evidence.
+First review the physical effect scope and explicitly bind it. Then inspect the
+second preview and separately authorize final-file apply. Reuse exact SDK-issued
+references; do not handwrite records or copy guards into new requests.
 
-`aware spec prepare-draft` first asks the original Protocol SDK whether the
-supplied SPEC manifest fits the configured layout. Review the configured root,
-template, expected shape, supplied target and owner reason. For an illustrative
-`docs/specs` root, `docs/specs/json-checker/aware.spec.toml` includes `<spec-key>`;
-`docs/specs/aware.spec.toml` omits it. Your observed binding governs, not the example.
+The qualified fresh-repository route uses init-created `aware.protocol.toml`
+directly, without another configuration step. Issue admission and both decisions
+remain necessary. Missing inputs mean stop, not fabrication or governance bypass.
+Stale/spent requests do not refresh or retry automatically. The newly qualified
+review route creates a repository manifest, not a complete package/application.
 
-A mismatch refuses without preview/apply guidance or subsequent Issue/input
-observations. No key is inferred or target repaired. A match establishes observed
-layout only—not Issue eligibility, destination availability, semantic approval
-or guaranteed publication. Do not interpret `prepared` as write admission.
+## Use the existing SPEC and publication owners
 
-For a matching request, preparation labels Issue bytes, Protocol-manifest bytes
-and input bytes, shows observed owner/lifecycle/scope and intended members, and
-prints separate original preview/apply commands carrying unchanged guards.
-Add `--format json` for full observations and exact vectors.
+[The complete workflow](protocols/WORKFLOW.md) preserves the original first-Issue,
+SPEC setup, typed input, target-fit preparation, explicit draft preview/apply,
+observation and paired publication/closeout commands. A target match is layout
+evidence, not Issue eligibility or write authority. Manifests are repository-relative;
+explicit absolute snapshot paths avoid cwd ambiguity. Guard labels identify
+different exact bytes; a stale request needs a new preparation and review decision.
 
-Preparation is read-only assistance, **not write authority or an atomic snapshot**.
-Review the evidence, explicitly invoke preview, review its result, then separately
-decide on apply. Use the installed absolute executable instead of printed leading
-`aware`; preserve every other argument and guard. Never `eval` the lines, execute
-vectors automatically, refresh guards while copying or retry a mutation. Stale
-state requires preparation and review again. Manifests are repository-relative;
-explicit absolute snapshot paths avoid cwd ambiguity. The three guards identify
-different bytes; normalized semantics cannot replace exact-byte currentness.
+Publication and closeout are distinct effects, not an atomic transaction. Preserve
+known commits, closeout refusals, foreign work, index state and unknown outcomes.
+Do not republish to recover spent authority. Remote push is separately authorized.
+[Saved-receipt presentation](protocols/WORKFLOW.md#review-a-saved-receipt-without-repeating-the-operation)
+reads full evidence or validated summaries without replay or renewed authority.
 
-## Publish and preserve evidence
+## Read the result honestly
 
-Use [guarded publication and paired closeout](protocols/WORKFLOW.md#paired-publication-and-closeout).
-Select exact admitted paths, configure an explicit Git author and dry-run before
-identical apply. Preserve foreign work. Publication and closeout are two effects,
-not atomic: late refusal may follow known publication. Keep commit/reference
-update, index, closeout, cleanup and known/unknown effects. Do not republish to
-recreate spent authority or assume rollback. Remote push is separately authorized.
+Reviewed Workspace summaries separate final files, complete effect scope,
+original admission/release and client cleanup. Original release uncertainty
+remains unknown after later client cleanup succeeds. Incomplete retention or
+output does not erase completed effects or authorize redispatch. Preserve the
+full evidence; use `show --json` or `evidence` when concise output is insufficient.
 
-## Read saved evidence without replay
+This successor has a bounded scripted installed proof, not unassisted onboarding
+or the historical 2,819-case aggregate. Carried code, help and scripts do not
+admit A2, tree completion, materialization, Meta/Object execution, services,
+approval, iterations or native performance. Workspace deltas are change evidence,
+not inferred meaning or authority.
 
-Use [saved-receipt presentation](protocols/WORKFLOW.md#review-a-saved-receipt-without-repeating-the-operation)
-for validated summaries and byte-exact full access to an original draft capture.
-Keep the saved bytes and their correctly labelled receipt guard. Presentation
-does not repeat apply, refresh repository currentness, renew authority or make
-an unknown outcome successful. Exit zero means presentation succeeded.
-
-## Prepare Workspace architecture through its owners
-
-Read [Workspace A1](protocols/workspace/README.md) before invoking
-`aware workspace setup`. The original Workspace SDK/runtime/FS owners handle
-repository/workspace/module/Python-package creation and alignment. This is not
-another package-selection engine or a hand-authored JSON catalog.
-
-For a qualified fresh repository, follow [first governed repository setup](protocols/workspace/FIRST-SETUP.md).
-Init supplies its configuration binding; explicit Issue scope review and fresh
-apply admission remain separate. The example creates only `aware.repo.toml`.
-
-**Governed A1 requires prepared owner-admission inputs.** Use explicit
-`--governed`, the configured setup-admission authority manifest, current
-Issue/manifest byte guards, intent, actor/evidence and exact allowed paths.
-Review the owner plan; apply additionally requires its unchanged plan digest.
-Init does not provision those Workspace admissions. If inputs are unavailable,
-stop rather than fabricate records or bypass governance.
-
-The Agent mount is qualified for bounded A1 only. Carried lock help or scripts
-do not admit A2 lock updates, positive tree-C execution/completion, `.aware`
-package creation or materialization. A1 unassisted onboarding remains unproved.
-
-## What comes next
-
-Issues → Specifications → Goals → shared map. Approval, approved iterations,
-durable binding, Goals tooling, service elevation and object/materialization
-bridges are not supplied here. Workspace A1 is a real owner-backed mount with the prepared-input limits above;
-script carriage does not extend that admission.
-Workspace deltas are change evidence, not meaning or authority. Currentness is
-observed state, not every-write detection or continuous confinement. This
-successor still needs fresh unassisted evaluation.
-
-[Sources](workspaces/README.md) are the canonical `portable_protocols` snapshot,
-not another package catalog. Historical source READMEs are not customer guidance.
-Contributor governance and its command selection remain separate and unchanged.
+Issues → Specifications → Goals → shared map remains the direction, not a claim
+that all those features are delivered here. [Sources](workspaces/README.md) are
+the canonical `portable_protocols` snapshot with composite supplier revisions,
+not a second catalog or editable operational installation. Contributor governance
+and its command selection remain separate and unchanged.

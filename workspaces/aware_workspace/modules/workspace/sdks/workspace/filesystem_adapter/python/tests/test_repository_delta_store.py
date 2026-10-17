@@ -253,6 +253,27 @@ def test_removed_physical_body_returns_missing_without_cached_bytes(tmp_path: Pa
     assert store.snapshot().metrics.body_hash_count == 2
 
 
+@pytest.mark.parametrize("body_size", (8191, 8192, 8193, 65537))
+def test_complete_eof_read_rejects_appended_bytes_across_buffer_boundaries(
+    tmp_path: Path, body_size: int,
+) -> None:
+    store = WorkspaceRepositoryDeltaStore(
+        repository_binding_ref=BINDING, state_root=tmp_path
+    )
+    body = b"\x7f" * body_size
+    body_ref = store.record_body(body)
+    assert store.resolve_body(body_ref) == body
+    metrics = store.snapshot().metrics
+    path = store._body_path(store._bodies[body_ref].content_digest)
+    path.write_bytes(body + b"unexpected trailing bytes")
+    with pytest.raises(WorkspaceRepositoryDeltaStoreCorrupt):
+        store.resolve_body(body_ref)
+    changed = store.snapshot().metrics
+    assert changed.body_read_count == metrics.body_read_count + 1
+    assert changed.body_hash_count == metrics.body_hash_count + 1
+    assert changed.body_read_bytes == metrics.body_read_bytes + path.stat().st_size
+
+
 def test_physical_reader_interruption_closes_its_file(tmp_path: Path):
     import os
     import sys

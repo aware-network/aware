@@ -5,12 +5,14 @@ from __future__ import annotations
 import os
 import stat
 import unicodedata
+import weakref
 from pathlib import Path, PurePosixPath
 
 from aware_workspace_runtime.contracts import WorkspaceRepositoryBinding
 from aware_workspace_runtime.observation import WorkspaceRepositoryObservationSession
 from aware_workspace_runtime.provider import FileSystemIndexObservationProvider
 
+from .repository_index_journal import IndexJournal, IndexPublicationEvidence
 from .repository_mutation_store import WorkspaceRepositoryMutationStore
 
 
@@ -60,6 +62,7 @@ class FilesystemSourceProjectionPort:
             repository_root
         ):
             raise ValueError("separate_original_state_root_required")
+        self._tree_receipt_stores = []
         self.root = repository_root
         self.state_root = state_root
         self.execution_id = execution_id
@@ -326,10 +329,81 @@ class FilesystemSourceProjectionPort:
             or binding.root_path != self.root
         ):
             raise ValueError("Original tree receipt repository binding required")
-        return WorkspaceRepositoryMutationStore(
+        store = WorkspaceRepositoryMutationStore(
             repository_binding_ref=binding.binding_key,
             state_root=self.state_root / "receipts",
             capacity=capacity,
+            index_format="auto",
+        )
+
+        self._tree_receipt_stores[:] = [
+            row for row in self._tree_receipt_stores if row[0]() is not None
+        ]
+        journal = object.__getattribute__(store, "_index_journal")
+        origin = (
+            journal,
+            IndexJournal,
+            vars(IndexJournal)["__dict__"],
+            IndexPublicationEvidence,
+            tuple(
+                (name, vars(IndexPublicationEvidence)[name])
+                for name in IndexPublicationEvidence.__slots__
+            ),
+            WorkspaceRepositoryMutationStore,
+            vars(WorkspaceRepositoryMutationStore)["__dict__"],
+        )
+        self._tree_receipt_stores.append(
+            (weakref.ref(store), binding.binding_key, origin)
+        )
+        return store
+
+    def read_tree_receipt_store_cleanup(self, binding, store):
+        _TREE_EXECUTION_CHECK(self)
+        if (
+            type(binding) is not WorkspaceRepositoryBinding
+            or binding.root_path != self.root
+            or type(store) is not WorkspaceRepositoryMutationStore
+        ):
+            raise ValueError("Original issued tree receipt store required")
+        origin = None
+        for row in self._tree_receipt_stores:
+            if (
+                type(row) is not tuple
+                or len(row) != 3
+                or type(row[0]) is not weakref.ReferenceType
+            ):
+                raise ValueError("Original receipt ownership registry required")
+            if row[0]() is store and row[1] == binding.binding_key:
+                origin = row[2]
+                break
+        if origin is None:
+            raise ValueError("Original issued tree receipt store required")
+        journal, kind, storage, evidence_kind, slots, store_kind, store_storage = origin
+        if (
+            type(store) is not store_kind
+            or type(journal) is not kind
+            or vars(kind).get("__dict__") is not storage
+            or "failure_evidence" in vars(kind)
+            or store_storage.__get__(store, store_kind).get("_index_journal")
+            is not journal
+        ):
+            return False, ("receipt_index_origin_unknown",)
+        evidence = storage.__get__(journal, kind).get("failure_evidence")
+        if evidence is None:
+            return True, ()
+        if type(evidence) is not evidence_kind or any(
+            vars(evidence_kind).get(name) is not descriptor
+            for name, descriptor in slots
+        ):
+            return False, ("receipt_index_evidence_unknown",)
+        fields = {
+            name: descriptor.__get__(evidence, evidence_kind)
+            for name, descriptor in slots
+        }
+        return False, (
+            "receipt_index_cleanup_unknown",
+            fields["publication"],
+            fields["phase"],
         )
 
 

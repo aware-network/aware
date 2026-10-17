@@ -1,10 +1,48 @@
 """Benchmark-only wall accounting; never admission or runtime authority."""
 
 import json
+import resource
 import sys
 import time
+from itertools import pairwise
 from pathlib import Path
 from threading import get_ident
+
+
+def thread_cost_sample():
+    """Current-thread counters; only thread_cpu_ns supports fine attribution.
+
+    Resource counters are sampled separately and may update in coarse quanta.
+    Their nested differences are raw arithmetic, not precise leaf costs.
+    """
+    usage = resource.getrusage(resource.RUSAGE_THREAD)
+    return {
+        "thread_cpu_ns": time.thread_time_ns(),
+        "user_cpu_ns": round(usage.ru_utime * 1_000_000_000),
+        "system_cpu_ns": round(usage.ru_stime * 1_000_000_000),
+        "voluntary_context_switches": usage.ru_nvcsw,
+        "involuntary_context_switches": usage.ru_nivcsw,
+        "minor_faults": usage.ru_minflt,
+        "major_faults": usage.ru_majflt,
+    }
+
+
+def _counter_coverage(spans, names):
+    """Union cumulative counters at the same interval endpoints as wall time."""
+    result = dict.fromkeys(names, 0)
+    first = last = None
+    for span in sorted(spans, key=lambda s: s["start_ns"]):
+        if last is None or span["start_ns"] > last["end_ns"]:
+            if last is not None:
+                for name in names:
+                    result[name] += last["counters_end"][name] - first["counters_start"][name]
+            first = last = span
+        elif span["end_ns"] > last["end_ns"]:
+            last = span
+    if last is not None:
+        for name in names:
+            result[name] += last["counters_end"][name] - first["counters_start"][name]
+    return result
 
 
 def _covered(intervals):
@@ -23,13 +61,32 @@ def _covered(intervals):
 
 
 class LatencyReport:
-    def __init__(self, *, enabled=True, clock=time.perf_counter_ns):
+    def __init__(self, *, enabled=True, clock=time.perf_counter_ns, counters=None):
         self.enabled = enabled
         self._clock = clock
         self._started = clock() if enabled else None
+        self._counters = counters
+        self._counter_names = None
+        self._counter_started = self._sample() if enabled else None
         self._ended = None
         self._spans = []
+        self._open_children = []
         self._metadata = {}
+
+    def _sample(self):
+        if self._counters is None:
+            return None
+        sample = self._counters()
+        if type(sample) is not dict or not sample or any(
+            type(name) is not str or not name or type(value) is not int or value < 0
+            for name, value in sample.items()
+        ):
+            raise ValueError("diagnostic counters must be nonnegative integer fields")
+        names = tuple(sorted(sample))
+        if self._counter_names is not None and names != self._counter_names:
+            raise ValueError("diagnostic counter schema changed")
+        self._counter_names = names
+        return dict(sample)
 
     def start(self, stage, *, parent=None):
         if not self.enabled:
@@ -53,6 +110,12 @@ class LatencyReport:
                 "status": "open",
             }
         )
+        self._open_children.append(0)
+        if parent is not None:
+            self._open_children[parent] += 1
+        if self._counters is not None:
+            self._spans[-1]["counters_start"] = self._sample()
+            self._spans[-1]["counters_end"] = None
         return marker
 
     def stop(self, marker):
@@ -63,10 +126,14 @@ class LatencyReport:
         span = self._spans[marker]
         if self._ended is not None or span["end_ns"] is not None:
             raise ValueError("diagnostic stage already ended")
-        if any(s["parent_id"] == marker and s["end_ns"] is None for s in self._spans):
+        if self._open_children[marker]:
             raise ValueError("diagnostic child remains open")
         span["end_ns"] = self._clock()
+        if self._counters is not None:
+            span["counters_end"] = self._sample()
         span["status"] = "completed"
+        if span["parent_id"] is not None:
+            self._open_children[span["parent_id"]] -= 1
 
     def attach(self, name, value):
         if self.enabled:
@@ -79,17 +146,23 @@ class LatencyReport:
         if self._ended is not None:
             raise ValueError("diagnostic root already ended")
         self._ended = self._clock()
+        counter_end = self._sample()
         spans = []
         for original in self._spans:
             span = dict(original)
             if span["end_ns"] is None:
                 span["end_ns"] = self._ended
                 span["status"] = "incomplete"
+                if self._counters is not None:
+                    span["counters_end"] = counter_end
             spans.append(span)
+        children_by_parent = {}
+        for span in spans:
+            children_by_parent.setdefault(span["parent_id"], []).append(span)
         for span in spans:
             if not self._started <= span["start_ns"] <= span["end_ns"] <= self._ended:
                 raise ValueError("diagnostic interval outside root")
-            children = [s for s in spans if s["parent_id"] == span["span_id"]]
+            children = children_by_parent.get(span["span_id"], ())
             if any(
                 not span["start_ns"] <= s["start_ns"] <= s["end_ns"] <= span["end_ns"]
                 for s in children
@@ -99,10 +172,21 @@ class LatencyReport:
             span["exclusive_ns"] = span["elapsed_ns"] - _covered(
                 [(s["start_ns"], s["end_ns"]) for s in children]
             )
-        top = [s for s in spans if s["parent_id"] is None]
+            if self._counters is not None:
+                delta = {
+                    name: span["counters_end"][name] - span["counters_start"][name]
+                    for name in self._counter_names
+                }
+                covered_counters = _counter_coverage(children, self._counter_names)
+                span["counters_delta"] = delta
+                span["counters_exclusive"] = {
+                    name: delta[name] - covered_counters[name]
+                    for name in self._counter_names
+                }
+        top = children_by_parent.get(None, ())
         covered = _covered([(s["start_ns"], s["end_ns"]) for s in top])
         elapsed = self._ended - self._started
-        return {
+        report = {
             "format": "aware.workspace.materialization-latency-diagnostics.v1",
             "qualification": "source_fixture",
             "public_command": False,
@@ -117,6 +201,43 @@ class LatencyReport:
             "spans": spans,
             "metadata": self._metadata,
         }
+        if self._counters is not None:
+            points = [(self._started, self._counter_started), (self._ended, counter_end)]
+            for span in spans:
+                points.extend(((span["start_ns"], span["counters_start"]),
+                               (span["end_ns"], span["counters_end"])))
+            points.sort(key=lambda pair: pair[0])
+            if any(
+                stop[name] < start[name]
+                for (_, start), (_, stop) in pairwise(points)
+                for name in self._counter_names
+            ):
+                raise ValueError("diagnostic cumulative counter moved backwards")
+            delta = {name: counter_end[name] - self._counter_started[name]
+                     for name in self._counter_names}
+            covered_counters = _counter_coverage(top, self._counter_names)
+            report["counter_accounting"] = {
+                "scope": "single observed thread; endpoint samples are not simultaneous",
+                "start": self._counter_started,
+                "end": counter_end,
+                "delta": delta,
+                "covered": covered_counters,
+                "unattributed": {name: delta[name] - covered_counters[name]
+                                 for name in self._counter_names},
+                "top_level_overlap": {
+                    name: sum(s["counters_delta"][name] for s in top) - covered_counters[name]
+                    for name in self._counter_names
+                },
+                "wall_minus_thread_cpu_ns": (
+                    elapsed - delta["thread_cpu_ns"] if "thread_cpu_ns" in delta else None
+                ),
+                "wait_qualification": "unclassified residual; not measured scheduler or I/O wait",
+                "resource_precision": (
+                    "user/system/context counters are separate coarse samples; "
+                    "nested differences are not qualified leaf attribution"
+                ),
+            }
+        return report
 
     @staticmethod
     def write(report, destination):
@@ -144,8 +265,11 @@ class BoundaryTimings:
         self._open(code, resumed=False)
 
     def _resume(self, code, offset, value=None):
-        if code in self.targets:
-            self._open(code, resumed=True)
+        try:
+            if code in self.targets:
+                self._open(code, resumed=True)
+        finally:
+            del value
 
     def _open(self, code, *, resumed):
         if get_ident() != self.thread:
@@ -159,13 +283,16 @@ class BoundaryTimings:
 
     def _close(self, code, offset, value):
         # The event's value is deliberately never stored or inspected.
-        if code not in self.targets:
-            return
-        if not self.active or self.active[-1][0] is not code:
-            self.errors.append("unbalanced boundary")
-            return
-        _, marker = self.active.pop()
-        self.trace.stop(marker)
+        try:
+            if code not in self.targets:
+                return
+            if not self.active or self.active[-1][0] is not code:
+                self.errors.append("unbalanced boundary")
+                return
+            _, marker = self.active.pop()
+            self.trace.stop(marker)
+        finally:
+            del value
 
     def __enter__(self):
         if not self.enabled:

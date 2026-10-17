@@ -82,8 +82,10 @@ def _issue(runtime, state):
 class WorkspaceRepositoryDeltaRetentionFactory(_Original):
     __slots__ = ()
 
+    repository_index_format_abi = 2
+
     @classmethod
-    def filesystem(cls, *, state_root: Path):
+    def filesystem(cls, *, state_root: Path, index_format: str = "json_v1"):
         if cls is not WorkspaceRepositoryDeltaRetentionFactory:
             raise WorkspaceRepositoryDeltaRetentionRefusal("retention_owner_mismatch")
         from aware_workspace_fs_adapter.repository_delta_retention import (
@@ -94,7 +96,17 @@ class WorkspaceRepositoryDeltaRetentionFactory(_Original):
         )
 
         try:
-            physical = FilesystemDeltaRetentionFactory.filesystem(state_root=state_root)
+            if type(index_format) is not str or index_format not in (
+                "json_v1",
+                "events_v2",
+                "auto",
+            ):
+                raise WorkspaceRepositoryDeltaRetentionRefusal(
+                    "retention_index_format_invalid"
+                )
+            physical = FilesystemDeltaRetentionFactory.filesystem(
+                state_root=state_root, index_format=index_format
+            )
         except ValueError as error:
             raise WorkspaceRepositoryDeltaRetentionRefusal(
                 getattr(error, "code", "retention_owner_mismatch")

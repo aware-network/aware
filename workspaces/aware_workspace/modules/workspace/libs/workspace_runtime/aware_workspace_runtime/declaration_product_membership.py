@@ -135,6 +135,7 @@ _PACKAGE = WorkspaceDeclarationProductCorrespondence.package
 _METHODS = (
     "read_selected_package_source", "read_declaration_scope",
     "read_selected_participant_view", "inspect_inputs",
+    "_read_product_projection_inputs",
     "check_selected_package_source_locked",
 )
 _DESCRIPTORS = {
@@ -218,6 +219,45 @@ def check_declaration_product_correspondence_locked(
     _CHECK(handle, entry, guard)
 
 
+def validate_declaration_product_source(
+    handle: WorkspaceDeclarationProductCorrespondence,
+    entry: WorkspaceSemanticMaterializationPackageEntry,
+    *,
+    issuer: object,
+    package: SemanticPackageCoordinate,
+    source_identity_digest: ContentDigest,
+) -> None:
+    """Authenticate selected-source identity against its catalog commitment.
+
+    The two digests remain distinct. No planning result or dependency demand is
+    constructed to verify this original source/catalog association.
+    """
+    state = _state(handle)
+    if (
+        type(issuer) is not WorkspaceDeclarationScopeRuntime or state.issuer is not issuer
+        or type(entry) is not WorkspaceSemanticMaterializationPackageEntry
+        or type(package) is not SemanticPackageCoordinate
+        or type(source_identity_digest) is not ContentDigest
+    ):
+        raise RuntimeError("original declaration product source required")
+    package.__post_init__()
+    source_identity_digest.__post_init__()
+    entry.__post_init__()
+    if (
+        state.binding is None or state.entry is None
+        or package != state.entry.package or entry != state.entry
+        or source_identity_digest != state.binding.expectation.source_identity_digest
+    ):
+        raise RuntimeError("declaration product selected source differs")
+    validate_declaration_product_correspondence(handle, entry)
+    if (
+        _state(handle) is not state or state.issuer is not issuer
+        or state.binding is None or state.entry != entry
+        or source_identity_digest != state.binding.expectation.source_identity_digest
+    ):
+        raise RuntimeError("declaration product source association changed")
+
+
 def _call(state: _State, name: str, *args: object, **kwargs: object) -> object:
     descriptor, method = state.methods[name]
     if inspect.getattr_static(state.issuer, name) is not descriptor:
@@ -231,12 +271,19 @@ def _call(state: _State, name: str, *args: object, **kwargs: object) -> object:
 def _derive(state: _State) -> tuple[WorkspaceSemanticMaterializationPackageEntry, CodeSelectedPackageSourceBinding, DeclaredProductProjection]:
     if type(state.operation_kind) is not str or state.operation_kind not in ("materialize", "inspect"):
         raise RuntimeError("original declaration product operation unavailable")
-    binding = _call(state, "read_selected_package_source", state.selected)
-    closure = _call(state, "read_declaration_scope", state.declaration)
-    view = _call(
-        state, "read_selected_participant_view", state.declaration, state.selected
+    # Preserve the original reader entrance checks even though the issuer now
+    # brackets their synchronous reads together internally.
+    for name in ("read_selected_package_source", "read_declaration_scope",
+                 "read_selected_participant_view", "inspect_inputs"):
+        descriptor, _ = state.methods[name]
+        if inspect.getattr_static(state.issuer, name) is not descriptor:
+            raise RuntimeError("original declaration product source method substituted")
+    values = _call(
+        state, "_read_product_projection_inputs", state.declaration, state.selected,
     )
-    inputs = _call(state, "inspect_inputs", state.selected)
+    if type(values) is not tuple or len(values) != 4:
+        raise TypeError("exact original Workspace projection tuple required")
+    binding, closure, view, inputs = values
     if (
         type(binding) is not CodeSelectedPackageSourceBinding
         or type(closure) is not CodeRetainedDependencyScopeClosureV3

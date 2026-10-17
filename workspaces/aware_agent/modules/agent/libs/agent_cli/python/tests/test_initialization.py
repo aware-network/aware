@@ -517,11 +517,24 @@ def test_successor_metadata_names_accepted_ports_and_floors():
         "project"
     ]
     deps = {r.name: r for r in map(Requirement, project["dependencies"])}
-    assert project["version"] == "0.2.0a5"
-    assert deps["aware-workspace-sdk"].extras == {"preparation", "setup"}
-    assert "0.2.7" in deps["aware-workspace-sdk"].specifier
-    assert "0.2.6" not in deps["aware-workspace-sdk"].specifier
+    assert project["version"] == "0.2.0a7"
+    assert deps["aware-workspace-sdk"].extras == {
+        "preparation",
+        "setup",
+        "setup_admission",
+        "setup_review",
+    }
+    assert "0.2.10" in deps["aware-workspace-sdk"].specifier
+    assert "0.2.9" not in deps["aware-workspace-sdk"].specifier
     assert "0.3.0" not in deps["aware-workspace-sdk"].specifier
+    assert deps["aware-workspace-runtime"].extras == {"setup_admission", "setup_review"}
+    assert "0.2.15" in deps["aware-workspace-runtime"].specifier
+    assert "0.2.14" not in deps["aware-workspace-runtime"].specifier
+    assert "0.3.0" not in deps["aware-workspace-runtime"].specifier
+    assert deps["aware-issue-sdk"].extras == {"workspace_setup_admission"}
+    assert "0.10.6" in deps["aware-issue-sdk"].specifier
+    assert "0.10.5" not in deps["aware-issue-sdk"].specifier
+    assert "0.11.0" not in deps["aware-issue-sdk"].specifier
     assert deps["aware-protocol-cli"].extras == {"bootstrap", "specification-setup"}
     assert "0.3.5" in deps["aware-protocol-cli"].specifier
     assert "0.3.4" not in deps["aware-protocol-cli"].specifier

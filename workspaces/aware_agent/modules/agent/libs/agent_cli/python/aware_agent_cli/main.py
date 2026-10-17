@@ -48,6 +48,10 @@ def register_family_commands(registry: AwareCommandRegistry, family: str) -> Non
         from .draft_preparation import register_draft_preparation_command
 
         register_draft_preparation_command(registry)
+    if family == "workspace":
+        from .workspace_review import register_workspace_review_command
+
+        register_workspace_review_command(registry)
 
 
 def run_family(

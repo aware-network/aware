@@ -420,7 +420,14 @@ def _snapshot(root, path, state=None):
         raise ConfinedSequenceRefusal("sequence_resource_record_limit")
     try:
         view, info, ledger = native._observe_confined_file_with_custody(
-            root=root, path=path, maximum_bytes=1048576
+            root=root,
+            path=path,
+            maximum_bytes=1048576,
+            **(
+                {"_private_root": state.private_root}
+                if state is not None and state.private_root is not None
+                else {}
+            ),
         )
     except native.ConfinedFileObservationError as error:
         if state is not None:
@@ -547,6 +554,22 @@ def confined_sequence_value_to_payload(value) -> dict[str, Any]:
     return payload
 
 
+def _confined_sequence_value_from_payload(
+    value_type, source, *, _budget=None, _depth=0
+):
+    """Internal closed owner inverse; decoding cannot issue a sequence."""
+    from .private_directory import _owner_from_payload
+
+    return _owner_from_payload(
+        value_type,
+        source,
+        _VALUE_TYPES,
+        _budget=_budget,
+        _depth=_depth,
+        _owner="native",
+    )
+
+
 @dataclass
 class _SequenceState:
     root: Path
@@ -577,6 +600,7 @@ class _SequenceState:
     released: bool = False
     busy: bool = False
     cleanup: object = None
+    private_root: object = None
 
 
 class _SequenceIO:
@@ -584,12 +608,17 @@ class _SequenceIO:
 
     def __init__(self, state):
         self.state = state
+        self.private_root = state.private_root
         self.active = {}
         self.stage = "sequence_io"
         self.cleanup_mode = False
         # Publish original cleanup custody before a fallible acquisition or
         # observation. Constructor failure must not strand this owner's fds.
         state.io = self
+        if state.private_root is not None:
+            from .private_directory import _private_io_call
+
+            _private_io_call("sequence", state.private_root, state)
         self.root_fd = self.open(
             state.root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
         )
@@ -644,7 +673,12 @@ class _SequenceIO:
         )
         resource = self._resource(locator, kind)
         try:
-            descriptor = _OS["open"](path, flags, mode, **kwargs)
+            if parent is None and self.state.private_root is not None:
+                from .private_directory import _private_io_call
+
+                descriptor = _private_io_call("duplicate", self.state.private_root)
+            else:
+                descriptor = _OS["open"](path, flags, mode, **kwargs)
         except BaseException as error:
             if isinstance(error, OSError) and error.errno in {
                 errno.ENOENT,
@@ -799,6 +833,10 @@ def _issued(handle):
 def _check_current(state):
     if state.released or state.phase == "retired":
         raise ConfinedSequenceRefusal("sequence_retired")
+    if state.private_root is not None:
+        from .private_directory import _private_io_call
+
+        _private_io_call("validate", state.private_root)
     if (
         native._confined_file_writer_steps is not _WRITER
         or _WRITER.__code__ is not _WRITER_CODE
@@ -1063,6 +1101,22 @@ def retain_confined_file_sequence(
     limits: ConfinedSequenceLimits,
     confinement_profile: native.ConfinedMutationProfile,
 ) -> RetainedConfinedFileSequence:
+    return _retain_confined_file_sequence(
+        root=root,
+        requests=requests,
+        limits=limits,
+        confinement_profile=confinement_profile,
+    )
+
+
+def _retain_confined_file_sequence(
+    *,
+    root,
+    requests,
+    limits,
+    confinement_profile,
+    _private_root=None,
+):
     if (
         type(confinement_profile) is not native.ConfinedMutationProfile
         or confinement_profile is not native.ConfinedMutationProfile.DESCRIPTOR_WALK_V1
@@ -1155,6 +1209,7 @@ def retain_confined_file_sequence(
         dir_pins={},
         scratch={},
         completed_files=set(),
+        private_root=_private_root,
     )
     try:
         _check_current(state)

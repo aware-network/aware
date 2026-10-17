@@ -6,9 +6,12 @@ import json
 import os
 import tempfile
 import threading
+import types as _types
 from contextvars import ContextVar
 from dataclasses import dataclass
+from functools import partial as _identity_data
 from pathlib import Path
+from typing import Any, cast
 
 from aware_workspace_runtime.change_evidence_codec import (
     repository_content_delta_from_payload,
@@ -38,6 +41,14 @@ from aware_workspace_runtime.repository_delta_store_contract import (
     WorkspaceRepositoryDeltaStoreError,  # noqa: F401 -- preserve the original value import coordinate
     WorkspaceRepositoryDeltaStoreMetrics,
     WorkspaceRepositoryDeltaStoreSnapshot,
+)
+
+from .repository_index_journal import (
+    DeferredIndexBytes,
+    IndexJournal,
+    IndexJournalError,
+    bind_deferred_reader,
+    bind_index_writer,
 )
 
 _PERFORMANCE_PROBE: ContextVar[object | None] = ContextVar(
@@ -94,6 +105,7 @@ class WorkspaceRepositoryDeltaStore:
         maximum_bytes: int = DEFAULT_DELTA_BODY_BYTES,
         capture_capacity: int = DEFAULT_DELTA_CAPTURE_CAPACITY,
         delta_capacity: int = DEFAULT_DELTA_TRANSITION_CAPACITY,
+        index_format: str = "json_v1",
     ) -> None:
         self._repository_binding_ref = _required(
             repository_binding_ref, "repository_binding_ref"
@@ -129,6 +141,17 @@ class WorkspaceRepositoryDeltaStore:
         self._evicted_body_count = 0
         self._evicted_capture_count = 0
         self._evicted_delta_count = 0
+        try:
+            self._index_journal = IndexJournal(
+                self._index_path,
+                binding=self._repository_binding_ref,
+                kind=2,
+                index_format=index_format,
+            )
+        except (IndexJournalError, OSError) as error:
+            raise WorkspaceRepositoryDeltaStoreCorrupt(
+                "Repository index representation is invalid"
+            ) from error
         self._load_index()
 
     @property
@@ -230,7 +253,9 @@ class WorkspaceRepositoryDeltaStore:
                 os.fspath(self._body_root), digest_hex[:2], f"{digest_hex}.blob"
             )
             try:
-                with io.open(body_path, "rb") as stream:  # noqa: UP020 -- preserve pathlib's original IO dispatch
+                with io.open(  # noqa: UP020 -- preserve pathlib's original IO dispatch
+                    body_path, "rb", buffering=0
+                ) as stream:
                     content = stream.read()
             except FileNotFoundError:
                 return None
@@ -372,10 +397,16 @@ class WorkspaceRepositoryDeltaStore:
         self._body_write_bytes += len(content)
 
     def _load_index(self) -> None:
-        if not self._index_path.is_file():
-            return
         try:
-            payload = json.loads(self._index_path.read_text(encoding="utf-8"))
+            if self._index_journal.format == "events_v2":
+                encoded = self._index_journal.read()
+                if encoded is None:
+                    return
+            else:
+                if not self._index_path.is_file():
+                    return
+                encoded = self._index_path.read_text(encoding="utf-8")
+            payload = json.loads(encoded)
             _exact_keys(
                 payload,
                 {
@@ -489,11 +520,40 @@ class WorkspaceRepositoryDeltaStore:
                 for value in self._deltas.values()
             ],
         }
-        encoded = (
-            json.dumps(payload, sort_keys=True, separators=(",", ":")) + "\n"
-        ).encode("utf-8")
-        self._store_root.mkdir(parents=True, exist_ok=True)
-        _atomic_write(self._index_path, encoded)
+        callee = json.dumps
+        if _STORE_NATIVE_HANDOFF is None:
+            serialized = callee(payload, sort_keys=True, separators=(",", ":"))
+        else:
+            native: Any = "_STORE_INDEX_NATIVE_CALL_"
+            context: Any = "_STORE_INDEX_NATIVE_CONTEXT_"
+            serialized = native(context(), callee, payload, json)
+        encoded = (serialized + "\n").encode("utf-8")
+        serialized = None
+        if self._index_journal.format == "events_v2":
+            journal_writer: Any = "_ORIGINAL_INDEX_JOURNAL_WRITER_"
+            writer_code: Any = "_ORIGINAL_INDEX_JOURNAL_WRITER_CODE_"
+            writer_cells_data: Any = "_ORIGINAL_INDEX_JOURNAL_WRITER_CELLS_"
+            writer_cells = writer_cells_data.args[0]
+            writer_values_data: Any = "_ORIGINAL_INDEX_JOURNAL_WRITER_VALUES_"
+            writer_values = writer_values_data.args[0]
+            if (
+                journal_writer.__code__ is not writer_code
+                or journal_writer.__defaults__ is not None
+                or journal_writer.__kwdefaults__ is not None
+                or journal_writer.__closure__ is not writer_cells
+                or any(
+                    cell.cell_contents is not value
+                    for cell, value in zip(
+                        writer_cells or (), writer_values, strict=True
+                    )
+                )
+            ):
+                raise IndexJournalError("Original journal writer entry was substituted")
+            self._index_journal.publish(encoded, writer=journal_writer)
+        else:
+            with self._index_journal.publication_guard():
+                self._store_root.mkdir(parents=True, exist_ok=True)
+                _atomic_write(self._index_path, encoded)
         self._index_write_count += 1
 
     def _metrics(self) -> WorkspaceRepositoryDeltaStoreMetrics:
@@ -510,23 +570,61 @@ class WorkspaceRepositoryDeltaStore:
         )
 
 
-def _atomic_write(path: Path, content: bytes) -> None:
+def _atomic_write(path: Path, content: bytes | DeferredIndexBytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     descriptor, temporary_name = tempfile.mkstemp(prefix=".pending-", dir=path.parent)
     temporary_path = Path(temporary_name)
     try:
         os.fchmod(descriptor, 0o600)
-        with os.fdopen(descriptor, "wb") as stream:
-            stream.write(content)
+        stream = os.fdopen(descriptor, "wb")
+        descriptor = None
+        with stream:
+            deferred_type: Any = "_ORIGINAL_DEFERRED_TYPE_"
+            if type(content) is deferred_type:
+                deferred_read: Any = "_ORIGINAL_DEFERRED_READ_"
+                specifications_data: Any = "_ORIGINAL_DEFERRED_SPECIFICATIONS_"
+                specifications = specifications_data.args[0]
+                for function, code, defaults, keywords, cells, values in specifications:
+                    if (
+                        function.__code__ is not code
+                        or function.__defaults__ is not defaults
+                        or (
+                            function.__kwdefaults__ is not None
+                            and type(function.__kwdefaults__) is not dict
+                        )
+                        or len(function.__kwdefaults__ or {}) != len(keywords)
+                        or any(
+                            (function.__kwdefaults__ or {}).get(key) is not value
+                            for key, value in keywords
+                        )
+                        or function.__closure__ is not cells
+                        or any(
+                            cell.cell_contents is not value
+                            for cell, value in zip(cells or (), values, strict=True)
+                        )
+                    ):
+                        raise IndexJournalError(
+                            "Original deferred entry was substituted"
+                        )
+                content = deferred_read(content)
+            wire_content: Any = content
+            stream.write(wire_content)
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temporary_path, path)
-    except BaseException:
+    except BaseException as error:
+        # Transfer custody to fdopen exactly once. A lost close return must not
+        # retry an integer descriptor that may now designate a foreign object.
+        if descriptor is not None:
+            closing, descriptor = descriptor, None
+            try:
+                os.close(closing)
+            except BaseException as cleanup_error:  # noqa: BLE001 -- preserve the original interruption/failure
+                error.add_note(f"Index descriptor cleanup uncertain: {cleanup_error!r}")
         try:
-            os.close(descriptor)
-        except OSError:
-            pass
-        temporary_path.unlink(missing_ok=True)
+            temporary_path.unlink(missing_ok=True)
+        except BaseException as cleanup_error:  # noqa: BLE001 -- preserve the original interruption/failure
+            error.add_note(f"Index pending cleanup uncertain: {cleanup_error!r}")
         raise
 
 
@@ -573,3 +671,73 @@ def _exact_keys(value: dict[str, object], expected: set[str], field_name: str) -
         if unknown:
             detail.append("unknown: " + ", ".join(sorted(unknown)))
         raise ValueError(f"{field_name} fields differ ({'; '.join(detail)})")
+
+
+_store_native_handoff = None
+try:
+    from aware_workspace_sdk._tree_native_binding import (
+        bind_store_json as _bind_store_json,
+    )
+except ImportError:
+    pass
+else:
+    _store_native_handoff = _bind_store_json(
+        WorkspaceRepositoryDeltaStore, "_persist_index"
+    )
+
+_STORE_NATIVE_HANDOFF = _store_native_handoff
+
+
+# Seal the receiver in code constants before an original owner retains this
+# writer. Neither mutable keyword defaults nor module/class lookups select it
+# after descriptor acquisition. Original bytes-only callers keep their path.
+_deferred_type, _deferred_read, _deferred_specifications = bind_deferred_reader()
+_atomic_original = _atomic_write
+_atomic_constants = tuple(
+    _deferred_type
+    if type(value) is str and value == "_ORIGINAL_DEFERRED_TYPE_"
+    else _deferred_read
+    if type(value) is str and value == "_ORIGINAL_DEFERRED_READ_"
+    else _identity_data(cast(Any, int), _deferred_specifications)
+    if type(value) is str and value == "_ORIGINAL_DEFERRED_SPECIFICATIONS_"
+    else value
+    for value in _atomic_original.__code__.co_consts
+)
+_atomic_write = _types.FunctionType(
+    _atomic_original.__code__.replace(co_consts=_atomic_constants),
+    _atomic_original.__globals__,
+    _atomic_original.__name__,
+    _atomic_original.__defaults__,
+    _atomic_original.__closure__,
+)
+_atomic_write.__annotations__ = _atomic_original.__annotations__
+
+
+_journal_writer, _journal_writer_code, _journal_writer_cells, _journal_writer_values = (
+    bind_index_writer(_atomic_write)
+)
+_journal_replacements = {
+    "_ORIGINAL_INDEX_JOURNAL_WRITER_": _journal_writer,
+    "_ORIGINAL_INDEX_JOURNAL_WRITER_CODE_": _journal_writer_code,
+    "_ORIGINAL_INDEX_JOURNAL_WRITER_CELLS_": _identity_data(
+        cast(Any, int), _journal_writer_cells
+    ),
+    "_ORIGINAL_INDEX_JOURNAL_WRITER_VALUES_": _identity_data(
+        cast(Any, int), _journal_writer_values
+    ),
+}
+_journal_original = WorkspaceRepositoryDeltaStore._persist_index
+_journal_constants = tuple(
+    _journal_replacements.get(value, value) if type(value) is str else value
+    for value in _journal_original.__code__.co_consts
+)
+_journal_assembled = _types.FunctionType(
+    _journal_original.__code__.replace(co_consts=_journal_constants),
+    _journal_original.__globals__,
+    _journal_original.__name__,
+    _journal_original.__defaults__,
+    _journal_original.__closure__,
+)
+_journal_assembled.__annotations__ = _journal_original.__annotations__
+_journal_assembled.__qualname__ = _journal_original.__qualname__
+WorkspaceRepositoryDeltaStore._persist_index = _journal_assembled

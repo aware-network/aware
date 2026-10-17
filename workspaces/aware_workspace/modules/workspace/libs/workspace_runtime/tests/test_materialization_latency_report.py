@@ -6,7 +6,11 @@ import sys
 import weakref
 
 import pytest
-from materialization_latency_report import BoundaryTimings, LatencyReport
+from materialization_latency_report import (
+    BoundaryTimings,
+    LatencyReport,
+    thread_cost_sample,
+)
 
 
 def clock(*values):
@@ -202,3 +206,186 @@ def test_coroutine_throw_and_unrelated_exception_preserve_original_failure():
     assert result["metadata"]["boundary_observation"]["errors"] == []
     assert result["metadata"]["boundary_observation"]["call_counts"] == {"async": 1}
     assert len(result["spans"]) == 3
+
+
+def counters(*values):
+    samples = iter(values)
+    return lambda: {"thread_cpu_ns": next(samples)}
+
+
+def test_serial_cpu_partition_and_unclassified_wall_residual():
+    trace = LatencyReport(
+        clock=clock(0, 10, 30, 40, 80, 100), counters=counters(0, 5, 15, 20, 35, 50),
+    )
+    first = trace.start("admission")
+    trace.stop(first)
+    second = trace.start("execution")
+    trace.stop(second)
+    report = trace.finish(succeeded=True)
+    costs = report["counter_accounting"]
+    assert costs["delta"]["thread_cpu_ns"] == 50
+    assert costs["covered"]["thread_cpu_ns"] == 25
+    assert costs["unattributed"]["thread_cpu_ns"] == 25
+    assert costs["top_level_overlap"]["thread_cpu_ns"] == 0
+    assert costs["wall_minus_thread_cpu_ns"] == 50
+    assert costs["wait_qualification"].startswith("unclassified residual")
+    assert report["spans"][0]["counters_exclusive"]["thread_cpu_ns"] == 10
+
+
+def test_overlapping_cpu_children_are_unioned_without_double_counting():
+    trace = LatencyReport(
+        clock=clock(0, 10, 20, 30, 50, 70, 90, 100),
+        counters=counters(0, 5, 10, 15, 25, 35, 45, 50),
+    )
+    parent = trace.start("parent")
+    first = trace.start("first", parent=parent)
+    second = trace.start("second", parent=parent)
+    trace.stop(first)
+    trace.stop(second)
+    trace.stop(parent)
+    report = trace.finish(succeeded=True)
+    outer = report["spans"][0]
+    assert outer["counters_delta"]["thread_cpu_ns"] == 40
+    assert outer["counters_exclusive"]["thread_cpu_ns"] == 15
+    assert report["counter_accounting"]["covered"]["thread_cpu_ns"] == 40
+
+
+def test_overlapping_top_level_cpu_reports_overlap():
+    trace = LatencyReport(
+        clock=clock(0, 10, 20, 50, 70, 100), counters=counters(0, 5, 10, 25, 35, 50),
+    )
+    first = trace.start("first")
+    second = trace.start("second")
+    trace.stop(first)
+    trace.stop(second)
+    report = trace.finish(succeeded=True)
+    costs = report["counter_accounting"]
+    assert costs["covered"]["thread_cpu_ns"] == 30
+    assert costs["top_level_overlap"]["thread_cpu_ns"] == 15
+    assert costs["unattributed"]["thread_cpu_ns"] == 20
+
+
+def test_counter_failure_closes_open_spans_as_incomplete():
+    trace = LatencyReport(clock=clock(0, 10, 20, 100), counters=counters(0, 5, 10, 50))
+    parent = trace.start("operation")
+    trace.start("cleanup", parent=parent)
+    report = trace.finish(succeeded=False)
+    assert not report["complete"]
+    assert all(s["counters_end"]["thread_cpu_ns"] == 50 for s in report["spans"])
+
+
+def test_counter_samples_are_detached():
+    sample = {"thread_cpu_ns": 0}
+    trace = LatencyReport(clock=clock(0, 100), counters=lambda: sample)
+    sample["thread_cpu_ns"] = 50
+    report = trace.finish(succeeded=True)
+    assert report["counter_accounting"]["start"] == {"thread_cpu_ns": 0}
+    assert report["counter_accounting"]["delta"] == {"thread_cpu_ns": 50}
+
+
+@pytest.mark.parametrize("sample", [{}, {"x": -1}, {"x": True}, {"x": 1.0}, {1: 1}])
+def test_malformed_counters_refuse(sample):
+    with pytest.raises(ValueError, match="nonnegative integer"):
+        LatencyReport(counters=lambda: sample)
+
+
+def test_counter_schema_change_refuses():
+    samples = iter(({"a": 0}, {"b": 1}))
+    trace = LatencyReport(clock=clock(0, 100), counters=samples.__next__)
+    with pytest.raises(ValueError, match="schema changed"):
+        trace.finish(succeeded=True)
+
+
+def test_nested_counter_reversal_cannot_hide_in_root_total():
+    trace = LatencyReport(clock=clock(0, 10, 20, 100), counters=counters(0, 20, 10, 50))
+    marker = trace.start("phase")
+    trace.stop(marker)
+    with pytest.raises(ValueError, match="moved backwards"):
+        trace.finish(succeeded=True)
+
+
+def test_negative_wall_cpu_residual_is_exposed_without_clamping():
+    trace = LatencyReport(clock=clock(0, 10), counters=counters(0, 11))
+    assert trace.finish(succeeded=True)["counter_accounting"]["wall_minus_thread_cpu_ns"] == -1
+
+
+def test_disabled_counters_are_not_observed():
+    def forbidden():
+        pytest.fail("disabled diagnostic sampled counters")
+
+    trace = LatencyReport(enabled=False, clock=forbidden, counters=forbidden)
+    trace.start("ignored")
+    trace.stop(None)
+    assert trace.finish(succeeded=True) is None
+
+
+def test_default_report_has_no_counter_fields():
+    trace = LatencyReport(clock=clock(0, 10))
+    assert "counter_accounting" not in trace.finish(succeeded=True)
+
+
+def test_original_thread_sample_has_monotonic_numeric_counters():
+    first = thread_cost_sample()
+    for _ in range(1000):
+        pass
+    second = thread_cost_sample()
+    assert set(first) == set(second)
+    assert all(type(v) is int and v >= 0 for v in first.values())
+    assert all(second[name] >= first[name] for name in first)
+
+
+@pytest.mark.parametrize("event", ["resume", "close"])
+def test_counter_failure_does_not_retain_callback_values_in_held_error(event):
+    class Resource:
+        pass
+
+    class FailingTrace:
+        def start(self, *args, **kwargs):
+            raise RuntimeError("counter unavailable")
+
+        def stop(self, *args, **kwargs):
+            raise RuntimeError("counter unavailable")
+
+    def original():
+        return None
+
+    observer = BoundaryTimings(FailingTrace(), None, (("original", original),), enabled=True)
+    value = Resource()
+    ref = weakref.ref(value)
+    held = None
+    try:
+        if event == "resume":
+            observer._resume(original.__code__, 0, value)
+        else:
+            observer.active.append((original.__code__, 0))
+            observer._close(original.__code__, 0, value)
+    except RuntimeError as error:
+        held = error
+    del value
+    gc.collect()
+    assert held is not None
+    assert ref() is None
+
+
+def test_closing_and_finalizing_do_not_rescan_all_spans_per_span():
+    class CountedSpans(list):
+        visits = 0
+
+        def __iter__(self):
+            self.visits += len(self)
+            return super().__iter__()
+
+    now = iter(range(100_000)).__next__
+    # Every sample advances both clocks while preserving endpoint ordering.
+    trace = LatencyReport(clock=now, counters=lambda: {"thread_cpu_ns": now()})
+    trace._spans = CountedSpans()
+    root = trace.start("root")
+    for _ in range(1000):
+        marker = trace.start("child", parent=root)
+        trace.stop(marker)
+    trace.stop(root)
+    assert trace._spans.visits == 0
+    result = trace.finish(succeeded=True)
+    assert trace._spans.visits <= len(trace._spans) * 2
+    assert len(result["spans"]) == 1001
+    assert result["complete"]

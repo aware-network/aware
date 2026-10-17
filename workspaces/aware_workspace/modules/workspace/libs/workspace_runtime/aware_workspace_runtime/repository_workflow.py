@@ -1239,15 +1239,16 @@ class WorkspaceRepositoryWorkflowRuntime:
     def _validate_source(
         self, record: _SourceRecord, *, output_paths: tuple[str, ...] | None = None
     ) -> None:
-        if (
-            record.status != "retained"
-            or record.reader is None
-            or record.parent.status != "active"
-        ):
-            raise WorkspaceRepositoryWorkflowRefusal("foreign_or_retired_handle")
-        self.check_current()
-        reader = record.reader
+        reader = original_outputs = original_bodies = name = original = None
         try:
+            if (
+                record.status != "retained"
+                or record.reader is None
+                or record.parent.status != "active"
+            ):
+                raise WorkspaceRepositoryWorkflowRefusal("foreign_or_retired_handle")
+            self.check_current()
+            reader = record.reader
             _reader_entries_current()
             if (
                 type(reader) is not _READER_CHECK_CLASS
@@ -1261,11 +1262,29 @@ class WorkspaceRepositoryWorkflowRuntime:
             if output_paths is None:
                 _CHECKOUT_METHODS[2][1](reader)
             else:
-                _CHECKOUT_METHODS[4][1](reader, output_paths)
+                for name, original in record.state:
+                    if name == "_output_rows":
+                        original_outputs = original
+                    elif name == "_bodies":
+                        original_bodies = original
+                _CHECKOUT_METHODS[4][1](
+                    reader,
+                    output_paths,
+                    _original_capture=(original_outputs, original_bodies),
+                )
             _reader_entries_current()
             self.check_current()
         finally:
-            del self, record, reader
+            del (
+                self,
+                record,
+                output_paths,
+                reader,
+                original_outputs,
+                original_bodies,
+                name,
+                original,
+            )
 
     def _source_operation(
         self,

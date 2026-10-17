@@ -1,19 +1,17 @@
-# Neutral source workspaces
+# Canonical source workspaces
 
-One source tree accompanies the 28 Aware packages selected by the existing
-`portable_protocols` profile. All 1,286 selected source/build/legal files retain
-their committed bytes and executable modes. The source index and maps are
-delivery evidence, not another package catalog; discovery stays producer-side.
+The existing `portable_protocols` profile selects 28 Aware packages. All 1,329
+committed source/build/legal files retain original bytes and executable modes.
+The current [source index](../releases/canonical-reviewed-workflow-fs-v1/SOURCE-INDEX.json) and
+[delivery source map](../releases/canonical-reviewed-workflow-fs-v1/SOURCE-MAP.json) retain each supplier revision;
+`ec4717726c3c7c822fa4fcc5cb7390fce4127f43` is a catalog cut, not one source revision for every package.
+Full discovery inventory stays producer-side; no second package catalog exists.
 
-Use [one installed entrance](../README.md), not PYTHONPATH or an editable checkout.
-The original [Workspace A1 owners](../protocols/workspace/README.md) provide the
-setup-only Agent mount under prepared admission inputs. This is not A2 lock
-readiness, positive tree-C completion, `.aware` package materialization or native
-receiving. Shared SDK-contract/Meta type-schema infrastructure grants none of
-those capabilities and does not admit object or Service execution.
+Use [the installed entrance](../README.md), not PYTHONPATH or editable source.
+Source READMEs and broader examples are source history, not customer instructions.
+There is no duplicate `workspaces/previews` tree. Predecessor source maps bind
+their pinned Git history, not this successor's working paths. Their envelopes,
+delivery pointer and contributor command remain unchanged.
 
-Source READMEs and broader examples are historical source, not customer
-directions. There is no repeated `workspaces/previews` tree. The previous
-source map binds its pinned Git history, not successor working paths; complete
-predecessor envelopes, selection and contributor governance remain exact.
-[Current distribution terms and source](../releases/canonical-workspace-a1-fs-v1/README.md) stay together.
+Keep [all terms and sources](../releases/canonical-reviewed-workflow-fs-v1/README.md) with the installation.
+Carried Meta, native and planning code does not admit broader capabilities.

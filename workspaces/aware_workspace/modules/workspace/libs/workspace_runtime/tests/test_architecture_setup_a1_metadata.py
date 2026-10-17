@@ -22,10 +22,10 @@ MANIFESTS = {
     "aware-agent-cli": "workspaces/aware_agent/modules/agent/libs/agent_cli/python/pyproject.toml",
 }
 VERSIONS = {
-    "aware-workspace-sdk": "0.2.9",
-    "aware-workspace-runtime": "0.2.12",
-    "aware-workspace-fs-adapter": "0.1.8",
-    "aware-issue-sdk": "0.10.5",
+    "aware-workspace-sdk": "0.2.10",
+    "aware-workspace-runtime": "0.2.15",
+    "aware-workspace-fs-adapter": "0.1.9",
+    "aware-issue-sdk": "0.10.6",
     "aware-issue-operational-runtime": "0.3.4",
     "aware-issue-fs-adapter": "0.9.6",
     "aware-file-system": "0.3.7",
@@ -107,7 +107,14 @@ def test_legacy_workspace_setup_selection_stays_separate():
 def test_physical_adapters_declare_the_repaired_file_sequence_floor(name):
     reqs = {r.name: r for r in map(Requirement, project(name)["dependencies"])}
     req = reqs["aware-file-system"]
-    assert req.specifier.contains("0.3.7") and not req.specifier.contains("0.3.6")
+    # The reviewed Workspace profile needs the private IO successor; Issue's
+    # existing A1 profile retains its independently qualified sequence floor.
+    floor, old = (
+        ("0.3.8", "0.3.7")
+        if name == "aware-workspace-fs-adapter"
+        else ("0.3.7", "0.3.6")
+    )
+    assert req.specifier.contains(floor) and not req.specifier.contains(old)
 
 
 def test_original_issue_progress_requires_the_same_declared_owner_and_actor(tmp_path):

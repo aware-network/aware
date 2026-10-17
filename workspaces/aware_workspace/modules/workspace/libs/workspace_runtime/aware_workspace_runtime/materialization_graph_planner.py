@@ -38,6 +38,7 @@ from .declaration_product_membership import (
     validate_declaration_product_planning_input,
 )
 from .declaration_scope_admission import WorkspaceOriginalGraphTargetValidator
+from .direct_cli_product_demands import DirectCLIProductDemands
 from .materialization_membership_catalog import (
     WorkspaceSemanticMaterializationMembershipResolver,
     WorkspaceSemanticMaterializationPackageEntry,
@@ -292,6 +293,7 @@ class WorkspaceSemanticMaterializationGraphPlanner:
         planning_source: SemanticDependencySource,
         source_only_target_validator: WorkspaceOriginalGraphTargetValidator | None = None,
         source_correspondences: tuple[WorkspaceV3GraphSourceCorrespondence | WorkspaceDeclarationProductCorrespondence, ...] = (),
+        retained_product_demands: DirectCLIProductDemands | None = None,
     ) -> None:
         if (
             type(workspace_catalog)
@@ -306,6 +308,9 @@ class WorkspaceSemanticMaterializationGraphPlanner:
         # Fixed host supplies the original admitted owner source. Protocol matching
         # alone does not establish provenance; no membership-derived fallback.
         self._planning_source = planning_source
+        if retained_product_demands is not None and type(retained_product_demands) is not DirectCLIProductDemands:
+            raise TypeError("original retained product demands required")
+        self._retained_product_demands = retained_product_demands
         if (
             source_only_target_validator is not None
             and type(source_only_target_validator)
@@ -616,14 +621,15 @@ class WorkspaceSemanticMaterializationGraphPlanner:
                     )
                 planning_started = monotonic_ns()
                 try:
-                    demand_set = (
-                        await self._code._plan_dependencies_for_prevalidated_context(
+                    if self._retained_product_demands is not None:
+                        demand_set = await self._retained_product_demands.plan(context, planning_input)
+                    else:
+                        demand_set = await self._code._plan_dependencies_for_prevalidated_context(
                             context=context,
                             match=match,
                             planning_input=planning_input,
                             planning_input_body=state.planning_input_body,
                         )
-                    )
                 except (ContractViolation, TypeError) as error:
                     raise WorkspaceSemanticMaterializationPlanningError(
                         "dependency_planning_failed", "dependency_plan"

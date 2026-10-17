@@ -5,9 +5,10 @@ Issue and Specification tooling. It does not decide Issue scope, approve a
 Specification or publish Git commits. Those decisions stay with the owning
 SDK operation and its admitted provider.
 
-Version **0.3.3** adds retained, explicit no-replace bootstrap creation. Source
-qualification does not establish installed initializer availability. Dependency
-requirements remain unchanged.
+Version **0.3.8** adds retained private-directory IO and lossless owner evidence
+codecs over the original bounded reader and no-replace writer. Supplier artifacts
+do not establish installed Workspace/Agent readiness or public release.
+Dependency requirements remain unchanged.
 
 ## Using this package
 
@@ -48,6 +49,16 @@ not qualify every operation on every OS or Python version permitted by metadata.
 - `retained_package` stages and publishes a new package without replacing an
   existing target. Original custody claims govern resource transfer and
   once-only cleanup; detached observations cannot mint another claim.
+- `private_directory` retains an explicit existing canonical directory owned by
+  the effective user with exact `0700` permissions. Flat CREATE-only sequences
+  and bounded reads use the original descriptor-correlated IO. Root drift
+  terminally retires preparation; ordinary hard-linked, symlink and FIFO leaves
+  refuse. Parent and child custody remain separate, and cleanup preserves known
+  disposal, partial effects and unknown returns without retry. Privacy is an
+  observed namespace property, not per-file `0600`, continuous confinement,
+  protection from same-user/privileged processes or guaranteed disk allocation.
+  Eleven detached evidence types and two strict codecs retain binary/read/error
+  evidence; decoding never reconstructs handles or authority.
 - `retained_tree_projection` is an unreleased physical source checkpoint.
   It retains native requests, original read pins and fixed scratch coordinates;
   `apply_next_transition` spends one original ordinal before checks or effects.
