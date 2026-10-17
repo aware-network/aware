@@ -3,7 +3,9 @@
 Selected locally; public delivery is not yet authorized. Envelope `canonical-refusal-successor-source-notice-review-v1.tar.gz` is SHA-256 `e96946272b7812e833d41370ec5bfbba722f2f6f91720f994abcf9f407c975f7`;
 accepted software is `34c3c9d16d5bec1aba75add5ce03e55d32b25c828da78e878288b19453d6a51c`. Use [the entrance](../../README.md) and
 [original whole-envelope installer](../../protocols/install.py). Instructions
-remain draft; independent selection review, freeze and publication remain separate gates.
+are frozen locally, pending independent freeze review. See
+[exact instruction pins](INSTRUCTIONS.json) and [freeze evidence](INSTRUCTION-FREEZE.md).
+Local selection is independently accepted; public delivery remains unauthorized.
 
 Read [LICENSE](LICENSE), [NOTICE](NOTICE),
 [third-party notices](source-history/THIRD_PARTY_NOTICES.md),

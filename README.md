@@ -9,12 +9,13 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-The accepted refusal-evidence successor is selected locally; public delivery is
-not yet authorized. Instructions remain draft. Use this reviewed checkout, not
-unchanged public main. The [delivery pointer](releases/SELECTED.json) binds the
-exact whole envelope; [local selection](releases/canonical-refusal-successor-fs-v1/LOCAL-SELECTION.md)
-records the review boundaries. Instruction freeze and publication remain separate.
-Do not overlay installations or migrate contributor commands.
+The accepted refusal-evidence successor is selected locally. Instructions are
+frozen locally, pending independent freeze review; public delivery is not yet
+authorized. Use this reviewed checkout, not unchanged public main. The
+[delivery pointer](releases/SELECTED.json) binds the exact whole envelope;
+[instruction pins and review boundaries](releases/canonical-refusal-successor-fs-v1/INSTRUCTION-FREEZE.md)
+are separate from publication authority. Do not overlay installations or migrate
+contributor commands.
 
 ## Keep source-checkout and customer instructions separate
 
