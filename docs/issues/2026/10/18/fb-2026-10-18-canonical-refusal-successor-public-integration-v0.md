@@ -2,7 +2,7 @@
 
 - Slug: canonical-refusal-successor-public-integration-v0
 - Tag: fb/2026-10-18/canonical-refusal-successor-public-integration-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -109,6 +109,7 @@
 
 
 
+
 ## Problem
 1. Accepted refusal-successor layout is not yet integrated against the exact incoming public revision.
 
@@ -118,8 +119,10 @@
 
 
 
+
 ## Goal
 1. Project the reviewed 88-path delta with complete source/notice carriage, preserving contributor governance and predecessor selection.
+
 
 
 
@@ -138,6 +141,11 @@
 
 
 
+
+## Verified-by
+- /tmp/aware-refusal-integration-review.YuUEi20l/integration.xml sha256:2277d845d2c061cf78b2c3cf021b1d17249dc94a69a75658e7e8f819efadff18 eight passes; guards.xml sha256:a9048200ea5048b75a5ddb35ca4ea2d58a0fce72b8d9da02abd3b9ad3c034f57 28 passes; no new replay for acceptance.
+- git:61998bf34357560cb57d1dfff356a2e07490561c
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
@@ -145,3 +153,7 @@
 - 28 guard cases and eight final integration cases pass with zero skips. Fresh offline checkout-hidden 42-package installation verifies exact lock, no editables/direct URLs, complete retained envelope, dependency checks, fifteen help entrances, no-identity and no-reuse refusals. Initial seven-pass/one inherited wording-assertion failure and first successful installation remain retained; only maintainer assertion corrected. Exact accepted layout/software unchanged. Ready for observed-guard dry-run then identical 92-path local apply, not selection/freeze/push; independent integration review remains next. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Local implementation git:6141e4da000540ea0fbdb95832e1b153404b29ac publishes exactly all 92 planned paths; original observed and committed Issue digest b5e8721e07b70017ee3b62f8cb6858688a054ff96b4d7aa06f9a377910348d10. Original CAS/index applied without debt; checkout/index clean, range whitespace empty. Full captures retained. 28 guards and eight integration passes, fresh offline source-hidden 42-package install; initial inherited assertion failure retained. Submit for independent review before closing. This two-path evidence handoff changes only Issue/report, no selection, freeze, push, evaluation or software. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Human supplied independent bounded integration PASS for a4fee4055576 / 711eaa71de5f; original public implementation 6141e4da0005 has exact 92 paths and handoff a7d2bf5e1e01 has two. Independent 28 guards plus eight cases including fresh offline hidden 42-package install pass; source/legal carriage, context, predecessor, original guards/CAS/index and clean checkout confirmed. Wording assertion only was corrected; six-gap metadata check preserved. Record acceptance without rerun, then original-owner closeout and separately scoped local selection. Whole-envelope only; no freeze, push, evaluation or CPython work. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independent bounded local integration acceptance recorded; original 92-path implementation and two-path handoff, source/legal carriage, contributor/customer context, original guards/CAS/index and fresh 42-package installation confirmed. Whole-envelope only; separate local selection/instruction freeze/publication remain held. Frozen external U/V/R unchanged.
