@@ -2,7 +2,7 @@
 
 - Slug: canonical-refusal-successor-instruction-freeze-v0
 - Tag: fb/2026-10-18/canonical-refusal-successor-instruction-freeze-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -27,6 +27,7 @@
 
 
 
+
 ## Problem
 1. Local selection is independently accepted and closed at af25f6f6e3a2, but operational instructions remain draft and unpinned to the exact accepted successor.
 
@@ -35,8 +36,10 @@
 
 
 
+
 ## Goal
 1. Freeze fourteen instruction/example byte pins against af25f6f6e3a2586bb05e7d6c893f7f9a2a4612d3, preserve operational blocks/software/carriage/contributor selection, qualify unchanged installer and pure example without publishing.
+
 
 
 
@@ -54,9 +57,18 @@
 
 
 
+
+## Verified-by
+- Human independent PASS; /tmp/aware-refusal-freeze-review.R3QWpZ2w/freeze.xml sha256:523072a40afe98b9706eaaa3f52a90c5f2c14d2286a49f5530b5008546cb4a71; seven passes zero failures/errors/skips; separate installed 1142-byte roundtrip six rendered members cleanup closed
+- git:e322ea71c28541a10f5213adbf781bc35498d4af
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Seven checks pass zero skips incl fresh offline checkout-hidden 42-package install; fourteen instruction pins exact. XML /tmp/aware-refusal-instruction-freeze.Gmm8T3E8/instructions.xml sha256:3fc895d4324185efaef5e418022dc63b6683915792cce43a380446b6c59ae814. Separate installed typed example roundtrips 1142 bytes, six pure members, cleanup closed, no documents/authority; result sha256:29b3a962210676d579f63b2f85a5d8b961039f9b73c8f616f3afdc18db234428. Preserve eleven-path scope, 1627 unaffected bytes and 1634 Git modes, operational blocks, carriage/contributor authority. Two rejected documentation patch contexts retained as no-effect diagnostics. Both Issues In Progress for independent freeze review; no push/evaluation/software change. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Implementation 1146006cc27852be6d4cd10dd1a2dbc2c600af67 has exact eleven paths, original committed Issue guard sha256:53bb254140c93d12129e4a6819f0c1569fd7005d002e2610c9e8fa411a28dddc, completed reference CAS/shared index and no debt. Complete apply capture sha256:b4bd0a812270a44698823ba24beec6af215248dda73114175c4ce83de9abc2a3 retained. Report/Issue only handoff; all fourteen pins and software/carriage unchanged. Seven-case fresh-install and separate pure typed results ready for independent bounded freeze review. Both Issues remain In Progress; no push/evaluation/CPython action. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Human supplied independent bounded PASS for producer 5167ad9fa79f / 8e769e7d434f and public 1146006cc278 / d2a34631c70b. Receipt /tmp/aware-refusal-freeze-review.R3QWpZ2w/freeze.xml SHA256 523072a40afe98b9706eaaa3f52a90c5f2c14d2286a49f5530b5008546cb4a71: seven passes zero failures/errors/skips incl fresh offline checkout-hidden 42-package install. Fourteen exact pins, operational conservation, original scopes/guards/CAS/index confirmed. Separate independent installed example roundtrips 1142 bytes/six pure members/cleanup closed/no documents or authority. No rerun or artifact/pin/pointer change to record acceptance. Close through original owner; exact target/range publication authorization, acquisition and evaluation remain separate. Whole envelope mandatory, frozen U/V/R unchanged, no push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Bounded instruction freeze independently accepted: seven checks including fresh offline checkout-hidden 42-package installation, fourteen exact pins, original scopes/guards/receipts and separate pure typed example confirmed. Software/operational/legal/contributor bytes unchanged. Whole-envelope only; target/range publication, acquisition and evaluation separate.
