@@ -85,3 +85,29 @@ operational blocks remain unchanged. No governed two-review/apply, broad runtime
 matrix, unassisted onboarding or V/R execution is repeated by this proof.
 Original refusal/retention/cleanup distinctions and historical uncertainty remain
 preserved. Ruff/format and authored whitespace checks pass.
+
+## Local implementation and independent handoff
+
+Implementation `136ab04f255112b1efe60528fe99606d0b96d2ef` changes exactly the
+eight admitted paths. Original publication receipt is
+`git:136ab04f255112b1efe60528fe99606d0b96d2ef`. Original observed guard and
+committed Issue-byte SHA-256 are
+`379b1e6f92091d11ae79f0b323d4ea8f83786b8a74da296e52bb3c415fc92d83`.
+Dry-run and identical apply bind the exact eight paths; CAS/index completed
+without reconciliation debt, and the checkout/index are clean after apply.
+
+Complete captures remain under `/tmp/aware-refusal-local-selection.FXNHLsCd`.
+Implementation dry-run SHA-256:
+`510e9eaf7f11d65caa7165ece31ac7b6e31b544eac58996da8469c45e00c120e`.
+Implementation apply SHA-256:
+`9a75679c87d0f4c748a9a89b053fa06e15003dcffc24294e6866a43d6c8725bc`.
+This report and the original Issue receive a separately observed two-path evidence
+handoff. Neither that handoff nor local selection freezes instructions or grants
+publication/operation authority.
+
+Independent bounded local-selection review is next. Confirm exact baseline
+accounting, artifact-derived pointer without package inventory, preserved
+commands/source/legal carriage, original guards/receipts and fresh installer proof.
+Both Issues stay In Progress pending that review. Only after acceptance may the
+owners close them and admit instruction freeze separately. No push or external
+evaluation is included; frozen U/V/R remains unchanged.
