@@ -1,9 +1,10 @@
 # Reviewed Workspace whole distribution
 
-Prepared unselected successor. Envelope `canonical-reviewed-workflow-source-notice-review-v1.tar.gz` is SHA-256 `03eb59691cfa1aa1e01e95a7c2727eb3d093ac28e5bd26ae7073416bb61f01b2`;
+Locally selected successor; public delivery is not yet authorized. Envelope `canonical-reviewed-workflow-source-notice-review-v1.tar.gz` is SHA-256 `03eb59691cfa1aa1e01e95a7c2727eb3d093ac28e5bd26ae7073416bb61f01b2`;
 accepted software is `899b2ef4beabf074fbdf7ea5980d4eaea1967ef4318b3ebc772814ee84b54727`. Use [the entrance](../../README.md) and
 [the original whole-envelope installer](../../protocols/install.py). Instructions
-remain draft; integration, selection, freeze and delivery require separate review.
+remain draft; [local selection](LOCAL-SELECTION.md) requires independent review.
+Instruction freeze and public delivery remain separately governed.
 
 Read [LICENSE](LICENSE), [NOTICE](NOTICE),
 [third-party notices](source-history/THIRD_PARTY_NOTICES.md),
