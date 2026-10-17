@@ -1,11 +1,14 @@
 # Refusal-evidence whole distribution
 
-Selected locally; public delivery is not yet authorized. Envelope `canonical-refusal-successor-source-notice-review-v1.tar.gz` is SHA-256 `e96946272b7812e833d41370ec5bfbba722f2f6f91720f994abcf9f407c975f7`;
+Software was published at
+[`afa2d7116a296b5585ed7acac158eede2c447d5b`](https://github.com/aware-network/aware/tree/afa2d7116a296b5585ed7acac158eede2c447d5b).
+Envelope `canonical-refusal-successor-source-notice-review-v1.tar.gz` is SHA-256 `e96946272b7812e833d41370ec5bfbba722f2f6f91720f994abcf9f407c975f7`;
 accepted software is `34c3c9d16d5bec1aba75add5ce03e55d32b25c828da78e878288b19453d6a51c`. Use [the entrance](../../README.md) and
 [original whole-envelope installer](../../protocols/install.py). Instructions
-are frozen locally, pending independent freeze review. See
-[exact instruction pins](INSTRUCTIONS.json) and [freeze evidence](INSTRUCTION-FREEZE.md).
-Local selection is independently accepted; public delivery remains unauthorized.
+have [successor byte pins](PUBLIC-INSTRUCTIONS.json) and
+[status provenance](PUBLIC-STATUS.md) for this review checkpoint. The
+[historical instruction freeze](INSTRUCTION-FREEZE.md) remains immutable.
+Delivery and instruction review grant no operational authority.
 
 Read [LICENSE](LICENSE), [NOTICE](NOTICE),
 [third-party notices](source-history/THIRD_PARTY_NOTICES.md),

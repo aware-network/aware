@@ -1,10 +1,13 @@
 # Reviewed repository setup
 
-This prepared, unselected refusal successor uses `aware workspace review` for one
-bounded A1 task: creating `aware.repo.toml` through the original Workspace,
-FileSystem and Issue owners. Instructions remain draft. Start with
-[the entrance](../../README.md) and [first Issue](../issues/FIRST-ISSUE.md).
-This is not package creation, application implementation, A2 or tree completion.
+The refusal successor's software was published at
+[`afa2d7116a296b5585ed7acac158eede2c447d5b`](https://github.com/aware-network/aware/blob/afa2d7116a296b5585ed7acac158eede2c447d5b/protocols/workspace/REVIEWED-SETUP.md).
+It uses `aware workspace review` for one bounded A1 task: creating `aware.repo.toml`
+through the original Workspace, FileSystem and Issue owners. Start with
+[the entrance](../../README.md) and [first Issue](../issues/FIRST-ISSUE.md);
+[status provenance](../../releases/canonical-refusal-successor-fs-v1/PUBLIC-STATUS.md)
+identifies this instruction review checkpoint. This is not package creation,
+application implementation, A2 or tree completion.
 
 ## Inputs and configuration
 

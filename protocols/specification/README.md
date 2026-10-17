@@ -22,9 +22,9 @@ include the unchanged canonical typed example. Executing it only prepares input 
 setup, draft preview/apply, observation and publication retain their original
 owners and separately admitted authority.
 
-The locally selected refusal successor has separate
-[candidate-bound instruction pins](../../releases/canonical-refusal-successor-fs-v1/INSTRUCTIONS.json)
-and [freeze evidence](../../releases/canonical-refusal-successor-fs-v1/INSTRUCTION-FREEZE.md).
-That local freeze remains pending independent review, not public delivery or
-renewed operational authority. The typed example and all operational commands
-remain unchanged.
+The refusal successor's software was published at
+[`afa2d7116a296b5585ed7acac158eede2c447d5b`](https://github.com/aware-network/aware/blob/afa2d7116a296b5585ed7acac158eede2c447d5b/protocols/specification/README.md).
+Its [successor instruction pins](../../releases/canonical-refusal-successor-fs-v1/PUBLIC-INSTRUCTIONS.json)
+and [status provenance](../../releases/canonical-refusal-successor-fs-v1/PUBLIC-STATUS.md)
+describe this review checkpoint, not renewed operational authority. The typed
+example and all operational commands remain unchanged.

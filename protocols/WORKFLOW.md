@@ -1,13 +1,14 @@
 # Aware filesystem workflow
 
-Accepted refusal-evidence successor selected locally. Instructions are frozen
-locally, pending independent freeze review; public delivery is not yet authorized.
+Refusal-evidence software was published at
+[`afa2d7116a296b5585ed7acac158eede2c447d5b`](https://github.com/aware-network/aware/blob/afa2d7116a296b5585ed7acac158eede2c447d5b/protocols/WORKFLOW.md).
 One 42-package installation composes original Issue, Protocol, SPEC and bounded
 Workspace review owners. Agent 0.2.0a9 uses Workspace SDK/runtime/FS
 0.2.11/0.2.16/0.1.10, FileSystem 0.3.8 and Issue SDK 0.10.6.
-The delivered predecessor remains unchanged. These local instruction pins do not
-establish public availability, unassisted onboarding or an aggregate PASS. See
-[freeze evidence](../releases/canonical-refusal-successor-fs-v1/INSTRUCTION-FREEZE.md).
+The delivered predecessor remains unchanged. See
+[status and instruction review provenance](../releases/canonical-refusal-successor-fs-v1/PUBLIC-STATUS.md)
+for this review checkpoint, separate from delivered software. Delivery does not
+establish unassisted successor onboarding or an aggregate PASS.
 
 ## Install with the complete envelope
 
