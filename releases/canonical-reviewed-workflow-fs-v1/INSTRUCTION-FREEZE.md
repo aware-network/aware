@@ -80,3 +80,29 @@ The earlier six non-install checks overlap the final seven; they do not add six
 distinct cases or another installation. No full domain matrix, governed apply
 or unassisted onboarding was repeated. Independent bounded freeze review stays
 pending; original publication refs and the separate report/Issue handoff follow.
+
+## Original publication and independent review handoff
+
+Implementation 7a080da876928c90c2c56ab9591bd6662d2c8066 publishes exactly the
+eleven admitted paths through the original contributor owner. Original Issue
+guard is sha256:89ba3b10439e323a7c067d91c5d66ba2d9d9da472cab3d90215892fdf99790b9;
+publication ref is git:7a080da876928c90c2c56ab9591bd6662d2c8066.
+Dry-run/apply target paths match the actual commit. reference_update=cas_applied,
+shared_index_projection=applied and index_reconciliation_pending=false. Checkout
+and index were clean after apply. The report and genuine Issue then receive
+a separately governed two-path evidence handoff.
+
+Raw proof identities, SHA-256:
+
+- instructions.xml: 6a2cde117efe85baa306d7f92278cc1f473366844c9a0903fa1f158ad9e63795.
+- typed-roundtrip.json: 29b3a962210676d579f63b2f85a5d8b961039f9b73c8f616f3afdc18db234428.
+- installed-receipt.json: 9792ae8a45757fe9652419d66493cc3ae0af6e8f7612aed88a5e8eb154a4ec89.
+- public-implementation-apply.json: 9138d79b93a41eaaab7f498d474ce4ecf55d600c871fb3615ab9b1246f028968.
+
+Baseline-to-implementation git diff --check exits zero with empty raw stdout
+(SHA-256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855).
+No historical source/legal whitespace was normalized. Review exact pins,
+unchanged operational blocks and artifact carriage, original owner scopes,
+guards and receipts, actual deltas and fresh offline proof before closeout.
+Both instruction-freeze Issues remain In Progress. Publication remains a separate
+explicit target/range authorization followed by pinned acquisition proof.
