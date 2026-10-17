@@ -833,3 +833,357 @@ def test_concise_projection_requires_durable_full_capture():
     )
     with pytest.raises(ValueError, match="complete_retained_capture"):
         concise_result(outcome)
+
+
+def _stale_review(context, drift):
+    repository, evidence, client, request, _ = context
+    review = client.preview_review(request)
+    path = repository / (ISSUE if drift == "issue" else "aware.protocol.toml")
+    path.write_bytes(path.read_bytes() + b"\n# independently changed\n")
+    return repository, evidence, client, request, review
+
+
+@pytest.mark.parametrize("drift", ["issue", "manifest"])
+@pytest.mark.parametrize("operation", ["read", "decision", "apply"])
+def test_stale_refusal_has_actual_record_and_independent_cleanup(
+    context, monkeypatch, drift, operation
+):
+    from aware_workspace_sdk.architecture_setup_review_codec import (
+        review_value_from_json,
+    )
+
+    repository, evidence, client, request, _ = context
+    if operation == "apply":
+        _, review, inputs = apply_ready(context)
+        path = repository / (ISSUE if drift == "issue" else "aware.protocol.toml")
+        path.write_bytes(path.read_bytes() + b"\n# independently changed\n")
+    else:
+        _, _, _, _, review = _stale_review(context, drift)
+    before = {
+        str(p): (p.read_bytes(), p.stat().st_mode)
+        for p in repository.rglob("*")
+        if p.is_file()
+    }
+    original_files = set(evidence.iterdir())
+    calls = []
+
+    def unexpected_driver(*args, **kwargs):
+        calls.append("driver")
+        raise AssertionError("stale current inputs must precede product dispatch")
+
+    monkeypatch.setattr(client._runtime, "_run_driver", unexpected_driver)
+    with pytest.raises(v.SetupReviewError) as caught:
+        if operation == "read":
+            client.read_review(
+                review.reference, expected_target=request.target, purpose="current_use"
+            )
+        elif operation == "decision":
+            client.record_review_decision(
+                review.reference,
+                decision=v.SetupScopeDecision(
+                    review.reference,
+                    "accept_reviewed_effect_scope",
+                    EXECUTION,
+                    "intent:stale",
+                ),
+            )
+        else:
+            client.apply_reviewed(inputs, client_intent_id="intent:apply")
+    error = caught.value
+    failure = error.failure
+    assert failure.code == (
+        "review_issue_changed"
+        if drift == "issue"
+        else "review_authority_sources_changed"
+    )
+    assert failure.retention.status == "published"
+    assert failure.retention.ledger_complete
+    assert failure.retention.physical_refusal is None
+    assert error.retention_error is None
+    assert not failure.interruption
+    assert calls == []
+    assert (
+        len(failure.retention.sequence_observations)
+        == len(failure.retention.sequence_cleanup)
+        == 1
+    )
+    assert failure.retention.sequence_cleanup[0].sequence.release == "confirmed"
+    reference = failure.reference
+    assert reference.record_contract == v.REVIEW_SCHEMA_IDS[v.SetupRefusalRecord]
+    assert set(evidence.iterdir()) - original_files == {evidence / reference.locator}
+    read = client.read_evidence(reference, expected_target=request.target)
+    refusal = review_value_from_json(v.SetupRefusalRecord, read.raw_bytes.decode())
+    # The original Issue wire omits raw Markdown by design; compare its exact
+    # owner encoding, not the decoder's intentionally absent raw-source cache.
+    assert review_value_to_payload(refusal) == review_value_to_payload(failure.refusal)
+    assert refusal.review_ref == review.reference
+    assert refusal.request == review.record.request
+    assert refusal.phase == failure.phase and refusal.code == failure.code
+    assert refusal.reads == failure.reads
+    assert refusal.reads and all(
+        row.original.cleanup.outcome == "closed" for row in refusal.reads
+    )
+    assert refusal.product_dispatch == "not_invoked" and not refusal.authorizes_retry
+    if operation == "read":
+        assert (
+            refusal.scope_decision
+            is refusal.apply_decision
+            is refusal.inputs_ref
+            is None
+        )
+    elif operation == "decision":
+        assert refusal.scope_decision.client_intent_id == "intent:stale"
+        assert refusal.apply_decision is refusal.inputs_ref is None
+    else:
+        assert refusal.apply_decision == inputs.record.decision
+        assert refusal.inputs_ref == inputs.reference and refusal.scope_decision is None
+    assert (refusal.observed_sources is None) is (drift == "issue")
+    if drift == "manifest":
+        assert refusal.observed_sources.ledger_complete
+        assert refusal.issue_cleanup.outcome == "confirmed"
+    assert before == {
+        str(p): (p.read_bytes(), p.stat().st_mode)
+        for p in repository.rglob("*")
+        if p.is_file()
+    }
+    with pytest.raises(v.SetupReviewError, match="original_review_record_required"):
+        client.read_review(
+            reference, expected_target=request.target, purpose="current_use"
+        )
+    cleanup = client.release_client()
+    assert cleanup.ledger_complete and cleanup.directory.release == "confirmed"
+    assert client.release_client() is cleanup
+
+
+@pytest.mark.parametrize("drift", ["issue", "manifest"])
+@pytest.mark.parametrize("fault", ["write", "lost_return", "cleanup", "cancel"])
+def test_refusal_capture_failure_preserves_original_denial_and_unknowns(
+    context, monkeypatch, drift, fault
+):
+    _, evidence, client, request, review = _stale_review(context, drift)
+    from aware_file_system import private_directory as private
+
+    class Cancel(BaseException):
+        pass
+
+    secondary = (
+        Cancel("capture interrupted")
+        if fault == "cancel"
+        else OSError("capture unavailable")
+    )
+    write = client._runtime.store.write_metadata
+    release = private.release_private_file_sequence
+    calls = []
+
+    def failed_write(*args, **kwargs):
+        calls.append("write")
+        if fault == "lost_return":
+            write(*args, **kwargs)
+        raise secondary
+
+    def incomplete_release(child):
+        calls.append("release")
+        actual = release(child)
+        return dataclasses.replace(
+            actual,
+            sequence=dataclasses.replace(
+                actual.sequence, release="unknown", ledger_complete=False
+            ),
+        )
+
+    if fault == "cleanup":
+        monkeypatch.setattr(
+            private, "release_private_file_sequence", incomplete_release
+        )
+    else:
+        monkeypatch.setattr(client._runtime.store, "write_metadata", failed_write)
+    with pytest.raises(Cancel if fault == "cancel" else v.SetupReviewError) as caught:
+        client.read_review(
+            review.reference, expected_target=request.target, purpose="current_use"
+        )
+    error = caught.value
+    failure = (
+        error.failure if isinstance(error, Exception) else error.setup_review_failure
+    )
+    assert failure.code == (
+        "review_issue_changed"
+        if drift == "issue"
+        else "review_authority_sources_changed"
+    )
+    assert not failure.retention.ledger_complete
+    assert failure.retention.status == "incomplete"
+    assert failure.refusal is not None and failure.refusal.code == failure.code
+    assert (
+        failure.reference == review.reference
+    )  # no invented completed refusal reference
+    if fault == "cancel":
+        assert error is secondary and failure.interruption
+        assert error.setup_review_retention_error is secondary
+    else:
+        assert error.retention_error is not None
+        if fault != "cleanup":
+            assert error.retention_error is secondary
+    assert len(calls) == 1
+    with pytest.raises(v.SetupReviewError, match="review_client_released"):
+        client.read_review(
+            review.reference, expected_target=request.target, purpose="current_use"
+        )
+    if fault == "lost_return":
+        assert (evidence / f"a1-{review.reference.attempt_ref}-refusal.json").is_file()
+    client.release_client()
+    client.release_client()
+    assert len(calls) == 1
+
+
+def test_second_stale_denial_cannot_overwrite_or_reuse_first_refusal(context):
+    _, evidence, client, request, review = _stale_review(context, "issue")
+    with pytest.raises(v.SetupReviewError) as first:
+        client.read_review(
+            review.reference, expected_target=request.target, purpose="current_use"
+        )
+    reference = first.value.failure.reference
+    path = evidence / reference.locator
+    before = path.read_bytes()
+    with pytest.raises(v.SetupReviewError) as second:
+        client.read_review(
+            review.reference, expected_target=request.target, purpose="current_use"
+        )
+    assert second.value.failure.code == "review_issue_changed"
+    assert second.value.retention_error is not None
+    assert not second.value.failure.retention.ledger_complete
+    assert second.value.failure.retention.physical_refusal is not None
+    assert path.read_bytes() == before
+
+
+def test_spent_physical_sequence_remains_incomplete(context):
+    _, _, client, _, _ = context
+    _, _, inputs = apply_ready(context)
+    result = client.apply_reviewed(inputs, client_intent_id="intent:apply")
+    assert result.product_status == "apply_completed"
+    with pytest.raises(v.SetupReviewError) as caught:
+        client.apply_reviewed(inputs, client_intent_id="intent:apply")
+    assert caught.value.failure.code == "original_unconsumed_apply_inputs_required"
+    assert not caught.value.failure.retention.ledger_complete
+
+
+def test_new_client_spent_apply_keeps_original_physical_refusal(context):
+    repository, evidence, client, _, _ = context
+    _, review, inputs = apply_ready(context)
+    assert (
+        client.apply_reviewed(inputs, client_intent_id="intent:apply").product_status
+        == "apply_completed"
+    )
+    before = (repository / "aware.repo.toml").read_bytes()
+    with WorkspaceSetupReviewClient.filesystem(
+        repository_root=repository,
+        evidence_root=evidence,
+        execution_id=EXECUTION,
+        authority_manifest_locator="aware.protocol.toml",
+    ) as other:
+        with pytest.raises(v.SetupReviewError) as caught:
+            other.record_review_decision(
+                review.reference,
+                decision=v.SetupApplyDecision(
+                    review.reference,
+                    "accept_reviewed_final_files",
+                    EXECUTION,
+                    "intent:apply",
+                ),
+            )
+        failure = caught.value.failure
+        assert failure.code == "sequence_request_baseline_changed"
+        assert failure.retention.physical_refusal is not None
+        assert not failure.retention.ledger_complete
+        assert (
+            failure.reference is None
+            or failure.reference.record_contract
+            != v.REVIEW_SCHEMA_IDS[v.SetupRefusalRecord]
+        )
+        assert not list(evidence.glob("*-refusal.json"))
+    assert (repository / "aware.repo.toml").read_bytes() == before
+
+
+def test_uncertain_read_cleanup_is_exposed_and_cannot_become_semantic_refusal(
+    context, monkeypatch
+):
+    from aware_file_system import private_directory as private
+
+    _, evidence, client, request, review = _stale_review(context, "issue")
+    original = private.observe_private_directory_file
+    returned = []
+
+    def uncertain(*args, **kwargs):
+        actual = original(*args, **kwargs)
+        result = dataclasses.replace(
+            actual,
+            directory_after=dataclasses.replace(
+                actual.directory_after, ledger_complete=False
+            ),
+        )
+        returned.append(result)
+        return result
+
+    monkeypatch.setattr(private, "observe_private_directory_file", uncertain)
+    with pytest.raises(v.SetupReviewError) as caught:
+        client.read_review(
+            review.reference, expected_target=request.target, purpose="current_use"
+        )
+    assert caught.value.failure.code == "review_read_cleanup_incomplete", repr(
+        caught.value.__cause__
+    )
+    assert not caught.value.failure.retention.ledger_complete
+    assert caught.value.failure.reads == tuple(returned)
+    assert not caught.value.failure.reads[0].directory_after.ledger_complete
+    assert caught.value.failure.reads[0].original.cleanup.outcome == "closed"
+    assert not list(evidence.glob("*-refusal.json"))
+
+
+@pytest.mark.parametrize("cleanup", ["unknown", "raised", "cancel"])
+def test_semantic_denial_cannot_promote_independent_issue_cleanup(
+    context, monkeypatch, cleanup
+):
+    from aware_issue_sdk.workspace_setup_admission import (
+        IssueWorkspaceSetupAdmissionClient,
+    )
+
+    _, _, client, request, review = _stale_review(context, "manifest")
+    release = IssueWorkspaceSetupAdmissionClient.release_client
+    calls = []
+
+    class Cancel(BaseException):
+        pass
+
+    cancellation = Cancel()
+
+    def uncertain(owner):
+        actual = release(owner)
+        calls.append(actual)
+        if cleanup == "cancel":
+            raise cancellation
+        if cleanup == "raised":
+            raise OSError("Issue release return lost")
+        return dataclasses.replace(actual, outcome="unknown", ledger_complete=False)
+
+    monkeypatch.setattr(IssueWorkspaceSetupAdmissionClient, "release_client", uncertain)
+    with pytest.raises(Cancel if cleanup == "cancel" else v.SetupReviewError) as caught:
+        client.read_review(
+            review.reference, expected_target=request.target, purpose="current_use"
+        )
+    failure = (
+        caught.value.setup_review_failure
+        if cleanup == "cancel"
+        else caught.value.failure
+    )
+    assert failure.code == "review_authority_sources_changed"
+    assert not failure.cleanup.ledger_complete
+    if cleanup == "cancel":
+        assert caught.value is cancellation and failure.interruption
+        assert not failure.retention.ledger_complete
+    else:
+        assert (
+            failure.retention.ledger_complete
+        )  # refusal capture and Issue cleanup are independent
+    cleanup_receipt = client.release_client()
+    assert not cleanup_receipt.ledger_complete
+    assert client.release_client() is cleanup_receipt
+    assert len(calls) == 1

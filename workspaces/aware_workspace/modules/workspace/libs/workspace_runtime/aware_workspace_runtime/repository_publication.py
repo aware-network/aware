@@ -2,8 +2,9 @@
 
 Receipt-free verification and attempt observation read the retained ledger,
 never repository freshness or a repository mutation lock. The original physical
-writer composes single-use Issue work through its SDK; completion follows
-confirmed physical release. Source qualification is not consumer installation.
+writer composes distinct single-use Issue work or qualified initial configuration
+through their original admissions; completion follows confirmed physical release.
+Source qualification is not consumer installation.
 """
 
 from __future__ import annotations
@@ -48,6 +49,14 @@ class _ExecutionClaim:
 class _PhysicalAuthorization:
     receipt_ref: str
     issue_ref: str
+    profile = "issue_work"
+
+
+@dataclass(frozen=True)
+class _InitialConfigurationAuthorization:
+    receipt_ref: str
+    request_ref: str
+    profile = "initial_configuration"
 
 
 def spend_repository_physical_claim(physical, transaction, claim):
@@ -153,6 +162,20 @@ class _WorkAdmissionState:
     purpose: str = "repository_publication"
 
 
+@dataclass
+class _InitialConfigurationWorkState:
+    """Distinct initial admission state, with no Issue lease/client/ref fields."""
+
+    plan: WorkspaceRepositoryCommitPlan
+    phase: str = "enrolled"
+    purpose: str = "initial_configuration"
+    enrollment: object = None
+    transaction: object = None
+    lease: object = None
+    cleanup_state: str = "not_attempted"
+    diagnostics: tuple[str, ...] = ()
+
+
 class WorkspaceRepositoryPublicationRuntime:
     def __init__(self, physical):
         if type(physical) not in _CANDIDATE_PORT_TYPES:
@@ -212,7 +235,9 @@ class WorkspaceRepositoryPublicationRuntime:
             reconciliation=request,
         )
 
-    def _plan_repository_operation(self, request, *, reconciliation=None):
+    def _plan_repository_operation(
+        self, request, *, reconciliation=None, initial_configuration=None
+    ):
         from aware_workspace_sdk.repository_publication.codec import (
             repository_publication_value_from_payload,
             repository_publication_value_to_payload,
@@ -235,9 +260,15 @@ class WorkspaceRepositoryPublicationRuntime:
             # Own physical port supplies observations only. No authority is
             # constructed from capture values and no Git writer is invoked.
             captured = (
-                self._physical.capture_candidate(request)
-                if reconciliation is None
-                else self._physical.capture_reconciliation(request, reconciliation)
+                self._physical.capture_initial_configuration(
+                    request, initial_configuration
+                )
+                if initial_configuration is not None
+                else (
+                    self._physical.capture_candidate(request)
+                    if reconciliation is None
+                    else self._physical.capture_reconciliation(request, reconciliation)
+                )
             )
             self._current()
             binding = WorkspaceRepositoryPublicationBinding(
@@ -267,7 +298,9 @@ class WorkspaceRepositoryPublicationRuntime:
                 binding,
                 observation,
                 capture=captured,
-                purpose="repository_publication"
+                purpose="initial_configuration"
+                if initial_configuration is not None
+                else "repository_publication"
                 if reconciliation is None
                 else "index_reconciliation",
                 reconciliation_request=reconciliation,
@@ -463,6 +496,8 @@ class WorkspaceRepositoryPublicationRuntime:
 
         if type(issue_client) is not IssueRepositoryPublicationClient:
             raise TypeError("Original supplying Issue SDK client required")
+        if self._snapshot_handle(plan).purpose == "initial_configuration":
+            raise WorkspacePublicationHandleRefusal("initial_plan_is_not_issue_work")
         self._current()
         with self._lock:
             original = self._snapshot_handle(plan)
@@ -573,6 +608,17 @@ class WorkspaceRepositoryPublicationRuntime:
     def publish_repository_commit(self, plan, admission):
         return self._execute_repository_operation(plan, admission)
 
+    def _initial_configuration_work(self, plan):
+        return _InitialConfigurationWorkState(plan)
+
+    @staticmethod
+    def _detached_binding(binding):
+        from aware_workspace_sdk.repository_publication.codec import (
+            repository_publication_value_to_payload,
+        )
+
+        return repository_publication_value_to_payload(binding)
+
     def reconcile_repository_index(self, request, admission):
         from aware_workspace_sdk.repository_publication.ports import (
             WorkspaceRepositoryIndexReconcileResult,
@@ -610,20 +656,25 @@ class WorkspaceRepositoryPublicationRuntime:
             result.diagnostics,
         )
 
-    def _execute_repository_operation(self, plan, admission, *, reconciliation=False):
-        from aware_issue_sdk.repository_publication import (
-            IssueRepositoryPublicationConsumeRequest,
-        )
-
+    def _execute_repository_operation(
+        self, plan, admission, *, reconciliation=False, initial_configuration=False
+    ):
         self._current()
         with self._lock:
-            state = self._work_state(admission)
+            if initial_configuration:
+                from .initial_authoring import require_initial_configuration_work
+
+                state = require_initial_configuration_work(self, admission)
+            else:
+                state = self._work_state(admission)
             original = self._plans.get(plan)
             if (
                 state.plan is not plan
                 or original is None
                 or original.phase != "planned"
                 or (original.purpose == "index_reconciliation") != reconciliation
+                or (original.purpose == "initial_configuration")
+                != initial_configuration
             ):
                 raise WorkspacePublicationHandleRefusal(
                     "workspace_original_enrolled_plan_required"
@@ -637,22 +688,31 @@ class WorkspaceRepositoryPublicationRuntime:
         report = None
         diagnostics = ()
         try:
+            if initial_configuration:
+                # Durable dispatch precedes physical begin. Missing result after
+                # interruption remains uncertain; recovery never republishes.
+                state.lease = state.enrollment.consume()
             # Own physical revalidation holds the actual repository lock before
             # fresh Issue consumption. Consumption never calls back here.
             state.transaction = self._physical.begin(original.capture, binding)
             self._current()
-            state.lease = state.issue_client.consume_repository_publication(
-                state.enrollment,
-                IssueRepositoryPublicationConsumeRequest(
-                    binding.binding_ref,
-                    binding.attempt_ref,
-                    binding.provider_ref,
-                    binding.provider_generation,
-                    binding.execution_id,
-                    self._provider_ref,
-                    state.purpose,
-                ),
-            )
+            if not initial_configuration:
+                from aware_issue_sdk.repository_publication import (
+                    IssueRepositoryPublicationConsumeRequest,
+                )
+
+                state.lease = state.issue_client.consume_repository_publication(
+                    state.enrollment,
+                    IssueRepositoryPublicationConsumeRequest(
+                        binding.binding_ref,
+                        binding.attempt_ref,
+                        binding.provider_ref,
+                        binding.provider_generation,
+                        binding.execution_id,
+                        self._provider_ref,
+                        state.purpose,
+                    ),
+                )
             with self._lock:
                 self._current()
                 state.phase = "publishing"
@@ -662,7 +722,13 @@ class WorkspaceRepositoryPublicationRuntime:
                     state,
                     self._physical,
                     state.transaction,
-                    _PhysicalAuthorization(state.lease.receipt_ref, state.issue_ref),
+                    _InitialConfigurationAuthorization(
+                        state.lease.receipt_ref, binding.attempt_ref
+                    )
+                    if initial_configuration
+                    else _PhysicalAuthorization(
+                        state.lease.receipt_ref, state.issue_ref
+                    ),
                 )
             report = (
                 self._physical.reconcile(state.transaction, claim)
@@ -754,6 +820,9 @@ class WorkspaceRepositoryPublicationRuntime:
         if state.lease is None:
             return original.result
         try:
+            if initial_configuration:
+                original.result = state.enrollment.finish(original.result)
+                return original.result
             return self.finish_repository_publication(admission)
         except BaseException as error:  # noqa: BLE001 - late execution refusal preserves the invoked attempt
             with self._lock:

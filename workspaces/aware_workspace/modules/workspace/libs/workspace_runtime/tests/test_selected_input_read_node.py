@@ -302,7 +302,8 @@ async def test_retention_limit_refuses_without_allocating_source_bodies(tmp_path
         assert not value.issuer._pre_request_inputs
 
 
-async def test_original_selected_source_chain_uses_owned_parent_expectations(tmp_path, monkeypatch):
+@pytest.mark.parametrize("retain_after_assembly", [False, True])
+async def test_original_selected_source_chain_uses_owned_parent_expectations(tmp_path, monkeypatch, retain_after_assembly):
     from aware_code_semantic_contract_runtime import (
         ContentDigest,
         SemanticConfigurationCoordinate,
@@ -389,6 +390,14 @@ async def test_original_selected_source_chain_uses_owned_parent_expectations(tmp
                 assert len(assembly.source_results) == 2
                 assert assembly.source_results[0].result is result
                 assert assembly.source_results[1].expected is selected
+                if retain_after_assembly:
+                    with ExitStack() as retained, pytest.raises(RuntimeError, match="unassembled"):
+                        node.retain_source_evidence(retained)
+                    with pytest.raises(RuntimeError):
+                        node.validate()
+                    assert not value.issuer._pre_request_inputs
+                    assert not host._closed
+                    return
                 value.factory.validate_selected_input_node_use(node, assembly=assembly, closure=make_closure(assembly))
                 node.validate()
             assert not value.issuer._pre_request_inputs
@@ -406,6 +415,69 @@ async def test_foreign_selection_predecessor_refuses_before_reader(tmp_path, mon
                     use_ref="foreign", stage="selected_input", source_contracts=(),
                 )
             assert not value.issuer._pre_request_inputs
+
+
+async def test_planning_source_scopes_outlive_terminal_node_without_second_active_read(tmp_path, monkeypatch):
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with ExitStack() as retained:
+            with open_read(value) as node:
+                expected = node.prepare_source_expectation(
+                    use_ref="planning-evidence", stage="pre_request", source_coordinates=value.coordinates,
+                )
+                node.retain_source_evidence(retained)
+                assert not composition._SELECTED_INPUT_NODES
+                value.issuer.validate_semantic_input_source(value.selected, expected=expected)
+                with pytest.raises(RuntimeError):
+                    node.validate()
+                # The old evidence is still valid, but its node cannot resume.
+                with open_read(value) as successor:
+                    successor.validate()
+                    value.issuer.validate_semantic_input_source(value.selected, expected=expected)
+                assert value.issuer._pre_request_inputs
+            value.issuer.validate_semantic_input_source(value.selected, expected=expected)
+        assert not value.issuer._pre_request_inputs
+        with pytest.raises(SourceObservationUnavailable):
+            value.issuer.validate_semantic_input_source(value.selected, expected=expected)
+
+
+@pytest.mark.parametrize("binding", ["assembly_binding", "dependency_binding", "closure"])
+async def test_evidence_retention_cannot_transfer_execution_or_dependency_rights(tmp_path, monkeypatch, binding):
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value) as node, ExitStack() as retained:
+            node.prepare_source_expectation(use_ref="not-transferable", stage="pre_request",
+                                            source_coordinates=value.coordinates)
+            record = composition._selected_input_read_record(node)
+            setattr(record, binding, object())
+            with pytest.raises((RuntimeError, TypeError, AttributeError)):
+                node.retain_source_evidence(retained)
+            setattr(record, binding, None)
+            with pytest.raises(RuntimeError):
+                node.validate()
+        assert not value.issuer._pre_request_inputs
+
+
+async def test_source_retention_does_not_drop_scopes_when_retirement_is_pending(tmp_path, monkeypatch):
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        with open_read(value) as node, ExitStack() as retained:
+            expected = node.prepare_source_expectation(use_ref="pending-source-retention", stage="pre_request",
+                                                       source_coordinates=value.coordinates)
+            record = composition._selected_input_read_record(node)
+            original = composition._retire_selected_input_read
+
+            def pending(retiring):
+                retiring.live = False
+
+            with monkeypatch.context() as patch:
+                patch.setattr(composition, "_retire_selected_input_read", pending)
+                with pytest.raises(RuntimeError, match="guard release"):
+                    node.retain_source_evidence(retained)
+            assert record.live is False and record.stack is not None
+            assert value.issuer._pre_request_inputs
+            value.issuer.validate_semantic_input_source(value.selected, expected=expected)
+            original(record)
+            assert not value.issuer._pre_request_inputs
+            with pytest.raises(RuntimeError):
+                node.validate()
 
 
 async def test_held_rejection_clears_registered_custody(tmp_path, monkeypatch):

@@ -9,14 +9,26 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-The reviewed-workflow software was published at
-[`42a6740e29bb39ec9d332a63d52cb59540655ccd`](https://github.com/aware-network/aware/blob/42a6740e29bb39ec9d332a63d52cb59540655ccd/README.md).
-The [delivery pointer](releases/SELECTED.json)
-binds the accepted whole envelope; [public status](releases/canonical-reviewed-workflow-fs-v1/PUBLIC-STATUS.md)
-and [successor instruction pins](releases/canonical-reviewed-workflow-fs-v1/PUBLIC-INSTRUCTIONS.json)
-distinguish delivered software from this wording update and record its review checkpoint. Historical freeze
-records remain unchanged. Instructions and delivery records grant no operation authority.
-Do not overlay installations or migrate contributor commands.
+This is a **prepared, unselected refusal-evidence successor**. Instructions
+remain draft. The unchanged [delivery pointer](releases/SELECTED.json) still
+selects the [delivered reviewed-workflow predecessor](releases/canonical-reviewed-workflow-fs-v1/README.md).
+This proposed tree and its installer do not establish public availability of
+the successor. Integration, selection, instruction freeze and publication remain
+separate gates. Do not overlay installations or migrate contributor commands.
+
+## Keep source-checkout and customer instructions separate
+
+The acquired public source checkout has its own contributor `AGENTS.md` and
+separately pinned a6 command selection. Those instructions govern contributions
+there; they are not a bootstrap to copy into your customer repository or a
+reason to replace its selected command.
+
+In your explicitly chosen customer target, read the `AGENTS.md` and
+`aware.protocol.toml` produced by init. Use the installed consumer command's
+help and [first-Issue guide](protocols/issues/FIRST-ISSUE.md). Do not infer that
+a contributor composition or command name is available in the consumer product.
+For unfinished work, keep the durable owner and effect evidence; a different
+execution needs lawful transfer/admission, not merely a new process or transcript.
 
 ## Understand the rules
 
@@ -29,13 +41,13 @@ distinct. This filesystem composition starts no service.
 ## Inspect terms and install once
 
 Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Read
-[complete distribution terms and source](releases/canonical-reviewed-workflow-fs-v1/README.md)
+[complete distribution terms and source](releases/canonical-refusal-successor-fs-v1/README.md)
 before installation. Keep the entire envelope: terms, sources, corresponding
 source, component evidence and raw audit. Six detached-wheel legal gaps remain
 unrepaired; wheel-only acquisition, stripped bundles and registry publication
 are unaccepted.
 
-From the root of this reviewed checkout:
+From the root of this prepared checkout:
 
 ```sh
 set -eu
@@ -118,8 +130,10 @@ reads full evidence or validated summaries without replay or renewed authority.
 
 Reviewed Workspace summaries separate final files, complete effect scope,
 original admission/release and client cleanup. Original release uncertainty
-remains unknown after later client cleanup succeeds. Incomplete retention or
-output does not erase completed effects or authorize redispatch. Preserve the
+remains unknown after later client cleanup succeeds. Clean stale Issue/authority refusals exit 2 with original typed evidence.
+Spent-reference incompleteness remains 3; interruptions remain 130. Original
+release unknown alone does not force non-success. Incomplete current retention
+or output does not erase completed effects or authorize redispatch. Preserve the
 full evidence; use `show --json` or `evidence` when concise output is insufficient.
 
 This successor has a bounded scripted installed proof, not unassisted onboarding
@@ -128,8 +142,8 @@ admit A2, tree completion, materialization, Meta/Object execution, services,
 approval, iterations or native performance. Workspace deltas are change evidence,
 not inferred meaning or authority.
 
-Issues → Specifications → Goals → shared map remains the direction, not a claim
-that all those features are delivered here. [Sources](workspaces/README.md) are
+Projects → Goals → Issues → bounded work is the higher-level direction, not
+an admission of that elevation here. Start with Issue → optional SPEC today. [Sources](workspaces/README.md) are
 the canonical `portable_protocols` snapshot with composite supplier revisions,
 not a second catalog or editable operational installation. Contributor governance
 and its command selection remain separate and unchanged.

@@ -376,77 +376,32 @@ large-object literal formatting remains active. GC changes and literal
 callbacks invalidate the remaining staged keys and text. No input or authority
 is retained across calls, and the shared cache budget remains 16MiB.
 
-The native leaf-semantic shortcuts also require the definition-time versions of
-both the codec and value-module namespaces to remain unchanged. The original
-validator selects branches through more class names than the three accelerated
-leaves; checking only those three aliases is insufficient. Any namespace edit,
-including a later restoration, permanently sends that context's leaf checks
-through the original validator. The witness is captured before allocation and
-never renewed. Incoming declarations and the optional public ABI are unchanged;
-the private sealed context holds only two additional metadata stamps. Every
-value still receives fresh field, quota and semantic checks.
+The optional private `ASCII_PATH_BATCH_ABI=1` returns the last path only after
+a fresh exact-ASCII scan of the complete original final path sequence. Raw-object
+eligibility precedes mapping or iterator dispatch; every decline keeps the
+literal ordered Python loop. The original last-path local remains retained.
+Its same-context code-constant binding is authenticated at sealing. It retains
+no path or verdict between calls and supplies no source or mutation authority.
+## Refusal evidence source successor
 
+The reviewed-workflow source successor distinguishes two known current-input
+denials (`review_issue_changed`, `review_authority_sources_changed`) from the
+physical attempt to retain them. `SetupReviewError.failure.refusal` holds a
+detached `SetupRefusalRecord`; `failure.reads` preserves original private read
+returns. The record carries the original review/request/attempt, actual decision
+or apply-input reference, owner observations, phase and `product_dispatch="not_invoked"`.
+It always has `authorizes_retry=False` and grants no admission.
 
-## Retained A1 reviews (unreleased source profile)
+Only a completed original no-replace write and confirmed sequence cleanup give
+the failure a new durable refusal reference. Read its exact bytes through
+`read_evidence` and decode `SetupRefusalRecord` with the public owner codec
+(`aware.workspace.setup-review.setup-refusal-record.v1`). Earlier v1 wire fields
+remain unchanged. Unwritten/lost returns have no invented completed reference;
+the primary denial survives and `retention_error` exposes the independent capture
+failure. Capture interruptions preserve their original exception and expose
+`setup_review_failure` / `setup_review_retention_error` instead. Unknown cleanup
+and spent physical sequences remain incomplete; none of this permits retry,
+guard refresh or treating the refusal record as an executable review.
 
-`aware_workspace_sdk.architecture_setup_review.WorkspaceSetupReviewClient`
-provides SDK-carried reviews for **repository setup**. This source checkpoint
-is not available in the existing 0.2.9 artifact; successor packaging and installed
-Agent composition require qualification. Existing setup and full command v1
-remain unchanged.
-
-Select an explicit canonical repository, an existing external effective-user-owned
-`0700` evidence directory, the harness execution and the selected authority-manifest
-locator through `WorkspaceSetupReviewClient.filesystem(...)`. The client neither
-creates nor repairs that directory. Release the client in `finally` or use a context
-manager. Durable evidence remains after release.
-
-The flow has two explicit decisions:
-
-1. `preview_review(SetupReviewRequest(...))` returns the complete physical scope,
-   final files, original guards, owner evidence and a retained reference.
-2. After reviewing the physical scope, call `record_review_decision(reference,
-   decision=SetupScopeDecision(reference, "accept_reviewed_effect_scope",
-   execution, scope_intent))`. It preserves existing Issue scope and publishes
-   the exact original request and scope intent before returning inputs.
-3. Submit `inputs.record.request` once through the original Issue client's
-   `bind_issue_scope_paths`. Pass the actual result/failure/unknown return to
-   `record_scope_outcome`. Proceed only with `continuation_ready` and its original
-   continuation; a later Issue read cannot replace the return.
-4. Call `preview_review` with that continuation and an explicitly distinct preview
-   intent in the same request. This separate observation must join the actual Issue
-   postimage and the original stable request, plan and effects.
-5. After reviewing all final files, record `SetupApplyDecision(reference,
-   "accept_reviewed_final_files", execution, apply_intent)`. Call `apply_reviewed`
-   with the resulting original view and that same apply intent. The SDK publishes
-   its immutable intent before the original A1 admission/apply driver runs.
-
-No guard, scratch path or scope request needs manual reconstruction. Decisions and
-views belong to the issuing client. A historical `read_review(..., purpose="history")`
-verifies stored bytes but cannot manufacture those views. `current_use` additionally
-checks the execution and original current Issue/manifest sources; it does not replace
-reviewed guards. Reading a predecessor after transfer requires fresh preparation.
-
-`read_evidence(reference, expected_target=...)` returns exact original capture bytes
-plus complete private read/cleanup evidence. References bind the external root inode,
-target, immutable locator, size and digest. File presence alone never proves an
-unobserved historical write or cleanup return.
-
-Use SDK `concise_result(review_or_outcome)` for its bounded typed projection and
-`review_value_to_json` for the distinct concise wire. History presence is labelled
-`captured`, not proof of an unobserved original final-write return.
-
-Check product status and retention independently. `SetupReviewError.failure` carries
-the known original outcome and physical prefix. A scope return that cannot be retained
-produces an incomplete `SetupScopeCompletion` with that actual return and no continuation.
-Interruptions keep their original exception type and `setup_review_failure`; interrupted
-scope retention also carries `setup_scope_completion`. Neither incomplete retention nor
-an intent without a result permits replay. Both client-local consumption and fixed,
-no-replace intent names refuse redispatch, even with a changed intent identifier.
-
-Each action retains at most 32 one-MiB raw chunks, eight metadata files/two MiB,
-16 original sequences, one live child and 64 MiB of logical retained data. The
-four-file batch and original owner limits remain binding; conservative copy/evidence
-reservations can refuse a nominal maximum. These are logical bounds, not a disk-space
-reservation or RSS bound. See the accepted r2 contract and implementation report for
-original physical/currentness and cleanup evidence. No materialization is involved.
+This source behavior requires separately qualified successor artifacts. It is
+not added to previously frozen wheels or advertised as installed availability.

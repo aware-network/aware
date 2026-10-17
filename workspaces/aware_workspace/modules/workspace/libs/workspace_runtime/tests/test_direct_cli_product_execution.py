@@ -29,6 +29,22 @@ HOME = (
 )
 
 
+async def test_execution_preparation_requires_root_binding_before_producer_dispatch(tmp_path, factory, monkeypatch):
+    from aware_code_semantic_contract_runtime import ContractViolation
+    from aware_workspace_runtime import direct_cli_product_execution as execution
+
+    monkeypatch.setattr(local, "admit_installed_semantic_stage_factory", lambda key: factory)
+    async with sources(tmp_path, authored) as (root, _, _, borrowed, _, _):
+        with composition._compose_direct_workspace_command_source(
+            session=borrowed._session, store=borrowed._store, proposal=_proposal(root),
+        ) as (command, _, source), ExitStack() as retained, local.compose_direct_cli_selected_product(command, source) as product:
+            calls = []
+            monkeypatch.setattr(execution.inputs, "execute_product_execution_inputs", lambda *args, **kwargs: calls.append(True))
+            with pytest.raises(ContractViolation, match="dispatcher must be bound before preparation"):
+                await execution.prepare_direct_cli_selected_product_inputs(command, source, product, retention=retained)
+            assert calls == []
+
+
 def authored(root):
     _attention_repository(root)
     package = root / "consumer/modules/main/attention"
@@ -253,9 +269,14 @@ def selection_owner(monkeypatch, calls):
                         ProductExecutionInputSourceScope("authored_source"),
                         ProductExecutionInputSourceScope("manifest_source"),
                     ), source_selection_index=0),
-                ), input_result_indices=(1,))
+                ), input_result_indices=(1,), planning_source_selection_index=0)
 
-            return replace(product, execution_input_contribution_producer=recipe)
+            planning_declaration = product.planning_input_declaration
+            return replace(product, execution_input_contribution_producer=recipe,
+                planning_input_declaration=replace(planning_declaration, source_contracts=(
+                    SemanticInputSourceContract("authored_source", planning_declaration.source_contracts[0].contract),
+                    SemanticInputSourceContract("manifest_source", _contract("proof.raw-manifest")),
+                )))
 
         return original_admit(selection_factory=construct, **kwargs)
 
@@ -285,24 +306,25 @@ async def test_original_selection_roles_and_origin_reach_recipe_execution(tmp_pa
     )
     from test_direct_cli_dependency_planning import _repository
 
+    monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path / "state"))
     calls = []
     with selection_owner(monkeypatch, calls) as (owners, seen):
         monkeypatch.setattr(local, "admit_installed_semantic_stage_factory", lambda key: owners[key][0])
         profiles = {key: profile for key, (_, profile) in owners.items()}
         async with sources(tmp_path, lambda root: _repository(root, profiles)) as (root, _, _, borrowed, _, _):
-            original_step = inputs.execute_product_execution_input_step
+            original_step = inputs.execute_product_execution_inputs
 
             async def step(*args, **kwargs):
                 result = await original_step(*args, **kwargs)
                 if len(kwargs["expectations"]) == 1:
                     if poison == "copied_return":
-                        return replace(result)
+                        return (replace(result[0]),)
                     if poison == "changed_source":
                         manifest = root / "consumer/modules/main/supplier/aware.example.toml"
                         manifest.write_bytes(manifest.read_bytes() + b"\n# changed after selection\n")
                 return result
 
-            monkeypatch.setattr(inputs, "execute_product_execution_input_step", step)
+            monkeypatch.setattr(inputs, "execute_product_execution_inputs", step)
             proposal = WorkspaceMaterializeCommandProposalV3.create(
                 attempt_ref="proof:original-recipe-selection", participant_checkout_root=str(root),
                 workspace_manifest_name="consumer/aware.workspace.toml",
@@ -316,6 +338,17 @@ async def test_original_selection_roles_and_origin_reach_recipe_execution(tmp_pa
                 with composition._compose_direct_workspace_command_source(
                     session=borrowed._session, store=borrowed._store, proposal=proposal,
                 ) as (command, _, source), ExitStack() as retained, local.compose_direct_cli_selected_product(command, source) as product:
+                    if poison is None:
+                        from aware_workspace_runtime.direct_cli_product_planning import (
+                            plan_direct_cli_selected_product,
+                        )
+
+                        planned = await plan_direct_cli_selected_product(command, source, product, retention=retained)
+                        assert len(planned.plan.graph.nodes) == 1
+                        participant, = product.participants
+                        assert inputs.enroll_product_execution_inputs(product.host.code_host,
+                            participant.policy, participant.contribution) is inputs.read_product_execution_inputs(
+                                product.host.code_host, participant.policy, participant.contribution)
                     result = await execute_direct_cli_selected_product(command, source, product, retention=retained)
                     assert poison is None, "changed originals must never reach selected execution"
                     assert result.snapshot.result.status.value == "delta"

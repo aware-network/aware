@@ -5,6 +5,23 @@ This is the bootstrap for agents working in this repository. Read it completely.
 Operational detail is in [the modular contract](docs/agents/README.md).
 Read only the modules relevant to the task, not a whole development doctrine.
 
+## Scope: contributor checkout, not a customer bootstrap
+
+This contract governs contributions to **this public source checkout** using
+its separately pinned contributor a6 installation. It is not the bootstrap for
+a customer repository and is not the command contract of the consumer product.
+Do not copy it into a customer target or replace either repository's selected
+command. If the contributor selection cannot be satisfied, remain read-only;
+the consumer installation is not a fallback for contributor governance.
+
+For customer use, follow the [public product entrance](README.md) and the
+[first-Issue guide](protocols/issues/FIRST-ISSUE.md), then the actual target's
+init-created `AGENTS.md` and `aware.protocol.toml`. The consumer product uses
+separate snapshot, scope and progress operations; the contributor composition
+described below must not be inferred to exist in that product. Supported
+installed help and the target's own instructions determine its available
+operations. Reading another repository's instructions grants no target authority.
+
 ## 1. Identify before motion
 
 Publish one stable, genuine harness execution id: `<provider>-<provider_session_id>`.

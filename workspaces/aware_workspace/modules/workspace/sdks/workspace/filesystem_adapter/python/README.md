@@ -74,3 +74,17 @@ Stored records are immutable evidence and cannot issue a live plan or admission.
 Source tests use genuine original owners in disposable directories. The existing
 0.1.8 artifact does not supply this new module; successor metadata, artifacts and
 installed composition remain separate qualification.
+## Refusal retention source successor
+
+Workspace Runtime selects only its two original stale-input comparisons for
+dedicated refusal capture. The adapter publishes that closed SDK record through
+the same original CREATE/no-replace sequence, with unchanged byte, sequence and
+cleanup limits. It does not reinterpret an exception string as a successful
+capture or clear an existing uncertainty flag. All unclassified, physical,
+spent-sequence and interrupted failures retain the original incomplete evidence.
+
+Original file-read returns with an incomplete parent ledger cannot support a
+complete refusal: they remain exposed through the SDK failure's original read
+carriers. Client cleanup is independent of both product refusal and retention.
+No generic FileSystem algorithm, store, writer or retry path is added. Existing
+accepted artifacts stay immutable; installed use needs qualified successors.

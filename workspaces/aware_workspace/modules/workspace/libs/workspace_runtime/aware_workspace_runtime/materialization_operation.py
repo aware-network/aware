@@ -47,12 +47,15 @@ from .semantic_dependency_graph import (
     WorkspaceSemanticMaterializationNodeExecutionBinding,
 )
 from .semantic_materialization_publication import (
+    WORKSPACE_MATERIALIZE_EXECUTION_INPUT_CLOSURE,
     WorkspaceSemanticMaterializationHeadRereadEvidenceV3,
     WorkspaceSemanticMaterializationPublication,
+    WorkspaceSemanticMaterializationPublicationError,
     WorkspaceSemanticMaterializationPublicationReceiptV3,
     WorkspaceSemanticMaterializationPublisher,
     WorkspaceSemanticMaterializationRequest,
     WorkspaceSemanticMaterializationRequestV3,
+    _derive_graph_execution_input_closure_digest,
     admit_workspace_semantic_materialization,
 )
 from .source_admission import (
@@ -64,9 +67,6 @@ from .source_admission import (
 
 WORKSPACE_MATERIALIZE_OPERATION_REQUEST = (
     "aware.workspace.semantic-materialize-operation-request.v2"
-)
-WORKSPACE_MATERIALIZE_EXECUTION_INPUT_CLOSURE = (
-    "aware.workspace.materialize-execution-input-closure.v1"
 )
 WORKSPACE_MATERIALIZE_EXECUTION_PLAN = (
     "aware.workspace.semantic-materialize-execution-plan.v1"
@@ -222,31 +222,10 @@ def derive_workspace_materialize_execution_input_closure_digest(
 ) -> str:
     """Derive portable identity for one exact ordered neutral Code input closure."""
 
-    if type(input_bodies) is not tuple:
-        raise TypeError("execution input bodies must be an exact tuple")
-    coordinate_wires: list[dict[str, object]] = []
-    ordering_keys: list[bytes] = []
-    for body in input_bodies:
-        if type(body) is not SemanticBody:
-            raise TypeError("execution input body must be exact SemanticBody")
-        body.__post_init__()
-        coordinate = body.coordinate
-        wire = cast(dict[str, object], coordinate.to_wire())
-        ordering_key = canonical_json_bytes(wire)
-        coordinate_wires.append(wire)
-        ordering_keys.append(ordering_key)
-    if len(set(ordering_keys)) != len(ordering_keys):
-        raise WorkspaceMaterializeOperationError(
-            "execution input coordinates must be unique"
-        )
-    if tuple(ordering_keys) != tuple(sorted(ordering_keys)):
-        raise WorkspaceMaterializeOperationError(
-            "execution input bodies must be in canonical coordinate order"
-        )
-    return _semantic_digest(
-        WORKSPACE_MATERIALIZE_EXECUTION_INPUT_CLOSURE,
-        {"coordinates": coordinate_wires},
-    )
+    try:
+        return _derive_graph_execution_input_closure_digest(input_bodies)
+    except WorkspaceSemanticMaterializationPublicationError as error:
+        raise WorkspaceMaterializeOperationError(str(error)) from error
 
 
 @dataclass(frozen=True, slots=True)
@@ -1578,12 +1557,7 @@ class WorkspaceMaterializeOperation:
                     "graph-node resolved closure differs from admission"
                 )
             use.bind_execution_plan(plan)
-            semantic_input: object = SelectedProviderInvocationClosure(
-                plan.invocation, plan.input_bodies, plan.predecessor_body
-            )
-            operation_context: object = use
-            if self._graph_selected_input is not None:
-                semantic_input, operation_context = self._graph_selected_input(use, plan)
+            semantic_input, operation_context = self._selected_graph_input(use, plan)
             execution = issue_selected_provider_execution(
                 self._runtime,
                 registration,
@@ -1616,6 +1590,7 @@ class WorkspaceMaterializeOperation:
                 request=publication_request,
                 snapshot=snapshot,
                 invocation=plan.invocation,
+                input_bodies=plan.input_bodies,
             )
             try:
                 use.validate()
@@ -1667,6 +1642,26 @@ class WorkspaceMaterializeOperation:
                 session_source_evidence=source,
                 session_append_result=append_result,
             )
+
+    def _selected_graph_input(
+        self, use: object, plan: WorkspaceMaterializeExecutionPlan,
+    ) -> tuple[object, object]:
+        """Use original custody before constructing any portable fallback.
+
+        The plan wire sorts body membership canonically; invocation order is a
+        separate Code contract. Reorder exact existing bodies only, never their
+        bytes, coordinates, input values or the retained original closure.
+        """
+        if type(plan) is not WorkspaceMaterializeExecutionPlan:
+            raise TypeError("original execution plan required")
+        plan.__post_init__()
+        if self._graph_selected_input is not None:
+            return self._graph_selected_input(use, plan)
+        bodies = {body.coordinate: body for body in plan.input_bodies}
+        return SelectedProviderInvocationClosure(
+            plan.invocation, tuple(bodies[coordinate] for coordinate in plan.invocation.inputs),
+            plan.predecessor_body,
+        ), use
 
     def _assert_composition_current(
         self, request: WorkspaceMaterializeOperationRequest

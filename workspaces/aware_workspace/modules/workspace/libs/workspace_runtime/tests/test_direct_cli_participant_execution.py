@@ -138,14 +138,59 @@ async def test_nonroot_execution_selects_original_registration_among_two_factori
         assert owners[1] == []  # The unrelated factory performs no semantic work.
 
 
-async def test_shared_factory_recipe_is_not_silently_reexecuted(tmp_path, monkeypatch, factory):
+async def test_standalone_root_cannot_rebind_or_revoke_prior_completion(tmp_path, monkeypatch, factory):
+    from aware_code_retained_registry_policy_runtime import product_execution_inputs
+
     issued = observe_selected_invocations(monkeypatch)
-    with pytest.raises(ContractViolation, match="direct host unavailable"):
-        async with original_pair(tmp_path, monkeypatch, factory) as (_, command, source, second, product, retained):
-            await execution.execute_direct_cli_selected_product(command, second, product, retention=retained)
-            with pytest.raises(ContractViolation, match="already consumed"):
-                await execution.execute_direct_cli_selected_product(command, source, product, retention=retained)
+    async with original_pair(tmp_path, monkeypatch, factory) as (_, command, source, second, product, retained):
+        first = await execution.execute_direct_cli_selected_product(command, second, product, retention=retained)
+        with pytest.raises(ContractViolation, match="late or replayed execution lifecycle binding"):
+            await execution.execute_direct_cli_selected_product(command, source, product, retention=retained)
+        completion = product_execution_inputs.read_product_execution_input_completion(
+            product.host.code_host, first.execution_context)
+        assert issued[0].digest == product.host.staged.product_runtime_bindings[0].runtime.snapshot_completion(completion).invocation_digest
     assert len(issued) == 1
+
+
+@pytest.mark.parametrize("later", ("complete", "cancel", "refuse"))
+async def test_one_original_root_has_distinct_operation_inputs(tmp_path, monkeypatch, factory, later):
+    from aware_code_retained_registry_policy_runtime import product_execution_inputs
+
+    async with original_pair(tmp_path, monkeypatch, factory) as (_, command, source, second, product, retained):
+        execution._bind_direct_cli_product_execution_origins(command, product, (source, second))
+        contexts = []
+        completions = []
+        first_input = None
+        for current in (source, second):
+            with ExitStack() as inputs:
+                prepared = await execution.prepare_direct_cli_selected_product_inputs(
+                    command, current, product, retention=inputs)
+                contexts.append(prepared.execution_context)
+                _, _, binding = execution._execution_participant(command, current, product)
+                host = product.host.code_host
+                retained.callback(product_execution_inputs.close_product_execution_input_context, host,
+                                  prepared.execution_context)
+                if current is second and later == "refuse":
+                    with pytest.raises(ContractViolation):
+                        selected_provider.issue_selected_provider_execution(binding.runtime, binding.registration,
+                            first_input, operation_context=prepared.execution_context)
+                    continue
+                first_input = prepared.assembly.semantic_input
+                admission = selected_provider.issue_selected_provider_execution(binding.runtime, binding.registration,
+                    first_input, operation_context=prepared.execution_context)
+                if current is second and later == "cancel":
+                    product_execution_inputs.close_product_execution_input_context(host, prepared.execution_context)
+                    with pytest.raises(ContractViolation):
+                        selected_provider.execute_selected_provider(binding.runtime, admission)
+                else:
+                    completion = selected_provider.execute_selected_provider(binding.runtime, admission)
+                    completions.append(completion)
+            # Input readers have just retired; historical completion is still
+            # available through the original outer operation retention.
+            assert product_execution_inputs.read_product_execution_input_completion(host, contexts[0]) is completions[0]
+        assert contexts[0] is not contexts[1]
+        assert len(product.host.staged.product_runtime_bindings) == 1
+        assert product_execution_inputs.read_product_execution_input_completion(host, contexts[0]) is completions[0]
 
 
 @pytest.mark.parametrize("change", ["missing", "duplicate", "wrong_key", "wrong_package", "wrong_policy", "foreign_metadata"])

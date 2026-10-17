@@ -301,6 +301,13 @@ class FilesystemSetupReview:
             self.failed(error)
             raise
         self.reads.append(result)
+        if (
+            result.original.cleanup.outcome != "closed"
+            or not result.directory_before.ledger_complete
+            or not result.directory_after.ledger_complete
+        ):
+            self.failed(SetupReviewValueError("review_read_cleanup_incomplete"))
+            raise SetupReviewValueError("review_read_cleanup_incomplete")
         raw = result.original.observation.content
         if type(raw) is not bytes or len(raw) != size or digest(raw) != sha256:
             raise SetupReviewValueError("review_stored_bytes_mismatch")

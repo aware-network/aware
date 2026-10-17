@@ -38,7 +38,7 @@ import sys, importlib.abc
 sys.path[:0] = ROOTS
 class RejectDomain(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path=None, target=None):
-        if fullname.startswith(('aware_issue', 'aware_protocol', 'aware_specification',
+        if fullname.startswith(('aware_goal', 'aware_issue', 'aware_protocol', 'aware_specification',
                                 'aware_workspace', 'aware_agent_sdk', 'aware_agent.')):
             raise AssertionError('root help imported domain: ' + fullname)
 sys.meta_path.insert(0, RejectDomain())
@@ -58,12 +58,12 @@ else:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert "issue,protocol,spec,workspace" in result.stdout
+    assert "goal,issue,protocol,spec,workspace" in result.stdout
     assert "does not establish Issue enforcement" in result.stdout
     assert result.stderr == ""
 
 
-@pytest.mark.parametrize("family", ["issue", "protocol", "spec", "workspace"])
+@pytest.mark.parametrize("family", ["goal", "issue", "protocol", "spec", "workspace"])
 def test_leaf_identity_argv_context_and_owner_return_are_preserved(family, monkeypatch):
     calls = []
     context = {"not_authority": object()}
@@ -94,7 +94,7 @@ def test_leaf_identity_argv_context_and_owner_return_are_preserved(family, monke
     assert calls[1].context is None
 
 
-@pytest.mark.parametrize("family", ["issue", "protocol", "spec", "workspace"])
+@pytest.mark.parametrize("family", ["goal", "issue", "protocol", "spec", "workspace"])
 @pytest.mark.parametrize("failure", ["import", "export", "not_callable"])
 def test_missing_supplier_refuses_before_dispatch(family, failure, monkeypatch, capsys):
     def unavailable(name):
@@ -103,6 +103,7 @@ def test_missing_supplier_refuses_before_dispatch(family, failure, monkeypatch, 
         if failure == "export":
             return SimpleNamespace()
         names = [
+            "register_goal_commands",
             "register_issue_commands",
             "register_admit_command",
             "register_setup_specification_command",
@@ -142,7 +143,7 @@ def test_missing_draft_port_does_not_dispatch_partially_registered_spec(
     assert json.loads(capsys.readouterr().err)["operation_invoked"] is False
 
 
-@pytest.mark.parametrize("family", ["issue", "protocol", "spec", "workspace"])
+@pytest.mark.parametrize("family", ["goal", "issue", "protocol", "spec", "workspace"])
 def test_handler_failures_and_interruptions_are_not_reinterpreted(family, monkeypatch):
     def registrar(registry, selected):
         registry.register_command(name="probe", help="Unit probe", handle=handle)
@@ -209,7 +210,10 @@ def test_original_public_handler_identities_are_mounted(family):
 
 def _assert_owned_metadata(project):
     assert project["project"]["name"] == "aware-agent-cli"
-    assert project["project"]["version"] == "0.2.0a7"
+    assert project["project"]["version"] == "0.2.0a9"
+    assert project["project"]["optional-dependencies"] == {
+        "goal": ["aware-goal-native-cli>=0.1.1,<0.2.0"],
+    }
     assert project["project"]["scripts"] == {"aware": "aware_agent_cli.main:main"}
     dependencies = [Requirement(raw) for raw in project["project"]["dependencies"]]
     assert {r.name for r in dependencies} == {
@@ -242,8 +246,8 @@ def _assert_owned_metadata(project):
         "aware-command-runtime>=0.1.1,<0.2.0",
         "aware-issue-cli>=0.8.0,<0.9.0",
         "aware-protocol-cli[bootstrap,specification-setup]>=0.3.5,<0.4.0",
-        "aware-workspace-sdk[preparation,setup,setup_admission,setup_review]>=0.2.10,<0.3.0",
-        "aware-workspace-runtime[setup_admission,setup_review]>=0.2.15,<0.3.0",
+        "aware-workspace-sdk[preparation,setup,setup_admission,setup_review]>=0.2.11,<0.3.0",
+        "aware-workspace-runtime[setup_admission,setup_review]>=0.2.16,<0.3.0",
         "aware-specification-cli[governed]>=0.4.3,<0.5.0",
         "aware-issue-sdk[workspace_setup_admission]>=0.10.6,<0.11.0",
         "aware-issue-fs-adapter>=0.9.6,<0.10.0",
@@ -306,8 +310,8 @@ def test_owned_metadata_rejects_stale_or_widened_candidate_contract(change):
                 "[workspace_setup_admission]",
                 "",
             ),
-            "sdk-floor": ("aware-workspace-sdk", ">=0.2.10", ">=0.2.9"),
-            "runtime-floor": ("aware-workspace-runtime", ">=0.2.15", ">=0.2.14"),
+            "sdk-floor": ("aware-workspace-sdk", ">=0.2.11", ">=0.2.10"),
+            "runtime-floor": ("aware-workspace-runtime", ">=0.2.16", ">=0.2.15"),
             "issue-floor": ("aware-issue-sdk", ">=0.10.6", ">=0.10.5"),
             "sdk-ceiling": ("aware-workspace-sdk", "<0.3.0", "<0.4.0"),
             "marker": (
@@ -317,7 +321,7 @@ def test_owned_metadata_rejects_stale_or_widened_candidate_contract(change):
             ),
             "direct-url": (
                 "aware-workspace-sdk",
-                "[preparation,setup,setup_admission,setup_review]>=0.2.10,<0.3.0",
+                "[preparation,setup,setup_admission,setup_review]>=0.2.11,<0.3.0",
                 " @ file:///unqualified-test-only.whl",
             ),
         }[change]

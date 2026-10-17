@@ -84,6 +84,9 @@ from aware_code_semantic_contract_runtime.stage_contribution import (
 from aware_local_service_runtime import InMemoryLocalOperationalStateStore
 from aware_workspace_runtime import SourceObservationUnavailable
 from aware_workspace_runtime import direct_command_composition as composition
+from aware_workspace_runtime.materialization_operation import (
+    derive_workspace_materialize_execution_input_closure_digest,
+)
 from aware_workspace_runtime.semantic_materialization_publication import (
     WorkspaceSemanticMaterializationPublicationError,
     WorkspaceSemanticMaterializationPublisher,
@@ -774,12 +777,15 @@ async def test_original_code_demand_to_upstream_fulfillment(
                             expectation.planning_input
                         )
                     ),
-                    execution_input_closure_digest=snapshot.result.transition.input_closure_digest,
+                    execution_input_closure_digest=ContentDigest(
+                        derive_workspace_materialize_execution_input_closure_digest(supplier_bodies)
+                    ),
                     operation_result_digest=snapshot.result_digest,
                     expected_head_revision=0,
                 )
                 publisher._publish_graph_v2(
-                    request=publication, snapshot=snapshot, invocation=supplier_call
+                    request=publication, snapshot=snapshot, invocation=supplier_call,
+                    input_bodies=supplier_bodies,
                 )
                 consumer = assemble_dependency_admission_consumer(host)
                 with dependency_resolution_validation_session(demand):
@@ -798,6 +804,14 @@ async def test_original_code_demand_to_upstream_fulfillment(
                     )
                     decoded = decode_dependency_product_input(
                         products.read_products().canonical_body
+                    )
+                    supplier_inputs = products.read_product_inputs()
+                    assert len(supplier_inputs) == len(decoded.products)
+                    assert all(
+                        demand == product.demand_digest and parent == product.coordinate
+                        and inputs == supplier_bodies
+                        for (demand, parent, inputs), product
+                        in zip(supplier_inputs, decoded.products, strict=True)
                     )
                 assert len(decoded.products) == 2
                 assert len({p.demand_digest.value for p in decoded.products}) == 2

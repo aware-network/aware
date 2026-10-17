@@ -185,9 +185,11 @@ def _external(kind, value, decode, budget, depth):
             return cv._record(command[kind], value, decode, depth, budget)
         if kind in own:
             return wc._record(own[kind], value, "review", budget, depth, decode)
-        if kind == "OriginalIssueClientCleanup":
+        if kind in ("OriginalIssueClientCleanup", "OriginalIssueSourcesObservation"):
             return ic._record(
-                iv.IssueWorkspaceSetupClientCleanup,
+                iv.IssueWorkspaceSetupClientCleanup
+                if kind == "OriginalIssueClientCleanup"
+                else iv.IssueWorkspaceSetupSourcesObservation,
                 value,
                 "review",
                 decode,
@@ -291,6 +293,52 @@ def _invariants(cls, data, decode):
             data["capture"] is not None
         ):
             _refuse("complete_scope_outcome_alternative_required")
+    if cls is v.SetupRefusalRecord:
+        reference = fields(data["review_ref"], v.SetupEvidenceRef)
+        request = fields(data["request"], v.SetupReviewRequest)
+        attempt = hashlib.sha256(
+            b"aware.setup-review.attempt.v1\0"
+            + request["execution_ref"].encode("utf-8")
+            + b"\0"
+            + request["client_intent_id"].encode("utf-8")
+        ).hexdigest()
+        if (
+            reference["record_contract"] != _WIRES[v.SetupReviewRecord]
+            or reference["target"] != request["target"]
+            or reference["attempt_ref"] != attempt
+            or data["phase"]
+            not in ("read_review", "record_review_decision", "apply_reviewed")
+            or (data["observed_sources"] is None)
+            != (data["code"] == "review_issue_changed")
+        ):
+            _refuse("original_refusal_context_required")
+        scope, apply, inputs = (
+            data[key] for key in ("scope_decision", "apply_decision", "inputs_ref")
+        )
+        if (
+            data["phase"] == "read_review"
+            and any(x is not None for x in (scope, apply, inputs))
+            or data["phase"] == "record_review_decision"
+            and ((scope is None) == (apply is None) or inputs is not None)
+            or data["phase"] == "apply_reviewed"
+            and (scope is not None or apply is None or inputs is None)
+        ):
+            _refuse("original_refusal_call_required")
+        for decision, decision_type in (
+            (scope, v.SetupScopeDecision),
+            (apply, v.SetupApplyDecision),
+        ):
+            if (
+                decision is not None
+                and fields(decision, decision_type)["review"] != data["review_ref"]
+            ):
+                _refuse("original_refusal_call_required")
+        if (
+            inputs is not None
+            and fields(inputs, v.SetupEvidenceRef)["record_contract"]
+            != _WIRES[v.SetupApplyInputRecord]
+        ):
+            _refuse("original_refusal_call_required")
     for key in ("existing_scope", "physical_scope", "final_files", "scope_paths"):
         if key in data and len(set(data[key])) != len(data[key]):
             _refuse("duplicate_review_path")

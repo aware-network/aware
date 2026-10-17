@@ -284,6 +284,17 @@ class LocalCheckoutWorkspaceCompositionProvider:
         payload = self._manifest(manifest_path)
         workspace = _mapping(payload.get("workspace"), "workspace")
         handle = _text(workspace.get("handle"), "workspace.handle")
+        expanded = getattr(self, "_expanded_workspace_paths", None)
+        if expanded is not None and manifest_path not in expanded:
+            return {
+                "workspace_ref": f"workspace:{handle}:{manifest_path}",
+                "repository_membership_handle": repository_membership_handle,
+                "workspace_handle": handle,
+                "title": _optional_text(workspace.get("title")) or handle,
+                "relative_path": relative_path,
+                "manifest_path": manifest_path,
+                "modules": [],
+            }
         try:
             local_profiles = local_profile_paths(payload, workspace_handle=handle)
         except WorkspaceProfileDeclarationError as error:
@@ -514,6 +525,7 @@ class RetainedWorkspaceCompositionProvider(LocalCheckoutWorkspaceCompositionProv
             body.relative_path
             for body in observation_runtime.evidence(observation).bodies
         )
+        self._expanded_workspace_paths = None
         return self._describe_selected_bodies()
 
     def describe_captured_bodies(
@@ -527,7 +539,57 @@ class RetainedWorkspaceCompositionProvider(LocalCheckoutWorkspaceCompositionProv
             raise _shape_failure("captured declaration paths duplicate")
         self._read_retained = by_path.__getitem__
         self._retained_paths = frozenset(by_path)
+        self._expanded_workspace_paths = None
         return self._describe_selected_bodies()
+
+    def describe_consumer_captured_bodies(
+        self, bodies: tuple[tuple[str, bytes], ...], *, consumer_scope_key: str,
+    ) -> dict[str, object]:
+        """Interpret one complete consumer/import closure plus every namespace header.
+
+        This is a distinct descriptive contract. It never treats omitted
+        Workspace descendants as a complete repository observation.
+        """
+        from aware_code_semantic_contract_runtime.dependency_scope_closure import (
+            MAX_EDGES,
+            MAX_SCOPES,
+        )
+
+        from .source_observation_io import validate_relative_path
+
+        validate_relative_path(consumer_scope_key)
+        if type(bodies) is not tuple or not bodies:
+            raise _shape_failure("captured declaration bodies required")
+        by_path = dict(bodies)
+        if len(by_path) != len(bodies):
+            raise _shape_failure("captured declaration paths duplicate")
+        self._read_retained = by_path.__getitem__
+        self._retained_paths = frozenset(by_path)
+        self._manifest_digests = {}
+        self._expanded_workspace_paths = frozenset()
+        targets = self.qualified_repository_membership()
+        if consumer_scope_key not in targets.values():
+            raise _shape_failure("consumer Workspace is not a repository member")
+        reachable = {consumer_scope_key}
+        pending = [consumer_scope_key]
+        edge_count = 0
+        while pending:
+            path = pending.pop()
+            for edge in self.qualified_dependency_selections(path, targets=targets):
+                edge_count += 1
+                if edge_count > MAX_EDGES:
+                    raise _budget_failure("consumer dependency edge")
+                if edge.target_scope_key not in reachable:
+                    reachable.add(edge.target_scope_key)
+                    if len(reachable) > MAX_SCOPES:
+                        raise _budget_failure("consumer Workspace scope")
+                    pending.append(edge.target_scope_key)
+        self._expanded_workspace_paths = frozenset(reachable)
+        result = self._describe_selected_bodies()
+        result["contract_ref"] = "aware.workspace.consumer-composition.v1"
+        result["consumer_scope_key"] = consumer_scope_key
+        result["expanded_workspace_paths"] = tuple(sorted(reachable, key=str.encode))
+        return result
 
     def _describe_selected_bodies(self) -> dict[str, object]:
         self._manifest_digests = {}

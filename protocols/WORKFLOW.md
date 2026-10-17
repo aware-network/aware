@@ -1,18 +1,11 @@
 # Aware filesystem workflow
 
-The reviewed-workflow software was published at
-[`42a6740e29bb39ec9d332a63d52cb59540655ccd`](https://github.com/aware-network/aware/blob/42a6740e29bb39ec9d332a63d52cb59540655ccd/protocols/WORKFLOW.md).
-The [status record](../releases/canonical-reviewed-workflow-fs-v1/PUBLIC-STATUS.md)
-distinguishes software delivery from this wording update and its review checkpoint;
-software and operational blocks are unchanged.
-One installation supplies the original Issue, Protocol and SPEC entrances and
-the bounded repository-manifest Workspace review flow. Agent is 0.2.0a7;
-Workspace SDK/runtime/FS are 0.2.10/0.2.15/0.1.9; FileSystem is 0.3.8 and Issue
-SDK is 0.10.6. Existing Issue CLI, Protocol and SPEC operations remain carried.
-The earlier A1 predecessor remains available unchanged. Delivery establishes
-neither a new historical aggregate PASS nor unassisted onboarding. [Successor instruction pins](../releases/canonical-reviewed-workflow-fs-v1/PUBLIC-INSTRUCTIONS.json)
-and [public status](../releases/canonical-reviewed-workflow-fs-v1/PUBLIC-STATUS.md)
-bind this wording update without granting operation or additional publication authority.
+Prepared, unselected refusal-evidence successor; instructions remain draft.
+One 42-package installation composes original Issue, Protocol, SPEC and bounded
+Workspace review owners. Agent 0.2.0a9 uses Workspace SDK/runtime/FS
+0.2.11/0.2.16/0.1.10, FileSystem 0.3.8 and Issue SDK 0.10.6.
+The delivered predecessor and its selection remain unchanged. This private
+layout is not public availability, unassisted onboarding or an aggregate PASS.
 
 ## Install with the complete envelope
 
@@ -364,7 +357,7 @@ work or upgrades filesystem evidence into resident authority.
 
 ## Sources and notices
 
-`SOURCE-INDEX.json` binds 1,329 committed selected files to `portable_protocols`
+`SOURCE-INDEX.json` binds 1,340 committed selected files to `portable_protocols`
 and the exact wheels. It is evidence, not a second selector. Full discovery
 inventory remains producer-side. Customer `aware.protocol.toml` configures
 record selection/authority, not software packages.
@@ -422,13 +415,14 @@ cleanup and uncertainty when handing the summary to another execution.
 ## Workspace A1 with two explicit reviews
 
 Use [the reviewed repository-manifest guide](workspace/REVIEWED-SETUP.md).
-Init supplies configuration for this qualified fresh-repository route, not Issue
-admission, scope approval or permission to apply. The original SDKs retain guards
-and full evidence across prepare, explicit physical-scope acceptance, a second
-preview and explicit final-file apply. Do not copy guards or fabricate records.
-Missing inputs stop; stale/spent requests do not silently refresh or retry.
+Init supplies configuration, not Issue admission, scope approval or apply
+authority. Review complete physical scope, explicitly bind it, then separately
+review final files before explicit apply. Original SDK references and guards
+remain unchanged; missing inputs stop, stale requests never refresh or retry.
 
-The predecessor's manual setup guide remains carried history. This successor's
-bounded receiving proof covers the repository-manifest review route, not every
-carried Workspace operation. A2, tree completion, services, objects,
-materialization and native performance remain unaccepted.
+Read the primary refusal separately from evidence retention and client cleanup.
+Clean stale Issue/authority refusals exit 2; genuine spent-reference incompleteness
+remains 3. Interruption remains 130. Original release unknown alone does not
+force a nonzero exit or become known after client cleanup. Preserve all effects.
+Carried capabilities do not admit A2, tree completion, services, objects,
+materialization or native performance. Read [the entrance](../README.md).

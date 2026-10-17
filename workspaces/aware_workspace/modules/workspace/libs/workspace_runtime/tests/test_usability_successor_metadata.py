@@ -15,7 +15,7 @@ def test_runtime_successor_keeps_original_launchers_and_packaging():
     manifest = tomllib.loads((RUNTIME / "pyproject.toml").read_text())
     project = manifest["project"]
     assert project["name"] == "aware-workspace-runtime"
-    assert project["version"] == "0.2.15"
+    assert project["version"] == "0.2.16"
     assert (
         project["scripts"]["aware-workspace"]
         == "aware_workspace_command.architecture_setup_command:main"
@@ -53,7 +53,7 @@ def test_original_consumers_admit_runtime_patch_without_requiring_grammar():
         ]
         assert requirements
         for requirement in requirements:
-            assert requirement.specifier.contains("0.2.15")
+            assert requirement.specifier.contains("0.2.16")
             assert not requirement.specifier.contains("0.3.0")
             assert not any("grammar" in extra for extra in requirement.extras)
 

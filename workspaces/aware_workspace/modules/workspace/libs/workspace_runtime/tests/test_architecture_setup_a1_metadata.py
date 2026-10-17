@@ -22,13 +22,13 @@ MANIFESTS = {
     "aware-agent-cli": "workspaces/aware_agent/modules/agent/libs/agent_cli/python/pyproject.toml",
 }
 VERSIONS = {
-    "aware-workspace-sdk": "0.2.10",
-    "aware-workspace-runtime": "0.2.15",
-    "aware-workspace-fs-adapter": "0.1.9",
+    "aware-workspace-sdk": "0.2.11",
+    "aware-workspace-runtime": "0.2.16",
+    "aware-workspace-fs-adapter": "0.1.10",
     "aware-issue-sdk": "0.10.6",
     "aware-issue-operational-runtime": "0.3.4",
     "aware-issue-fs-adapter": "0.9.6",
-    "aware-file-system": "0.3.7",
+    "aware-file-system": "0.3.8",
     "aware-agent-cli": "0.2.0a6",
 }
 OLD = {

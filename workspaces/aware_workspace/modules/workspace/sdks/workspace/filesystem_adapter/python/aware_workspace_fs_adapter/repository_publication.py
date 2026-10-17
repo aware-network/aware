@@ -31,6 +31,7 @@ class _Candidate:
     request: object
     postimages: tuple
     reconciliation: object = None
+    preimages: object = None
 
 
 class _Transaction:
@@ -107,6 +108,33 @@ class FilesystemRepositoryCandidatePort:
             raise ValueError("repository_publication_detached_head_unsupported")
         head = self._git("rev-parse", "--verify", "--quiet", "HEAD", absent_ok=True)
         return reference, head
+
+    def enroll_initial_authoring(self, claim):
+        from .initial_authoring import enroll
+
+        return enroll(self, claim)
+
+    def observe_initial_authoring_enrollment(
+        self, *, confirm_durability=False, _attempt=False
+    ):
+        from .initial_authoring import observe
+
+        return observe(self, confirm_durability=confirm_durability, _attempt=_attempt)
+
+    def reserve_initial_configuration(self, claim):
+        from .initial_authoring import reserve_configuration
+
+        return reserve_configuration(self, claim)
+
+    def initial_configuration_attempt(self, request):
+        from .initial_authoring import configuration_attempt
+
+        return configuration_attempt(self, request)
+
+    def require_initial_configuration_source(self, plan):
+        from .initial_authoring import require_configuration_source
+
+        return require_configuration_source(plan)
 
     def observe_publication_receipt(self, request):
         """Bounded read-only Git facts, without locks, cleanup or recovery."""
@@ -314,6 +342,57 @@ class FilesystemRepositoryCandidatePort:
             # an executable replacement or a publication/recovery capability.
             self._captures.pop(id(initial), None)
 
+    def capture_initial_configuration(self, request, content):
+        if (
+            type(content) is not bytes
+            or not 0 < len(content) <= 32768
+            or request.target_paths != ("aware.protocol.toml",)
+        ):
+            raise ValueError("initial_configuration_candidate_invalid")
+        initial = self.capture_candidate(request)
+        try:
+            if (
+                initial.expected_head is not None
+                or initial.publication_reference != "refs/heads/main"
+                or initial.postimages
+                != ({"path": "aware.protocol.toml", "state": "absent"},)
+            ):
+                raise ValueError("initial_configuration_preimage_not_absent")
+            postimage = {
+                "path": "aware.protocol.toml",
+                "state": "file",
+                "sha256": _digest(content),
+                "size": len(content),
+                "mode": 0o100644,
+                "body": content,
+            }
+            digest = _digest(
+                json.dumps(
+                    {
+                        "profile": "workspace-postimages-v1",
+                        "paths": (
+                            {
+                                key: value
+                                for key, value in postimage.items()
+                                if key != "body"
+                            },
+                        ),
+                    },
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode()
+            )
+            captured = replace(
+                initial,
+                postimages=(postimage,),
+                postimages_digest=digest,
+                preimages=initial.postimages,
+            )
+            self._captures[id(captured)] = captured
+            return captured
+        finally:
+            self._captures.pop(id(initial), None)
+
     def _validate_reconciliation(self, capture, *, issue_ref=None):
         """Own physical read fences; no source policy or authorization inference."""
         from . import git_writer as writer
@@ -363,7 +442,7 @@ class FilesystemRepositoryCandidatePort:
     def begin(self, capture, binding):
         """Acquire the original repository lock, then validate original bytes.
 
-        No index preparation, recovery or publication occurs before Issue spend.
+        No index preparation, recovery or publication precedes authority spend.
         Interrupted setup releases this operation's lock, never foreign files.
         """
         from . import git_writer as writer
@@ -381,8 +460,17 @@ class FilesystemRepositoryCandidatePort:
             if self._head() != (capture.publication_reference, capture.expected_head):
                 raise ValueError("workspace_publication_head_stale")
             current = tuple(self._postimage(p) for p in capture.request.target_paths)
-            if current != capture.postimages:
+            if current != (
+                capture.preimages
+                if capture.preimages is not None
+                else capture.postimages
+            ):
                 raise ValueError("workspace_publication_postimages_stale")
+            if capture.preimages is not None and (
+                self._git("ls-files", "--stage", "--", "aware.protocol.toml")
+                or self._git("for-each-ref", "--count=1", "--format=%(refname)")
+            ):
+                raise ValueError("initial_configuration_foreign_source_effect")
             if capture.reconciliation is not None:
                 self._validate_reconciliation(capture)
             transaction = _Transaction()
@@ -425,6 +513,8 @@ class FilesystemRepositoryCandidatePort:
             index = state.index = writer._prepare_repository_index_transaction(
                 repo_root=self._root, runner=runner, report=report
             )
+            if authorization.profile == "initial_configuration":
+                index.repository_admission_ref = authorization.receipt_ref
             # The new operation must not silently dispose or recover another
             # attempt's journal/index before or after its own admission spend.
             index.recover_foreign_transactions = False
@@ -496,22 +586,48 @@ class FilesystemRepositoryCandidatePort:
                 raise ValueError("workspace_publication_no_changes")
             index.record_staged_paths(staged)
             report.staged_paths = list(staged)
-            report.commit_message = (
-                state.capture.request.message
-                + "\n\n"
-                + "Issue-Tag: "
-                + authorization.issue_ref
-                + "\n"
-                + "Owner: "
-                + binding.execution_id
-                + "\n"
-                + "Owned-Paths: "
-                + ",".join(binding.target_paths)
-                + "\n"
-                + "Aware-Work-Admission: "
-                + authorization.receipt_ref
-            )
-            report.issue_tag = authorization.issue_ref
+            if authorization.profile == "initial_configuration":
+                if authorization.request_ref is None or binding.target_paths != (
+                    "aware.protocol.toml",
+                ):
+                    raise ValueError("initial_configuration_authorization_invalid")
+                report.commit_message = (
+                    state.capture.request.message
+                    + "\n\n"
+                    + "Aware-Initial-Authoring: "
+                    + authorization.receipt_ref
+                    + "\n"
+                    + "Aware-Initial-Request: "
+                    + authorization.request_ref
+                    + "\n"
+                    + "Owner: "
+                    + binding.execution_id
+                    + "\n"
+                    + "Owned-Paths: "
+                    + ",".join(binding.target_paths)
+                )
+            elif (
+                authorization.profile == "issue_work"
+                and authorization.issue_ref is not None
+            ):
+                report.commit_message = (
+                    state.capture.request.message
+                    + "\n\n"
+                    + "Issue-Tag: "
+                    + authorization.issue_ref
+                    + "\n"
+                    + "Owner: "
+                    + binding.execution_id
+                    + "\n"
+                    + "Owned-Paths: "
+                    + ",".join(binding.target_paths)
+                    + "\n"
+                    + "Aware-Work-Admission: "
+                    + authorization.receipt_ref
+                )
+                report.issue_tag = authorization.issue_ref
+            else:
+                raise ValueError("workspace_publication_authority_profile_invalid")
             writer._publish_staged_transaction(
                 runner=runner,
                 repo_root=self._root,

@@ -428,14 +428,43 @@ class WorkspaceSourceObservationRuntime:
         self._check()
         return root_id, rows
 
-    def observe_declarations(self) -> WorkspaceRetainedDeclarationObservation:
-        """Issue a bounded declaration set under the original session/store."""
+    def observe_declarations(
+        self, *, consumer_scope_key: str | None = None,
+    ) -> WorkspaceRetainedDeclarationObservation:
+        """Issue full or consumer-bound declarations under the original owner.
+
+        A consumer-bound subject still begins with a complete original capture;
+        its distinct policy retains every namespace header and all descendants
+        of each transitively imported Workspace. No caller path list is accepted.
+        """
+        if consumer_scope_key is not None:
+            validate_relative_path(consumer_scope_key)
         with self._lock:
             self._check()
             if len(self._records) + len(self._declarations) >= self._capacity:
                 raise SourceObservationUnavailable("observation_capacity_exceeded")
             started = time.monotonic_ns()
             rows = self._capture_declarations()
+            policy = "declared-repository-structure.v1"
+            if consumer_scope_key is not None:
+                # First capture remains complete and original. The distinct
+                # retained subject is selected from authenticated declarations.
+                from .composition import (
+                    RetainedWorkspaceCompositionProvider,
+                    WorkspaceCompositionFailure,
+                )
+
+                provider = RetainedWorkspaceCompositionProvider()
+                try:
+                    description = provider.describe_consumer_captured_bodies(
+                        rows, consumer_scope_key=consumer_scope_key,
+                    )
+                except (WorkspaceCompositionFailure, KeyError, OSError) as error:
+                    raise SourceObservationUnavailable("consumer_declaration_unavailable") from error
+                paths = provider.declaration_body_paths(description)
+                by_path = dict(rows)
+                rows = tuple((path, by_path[path]) for path in paths)
+                policy = "declared-consumer-structure.v1:" + consumer_scope_key
             refs = self._store.record_bodies(tuple(body for _, body in rows))
             bodies = tuple(
                 WorkspaceRetainedObservedBody(path, ref, _digest(body), len(body))
@@ -449,7 +478,7 @@ class WorkspaceSourceObservationRuntime:
                 "repository": self._store.repository_binding_ref,
                 "epoch": self._epoch,
                 "root_identity": self._root_identity,
-                "policy": "declared-repository-structure.v1",
+                "policy": policy,
                 "started_ns": started,
                 "completed_ns": completed,
                 "bodies": [
@@ -597,7 +626,17 @@ class WorkspaceSourceObservationRuntime:
                 raise SourceObservationUnavailable("retained_body_unavailable")
             rows.append((body.relative_path, value))
         provider = RetainedWorkspaceCompositionProvider()
-        description = provider.describe_captured_bodies(tuple(rows))
+        policy = self._declaration_evidence(declaration).policy_ref
+        if type(policy) is not str:
+            raise SourceObservationUnavailable("declaration_policy_unavailable")
+        if policy.startswith("declared-consumer-structure.v1:"):
+            description = provider.describe_consumer_captured_bodies(
+                tuple(rows), consumer_scope_key=policy.removeprefix("declared-consumer-structure.v1:"),
+            )
+        elif policy == "declared-repository-structure.v1":
+            description = provider.describe_captured_bodies(tuple(rows))
+        else:
+            raise SourceObservationUnavailable("declaration_policy_unavailable")
         if provider.declaration_body_paths(description) != tuple(
             body.relative_path for body in evidence.bodies
         ):

@@ -21,6 +21,25 @@ _CLIENTS: WeakKeyDictionary[Any, Any] = WeakKeyDictionary()
 _PHYSICAL_CLAIMS = WeakKeyDictionary()
 _CLAIM_LOCK = threading.Lock()
 _RUNTIME_TYPES = set()
+_FRESH_ROOT_WITNESSES = WeakKeyDictionary()
+
+
+def _consume_fresh_root_witness(client, execution_id, repository_root):
+    """Spend this SDK's validated original dispatch, never a submitted result."""
+    if type(client) is not WorkspaceRepositoryPreparationClient:
+        raise ValueError("original_preparation_client_required")
+    provider = client._provider()
+    with provider.lock:
+        provider._current()
+        if provider.execution_id != execution_id:
+            raise ValueError("initial_authoring_execution_mismatch")
+        witness = _FRESH_ROOT_WITNESSES.get(client)
+        if witness is None:
+            raise ValueError("original_fresh_root_witness_required")
+        if witness.repository_root != repository_root:
+            raise ValueError("initial_authoring_preparation_root_mismatch")
+        del _FRESH_ROOT_WITNESSES[client]
+        return detached(witness)
 
 
 class _Original:
@@ -277,6 +296,8 @@ class WorkspaceRepositoryPreparationClient:
                     raise RepositoryPreparationValueError(
                         "unexpected_preparation_effects"
                     )
+                if value.outcome == "created":
+                    _FRESH_ROOT_WITNESSES[self] = detached(value)
                 return value
             except BaseException as error:
                 raise provider.result_failure(

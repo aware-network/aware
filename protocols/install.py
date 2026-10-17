@@ -13,10 +13,10 @@ import tempfile
 import types
 from pathlib import Path
 
-PACKET_SHA = "03eb59691cfa1aa1e01e95a7c2727eb3d093ac28e5bd26ae7073416bb61f01b2"
-PAYLOAD_SHA = "899b2ef4beabf074fbdf7ea5980d4eaea1967ef4318b3ebc772814ee84b54727"
+PACKET_SHA = "e96946272b7812e833d41370ec5bfbba722f2f6f91720f994abcf9f407c975f7"
+PAYLOAD_SHA = "34c3c9d16d5bec1aba75add5ce03e55d32b25c828da78e878288b19453d6a51c"
 VERIFIER_SHA = "032febe109cf145c65f5edaf14403fc58e7b4e93397535d0327e5ce1a65c6ca9"
-ARCHIVE = "canonical-reviewed-workflow-source-notice-review-v1.tar.gz"
+ARCHIVE = "canonical-refusal-successor-source-notice-review-v1.tar.gz"
 
 
 def new_target(target: Path) -> None:
@@ -28,7 +28,7 @@ def new_target(target: Path) -> None:
 
 def load_verifier(root: Path) -> types.ModuleType:
     # Public placement is protocols/install.py; release material is separate.
-    path = root.parent / "releases" / "canonical-reviewed-workflow-fs-v1" / "archive_verifier.py"
+    path = root.parent / "releases" / "canonical-refusal-successor-fs-v1" / "archive_verifier.py"
     if path.is_symlink() or not path.is_file():
         raise ValueError("regular_verifier_required")
     body = path.read_bytes()
@@ -78,7 +78,7 @@ def main() -> int:
     new_target(target)
     root = Path(__file__).resolve().parent
     verifier = load_verifier(root)
-    archive = root.parent / "releases" / "canonical-reviewed-workflow-fs-v1" / ARCHIVE
+    archive = root.parent / "releases" / "canonical-refusal-successor-fs-v1" / ARCHIVE
     if archive.is_symlink() or not archive.is_file():
         raise ValueError("regular_packet_required")
     packet_root, outer = verifier.verified_archive(archive.read_bytes(), PACKET_SHA)

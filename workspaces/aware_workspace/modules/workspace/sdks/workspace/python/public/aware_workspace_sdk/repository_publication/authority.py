@@ -194,6 +194,55 @@ class WorkspaceRepositoryPublicationClient:
             raise TypeError("Exact WorkspaceRepositoryCommitRequest required")
         return self._provider.plan_repository_commit(request)
 
+    def enroll_initial_authoring(self, preparation_client):
+        """Explicit local-policy enrollment from this original fresh-root creator.
+
+        Does not create an exact-effect admission, Issue lease or commit plan.
+        """
+        from aware_workspace_runtime.initial_authoring import (
+            enroll_from_original_preparation,
+        )
+
+        return enroll_from_original_preparation(self._provider, preparation_client)
+
+    def restore_initial_authoring_enrollment(self):
+        """Reverify original retained enrollment, not reenroll an existing root."""
+        from aware_workspace_runtime.initial_authoring import (
+            restore_original_enrollment,
+        )
+
+        return restore_original_enrollment(self._provider)
+
+    def plan_initial_configuration(self, enrollment, protocol_plan, *, idempotency_key):
+        from aware_workspace_runtime.initial_authoring import plan_initial_configuration
+
+        return plan_initial_configuration(
+            self._provider, enrollment, protocol_plan, idempotency_key
+        )
+
+    def admit_initial_configuration(self, plan):
+        from aware_workspace_runtime.initial_authoring import (
+            admit_initial_configuration,
+        )
+
+        return admit_initial_configuration(self._provider, plan)
+
+    def publish_initial_configuration(self, admission):
+        from aware_workspace_runtime.initial_authoring import (
+            publish_initial_configuration,
+        )
+
+        return publish_initial_configuration(self._provider, admission)
+
+    def recover_initial_configuration(self, protocol_plan, *, idempotency_key):
+        from aware_workspace_runtime.initial_authoring import (
+            recover_initial_configuration,
+        )
+
+        return recover_initial_configuration(
+            self._provider, protocol_plan, idempotency_key
+        )
+
     def plan_repository_index_reconciliation(self, request):
         from .ports import WorkspaceRepositoryIndexReconcileRequest
 

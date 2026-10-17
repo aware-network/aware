@@ -459,6 +459,21 @@ class WorkspaceSourcePlanningSemanticIssuerRuntime(_WorkspaceSemanticIssuerCore)
                 admission, resolution_admission, expected
             )
 
+    def read_dependency_product_inputs(self, admission, *, resolution_admission, expected):
+        """Use only the retained original fulfillment and its publisher binding."""
+        with self._lock:
+            if (
+                self._dependency_fulfillment is None
+                or self._closed
+                or self._pid != os.getpid()
+            ):
+                _unavailable("dependency_fulfillment_unavailable")
+            if type(expected) is not RetainedDependencyResolutionExpectation:
+                _unavailable("exact_resolution_expectation_required")
+            return self._dependency_fulfillment.read_inputs(
+                admission, resolution_admission, expected,
+            )
+
     def issue_empty_dependency_products(
         self, operation, *, inventory_admission, expected
     ):

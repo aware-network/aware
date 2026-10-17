@@ -1,12 +1,14 @@
 # Neutral Agent CLI composition
 
-Source preview **0.2.0a7** supplies one `aware` entrance over the accepted family
+Source preview **0.2.0a8** supplies one `aware` entrance over the accepted family
 registrars and Kernel's command runtime. It is a composition library with a CLI
 entrypoint, not a new Agent SDK, evaluator or authority provider.
 
 ```text
 aware init --repo-root <absolute-root> [explicit creation/apply options]
 aware issue <existing Issue leaf> [original arguments]
+aware goal show <explicit committed source arguments>       # optional Goal family
+aware goal eligibility <explicit lane/Phase and source arguments>
 aware protocol admit [original arguments]
 aware protocol setup-specification [original arguments]
 aware spec observe [original arguments]
@@ -90,6 +92,29 @@ environment, PATH discovery, raw writer or Service/FS fallback. Generic context
 is not execution identity, Issue admission or authorization. The composition
 does not refresh guards or retry a failed publication. Family diagnostics and
 unknown/applied effect evidence remain unchanged.
+
+## Optional Goal read family
+
+The source-only `goal` extra selects Goal's original native CLI registrar:
+`aware-agent-cli[goal]`. Base dependencies and the `portable_protocols` release
+selection do not acquire Goal implicitly. Bundle must qualify a successor
+installation before consumer adoption; help availability is not installed
+capability. A missing optional registrar refuses without installing it.
+
+For a qualified successor, `aware goal show` and `aware goal eligibility` use
+explicit `--repository-root`, `--protocol-manifest` and `--goal-path` inputs;
+eligibility also requires `--lane-key` and `--phase-key`. See the Goal-owned
+[command journey](../../../../../../aware_coordination/modules/workflow/sdks/goal/python/native_cli/README.md).
+They start from an already qualified committed native Goal and committed native
+Protocol configuration, not Issue-only initialization. Neither command prepares,
+upgrades or repairs configuration. Goal creation/import remains separate.
+
+Goal's owner-qualified reading retains committed associated Issue inputs.
+Discovery and eligibility are composed once at an exact repository epoch;
+authority changes refuse without silently refreshing. Summaries are descriptive
+and label suggested next steps. Eligible never means authorized to RUN, and
+these reads admit no Work, approval, event or dispatch. The Agent command only
+mounts the original handlers; it supplies no Goal interpretation or provider.
 
 ## Draft guard preparation
 
@@ -310,3 +335,26 @@ Successful effects and complete client cleanup do not erase incomplete retention
 Preserve known scope/publication effects even when later steps
 fail. Inspect durable evidence after lost output; never redispatch to recreate
 a receipt. Client release does not delete retained records.
+
+### Current input refusal evidence
+
+The refusal-evidence source successor consumes Workspace's typed current-input
+denial, original reads, phase, reference, retention and independent cleanup.
+Human output separates these results. A fully retained denial with complete
+cleanup remains a refusal, exit 2; this is not a blanket remapping of exit 3.
+Spent physical sequences, uncertain capture and unknown cleanup stay incomplete.
+
+A `SetupRefusalRecord` reference is evidence only, not a review, decision or
+admission. Inspect it through `review evidence`; never submit it to scope/apply
+as replacement authority. Its `product_dispatch=not_invoked` describes only
+the refused action, not historical effects or private evidence writes.
+
+Incomplete retention falls back to full available owner values, including the
+detached refusal even when no refusal record was published. A reference may
+then describe earlier evidence; do not infer a successful new capture from it.
+Codec/presentation failures remain separate and incomplete, not raw-record
+fallbacks. Interruptions retain exit 130. No new guard, retry, policy decoder
+or authority is created. Original full command JSON v1 stays unchanged.
+
+This source cut still needs independently accepted successor versions/artifacts
+and joined installed qualification; existing public installations are unchanged.

@@ -1,11 +1,8 @@
 # Reviewed repository setup
 
-The reviewed-workflow software was published at
-[`42a6740e29bb39ec9d332a63d52cb59540655ccd`](https://github.com/aware-network/aware/blob/42a6740e29bb39ec9d332a63d52cb59540655ccd/protocols/workspace/REVIEWED-SETUP.md).
-[Status and review provenance](../../releases/canonical-reviewed-workflow-fs-v1/PUBLIC-STATUS.md)
-remain separate from operation authority. `aware workspace review` performs one bounded A1
-task: creating `aware.repo.toml` through the original Workspace, FileSystem and
-Issue owners. Its operational guidance is unchanged. Start with
+This prepared, unselected refusal successor uses `aware workspace review` for one
+bounded A1 task: creating `aware.repo.toml` through the original Workspace,
+FileSystem and Issue owners. Instructions remain draft. Start with
 [the entrance](../../README.md) and [first Issue](../issues/FIRST-ISSUE.md).
 This is not package creation, application implementation, A2 or tree completion.
 
@@ -134,9 +131,13 @@ does not restore current-use authority or repeat an operation.
 
 Keep both review references and all original effect/cleanup receipts. Original
 release uncertainty remains unknown even if later client cleanup completes.
-Exit 0 means that action/read completed, 2 is refusal, 3 is incomplete output or
-cleanup, and 130 is interruption. A successful physical effect can coexist with
-exit 3. Preserve evidence and inspect before choosing supported recovery.
+Read the primary owner code/reason separately from evidence retention and client
+cleanup. Clean stale Issue/authority refusals retain complete evidence and exit
+2. Spent-reference incompleteness remains 3; current retention/output or client
+cleanup failure remains non-success. Interruption stays 130 even after output
+failure. Original release unknown alone does not force a nonzero exit: qualified
+successful apply can exit 0 with that unknown still visible. A completed effect
+can coexist with exit 3 or 130. Preserve evidence; never replay for a nicer receipt.
 
 Repository publication and Issue closeout remain separate original operations;
 reviewed setup neither commits customer files nor closes the Issue. This guide

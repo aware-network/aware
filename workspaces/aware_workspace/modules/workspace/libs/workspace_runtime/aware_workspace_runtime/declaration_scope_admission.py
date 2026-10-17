@@ -26,6 +26,9 @@ from aware_code_semantic_contract_runtime import (
     encode_semantic_candidate_listing,
 )
 from aware_code_semantic_contract_runtime import (
+    product_input_context as _product_context,
+)
+from aware_code_semantic_contract_runtime import (
     retained_declaration_scope_codec as _declaration_codec,
 )
 from aware_code_semantic_contract_runtime import (
@@ -145,6 +148,17 @@ from .source_observation import (
 )
 from .source_observation_io import SourceObservationUnavailable
 from .workspace_profile_declarations import local_profile_paths_from_bytes
+
+_PRODUCT_CONTEXT_VERIFIER = _product_context.require_product_input_context_receipt
+_PRODUCT_CONTEXT_VERIFIER_CODE = _PRODUCT_CONTEXT_VERIFIER.__code__
+_CLOSE_PRODUCT_CONTEXTS = _product_context.close_product_input_contexts
+
+
+def _require_provider_context(*args, **kwargs):
+    if (_product_context.require_product_input_context_receipt is not _PRODUCT_CONTEXT_VERIFIER
+            or _PRODUCT_CONTEXT_VERIFIER.__code__ is not _PRODUCT_CONTEXT_VERIFIER_CODE):
+        raise ContractViolation("original Code provider-context verifier changed")
+    return _PRODUCT_CONTEXT_VERIFIER(*args, **kwargs)
 
 
 class WorkspaceDeclarationScope:
@@ -312,6 +326,7 @@ class _PreRequestInputRecord:
     live: bool = True
     selection_origin: _SelectedInputOrigin | None = None
     grouped_origin: _GroupedInputOrigin | None = None
+    context_receipts: tuple = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -660,12 +675,16 @@ def _bind_group_method_check(kind, descriptors):
 def _bind_original_group_method(check, descriptors, functions):
     namespace = globals()
     originals = tuple(functions.items())
+    check_code = check.__code__
 
     def origins():
         if (namespace.get("_check_group_methods") is not check
             or namespace.get("_GROUP_METHOD_DESCRIPTORS") is not descriptors
             or namespace.get("_GROUP_METHOD_FUNCTIONS") is not functions
-            or namespace.get("_original_group_method") is not invoke):
+            or namespace.get("_original_group_method") is not public
+            or public.__code__ is not public_code
+            or invoke.__code__ is not invoke_code
+            or check.__code__ is not check_code):
             raise SourceObservationUnavailable("grouped_issuer_method_substituted")
 
     def invoke(issuer, name: str, *args, **kwargs):
@@ -684,10 +703,27 @@ def _bind_original_group_method(check, descriptors, functions):
         check(issuer)
         return value
 
-    return invoke
+    def public(issuer, name: str, *args, **kwargs):
+        # Internal class frames keep the private dispatcher. A public alias or
+        # code restamp cannot make a nested owner read execute foreign behavior.
+        origins()
+        return invoke(issuer, name, *args, **kwargs)
+
+    invoke_code, public_code = invoke.__code__, public.__code__
+    return invoke, public
 
 
 def _build_declaration_scope_runtime():
+    provider_context_verifier = _require_provider_context
+    provider_context_code = provider_context_verifier.__code__
+    context_namespace = globals()
+
+    def require_provider_context(*args, **kwargs):
+        if (context_namespace.get("_require_provider_context") is not provider_context_verifier
+                or provider_context_verifier.__code__ is not provider_context_code):
+            raise ContractViolation("original Code provider-context verifier changed")
+        return provider_context_verifier(*args, **kwargs)
+
     class WorkspaceDeclarationScopeRuntime:
         """Borrow the original observer and parent exclusion, owning only new handles."""
 
@@ -767,7 +803,8 @@ def _build_declaration_scope_runtime():
             return self._methods[name][1](*args, **kwargs)
 
         def _retained_bodies(
-            self, observation: WorkspaceRetainedDeclarationObservation
+            self, observation: WorkspaceRetainedDeclarationObservation,
+            *, consumer_scope_key: str | None = None,
         ) -> tuple[WorkspaceObservedDeclarationEvidence, dict[str, CodeRetainedScopeBody],
                    RetainedWorkspaceCompositionProvider, dict[str, object]]:
             evidence = self._call("declaration_evidence", observation)
@@ -777,7 +814,17 @@ def _build_declaration_scope_runtime():
                 rows.append((coordinate.relative_path, body))
                 coordinates[coordinate.relative_path] = _body(coordinate, body)
             provider = RetainedWorkspaceCompositionProvider()
-            description = provider.describe_captured_bodies(tuple(rows))
+            if type(evidence.policy_ref) is not str:
+                raise SourceObservationUnavailable("declaration_consumer_policy_differs")
+            if evidence.policy_ref == "declared-repository-structure.v1":
+                description = provider.describe_captured_bodies(tuple(rows))
+            elif (consumer_scope_key is not None and evidence.policy_ref
+                  == "declared-consumer-structure.v1:" + consumer_scope_key):
+                description = provider.describe_consumer_captured_bodies(
+                    tuple(rows), consumer_scope_key=consumer_scope_key,
+                )
+            else:
+                raise SourceObservationUnavailable("declaration_consumer_policy_differs")
             if description["root_kind"] != "repository" or (
                 provider.declaration_body_paths(description) != tuple(coordinates)
             ):
@@ -820,7 +867,9 @@ def _build_declaration_scope_runtime():
                     return detached
             if _bracketed_origin is not None:
                 raise SourceObservationUnavailable("declaration_copy_origin_differs")
-            evidence, bodies, provider, description = self._retained_bodies(observation)
+            evidence, bodies, provider, description = self._retained_bodies(
+                observation, consumer_scope_key=consumer_scope_key,
+            )
             targets = provider.qualified_repository_membership()
             if consumer_scope_key not in targets.values() or len(targets) > MAX_SCOPES:
                 raise SourceObservationUnavailable("declaration_consumer_not_member")
@@ -1111,7 +1160,9 @@ def _build_declaration_scope_runtime():
             with self._lock:
                 record = self._declaration_record(handle)
                 closure = self.read_declaration_scope(handle)
-                _, _, _, description = self._retained_bodies(record.observation)
+                _, _, _, description = self._retained_bodies(
+                    record.observation, consumer_scope_key=record.consumer_scope_key,
+                )
                 repository = cast(dict[str, Any], description["repository"])
                 roots = select_declared_materialization_roots(
                     closure=closure,
@@ -1941,6 +1992,7 @@ def _build_declaration_scope_runtime():
             self, selected: WorkspaceSelectedPackageSource, *, use_ref: str,
             stage: str, source_coordinates: tuple[SemanticInputSourceCoordinate, ...],
             context_contracts: tuple[SemanticInputContextContract, ...] = (),
+            context_receipts: tuple = (),
         ) -> Iterator[SemanticInputProductionExpectation]:
             """Keep a source-bound proposal live for Code's existing producer rail.
 
@@ -1951,6 +2003,7 @@ def _build_declaration_scope_runtime():
             with self._original_pre_request_input(
                 selected, use_ref=use_ref, stage=stage,
                 source_coordinates=source_coordinates, context_contracts=context_contracts,
+                context_receipts=context_receipts,
             ) as expected:
                 yield expected
 
@@ -1961,6 +2014,7 @@ def _build_declaration_scope_runtime():
             context_contracts: tuple[SemanticInputContextContract, ...],
             selection_origin: _SelectedInputOrigin | None = None,
             grouped_origin: _GroupedInputOrigin | None = None,
+            context_receipts: tuple = (),
         ) -> Iterator[SemanticInputProductionExpectation]:
             grouped_body = declaration_body = None
             if grouped_origin is None:
@@ -1986,7 +2040,30 @@ def _build_declaration_scope_runtime():
                 ):
                     raise SourceObservationUnavailable("pre_request_context_contracts_invalid")
                 bodies: list[SemanticBody] = []
+                if type(context_receipts) is not tuple or len(context_receipts) > 64:
+                    raise SourceObservationUnavailable("pre_request_context_receipts_invalid")
+                provider_contexts = {}
+                for row in context_receipts:
+                    if (type(row) is not tuple or len(row) != 3 or type(row[0]) is not str
+                            or type(row[1]) is not SemanticContractRef
+                            or type(row[2]) is not _product_context.ProductInputContextReceipt):
+                        raise SourceObservationUnavailable("pre_request_context_receipts_invalid")
+                    role, contract, receipt = row
+                    if (role in provider_contexts or contract in (
+                            PACKAGE_CONTEXT_INPUT_REF, DECLARATION_TARGET_INVENTORY_REF,
+                            SEMANTIC_CANDIDATE_LISTING_REF, SOURCE_SELECTION_REF, SOURCE_ORIGIN_REF)
+                            or (grouped_body is not None and contract == grouped_body.coordinate.contract)
+                            or (declaration_body is not None and contract == declaration_body.coordinate.contract)
+                            or sum(item.role == role and item.contract == contract for item in context_contracts) != 1):
+                        raise SourceObservationUnavailable("pre_request_context_ownership_conflict")
+                    provider_contexts[role] = (contract, receipt)
                 for item in context_contracts:
+                    if item.role in provider_contexts:
+                        contract, receipt = provider_contexts[item.role]
+                        bodies.append(require_provider_context(receipt,
+                            source_admission=selected, source_coordinates=source_coordinates,
+                            role=item.role, contract=contract))
+                        continue
                     if grouped_body is not None and item.contract == grouped_body.coordinate.contract:
                         if item.role != grouped_body.coordinate.role:
                             raise SourceObservationUnavailable("grouped_context_role_differs")
@@ -2028,6 +2105,7 @@ def _build_declaration_scope_runtime():
                     selected, record, expected, expected.input_digest.value, threading.get_ident(),
                     selection_origin=selection_origin,
                     grouped_origin=grouped_origin,
+                    context_receipts=context_receipts,
                 )
             with self._exclusion.mutation(), self._lock:
                 if key in self._pre_request_inputs or key in self._retired_pre_request_inputs:
@@ -2044,8 +2122,13 @@ def _build_declaration_scope_runtime():
                 retained.live = False
                 retained.selection_origin = None
                 retained.grouped_origin = None
-                with self._exclusion.mutation(retiring=True), self._lock:
-                    self._pre_request_inputs.pop(key, None)
+                closing_contexts = tuple(row[2] for row in retained.context_receipts)
+                retained.context_receipts = ()
+                try:
+                    _CLOSE_PRODUCT_CONTEXTS(closing_contexts)
+                finally:
+                    with self._exclusion.mutation(retiring=True), self._lock:
+                        self._pre_request_inputs.pop(key, None)
 
         def _pre_request_record(
             self, selected: object, expected: SemanticInputProductionExpectation,
@@ -2201,6 +2284,7 @@ def _build_declaration_scope_runtime():
             result: SemanticBody, use_ref: str, stage: str,
             source_contracts: tuple[SemanticInputSourceContract, ...],
             context_contracts: tuple[SemanticInputContextContract, ...] = (),
+            context_receipts: tuple = (),
         ) -> Iterator[SemanticInputProductionExpectation]:
             """Bind an original owner selection to retained inputs for the next call.
 
@@ -2222,6 +2306,7 @@ def _build_declaration_scope_runtime():
                 selected, use_ref=use_ref, stage=stage, source_coordinates=coordinates,
                 context_contracts=context_contracts,
                 selection_origin=origin,
+                context_receipts=context_receipts,
             ) as expected:
                 self.validate_semantic_input_source(selected, expected=expected)
                 yield expected
@@ -2669,6 +2754,40 @@ def _build_declaration_scope_runtime():
             finally:
                 del self, source_admission, expected, retained
 
+        def semantic_input_checkpoint_validation_scope(
+            self, source_admission: object, *, expected: SemanticInputProductionExpectation,
+            expectations: tuple[SemanticInputProductionExpectation, ...],
+        ) -> Iterator[bool]:
+            """Approve only a complete same-source, non-grouped checkpoint.
+
+            Grouped members keep their independent source windows; never carry
+            an ordinary prefix's window into a foreign member's validation.
+            """
+            retained = records = item = original = None
+            try:
+                scope_dispatch(self, "_check_origin")
+                with self._lock:
+                    retained = scope_dispatch(self, "_pre_request_record", source_admission, expected)
+                    records = tuple(scope_dispatch(self, "_pre_request_record", source_admission, item)
+                                    for item in expectations)
+                if retained.grouped_origin is not None or any(item.grouped_origin is not None for item in records):
+                    yield False
+                else:
+                    with scope_dispatch(self, "_original_semantic_source_window", source_admission, expected):
+                        yield True
+                for item, original in zip(expectations, records, strict=True):
+                    if scope_dispatch(self, "_pre_request_record", source_admission, item) is not original:
+                        raise SourceObservationUnavailable("pre_request_source_changed")
+            except BaseException as error:
+                if retained is not None:
+                    retained.live = False
+                    retained.selection_origin = None
+                    retained.grouped_origin = None
+                _clear_group_failure_frames(error)
+                raise
+            finally:
+                del self, source_admission, expected, expectations, retained, records, item, original
+
         def validate_semantic_input_source(
             self, source_admission: object, *, expected: SemanticInputProductionExpectation,
         ) -> None:
@@ -2915,6 +3034,18 @@ def _build_declaration_scope_runtime():
                         ):
                             raise SourceObservationUnavailable("pre_request_source_differs")
                     for body in expected.context_bodies:
+                        supplied = tuple(row for row in retained.context_receipts
+                                         if row[0] == body.coordinate.role)
+                        if supplied:
+                            if len(supplied) != 1:
+                                raise SourceObservationUnavailable("pre_request_context_receipts_invalid")
+                            role, contract, receipt = supplied[0]
+                            original_body = require_provider_context(receipt,
+                                source_admission=source_admission, source_coordinates=expected.source_coordinates,
+                                role=role, contract=contract, expected=expected)
+                            if body is not original_body:
+                                raise SourceObservationUnavailable("pre_request_provider_context_changed")
+                            continue
                         if body.canonical_body != self._pre_request_context_bytes(
                             context=values[0], inventory=values[1], binding=values[3],
                             contract=body.coordinate.contract,
@@ -2931,6 +3062,8 @@ def _build_declaration_scope_runtime():
                         retained.live = False
                         retained.selection_origin = None
                         retained.grouped_origin = None
+                        _CLOSE_PRODUCT_CONTEXTS(tuple(row[2] for row in retained.context_receipts))
+                        retained.context_receipts = ()
                     raise
 
         def validate_semantic_input_context(
@@ -3261,9 +3394,16 @@ def _build_declaration_scope_runtime():
                     raise SourceObservationUnavailable("dependency_validator_substituted")
             if expected.source_input.source_identity is not record.selected:
                 raise SourceObservationUnavailable("product_inventory_selected_source_differs")
-            original_input = self._original_product_dependency_source_input(expected)
-            self.validate_semantic_input_source(record.selected, expected=original_input)
-            values = self._semantic_values(record.selected)
+            # Share only Workspace source/metadata reads. Original Code demand
+            # validation, distinct targets and final Code checks stay outside.
+            with _original_group_method(
+                self, "_original_participant_source_window",
+                _original_group_method(self, "_selected_record", record.selected).declaration,
+                record.selected,
+            ):
+                original_input = self._original_product_dependency_source_input(expected)
+                self.validate_semantic_input_source(record.selected, expected=original_input)
+                values = self._semantic_values(record.selected)
             if (
                 values[:4] != (record.context, record.inventory, record.namespace, record.owned_roots)
                 or values[0].package != expected.package
@@ -3481,6 +3621,22 @@ def _build_declaration_scope_runtime():
                     admission, resolution_admission, expected
                 )
 
+        def read_dependency_product_inputs(self, admission, *, resolution_admission, expected):
+            """Borrow exact supplier inputs within the original source window."""
+            with self._lock:
+                self._check_origin()
+                if self._dependency_fulfillment is None or self._dependency_resolution is None:
+                    raise SourceObservationUnavailable("dependency_fulfillment_unavailable")
+                if type(expected) is not RetainedDependencyResolutionExpectation:
+                    raise SourceObservationUnavailable("exact_resolution_expectation_required")
+                record = self._dependency_resolution.records.get(resolution_admission)
+                if record is None:
+                    raise SourceObservationUnavailable("foreign_dependency_resolution")
+                with self._original_dependency_source_window(record.inventory, expected):
+                    return self._dependency_fulfillment.read_inputs(
+                        admission, resolution_admission, expected,
+                    )
+
         def issue_empty_dependency_products(
             self, operation, *, inventory_admission, expected
         ):
@@ -3542,6 +3698,7 @@ def _build_declaration_scope_runtime():
             self, handle: WorkspaceSelectedPackageSource
         ) -> None:
             self._check_origin(retiring=True)
+            closing_contexts = []
             with self._exclusion.mutation(retiring=True):
                 with self._lock:
                     if (
@@ -3556,6 +3713,9 @@ def _build_declaration_scope_runtime():
                             retained.live = False
                             retained.selection_origin = None
                             retained.grouped_origin = None
+                            closing_contexts.extend(row[2] for row in retained.context_receipts)
+                            retained.context_receipts = ()
+            _CLOSE_PRODUCT_CONTEXTS(tuple(closing_contexts))
 
         def release_declaration_scope(self, handle: WorkspaceDeclarationScope) -> None:
             self._check_origin(retiring=True)
@@ -3589,6 +3749,7 @@ def _build_declaration_scope_runtime():
                 self._dependency_fulfillment.close()
             if self._dependency_resolution is not None:
                 self._dependency_resolution.close()
+            closing_contexts = []
             with self._exclusion.mutation(retiring=True):
                 with self._lock:
                     self._selected.clear()
@@ -3596,6 +3757,8 @@ def _build_declaration_scope_runtime():
                         record.live = False
                         record.selection_origin = None
                         record.grouped_origin = None
+                        closing_contexts.extend(row[2] for row in record.context_receipts)
+                        record.context_receipts = ()
                     self._pre_request_inputs.clear()
                     self._retired_pre_request_inputs.clear()
                     self._semantic.clear()
@@ -3605,6 +3768,7 @@ def _build_declaration_scope_runtime():
                     self._declaration_origins.clear()
                     self._retired_declaration_records.clear()
                     self._closed = True
+            _CLOSE_PRODUCT_CONTEXTS(tuple(closing_contexts))
 
 
     _GROUP_METHOD_DESCRIPTORS = tuple(
@@ -3625,6 +3789,7 @@ def _build_declaration_scope_runtime():
             "_validate_semantic_input_source",
             "validate_semantic_input_source",
             "semantic_input_validation_scope",
+            "semantic_input_checkpoint_validation_scope",
             "_validate_retained_semantic_inputs",
             "_call_original_code_result_validator",
             "_original_semantic_source_window",
@@ -3661,14 +3826,14 @@ def _build_declaration_scope_runtime():
         WorkspaceDeclarationScopeRuntime, _GROUP_METHOD_DESCRIPTORS,
     )
 
-    _original_group_method = _bind_original_group_method(
+    _original_group_method, public_group_dispatch = _bind_original_group_method(
         _check_group_methods, _GROUP_METHOD_DESCRIPTORS, _GROUP_METHOD_FUNCTIONS,
     )
 
     scope_dispatch = _original_group_method
 
     return (WorkspaceDeclarationScopeRuntime, _GROUP_METHOD_DESCRIPTORS,
-            _GROUP_METHOD_FUNCTIONS, _check_group_methods, _original_group_method)
+            _GROUP_METHOD_FUNCTIONS, _check_group_methods, public_group_dispatch)
 
 
 (WorkspaceDeclarationScopeRuntime, _GROUP_METHOD_DESCRIPTORS,

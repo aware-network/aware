@@ -2507,67 +2507,55 @@ def test_index_prefetch_unsupported_future_literal_callback(native_sdk):
 
 @pytest.mark.parametrize("kind", ["raising", "missing", "returning"])
 def test_native_receipt_subclass_field_key_keeps_member_custody(native_sdk, kind):
-    run_native(
+    run_receipt_native(
         native_sdk,
         f"""
-from aware_workspace_runtime import change_evidence_codec as installed_receipt
 from aware_workspace_runtime.repository_access import RepositoryObservationCoordinate
-cls = RepositoryObservationCoordinate
-value = cls('owner', 'epoch', 0, 'digest', 'policy', 'version')
-field = cls.__dataclass_fields__['repository_binding_ref']
-original_name = field.name
-events = []
-armed = False
+cls=RepositoryObservationCoordinate
+field=cls.__dataclass_fields__['repository_binding_ref']
+original_name=field.name
+results=[]
+events=[]
+armed=False
 class Key(str):
     def __hash__(self):
         if armed:
             events.append('hash-start')
-            object.__setattr__(value, 'repository_binding_ref', None)
+            object.__setattr__(value,'repository_binding_ref',None)
             events.append('hash-after-drop')
-            if {kind!r} == 'raising':
-                raise ValueError('original hash interruption')
+            if {kind!r}=='raising':raise ValueError('original hash interruption')
         return str.__hash__(self)
 class Victim:
-    def __del__(self):
-        events.append('member-finalized')
+    def __del__(self):events.append('member-finalized')
 try:
-    field.name = Key(original_name)
-    # The subclass exists before compilation, as allowed by the literal codec.
-    # An unregistered/portable clone would not exercise the native own-slot rail.
-    source = Path(installed_receipt.__file__).read_bytes()
-    module = types.ModuleType('aware_workspace_runtime._prefix_key_custody')
-    module.__package__ = 'aware_workspace_runtime'
-    sys.modules[module.__name__] = module
-    exec(compile(source, '<prefix-key-custody>', 'exec'), vars(module))
-    assert module._RECEIPT_NATIVE_HANDOFF is not None
-    hints = module._type_hints(cls)
-    if {kind!r} == 'missing':
-        del hints[original_name]
-    object.__setattr__(value, 'repository_binding_ref', Victim())
-    armed = True
-    try:
-        result = module._encode(value, cls)
-    except ValueError as error:
-        assert {kind!r} == 'raising'
-        assert str(error) == 'original hash interruption'
-    except KeyError as error:
-        assert {kind!r} == 'missing'
-        assert str(error) == "'repository_binding_ref'"
-    else:
-        assert {kind!r} == 'returning'
-        assert type(result[original_name]) is Victim
-        result = None
-    expected = {{
-        'raising': ['hash-start', 'hash-after-drop', 'member-finalized'],
-        'missing': ['hash-start', 'hash-after-drop', 'member-finalized',
-                    'hash-start', 'hash-after-drop'],
-        'returning': ['hash-start', 'hash-after-drop', 'hash-start',
-                      'hash-after-drop', 'member-finalized'],
-    }}
-    assert events == expected[{kind!r}], events
+    field.name=Key(original_name)
+    for tag,source in (('native',Path(receipt.__file__).read_bytes()),('literal',receipt_before)):
+        module=types.ModuleType('aware_workspace_runtime._paired_prefix_'+tag)
+        module.__package__='aware_workspace_runtime'
+        sys.modules[module.__name__]=module
+        exec(compile(source,'<paired-prefix-'+tag+'>','exec'),vars(module))
+        if tag=='native':assert module._RECEIPT_NATIVE_HANDOFF is not None
+        hints=module._type_hints(cls)
+        if {kind!r}=='missing':del hints[original_name]
+        value=cls('owner','epoch',0,'digest','policy','version')
+        object.__setattr__(value,'repository_binding_ref',Victim())
+        events=[]
+        armed=True
+        result=None
+        try:
+            result=module._encode(value,cls)
+            observed=('ok',type(result).__name__)
+        except BaseException as error:observed=(type(error).__name__,str(error))
+        finally:
+            result=None
+            armed=False
+        results.append((observed,tuple(events)))
+    assert results[0]==results[1],results
+    assert results[0][1].count('member-finalized')==1,results
+    assert 'hash-start' in results[0][1],results
 finally:
-    armed = False
-    field.name = original_name
+    armed=False
+    field.name=original_name
 """,
     )
 
@@ -2638,5 +2626,565 @@ finally:
     portable.WorkspaceWorkflowSourceBinding = original
 assert codec.repository_tree_projection_value_to_json(value) == original_wire
 codec.repository_tree_projection_value_validate_equal(value, expected_value=value)
+""",
+    )
+
+
+@pytest.mark.parametrize(
+    "change",
+    (
+        "native_class",
+        "native_export",
+        "runtime_export",
+        "runtime_code",
+        "runtime_defaults",
+        "runtime_kwdefaults",
+    ),
+)
+def test_receipt_invocation_proof_rechecks_after_original_child(native_sdk, change):
+    run_receipt_native(
+        native_sdk,
+        f"""
+# The admitted coordinate runs before context_refs and initializes the local
+# declaration proof. This exercises a proof hit, rather than only first entry.
+value = receipt_cases.capture()
+original_refs = value.context_refs
+original_native_class = native.__class__
+original_export = native.convert_receipt
+original_encode = receipt._encode
+original_timestamp = receipt._timestamp
+original_code = original_timestamp.__code__
+original_defaults = original_timestamp.__defaults__
+original_kwdefaults = original_timestamp.__kwdefaults__
+calls = []
+class NativeSubclass(types.ModuleType):
+    pass
+def foreign(*args, **kwargs):
+    calls.append('foreign')
+    return None
+class Trigger:
+    def __iter__(self):
+        calls.append('original-iterator')
+        change = {change!r}
+        if change == 'native_class':
+            native.__class__ = NativeSubclass
+        elif change == 'native_export':
+            native.convert_receipt = foreign
+        elif change == 'runtime_export':
+            receipt._encode = foreign
+        elif change == 'runtime_code':
+            original_timestamp.__code__ = foreign.__code__
+        elif change == 'runtime_defaults':
+            original_timestamp.__defaults__ = (None,)
+        elif change == 'runtime_kwdefaults':
+            original_timestamp.__kwdefaults__ = {{'unexpected': None}}
+        else:
+            raise AssertionError(change)
+        return iter(())
+object.__setattr__(value, 'context_refs', Trigger())
+try:
+    result = outcome(receipt, value)
+    assert result[0] == 'TypeError', result
+    assert calls == ['original-iterator'], calls
+finally:
+    native.__class__ = original_native_class
+    native.convert_receipt = original_export
+    receipt._encode = original_encode
+    original_timestamp.__code__ = original_code
+    original_timestamp.__defaults__ = original_defaults
+    original_timestamp.__kwdefaults__ = original_kwdefaults
+    object.__setattr__(value, 'context_refs', original_refs)
+assert outcome(receipt, value) == outcome(baseline, value)
+""",
+    )
+
+
+@pytest.mark.parametrize("restore", (False, True))
+def test_receipt_invocation_proof_preserves_fresh_helper_history(native_sdk, restore):
+    run_receipt_native(
+        native_sdk,
+        f"""
+value = receipt_cases.capture()
+original_refs = value.context_refs
+original_encode = receipt._encode
+calls = []
+def foreign(*args, **kwargs):
+    calls.append('foreign')
+    raise AssertionError('foreign encoder ran')
+class Trigger:
+    def __iter__(self):
+        calls.append('original-iterator')
+        # A namespace version may move while its exact original bindings stay
+        # unchanged. Only current associations are proved; no history authority.
+        receipt._workspace_test_marker = None
+        del receipt._workspace_test_marker
+        if {restore!r}:
+            receipt._encode = foreign
+            receipt._encode = original_encode
+        return iter(original_refs)
+object.__setattr__(value, 'context_refs', Trigger())
+try:
+    before = receipt._type_hints.cache_info()
+    first = outcome(receipt, value)
+    middle = receipt._type_hints.cache_info()
+    second = outcome(receipt, value)
+    after = receipt._type_hints.cache_info()
+    assert first == second == outcome(baseline, value)
+    assert calls == ['original-iterator'] * 3, calls
+    assert middle.hits > before.hits
+    assert after.hits > middle.hits
+finally:
+    receipt._encode = original_encode
+    object.__setattr__(value, 'context_refs', original_refs)
+""",
+    )
+
+
+def test_ascii_batch_scans_all_paths_and_keeps_unknown_objects_unobserved(native_sdk):
+    run_native(
+        native_sdk,
+        """
+context=codec._TREE_NATIVE_HANDOFF[0]
+limits={'maximum_path_utf8_bytes':1024,'maximum_metadata_bytes':1000000}
+payload={'effect_paths':['later'],'read_guard_paths':['last']}
+last=payload['read_guard_paths'][-1]
+assert native.ascii_paths_last(context,['first'],payload,limits) is last
+for paths in ([],['é'],['a//b'],[b'a'],['a'*256],['a']*16385):
+    assert native.ascii_paths_last(context,paths,{'effect_paths':[],'read_guard_paths':[]},limits) is None
+calls=[]
+class Foreign:
+    def __getattribute__(self,name):calls.append(name);raise RuntimeError('foreign')
+class Paths(list):
+    def __iter__(self):calls.append('iter');raise RuntimeError('foreign')
+for value in (Foreign(),Paths(['a'])):
+    assert native.ascii_paths_last(context,value,payload,limits) is None
+assert native.ascii_paths_last(context,[Foreign()],payload,limits) is None
+assert native.ascii_paths_last(Foreign(),['a'],payload,limits) is None
+assert calls==[]
+""",
+    )
+
+
+@pytest.mark.parametrize("change", ("export", "abi", "large_abi"))
+@pytest.mark.parametrize("mode", ("return", "raise", "restore"))
+def test_ascii_batch_retained_dispatch_rejects_export_substitution(
+    native_sdk, change, mode
+):
+    run_native(
+        native_sdk,
+        f"""
+context=codec._TREE_NATIVE_HANDOFF[0]
+retained=native.ascii_paths_last
+original_abi=native.ASCII_PATH_BATCH_ABI
+calls=[]
+def foreign(*args):
+    calls.append('foreign')
+    if {mode!r}=='restore':native.ascii_paths_last=retained
+    if {mode!r}=='raise':raise RuntimeError('foreign')
+    return 'accepted'
+class ABI:
+    def __eq__(self,other):calls.append('eq');raise RuntimeError('foreign ABI')
+if {change!r}=='export':native.ascii_paths_last=foreign
+elif {change!r}=='abi':native.ASCII_PATH_BATCH_ABI=ABI()
+else:native.ASCII_PATH_BATCH_ABI=2**100
+try:
+    try:retained(context,['a'],{{'effect_paths':[],'read_guard_paths':[]}},{{'maximum_path_utf8_bytes':1024,'maximum_metadata_bytes':1000000}})
+    except TypeError:pass
+    else:raise AssertionError('substitution accepted')
+finally:native.ascii_paths_last=retained;native.ASCII_PATH_BATCH_ABI=original_abi
+assert calls==[]
+""",
+    )
+
+
+@pytest.mark.parametrize("scenario", ("empty", "iterable", "collision", "custody"))
+def test_ascii_batch_post_wire_callback_keeps_literal_loop_order(native_sdk, scenario):
+    run_native(
+        native_sdk,
+        f"""
+outputs=[]
+for module in (portable,codec):
+    payload=module.repository_tree_projection_value_to_payload(cases.binding())
+    payload['scratch_effects']=[];payload['effect_paths']=[];payload['read_guard_paths']=[]
+    events=[];original=json.dumps
+    def selected(value,**kwargs):
+        text=original(value,**kwargs);json.dumps=original
+        if {scenario!r}=='empty':payload['limits'].pop('maximum_path_utf8_bytes')
+        elif {scenario!r}=='iterable':
+            class Paths:
+                def __len__(self):events.append('len');return 1
+                def __iter__(self):events.append('iter');return iter(['later'])
+                def __radd__(self,other):events.append('radd');return self
+            payload['read_guard_paths']=Paths();payload['limits'].pop('maximum_path_utf8_bytes')
+        elif {scenario!r}=='collision':
+            class Key:
+                def __hash__(self):return hash('maximum_path_utf8_bytes')
+                def __eq__(self,other):events.append('eq');return other=='maximum_path_utf8_bytes'
+            payload['effect_paths']=['first','second'];payload['limits'].pop('maximum_path_utf8_bytes');payload['limits'][Key()]=1024
+        else:
+            class Remaining:
+                def __lt__(self,other):events.append(sys._getframe(1).f_locals.get('path'));return False
+            payload['effect_paths']=['final'];payload['limits']['maximum_metadata_bytes']=Remaining()
+        return text
+    json.dumps=selected
+    try:
+        try:result=module._sequence(payload);outcome=('ok',result)
+        except BaseException as error:outcome=(type(error).__name__,error.args)
+    finally:json.dumps=original
+    outputs.append((outcome,events))
+assert outputs[0]==outputs[1],outputs
+if {scenario!r}=='custody':assert outputs[1][1][-1]=='final'
+if {scenario!r}=='collision':assert outputs[1][1]==['eq','eq']
+if {scenario!r}=='iterable':assert outputs[1][1]==['len','iter','radd','iter']
+""",
+    )
+
+
+@pytest.mark.parametrize("binding", ("builtin", "global"))
+@pytest.mark.parametrize("mode", ("return", "raise", "restore"))
+def test_ascii_batch_declines_changed_effective_type_without_dispatch(
+    native_sdk, binding, mode
+):
+    run_native(
+        native_sdk,
+        f"""
+import builtins
+context=codec._TREE_NATIVE_HANDOFF[0];original=builtins.str;calls=[]
+def foreign(*args):
+    calls.append('foreign')
+    if {mode!r}=='restore':builtins.str=original
+    if {mode!r}=='raise':raise RuntimeError('foreign')
+    return original(*args)
+if {binding!r}=='builtin':builtins.str=foreign
+else:codec.str=foreign
+try:result=native.ascii_paths_last(context,['a'],{{'effect_paths':[],'read_guard_paths':[]}},{{'maximum_path_utf8_bytes':1024,'maximum_metadata_bytes':1000000}})
+finally:
+    builtins.str=original
+    if {binding!r}=='global':del codec.str
+assert result is None and calls==[]
+""",
+    )
+
+
+@pytest.mark.parametrize("binding", ("shadow", "unbound"))
+def test_ascii_batch_declines_incomplete_preseal_effective_path_proof(
+    native_sdk, binding
+):
+    run_native(
+        native_sdk,
+        f"""
+name=codec.__name__;module=types.ModuleType(name);module.__package__=codec.__package__
+original=sys.modules[name];original_abi=native.ASCII_PATH_POSITIVE_ABI;sys.modules[name]=module
+injection="str = lambda *args: (_ for _ in ()).throw(RuntimeError('foreign str'))\\n" if {binding!r}=='shadow' else "_TREE_NATIVE_HANDOFF[1].__self__.ASCII_PATH_POSITIVE_ABI = 0\\n"
+body=Path(codec.__file__).read_text().replace('_seal_native_tree_binding(globals(), _TREE_NATIVE_HANDOFF)',injection+'_seal_native_tree_binding(globals(), _TREE_NATIVE_HANDOFF)')
+try:
+    exec(compile(body,codec.__file__,'exec'),vars(module))
+    assert module._TREE_NATIVE_HANDOFF is not None
+    context=module._TREE_NATIVE_HANDOFF[0];native.verify(context)
+    slot=next(item for item in module._sequence.__code__.co_consts if type(item)is tuple and len(item)==3 and item[0]=='__workspace_ascii_paths_slot_v1__')
+    assert slot[1] is native.ascii_paths_last
+    assert native.ascii_paths_last(context,['a'],{{'effect_paths':[],'read_guard_paths':[]}},{{'maximum_path_utf8_bytes':1024,'maximum_metadata_bytes':1000000}})is None
+finally:sys.modules[name]=original;native.ASCII_PATH_POSITIVE_ABI=original_abi
+""",
+    )
+
+
+@pytest.mark.parametrize(
+    "change",
+    ("union_equal", "union_other", "scalar", "tuple_other", "missing", "cache_clear"),
+)
+def test_native_receipt_fresh_declaration_rechecks_fresh_hint_dictionary(
+    native_sdk, change
+):
+    run_receipt_native(
+        native_sdk,
+        f"""
+value=receipt_cases._mutation_receipt()
+object.__setattr__(value,'expected_content_digest','digest:original')
+results=[]
+for module in (receipt,baseline):
+    module._type_hints.cache_clear()
+    hints=module._type_hints(type(value))
+    name='expected_content_digest'
+    prior=hints[name]
+    rows=[outcome(module,value),outcome(module,value)]
+    try:
+        if {change!r}=='union_equal':hints[name]=type(None)|str
+        elif {change!r}=='union_other':hints[name]=int|None
+        elif {change!r}=='scalar':hints[name]=str
+        elif {change!r}=='tuple_other':hints[name]=tuple[int,...]
+        elif {change!r}=='missing':del hints[name]
+        else:module._type_hints.cache_clear()
+        rows.extend((outcome(module,value),outcome(module,value)))
+    finally:hints[name]=prior
+    rows.append(outcome(module,value))
+    module._type_hints.cache_clear()
+    rows.append(outcome(module,value))
+    results.append(rows)
+assert results[0]==results[1],results
+""",
+    )
+
+
+@pytest.mark.parametrize("mode", ("return", "raise", "restore"))
+def test_native_receipt_fresh_declaration_keeps_later_hint_drift(native_sdk, mode):
+    run_receipt_native(
+        native_sdk,
+        f"""
+value=receipt_cases._mutation_receipt()
+object.__setattr__(value,'expected_content_digest','digest:original')
+cls=type(value)
+slot=vars(cls)['target_path']
+results=[]
+for module in (receipt,baseline):
+    module._type_hints.cache_clear()
+    hints=module._type_hints(cls)
+    prior=hints['expected_content_digest']
+    assert outcome(module,value)[0]=='ok'
+    calls=[]
+    def access(instance):
+        calls.append('target_path')
+        hints['expected_content_digest']=int|None
+        if {mode!r}=='restore':hints['expected_content_digest']=prior
+        if {mode!r}=='raise':raise LookupError('same ordered hint movement')
+        return slot.__get__(instance,cls)
+    setattr(cls,'target_path',property(access))
+    try:results.append((outcome(module,value),tuple(calls)))
+    finally:
+        setattr(cls,'target_path',slot)
+        hints['expected_content_digest']=prior
+assert results[0]==results[1],results
+assert results[0][1]
+""",
+    )
+
+
+def test_native_receipt_fresh_declaration_does_not_retain_retired_hint_objects(
+    native_sdk,
+):
+    run_receipt_native(
+        native_sdk,
+        """
+value=receipt_cases._mutation_receipt()
+cls=type(value)
+for module in (receipt,baseline):
+    module._type_hints.cache_clear()
+    hints=module._type_hints(cls)
+    prior=hints['context_refs']
+    class Origin:pass
+    alias=types.GenericAlias(Origin,(str,))
+    handle=weakref.ref(alias)
+    hints['context_refs']=alias
+    outcome(module,value)
+    hints['context_refs']=prior
+    del alias
+    gc.collect()
+    assert handle() is None
+""",
+    )
+
+
+def test_native_receipt_fresh_declaration_alternate_private_names_remain_literal(
+    native_sdk,
+):
+    run_receipt_native(
+        native_sdk,
+        """
+value=receipt_cases._mutation_receipt()
+context=receipt._RECEIPT_NATIVE_HANDOFF[0]
+config=next(v for v in gc.get_referents(context)if type(v)is tuple and len(v)==9)
+fixed=list(config[3]);fixed[7]='fake_args';fixed[8]='fake_origin'
+raw=(config[0],config[1],config[2],tuple(fixed),config[4],config[6],config[7])
+new_context=native.new_receipt_context();native.seal_receipts(new_context,raw)
+entry=receipt._RECEIPT_FIELDS_BY_ID[id(type(value))]
+hints={row[1]:str for row in entry[1]}
+class OriginMeta(type):
+    @property
+    def fake_origin(cls):calls.append('origin');return tuple
+    @property
+    def fake_args(cls):calls.append('args');return(str,Ellipsis)
+class Origin(metaclass=OriginMeta):pass
+hints['context_refs']=types.GenericAlias(Origin,(str,Ellipsis))
+calls=[]
+first=native.convert_receipt(new_context,value,entry,receipt._RECEIPT_FIELDS_BY_ID,hints)
+second=native.convert_receipt(new_context,value,entry,receipt._RECEIPT_FIELDS_BY_ID,hints)
+assert first==second
+assert calls==['origin','args','origin','args'],calls
+""",
+    )
+
+
+@pytest.mark.parametrize("mode", ("return", "raise", "restore"))
+def test_native_receipt_fresh_declaration_same_record_reentry_keeps_outer_hints(
+    native_sdk, mode
+):
+    run_receipt_native(
+        native_sdk,
+        f"""
+value=receipt_cases._mutation_receipt()
+cls=type(value)
+old_refs=value.context_refs
+results=[]
+for module in (receipt,baseline):
+    module._type_hints.cache_clear()
+    hints_a=module._type_hints(cls)
+    assert outcome(module,value)[0]=='ok'
+    calls=[]
+    class Rows:
+        def __iter__(self):
+            calls.append('outer-iterate')
+            module._type_hints.cache_clear()
+            hints_b=module._type_hints(cls)
+            assert hints_b is not hints_a
+            prior=hints_b['result_content_digest']
+            hints_b['result_content_digest']=int|None
+            inner=copy.copy(value)
+            object.__setattr__(inner,'context_refs',old_refs)
+            calls.append(('inner',outcome(module,inner)))
+            if {mode!r}=='restore':hints_b['result_content_digest']=prior
+            if {mode!r}=='raise':raise LookupError('same original reentry interruption')
+            return iter(old_refs)
+    object.__setattr__(value,'context_refs',Rows())
+    try:
+        outer=outcome(module,value)
+        object.__setattr__(value,'context_refs',old_refs)
+        later=outcome(module,value)
+        module._type_hints.cache_clear()
+        restored=outcome(module,value)
+        results.append((outer,later,restored,tuple(calls)))
+    finally:object.__setattr__(value,'context_refs',old_refs)
+assert results[0]==results[1],results
+assert results[0][3][0]=='outer-iterate'
+""",
+    )
+
+
+def test_native_receipt_fresh_declaration_warm_field_name_movement_stays_fresh(
+    native_sdk,
+):
+    run_receipt_native(
+        native_sdk,
+        """
+value=receipt_cases._mutation_receipt()
+object.__setattr__(value,'expected_content_digest','digest:original')
+field=type(value).__dataclass_fields__['expected_content_digest']
+prior=field.name
+results=[]
+for module in (receipt,baseline):
+    module._type_hints.cache_clear()
+    rows=[outcome(module,value),outcome(module,value)]
+    try:
+        field.name='result_content_digest'
+        rows.extend((outcome(module,value),outcome(module,value)))
+    finally:field.name=prior
+    rows.append(outcome(module,value))
+    results.append(rows)
+assert results[0]==results[1],results
+""",
+    )
+
+
+@pytest.mark.parametrize("mode", ("return", "raise", "restore"))
+def test_native_receipt_fresh_declaration_nonbuiltin_alias_keeps_original_callbacks(
+    native_sdk, mode
+):
+    run_receipt_native(
+        native_sdk,
+        f"""
+value=receipt_cases._mutation_receipt()
+results=[]
+for module in (receipt,baseline):
+    module._type_hints.cache_clear()
+    hints=module._type_hints(type(value))
+    prior=hints['context_refs']
+    assert outcome(module,value)[0]=='ok'
+    calls=[]
+    class Alias(types.GenericAlias):
+        def __getattribute__(self,name):
+            calls.append(name)
+            if {mode!r}=='restore':hints['context_refs']=prior
+            if {mode!r}=='raise':raise LookupError('same original alias attribute')
+            return super().__getattribute__(name)
+    hints['context_refs']=Alias(tuple,(str,Ellipsis))
+    try:results.append((outcome(module,value),tuple(calls)))
+    finally:hints['context_refs']=prior
+assert results[0]==results[1],results
+assert results[0][1]
+""",
+    )
+
+
+@pytest.mark.parametrize("mode", ("return", "raise", "restore"))
+def test_native_receipt_fresh_declaration_custom_original_field_name_keeps_key_callbacks(
+    native_sdk, mode
+):
+    run_receipt_native(
+        native_sdk,
+        f"""
+value=receipt_cases._mutation_receipt()
+object.__setattr__(value,'expected_content_digest','digest:original')
+cls=type(value)
+field=cls.__dataclass_fields__['expected_content_digest']
+prior=field.name
+calls=[]
+armed=False
+class Key(str):
+    def __hash__(self):
+        if armed:
+            calls.append('hash')
+            if {mode!r}=='restore':field.name=prior
+            if {mode!r}=='raise':raise LookupError('same original key callback')
+        return str.__hash__(self)
+source=Path(receipt.__file__).read_bytes()
+results=[]
+try:
+    field.name=Key(prior)
+    clone=types.ModuleType('aware_workspace_runtime._receipt_shape_foreign_key')
+    clone.__package__='aware_workspace_runtime'
+    sys.modules[clone.__name__]=clone
+    exec(compile(source,'<receipt-shape-foreign-key>', 'exec'),vars(clone))
+    assert clone._RECEIPT_NATIVE_HANDOFF is not None
+    key=field.name
+    for module in (clone,baseline):
+        field.name=key
+        module._type_hints.cache_clear()
+        assert outcome(module,value)[0]=='ok'
+        calls=[]
+        armed=True
+        try:results.append((outcome(module,value),tuple(calls)))
+        finally:armed=False
+    assert results[0]==results[1],results
+    assert results[0][1]
+finally:field.name=prior
+""",
+    )
+
+
+@pytest.mark.parametrize("replacement", ("missing", "none", "foreign"))
+def test_native_receipt_fresh_declaration_deleted_warm_field_name_preserves_refusal(
+    native_sdk, replacement
+):
+    run_receipt_native(
+        native_sdk,
+        f"""
+from aware_workspace_runtime.repository_access import RepositoryObservationCoordinate
+cls=RepositoryObservationCoordinate
+value=cls('owner','epoch',0,'digest','policy','version')
+field=cls.__dataclass_fields__['repository_binding_ref']
+prior=field.name
+results=[]
+for module in (receipt,baseline):
+    module._type_hints.cache_clear()
+    rows=[outcome(module,value),outcome(module,value)]
+    try:
+        if {replacement!r}=='missing':del field.name
+        elif {replacement!r}=='none':field.name=None
+        else:field.name=object()
+        rows.extend((outcome(module,value),outcome(module,value)))
+    finally:field.name=prior
+    rows.append(outcome(module,value))
+    results.append(rows)
+assert results[0]==results[1],results
+assert results[0][2][0]!='ok',results
 """,
     )

@@ -36,6 +36,8 @@ from aware_code_semantic_contract_runtime.semantic_input_producer import (
     SemanticInputProducerHost,
     SemanticInputSourceCoordinate,
 )
+from aware_code_semantic_contract_runtime.source_origin import SOURCE_ORIGIN_REF
+from aware_code_semantic_contract_runtime.source_selection import SOURCE_SELECTION_REF
 from aware_local_service_state_sqlite import SqliteLocalOperationalStateStore
 
 from . import direct_command_composition as composition
@@ -198,30 +200,39 @@ async def plan_direct_cli_selected_product(
                     semantic = composition._original_group_method(issuer, "_semantic_values", source)
                     addresses = semantic[6]
                     _prepare_target_sources(issuer, source, addresses)
-                if len(declared.source_contracts) != 1:
-                    raise ContractViolation("complete product source-role mapping unavailable")
-                source_role, = declared.source_contracts
                 evidence = issuer.inspect_selected_package_evidence(source)
-                coordinates = tuple(
-                    SemanticInputSourceCoordinate(
-                        body.relative_path,
-                        SemanticValueCoordinate(
-                            source_role.role, source_role.contract, body.body_ref,
-                            ContentDigest(body.content_digest), body.size_bytes,
-                        ),
-                    ) for body in evidence.bodies
-                )
-                expected = expectations.enter_context(issuer.original_pre_request_input(
-                    source, use_ref="workspace-product-planning:" + str(uuid4()),
-                    stage="source_planning", source_coordinates=coordinates,
-                    context_contracts=declared.context_contracts,
-                ))
+                if (len(declared.source_contracts) != 1
+                    or any(item.contract in (SOURCE_SELECTION_REF, SOURCE_ORIGIN_REF)
+                           for item in declared.context_contracts)):
+                    from .direct_cli_product_execution import (
+                        prepare_direct_cli_selected_planning_source,
+                    )
+
+                    input_host, expected = await prepare_direct_cli_selected_planning_source(
+                        command, source, product, retention=expectations,
+                    )
+                else:
+                    source_role, = declared.source_contracts
+                    coordinates = tuple(
+                        SemanticInputSourceCoordinate(
+                            body.relative_path,
+                            SemanticValueCoordinate(
+                                source_role.role, source_role.contract, body.body_ref,
+                                ContentDigest(body.content_digest), body.size_bytes,
+                            ),
+                        ) for body in evidence.bodies
+                    )
+                    expected = expectations.enter_context(issuer.original_pre_request_input(
+                        source, use_ref="workspace-product-planning:" + str(uuid4()),
+                        stage="source_planning", source_coordinates=coordinates,
+                        context_contracts=declared.context_contracts,
+                    ))
+                    input_host = SemanticInputProducerHost()
+                    input_hosts.append(input_host)
                 package = expected.package_identity.package
                 if package.package_ref != package_ref:
                     raise ContractViolation("original product package differs")
                 packages.append(package)
-                input_host = SemanticInputProducerHost()
-                input_hosts.append(input_host)
                 registration = planning.register_product_planning_input_producer(
                     host, policy, contribution, input_host=input_host,
                 )

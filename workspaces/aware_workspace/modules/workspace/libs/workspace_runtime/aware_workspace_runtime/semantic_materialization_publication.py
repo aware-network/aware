@@ -61,6 +61,40 @@ from aware_local_service_runtime import (
 WORKSPACE_SEMANTIC_MATERIALIZATION_ADMISSION = (
     "aware.workspace.semantic-materialization-admission.v1"
 )
+WORKSPACE_MATERIALIZE_EXECUTION_INPUT_CLOSURE = (
+    "aware.workspace.materialize-execution-input-closure.v1"
+)
+
+
+def _derive_graph_execution_input_closure_digest(
+    input_bodies: tuple[SemanticBody, ...],
+) -> str:
+    """One original coordinate/digest law for operation and publication reads."""
+    if type(input_bodies) is not tuple:
+        raise TypeError("execution input bodies must be an exact tuple")
+    coordinate_wires: list[dict[str, object]] = []
+    ordering_keys: list[bytes] = []
+    for body in input_bodies:
+        if type(body) is not SemanticBody:
+            raise TypeError("execution input body must be exact SemanticBody")
+        body.__post_init__()
+        wire = cast(dict[str, object], body.coordinate.to_wire())
+        coordinate_wires.append(wire)
+        ordering_keys.append(canonical_json_bytes(wire))
+    if len(set(ordering_keys)) != len(ordering_keys):
+        raise WorkspaceSemanticMaterializationPublicationError(
+            "execution input coordinates must be unique"
+        )
+    if tuple(ordering_keys) != tuple(sorted(ordering_keys)):
+        raise WorkspaceSemanticMaterializationPublicationError(
+            "execution input bodies must be in canonical coordinate order"
+        )
+    return ContentDigest.of_bytes(canonical_json_bytes({
+        "contract": WORKSPACE_MATERIALIZE_EXECUTION_INPUT_CLOSURE,
+        "value": {"coordinates": coordinate_wires},
+    })).value
+
+
 WORKSPACE_SEMANTIC_MATERIALIZATION_REQUEST = (
     "aware.workspace.semantic-materialization-request.v1"
 )
@@ -2947,6 +2981,7 @@ class WorkspaceSemanticMaterializationPublisher:
         request: WorkspaceSemanticMaterializationRequestV3,
         snapshot: ExecutionPublicationSnapshot,
         invocation: SemanticContractInvocation,
+        input_bodies: tuple[SemanticBody, ...] | None = None,
     ) -> tuple[
         WorkspaceSemanticMaterializationPublicationReceiptV3,
         WorkspaceSemanticMaterializationHeadRereadEvidenceV3,
@@ -2973,6 +3008,8 @@ class WorkspaceSemanticMaterializationPublisher:
                 "graph publication operation result differs from Code snapshot"
             )
         snapshot.body_for(request.result_coordinate)
+        if input_bodies is not None:
+            self._stage_graph_input_bodies(request, invocation, input_bodies)
         self._stage_graph_v2_snapshot(snapshot, invocation=invocation)
         target = WorkspaceSemanticMaterializationHeadV3.create(request=request)
         record = self._state_store.read(
@@ -3127,24 +3164,67 @@ class WorkspaceSemanticMaterializationPublisher:
                     "graph publication staged body reread differs"
                 )
 
-    def _read_graph_v2_operation_result(
+    def _stage_graph_input_bodies(
+        self,
+        request: WorkspaceSemanticMaterializationRequestV3,
+        invocation: SemanticContractInvocation,
+        input_bodies: tuple[SemanticBody, ...],
+    ) -> None:
+        """Retain original inputs beneath the existing invocation/HEAD pins.
+
+        There is no additional selector or input-manifest wire. Historical
+        publications without retained inputs remain readable but cannot supply
+        those bytes through the dependency-input entrance.
+        """
+        if type(request) is not WorkspaceSemanticMaterializationRequestV3:
+            raise TypeError("exact graph input publication request required")
+        if type(invocation) is not SemanticContractInvocation:
+            raise TypeError("exact graph input invocation required")
+        request.__post_init__()
+        invocation.__post_init__()
+        digest = _derive_graph_execution_input_closure_digest(input_bodies)
+        if (
+            invocation.target_package != request.package
+            or {canonical_json_bytes(body.coordinate.to_wire()) for body in input_bodies}
+            != {canonical_json_bytes(item.to_wire()) for item in invocation.inputs}
+            or digest != request.execution_input_closure_digest.value
+        ):
+            raise WorkspaceSemanticMaterializationPublicationError(
+                "graph publication input closure differs"
+            )
+        # A shared content digest may have multiple qualified coordinates, but
+        # it must name the same bytes. Store once without collapsing coordinates.
+        staged = {}
+        for body in input_bodies:
+            key = _body_ref(body.coordinate.digest.value)
+            prior = staged.setdefault(key, body.canonical_body)
+            if prior != body.canonical_body:
+                raise WorkspaceSemanticMaterializationPublicationError(
+                    "graph publication input body collision"
+                )
+        self._body_store.store_bodies(tuple(staged.items()))
+        for key, wire in staged.items():
+            if self._body_store.read_body(key) != wire:
+                raise WorkspaceSemanticMaterializationPublicationError(
+                    "graph publication input staged reread differs"
+                )
+
+    def _read_graph_v2_invocation(
         self,
         head: WorkspaceSemanticMaterializationHeadV3,
         *,
-        declaration: SemanticContractProviderDeclaration,
-    ) -> tuple[SemanticContractResult, SemanticContractInvocation]:
-        """Reconstruct one strict Code result from its digest-stripped CAS body."""
+        _retained_read: Callable[..., Any] | None = None,
+    ) -> tuple[dict[str, Any], SemanticContractInvocation]:
+        """Read the original result-to-invocation link, never a caller URI."""
 
         if type(head) is not WorkspaceSemanticMaterializationHeadV3:
             raise TypeError("graph operation-result head must be exact V3 head")
-        if type(declaration) is not SemanticContractProviderDeclaration:
-            raise TypeError(
-                "graph operation-result declaration must be exact Code value"
-            )
         head.__post_init__()
-        declaration.__post_init__()
         body_ref = _body_ref(head.operation_result_digest.value)
-        body = self._body_store.read_body(body_ref)
+        body = (
+            self._body_store.read_body(body_ref)
+            if _retained_read is None else _retained_read(3, body_ref)
+        )
         if type(body) is not bytes:
             raise WorkspaceSemanticMaterializationPublicationError(
                 "graph operation-result body is absent"
@@ -3178,8 +3258,10 @@ class WorkspaceSemanticMaterializationPublisher:
             raise WorkspaceSemanticMaterializationPublicationError(
                 "graph operation-result invocation digest is invalid"
             ) from error
-        invocation_body = self._body_store.read_body(
-            _body_ref(exact_invocation_digest.value)
+        invocation_ref = _body_ref(exact_invocation_digest.value)
+        invocation_body = (
+            self._body_store.read_body(invocation_ref)
+            if _retained_read is None else _retained_read(3, invocation_ref)
         )
         if (
             type(invocation_body) is not bytes
@@ -3215,6 +3297,19 @@ class WorkspaceSemanticMaterializationPublisher:
             raise WorkspaceSemanticMaterializationPublicationError(
                 "reconstructed graph invocation digest differs"
             )
+        return root, invocation
+
+    def _read_graph_v2_operation_result(
+        self,
+        head: WorkspaceSemanticMaterializationHeadV3,
+        *,
+        declaration: SemanticContractProviderDeclaration,
+    ) -> tuple[SemanticContractResult, SemanticContractInvocation]:
+        """Reconstruct one strict Code result from its digest-stripped CAS body."""
+        if type(declaration) is not SemanticContractProviderDeclaration:
+            raise TypeError("graph operation-result declaration must be exact Code value")
+        declaration.__post_init__()
+        root, invocation = self._read_graph_v2_invocation(head)
         full_wire = canonical_json_bytes(
             {**root, "digest": head.operation_result_digest.value}
         )
@@ -3229,6 +3324,50 @@ class WorkspaceSemanticMaterializationPublisher:
                 "reconstructed graph operation result digest differs"
             )
         return result, invocation
+
+    def _read_graph_input_bodies(
+        self,
+        head: WorkspaceSemanticMaterializationHeadV3,
+        *,
+        _retained_read: Callable[..., Any] | None = None,
+    ) -> tuple[SemanticBody, ...]:
+        """Read inputs below an original selected HEAD, without minting authority.
+
+        The fulfillment issuer supplies/revalidates that HEAD. This comparison
+        reader alone does not authenticate a caller-constructed selection.
+        All nested reads use the same captured original descriptor chain.
+        """
+        if type(head) is not WorkspaceSemanticMaterializationHeadV3:
+            raise TypeError("exact graph dependency input head required")
+        head.__post_init__()
+        head_wire = canonical_json_bytes(head.to_wire())
+        _, invocation = (
+            self._read_graph_v2_invocation(head)
+            if _retained_read is None else _retained_read(13, head)
+        )
+        if invocation.target_package != head.package or len(invocation.inputs) > 128:
+            raise WorkspaceSemanticMaterializationPublicationError(
+                "graph dependency input invocation differs or exceeds capacity"
+            )
+        if sum(value.size_bytes for value in invocation.inputs) > 8 * 1024 * 1024:
+            raise WorkspaceSemanticMaterializationPublicationError(
+                "graph dependency input body capacity"
+            )
+        bodies = tuple(
+            self._read_graph_v2_body(coordinate)
+            if _retained_read is None else _retained_read(1, coordinate)
+            for coordinate in sorted(invocation.inputs,
+                key=lambda item: canonical_json_bytes(item.to_wire()))
+        )
+        if (
+            _derive_graph_execution_input_closure_digest(bodies)
+            != head.execution_input_closure_digest.value
+            or canonical_json_bytes(head.to_wire()) != head_wire
+        ):
+            raise WorkspaceSemanticMaterializationPublicationError(
+                "graph dependency input closure differs from selected head"
+            )
+        return bodies
 
     def _read_graph_v2_body(
         self,
@@ -3509,6 +3648,7 @@ class WorkspaceSemanticMaterializationPublisher:
         operation_ref: str,
         operation_digest: ContentDigest,
         output_role: str,
+        input_bodies: tuple[SemanticBody, ...] | None = None,
     ) -> tuple[
         WorkspaceSemanticMaterializationPublicationReceiptV4,
         WorkspaceSemanticMaterializationHeadRereadEvidenceV4,
@@ -3575,6 +3715,8 @@ class WorkspaceSemanticMaterializationPublisher:
             raise WorkspaceSemanticMaterializationPublicationConflict(
                 "V4 graph predecessor differs from original observation"
             )
+        if input_bodies is not None:
+            self._stage_graph_input_bodies(request, invocation, input_bodies)
         self._stage_graph_v2_snapshot(snapshot, invocation=invocation)
         state_bodies = {
             _body_ref(ContentDigest.of_bytes(body).value): body

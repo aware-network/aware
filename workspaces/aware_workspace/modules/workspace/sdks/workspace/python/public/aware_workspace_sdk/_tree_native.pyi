@@ -77,3 +77,9 @@ def ascii_path_positive(value: object, maximum: object, /) -> bool: ...
 INDEX_BYTES_DELTA_ABI: int
 
 def index_bytes_delta(previous: bytes, current: bytes, /) -> bytes | None: ...
+
+ASCII_PATH_BATCH_ABI: int
+
+def ascii_paths_last(
+    context: object, effects: object, payload: object, limits: object, /
+) -> str | None: ...

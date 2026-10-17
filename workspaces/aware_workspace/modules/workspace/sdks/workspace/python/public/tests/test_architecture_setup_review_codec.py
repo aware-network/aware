@@ -25,10 +25,7 @@ D = "sha256:" + "a" * 64
 ROOT = next(
     p for p in Path(__file__).resolve().parents if (p / "aware.repo.toml").exists()
 )
-PACKET = (
-    ROOT
-    / "docs/reports/workspace-a1-reviewed-workflow-interface-inputs-20261016-r2.json"
-)
+PACKET = ROOT / "docs/reports/workspace-reviewed-refusal-artifact-inputs-20261017.json"
 TYPES = {cls.__name__: cls for cls in v.REVIEW_FIELD_TYPES}
 WIRE_TYPES = [cls for cls, wire in v.REVIEW_SCHEMA_IDS.items() if wire is not None]
 VIEW_TYPES = [cls for cls, wire in v.REVIEW_SCHEMA_IDS.items() if wire is None]
@@ -106,6 +103,7 @@ def test_authored_review_fields_preserve_required_nulls_and_original_owner_names
         "OriginalScopeRequest": "aware_issue_sdk.IssueBindScopePathsRequest",
         "OriginalWorkspaceClientCleanup": "WorkspaceSetupClientCleanup",
         "OriginalIssueClientCleanup": "aware_issue_sdk.IssueWorkspaceSetupClientCleanup",
+        "OriginalIssueSourcesObservation": "aware_issue_sdk.IssueWorkspaceSetupSourcesObservation",
     }
 
     def spelling(kind):
@@ -241,19 +239,137 @@ def value(cls):
         data.update(byte_count=1, chunks=(v.SetupChunkDescriptor(0, "part.bin", 1, D),))
     if cls is v.SetupScopeOutcomeRecord:
         data["capture"] = value(v.SetupCaptureDescriptor)
+    if cls is v.SetupRefusalRecord:
+        request = data["request"]
+        attempt = hashlib.sha256(
+            b"aware.setup-review.attempt.v1\0"
+            + request.execution_ref.encode()
+            + b"\0"
+            + request.client_intent_id.encode()
+        ).hexdigest()
+        data["review_ref"] = dataclasses.replace(
+            data["review_ref"],
+            target=request.target,
+            attempt_ref=attempt,
+            record_contract=v.REVIEW_SCHEMA_IDS[v.SetupReviewRecord],
+        )
+        data["phase"] = "read_review"
     return cls(**data)
 
 
 @pytest.mark.parametrize("cls", list(v.REVIEW_FIELD_TYPES))
 def test_original_contract_fields_and_wire_identifiers(cls):
+    if cls is v.SetupRefusalRecord:
+        assert (
+            v.REVIEW_SCHEMA_IDS[cls]
+            == "aware.workspace.setup-review.setup-refusal-record.v1"
+        )
+        assert [f.name for f in dataclasses.fields(cls)] == [
+            "review_ref",
+            "request",
+            "code",
+            "phase",
+            "observed_issue",
+            "observed_sources",
+            "issue_cleanup",
+            "reads",
+            "scope_decision",
+            "apply_decision",
+            "inputs_ref",
+            "product_dispatch",
+            "authorizes_retry",
+        ]
+        return
     packet = json.loads(PACKET.read_text())["types"][cls.__name__]
-    assert [f.name for f in dataclasses.fields(cls)] == [
-        r["name"] for r in packet["fields"]
-    ]
-    assert tuple(v.REVIEW_FIELD_TYPES[cls]) == tuple(
-        (r["name"], r["type"]) for r in packet["fields"]
-    )
+    expected = [(r["name"], r["type"]) for r in packet["fields"]]
+    if cls is v.SetupReviewFailure:
+        expected += [
+            ("reads", "Array[PrivateFileReadResult,40]"),
+            ("refusal", "Nullable[SetupRefusalRecord]"),
+        ]
+    assert [f.name for f in dataclasses.fields(cls)] == [r[0] for r in expected]
+    assert tuple(v.REVIEW_FIELD_TYPES[cls]) == tuple(expected)
     assert v.REVIEW_SCHEMA_IDS[cls] == packet["wire_id"]
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        "target",
+        "attempt",
+        "review_type",
+        "phase",
+        "alternative",
+        "retry",
+        "dispatch",
+        "missing_call",
+        "foreign_call",
+    ],
+)
+@pytest.mark.parametrize("direction", ["encode", "decode"])
+def test_refusal_record_cannot_claim_a_different_context_or_dispatch(change, direction):
+    record = value(v.SetupRefusalRecord)
+    if change == "target":
+        record = dataclasses.replace(
+            record,
+            review_ref=dataclasses.replace(
+                record.review_ref,
+                target=dataclasses.replace(record.request.target, issue_tag="other"),
+            ),
+        )
+    elif change == "attempt":
+        record = dataclasses.replace(
+            record,
+            review_ref=dataclasses.replace(record.review_ref, attempt_ref="other"),
+        )
+    elif change == "review_type":
+        record = dataclasses.replace(
+            record,
+            review_ref=dataclasses.replace(
+                record.review_ref,
+                record_contract=v.REVIEW_SCHEMA_IDS[v.SetupRefusalRecord],
+            ),
+        )
+    elif change == "phase":
+        record = dataclasses.replace(record, phase="driver_return")
+    elif change == "alternative":
+        record = dataclasses.replace(record, code="review_authority_sources_changed")
+    elif change == "retry":
+        record = dataclasses.replace(record, authorizes_retry=True)
+    elif change == "missing_call":
+        record = dataclasses.replace(record, phase="record_review_decision")
+    elif change == "foreign_call":
+        record = dataclasses.replace(
+            record,
+            phase="record_review_decision",
+            scope_decision=v.SetupScopeDecision(
+                dataclasses.replace(record.review_ref, attempt_ref="other"),
+                "accept_reviewed_effect_scope",
+                "caller",
+                "intent",
+            ),
+        )
+    else:
+        record = dataclasses.replace(record, product_dispatch="attempted")
+    if direction == "encode":
+        with pytest.raises(c.SetupReviewValueError):
+            c.review_value_to_payload(record)
+    else:
+        # Encode the malformed dataclass fields individually without applying
+        # the new enclosing invariant; the receiving codec must reject it too.
+        budget = c._Budget()
+        raw = {
+            name: c._convert(kind, getattr(record, name), False, budget, 1)
+            for name, kind in v.REVIEW_FIELD_TYPES[v.SetupRefusalRecord]
+            if name not in ("authorizes_retry", "product_dispatch")
+        }
+        raw["authorizes_retry"] = record.authorizes_retry
+        raw["product_dispatch"] = record.product_dispatch
+        with pytest.raises(c.SetupReviewValueError):
+            c.review_value_from_payload(
+                v.SetupRefusalRecord,
+                {"contract": v.REVIEW_SCHEMA_IDS[v.SetupRefusalRecord], "value": raw},
+            )
 
 
 @pytest.mark.parametrize("cls", WIRE_TYPES)

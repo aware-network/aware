@@ -485,12 +485,8 @@ static PyObject *primitive(PyObject *c,PyObject *hint,PyObject *value,PyObject *
     }
     return Py_NewRef(value);
 }
-static int record_ready(PyObject*c,PyObject*record,PyObject*hint,Proof*proof){
+static int record_ready(PyObject*c,PyObject*record,PyObject*hint,Proof*proof,uint64_t bit){
     if(ensure(c,proof)<0)return -1;
-    PyObject*records=PyTuple_GET_ITEM(c,1);
-    Py_ssize_t index=0;
-    while(index<PyTuple_GET_SIZE(records)&&PyTuple_GET_ITEM(records,index)!=record)index++;
-    uint64_t bit=index<64?((uint64_t)1<<index):0;
     if(bit&&(proof->records&bit))return 0;
     if(!keys_exact(((PyTypeObject*)hint)->tp_dict,&PyUnicode_Type))return fail(c,"native descriptive schema key changed");
     PyObject *defs=PyTuple_GET_ITEM(record,1),*schema=PyTuple_GET_ITEM(record,2),*key=PyTuple_GET_ITEM(record,4);
@@ -533,7 +529,15 @@ static PyObject *convert(PyObject *c,PyObject *hint,PyObject *value,long depth,P
     if(hint==(PyObject *)&PyUnicode_Type||hint==(PyObject *)&PyLong_Type||hint==(PyObject *)&PyBool_Type)return primitive(c,hint,value,name);
     PyObject *record=record_for(c,hint);
     if(record!=NULL){
-        if(record_ready(c,record,hint,proof)<0)return NULL;
+        /* An ordinal in the immutable sealed declaration is computed once in
+         * this frame. All original record_ready authentication checkpoints and
+         * their GC-epoch invalidation still execute; only the repeated linear
+         * search for this same membership bit is removed. No value is cached. */
+        PyObject *records=PyTuple_GET_ITEM(c,1);
+        Py_ssize_t ordinal=0;
+        while(ordinal<PyTuple_GET_SIZE(records)&&PyTuple_GET_ITEM(records,ordinal)!=record)ordinal++;
+        uint64_t record_bit=ordinal<64?((uint64_t)1<<ordinal):0;
+        if(record_ready(c,record,hint,proof,record_bit)<0)return NULL;
         PyObject *defs=PyTuple_GET_ITEM(record,1);
         if(Py_TYPE(value)!=(PyTypeObject *)hint){
             fail(c,"exact descriptive tree value required");
@@ -541,7 +545,7 @@ static PyObject *convert(PyObject *c,PyObject *hint,PyObject *value,long depth,P
         }
         PyObject *out=PyDict_New();
         if(out==NULL)return NULL;
-        if(record_ready(c,record,hint,proof)<0){
+        if(record_ready(c,record,hint,proof,record_bit)<0){
             Py_DECREF(out);
             return NULL;
         }
@@ -552,7 +556,7 @@ static PyObject *convert(PyObject *c,PyObject *hint,PyObject *value,long depth,P
         }
         for(Py_ssize_t i=0;i<PyTuple_GET_SIZE(defs);i++){
             PyObject *f=PyTuple_GET_ITEM(defs,i),*fieldname=PyTuple_GET_ITEM(f,0),*descriptor=PyTuple_GET_ITEM(f,1);
-            if(record_ready(c,record,hint,proof)<0){
+            if(record_ready(c,record,hint,proof,record_bit)<0){
                 Py_DECREF(out);
                 return NULL;
             }
@@ -582,7 +586,7 @@ static PyObject *convert(PyObject *c,PyObject *hint,PyObject *value,long depth,P
                 return NULL;
             }
         }
-        if(record_ready(c,record,hint,proof)<0){
+        if(record_ready(c,record,hint,proof,record_bit)<0){
             Py_DECREF(out);
             return NULL;
         }
@@ -606,7 +610,7 @@ static PyObject *convert(PyObject *c,PyObject *hint,PyObject *value,long depth,P
                 return NULL;
             }
             Py_DECREF(result);
-            if(record_ready(c,record,hint,proof)<0){
+            if(record_ready(c,record,hint,proof,record_bit)<0){
                 Py_DECREF(out);
                 return NULL;
             }
@@ -741,6 +745,7 @@ static PyTypeObject ContextType={
     .tp_weaklistoffset=offsetof(NativeConfig,weakrefs),
 };
 static PyObject *convert_root(PyObject *, PyObject *);
+static PyObject *ascii_paths_last(PyObject *,PyObject *const *,Py_ssize_t);
 static PyObject *verify(PyObject *, PyObject *);
 static int tuple_size(PyObject *v, Py_ssize_t n) {
     return PyTuple_CheckExact(v) && PyTuple_GET_SIZE(v) == n;
@@ -797,6 +802,21 @@ static int declarations(PyObject *c) {
         PyCFunction_GET_FLAGS(method)!=METH_FASTCALL)return 0;
     }
 
+    PyObject *sequence=PyTuple_GET_ITEM(PyTuple_GET_ITEM(functions,3),1);
+    PyObject *sequence_constants=((PyCodeObject*)PyFunction_GET_CODE(sequence))->co_consts;
+    int batch_slots=0;
+    for(Py_ssize_t i=0;i<PyTuple_GET_SIZE(sequence_constants);i++){
+        PyObject *slot=PyTuple_GET_ITEM(sequence_constants,i);
+        if(!tuple_size(slot,3)||!PyUnicode_CheckExact(PyTuple_GET_ITEM(slot,0))||
+        PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(slot,0),"__workspace_ascii_paths_slot_v1__"))continue;
+        if(++batch_slots>1)return 0;
+        PyObject *method=PyTuple_GET_ITEM(slot,1),*reference=PyTuple_GET_ITEM(slot,2);
+        if(method==Py_None){if(reference!=Py_None)return 0;continue;}
+        if(!PyCFunction_Check(method)||PyCFunction_GET_FUNCTION(method)!=_PyCFunction_CAST(ascii_paths_last)||
+        PyCFunction_GET_FLAGS(method)!=METH_FASTCALL||
+        PyCFunction_GET_SELF(method)!=PyCFunction_GET_SELF(PyTuple_GET_ITEM(c,4))||
+        !PyWeakref_CheckRefExact(reference))return 0;
+    }
     for (Py_ssize_t j=0;j<PyTuple_GET_SIZE(records);j++) {
         PyObject *r=PyTuple_GET_ITEM(records,j);
         if (!tuple_size(r,6)) return 0;
@@ -915,6 +935,18 @@ static PyObject *seal(PyObject *self, PyObject *args) {
         if(!PyErr_Occurred())PyErr_SetString(PyExc_TypeError,"complete original native metadata declaration required");
         return NULL;
     }
+    PyObject *sequence=PyTuple_GET_ITEM(PyTuple_GET_ITEM(PyTuple_GET_ITEM(c,2),3),1);
+    PyObject *sequence_constants=((PyCodeObject*)PyFunction_GET_CODE(sequence))->co_consts;
+    for(Py_ssize_t i=0;i<PyTuple_GET_SIZE(sequence_constants);i++){
+        PyObject *slot=PyTuple_GET_ITEM(sequence_constants,i);
+        if(tuple_size(slot,3)&&PyUnicode_CheckExact(PyTuple_GET_ITEM(slot,0))&&
+        !PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(slot,0),"__workspace_ascii_paths_slot_v1__")&&
+        PyTuple_GET_ITEM(slot,1)!=Py_None&&PyWeakref_GET_OBJECT(PyTuple_GET_ITEM(slot,2))!=v){
+            s->phase=3;
+            PyErr_SetString(PyExc_TypeError,"original batch path context required");
+            return NULL;
+        }
+    }
     if(auth(c)<0){
         s->phase=3;
         return NULL;
@@ -964,6 +996,102 @@ static PyObject *verify(PyObject *self, PyObject *v) {
     if(!s)COST_RETURN(NULL);
     if(auth(s->config)<0)COST_RETURN(NULL);
     COST_RETURN(Py_NewRef(Py_None));
+}
+/* Positive-only batching of the original ASCII leaf grammar. This is a
+ * descriptive check, not source/currentness/owner authority. Unknown inputs or
+ * observers keep the literal original ordered Python loop. Every supplied path
+ * is freshly read; no input, payload or validation result is retained. */
+static PyObject *ascii_paths_last(PyObject *self,PyObject *const *args,Py_ssize_t nargs){
+    if(nargs!=4){PyErr_SetString(PyExc_TypeError,"four batch path arguments required");return NULL;}
+    if(Py_TYPE(args[0])!=&ContextType||((NativeConfig*)args[0])->phase!=2)Py_RETURN_NONE;
+    NativeConfig *context=(NativeConfig*)args[0];
+    if(!PyModule_CheckExact(self)){PyErr_SetString(PyExc_TypeError,"original batch path module required");return NULL;}
+    PyObject *exports=PyModule_GetDict(self);
+    if(!keys_exact(exports,&PyUnicode_Type)){PyErr_SetString(PyExc_TypeError,"original batch path exports required");return NULL;}
+    PyObject *method=PyDict_GetItemString(exports,"ascii_paths_last");
+    if(!method&&PyErr_Occurred())return NULL;
+    PyObject *abi=PyDict_GetItemString(exports,"ASCII_PATH_BATCH_ABI");
+    if(!abi&&PyErr_Occurred())return NULL;
+    if(!method||!PyCFunction_Check(method)||PyCFunction_GET_FUNCTION(method)!=_PyCFunction_CAST(ascii_paths_last)||
+    PyCFunction_GET_FLAGS(method)!=METH_FASTCALL||PyCFunction_GET_SELF(method)!=self||
+    !abi||!PyLong_CheckExact(abi)||!_PyLong_IsCompact((PyLongObject*)abi)||_PyLong_CompactValue((PyLongObject*)abi)!=1){
+        if(!PyErr_Occurred())PyErr_SetString(PyExc_TypeError,"original batch path export required");
+        return NULL;
+    }
+    if(PyCFunction_GET_SELF(PyTuple_GET_ITEM(context->config,4))!=self){PyErr_SetString(PyExc_TypeError,"original batch path receiver required");return NULL;}
+    if(auth(context->config)<0)return NULL;
+    PyObject *config=context->config;
+    PyObject *codec=PyModule_GetDict(PyTuple_GET_ITEM(config,0));
+    PyObject *values=PyModule_GetDict(PyTuple_GET_ITEM(config,15));
+    uint64_t codec_clock=PyLong_AsUnsignedLongLong(PyTuple_GET_ITEM(config,26));
+    if(PyErr_Occurred())return NULL;
+    uint64_t values_clock=PyLong_AsUnsignedLongLong(PyTuple_GET_ITEM(config,27));
+    if(PyErr_Occurred())return NULL;
+    if(((PyDictObject*)codec)->ma_version_tag!=codec_clock||
+    ((PyDictObject*)values)->ma_version_tag!=values_clock)Py_RETURN_NONE;
+    PyObject *path_function=PyTuple_GET_ITEM(PyTuple_GET_ITEM(PyTuple_GET_ITEM(config,2),1),1);
+    PyObject *global_type=PyDict_GetItemString(codec,"type");
+    if(!global_type&&PyErr_Occurred())return NULL;
+    PyObject *global_str=PyDict_GetItemString(codec,"str");
+    if(!global_str&&PyErr_Occurred())return NULL;
+    if((global_type&&global_type!=(PyObject*)&PyType_Type)||
+    (global_str&&global_str!=(PyObject*)&PyUnicode_Type))Py_RETURN_NONE;
+    int original_intrinsic=0;
+    PyObject *path_constants=((PyCodeObject*)PyFunction_GET_CODE(path_function))->co_consts;
+    for(Py_ssize_t i=0;i<PyTuple_GET_SIZE(path_constants);i++){
+        PyObject *slot=PyTuple_GET_ITEM(path_constants,i);
+        if(!tuple_size(slot,2)||!PyUnicode_CheckExact(PyTuple_GET_ITEM(slot,0))||
+        PyUnicode_CompareWithASCIIString(PyTuple_GET_ITEM(slot,0),"__workspace_ascii_path_slot_v2__"))continue;
+        PyObject *method=PyTuple_GET_ITEM(slot,1);
+        if(PyCFunction_Check(method)&&PyCFunction_GET_FUNCTION(method)==_PyCFunction_CAST(ascii_path_positive)&&
+        PyCFunction_GET_FLAGS(method)==METH_FASTCALL&&PyCFunction_GET_SELF(method)==self)original_intrinsic++;
+    }
+    if(original_intrinsic!=1)Py_RETURN_NONE;
+    PyObject *builtins=((PyFunctionObject*)path_function)->func_builtins;
+    if(!keys_exact(builtins,&PyUnicode_Type))Py_RETURN_NONE;
+    PyObject *builtin_type=PyDict_GetItemString(builtins,"type");
+    if(!builtin_type&&PyErr_Occurred())return NULL;
+    PyObject *builtin_str=PyDict_GetItemString(builtins,"str");
+    if(!builtin_str&&PyErr_Occurred())return NULL;
+    if(builtin_type!=(PyObject*)&PyType_Type||builtin_str!=(PyObject*)&PyUnicode_Type)Py_RETURN_NONE;
+    PyThreadState *thread=PyThreadState_Get();
+    if(thread->c_profilefunc||thread->c_tracefunc||
+    _PyInterpreterState_GetEvalFrameFunc(thread->interp)!=_PyEval_EvalFrameDefault)Py_RETURN_NONE;
+    for(int i=0;i<PY_MONITORING_TOOL_IDS;i++){
+        if(thread->interp->monitoring_tool_names[i])Py_RETURN_NONE;
+        for(int e=0;e<_PY_MONITORING_EVENTS;e++)if(thread->interp->monitoring_callables[i][e]&&thread->interp->monitoring_callables[i][e]!=Py_None)Py_RETURN_NONE;
+    }
+    if(thread->interp->gc.callbacks&&PyList_GET_SIZE(thread->interp->gc.callbacks))Py_RETURN_NONE;
+    if(!PyList_CheckExact(args[1])||!keys_exact(args[2],&PyUnicode_Type)||
+    !keys_exact(args[3],&PyUnicode_Type))Py_RETURN_NONE;
+    PyObject *effects=PyDict_GetItemString(args[2],"effect_paths");
+    if(!effects&&PyErr_Occurred())return NULL;
+    PyObject *guards=PyDict_GetItemString(args[2],"read_guard_paths");
+    if(!guards&&PyErr_Occurred())return NULL;
+    PyObject *maximum_object=PyDict_GetItemString(args[3],"maximum_path_utf8_bytes");
+    if(!maximum_object&&PyErr_Occurred())return NULL;
+    PyObject *metadata=PyDict_GetItemString(args[3],"maximum_metadata_bytes");
+    if(!metadata&&PyErr_Occurred())return NULL;
+    if(!effects||!guards||!PyList_CheckExact(effects)||!PyList_CheckExact(guards)||
+    !maximum_object||!metadata||!PyLong_CheckExact(maximum_object)||!PyLong_CheckExact(metadata))Py_RETURN_NONE;
+    PyObject *lists[3]={args[1],effects,guards};
+    Py_ssize_t total=0;
+    for(int j=0;j<3;j++){
+        Py_ssize_t length=PyList_GET_SIZE(lists[j]);
+        if(length>16384-total)Py_RETURN_NONE;
+        total+=length;
+    }
+    if(!total)Py_RETURN_NONE;
+    int overflow=0;long maximum=PyLong_AsLongAndOverflow(maximum_object,&overflow);
+    if(PyErr_Occurred())return NULL;
+    if(overflow||maximum<0||maximum>1024)Py_RETURN_NONE;
+    PyObject *last=NULL;
+    for(int j=0;j<3;j++)for(Py_ssize_t i=0;i<PyList_GET_SIZE(lists[j]);i++){
+        PyObject *path=PyList_GET_ITEM(lists[j],i);
+        if(!ascii_path(path)||PyUnicode_GET_LENGTH(path)>maximum)Py_RETURN_NONE;
+        last=path;
+    }
+    return Py_NewRef(last);
 }
 /* The separate receipt context holds declarations only, never receipt values.
  * The Python caller retains lazy hints and complete entry authentication. */
@@ -1248,11 +1376,51 @@ typedef struct {
 }
 ReceiptFieldGeometry;
 typedef struct {
+    uint64_t native_clock,namespace_clock;
+    int initialized;
+} ReceiptAuthProof;
+typedef struct {
     PyObject *config,*specs,*fixed;
     int depth;
     ReceiptFieldGeometry fields;
+    ReceiptAuthProof *auth_proof;
 }
 ReceiptConversion;
+/* A dictionary version proves only the original declaration association
+ * established by the complete verifier in this same uninterrupted root call.
+ * Every checkpoint freshly reads both versions and every original function
+ * code/default. Drift re-enters the literal full verifier before renewing this
+ * stack proof. It contains no field, payload, owner, validation or authority
+ * result and is never retained by the context or beyond the root invocation. */
+static int receipt_conversion_auth(ReceiptConversion *c){
+    PyObject *config=c->config;
+    ReceiptAuthProof *proof=c->auth_proof;
+    PyObject *native=PyCFunction_GET_SELF(PyTuple_GET_ITEM(config,4));
+    if(!PyModule_CheckExact(native))return receipt_auth(config);
+    PyObject *native_ns=PyModule_GetDict(native);
+    PyObject *ns=PyModule_GetDict(PyTuple_GET_ITEM(config,0));
+    uint64_t native_clock=((PyDictObject*)native_ns)->ma_version_tag;
+    uint64_t namespace_clock=((PyDictObject*)ns)->ma_version_tag;
+    if(!proof||!proof->initialized||proof->native_clock!=native_clock||proof->namespace_clock!=namespace_clock){
+        if(receipt_auth(config)<0)return -1;
+        if(proof){
+            proof->native_clock=((PyDictObject*)native_ns)->ma_version_tag;
+            proof->namespace_clock=((PyDictObject*)ns)->ma_version_tag;
+            proof->initialized=1;
+        }
+        return 0;
+    }
+    PyObject *functions=PyTuple_GET_ITEM(config,2);
+    for(Py_ssize_t i=0;i<2;i++){
+        PyObject *pin=PyTuple_GET_ITEM(functions,i),*function=PyTuple_GET_ITEM(pin,1);
+        if(PyFunction_GET_CODE(function)!=PyTuple_GET_ITEM(pin,2)||
+        PyFunction_GET_DEFAULTS(function)!=NULL||PyFunction_GET_KW_DEFAULTS(function)!=NULL){
+            PyErr_SetString(PyExc_TypeError,"original native receipt delegate required");
+            return -1;
+        }
+    }
+    return 0;
+}
 /* Only immutable own MemberDescriptor layout is compiled. Namespace version,
  * getattribute, slot bounds and each current flag/name remain freshly checked
  * at every read. This stack schema never owns a value, payload or authority. */
@@ -1281,13 +1449,13 @@ static PyObject *receipt_call(ReceiptConversion *c,int index,PyObject *value,PyO
         if(!direct||direct!=Py_NotImplemented)return direct;
         Py_DECREF(direct);
     }
-    if(receipt_auth(c->config)<0)return NULL;
+    if(receipt_conversion_auth(c)<0)return NULL;
     PyObject *function=PyTuple_GET_ITEM(PyTuple_GET_ITEM(PyTuple_GET_ITEM(c->config,2),index),1);
     PyObject *args[2]={
         value,hint
     },*out=PyObject_Vectorcall(function,args,index==0?2:1,NULL);
     if(!out)return NULL;
-    if(receipt_auth(c->config)<0){
+    if(receipt_conversion_auth(c)<0){
         Py_DECREF(out);
         return NULL;
     }
@@ -1366,7 +1534,7 @@ static PyObject *receipt_field_attr(ReceiptConversion *c,PyObject *field,int nam
 static PyObject *receipt_member_attr(PyObject *value,PyObject *name,PyObject *row,uint64_t original_clock){
     PyTypeObject *type=Py_TYPE(value);
     PyObject *descriptor=PyTuple_GET_ITEM(row,3);
-    if(name==PyTuple_GET_ITEM(row,1)&&Py_TYPE(descriptor)==&PyMemberDescr_Type&&
+    if(PyUnicode_CheckExact(name)&&name==PyTuple_GET_ITEM(row,1)&&Py_TYPE(descriptor)==&PyMemberDescr_Type&&
     PyDescr_TYPE(descriptor)==type&&type->tp_getattro==PyObject_GenericGetAttr&&
     type->tp_dictoffset==0&&PyDict_CheckExact(type->tp_dict)&&
     ((PyDictObject*)type->tp_dict)->ma_version_tag==original_clock){
@@ -1395,7 +1563,7 @@ static int receipt_field_prefix(ReceiptConversion *c,PyObject *value,PyObject *f
     !PyDict_CheckExact(type->tp_dict)||((PyDictObject*)type->tp_dict)->ma_version_tag!=clock||
     !PyDict_CheckExact(hints)||((PyDictObject*)hints)->ma_keys->dk_kind!=DICT_KEYS_UNICODE)return 0;
     PyObject *name=*(PyObject**)(((char*)field)+name_offset);
-    if(name!=PyTuple_GET_ITEM(row,1))return 0;
+    if(name!=PyTuple_GET_ITEM(row,1)||!PyUnicode_CheckExact(name))return 0;
     PyObject *descriptor=PyTuple_GET_ITEM(row,3);
     if(Py_TYPE(descriptor)!=&PyMemberDescr_Type||PyDescr_TYPE(descriptor)!=type)return 0;
     PyMemberDef *slot=((PyMemberDescrObject*)descriptor)->d_member;
@@ -1515,7 +1683,7 @@ static PyObject *receipt_fields(PyObject *value,PyObject *defs,PyObject *hints,R
         Py_DECREF(out);
         return NULL;
     }
-    if(receipt_auth(c->config)<0){
+    if(receipt_conversion_auth(c)<0){
         Py_DECREF(out);
         return NULL;
     }
@@ -1541,14 +1709,14 @@ static PyObject *receipt_direct_record(ReceiptConversion *c,PyObject *value,PyOb
     strcmp(((PyTypeObject*)type)->tp_name,"functools._lru_cache_wrapper")||
     !receipt_clock_matches(((PyTypeObject*)type)->tp_dict,PyTuple_GET_ITEM(extra,4))||
     PyFunction_GET_CODE(inner)!=PyTuple_GET_ITEM(extra,3)||PyFunction_GET_DEFAULTS(inner)||PyFunction_GET_KW_DEFAULTS(inner))Py_RETURN_NOTIMPLEMENTED;
-    if(receipt_auth(c->config)<0)return NULL;
+    if(receipt_conversion_auth(c)<0)return NULL;
     PyObject *regs=PyTuple_GET_ITEM(c->config,6),*registry=PyTuple_GET_ITEM(regs,0);
     if(!receipt_registries(c->config,registry,PyTuple_GET_ITEM(regs,1),PyTuple_GET_ITEM(regs,2)))Py_RETURN_NOTIMPLEMENTED;
     PyObject *record=PyTuple_GET_ITEM(PyTuple_GET_ITEM(c->config,1),index),*entry=PyTuple_GET_ITEM(record,3);
     if(PyDict_GetItemWithError(registry,PyTuple_GET_ITEM(record,4))!=entry)Py_RETURN_NOTIMPLEMENTED;
     PyObject *hints=PyObject_CallOneArg(wrapper,hint);
     if(!hints)return NULL;
-    if(receipt_auth(c->config)<0){
+    if(receipt_conversion_auth(c)<0){
         Py_DECREF(hints);
         return NULL;
     }
@@ -1593,7 +1761,7 @@ static PyObject *receipt_direct_record(ReceiptConversion *c,PyObject *value,PyOb
         }
     }
     Py_DECREF(hints);
-    if(out&&receipt_auth(c->config)<0){
+    if(out&&receipt_conversion_auth(c)<0){
         Py_DECREF(out);
         return NULL;
     }
@@ -1607,7 +1775,7 @@ static PyObject *receipt_direct_sequence(ReceiptConversion*c,PyObject*value,PyOb
     if(thread->c_profilefunc||thread->c_tracefunc||thread->py_recursion_remaining<128||thread->c_recursion_remaining<128)Py_RETURN_NOTIMPLEMENTED;
     for(int n=0;n<PY_MONITORING_TOOL_IDS;n++)if(thread->interp->monitoring_tool_names[n])Py_RETURN_NOTIMPLEMENTED;
     if(thread->interp->gc.callbacks&&PyList_GET_SIZE(thread->interp->gc.callbacks))Py_RETURN_NOTIMPLEMENTED;
-    if(receipt_auth(c->config)<0)return NULL;
+    if(receipt_conversion_auth(c)<0)return NULL;
     PyObject *origin=PyObject_GetAttr(hint,PyTuple_GET_ITEM(c->fixed,8));
     if(!origin)return NULL;
     int tuple_origin=origin==(PyObject*)&PyTuple_Type;
@@ -1641,7 +1809,7 @@ static PyObject *receipt_direct_sequence(ReceiptConversion*c,PyObject*value,PyOb
         if(okay<0)goto error;
     }
     if(PyErr_Occurred())goto error;
-    if(receipt_auth(c->config)<0)goto error;
+    if(receipt_conversion_auth(c)<0)goto error;
     Py_DECREF(iterator);
     Py_DECREF(args);
     return out;
@@ -1670,8 +1838,9 @@ static PyObject *convert_receipt(PyObject *self,PyObject *args){
         PyErr_SetString(PyExc_TypeError,"Original receipt compiler code/defaults required");
         COST_RETURN(NULL);
     }
+    ReceiptAuthProof auth_proof={0};
     ReceiptConversion c={
-        s->config,PyTuple_GET_ITEM(r,1),PyTuple_GET_ITEM(s->config,3),0,{0}
+        s->config,PyTuple_GET_ITEM(r,1),PyTuple_GET_ITEM(s->config,3),0,{0},&auth_proof
     };
     if(receipt_field_geometry(c.fixed,&c.fields)<0)COST_RETURN(NULL);
     COST_RETURN(receipt_fields(value,PyTuple_GET_ITEM(r,0),hints,&c));
@@ -3631,6 +3800,7 @@ error:
 }
 
 static PyMethodDef methods[]={
+    {"ascii_paths_last",_PyCFunction_CAST(ascii_paths_last),METH_FASTCALL,"Fresh whole ASCII path batch or original ordered loop."},
     {"index_bytes_delta",index_bytes_delta,METH_VARARGS,"Pure bounded lossless index bytes delta."},
     {
         "make_preparation_copy",make_preparation_copy,METH_VARARGS,"Bind original detached copy declarations."
@@ -3717,6 +3887,7 @@ PyMODINIT_FUNC PyInit__tree_native(void) {
 #else
     int abi=0;
 #endif
+    if(PyModule_AddIntConstant(module,"ASCII_PATH_BATCH_ABI",1)<0){Py_DECREF(module);return NULL;}
     if(PyModule_AddIntConstant(module,"RECEIPT_DIRECT_RECORD_ABI",1)<0){
         Py_DECREF(module);
         return NULL;

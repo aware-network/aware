@@ -18,6 +18,9 @@ from aware_code_semantic_contract_runtime import (
     SemanticValueCoordinate,
     canonical_json_bytes,
 )
+from aware_code_semantic_contract_runtime.selected_provider import (
+    SelectedProviderInvocationClosure,
+)
 from aware_local_service_runtime import InMemoryLocalOperationalStateStore
 from aware_workspace_runtime.materialization_operation import (
     WorkspaceMaterializeExecutionInputCompositionAdmission,
@@ -331,6 +334,68 @@ def _operation(runtime, resolver, state=None, body_store=None):
         publisher,
         journal,
     )
+
+
+def _multi_input_plan():
+    runtime, original = _values()
+    first = original.input_bodies[0]
+    other = _semantic_body(first, role="other", value_ref="source:other", canonical_body=b"other",
+                           contract=replace(first.coordinate.contract, key="zzz.ordering"))
+    canonical = _ordered(first, other)
+    invocation = replace(original.invocation, inputs=tuple(body.coordinate
+        for body in sorted(canonical, key=lambda body: body.coordinate.role)))
+    plan = WorkspaceMaterializeExecutionPlan.create(
+        source_authority_ref=original.source_authority_ref,
+        source_authority_digest=original.source_authority_digest,
+        operation_ref=original.operation_ref, operation_digest=original.operation_digest,
+        invocation=invocation, input_bodies=canonical,
+    )
+    return runtime, plan
+
+
+def test_graph_input_uses_invocation_order_without_changing_canonical_plan():
+    runtime, plan = _multi_input_plan()
+    before = canonical_json_bytes(plan._payload())
+    operation, _, _ = _operation(runtime, _Resolver(plan))
+    use = object()
+    selected, context = operation._selected_graph_input(use, plan)
+    assert type(selected) is SelectedProviderInvocationClosure
+    assert context is use
+    assert tuple(body.coordinate for body in plan.input_bodies) != plan.invocation.inputs
+    assert tuple(body.coordinate for body in selected.input_bodies) == plan.invocation.inputs
+    assert all(any(body is original for original in plan.input_bodies) for body in selected.input_bodies)
+    assert canonical_json_bytes(plan._payload()) == before
+
+
+def test_original_graph_input_hook_precedes_unused_fallback_construction(monkeypatch):
+    from aware_workspace_runtime import materialization_operation as original
+
+    runtime, plan = _multi_input_plan()
+    operation, _, _ = _operation(runtime, _Resolver(plan))
+    use, retained, retained_context = object(), object(), object()
+    calls = []
+
+    def read(owner, source_plan):
+        assert owner is use and source_plan is plan
+        calls.append(True)
+        return retained, retained_context
+
+    def forbidden(*args):
+        pytest.fail("unused fallback must not precede original retained input")
+
+    operation._graph_selected_input = read
+    monkeypatch.setattr(original, "SelectedProviderInvocationClosure", forbidden)
+    actual, context = operation._selected_graph_input(use, plan)
+    assert actual is retained and context is retained_context and calls == [True]
+
+
+def test_graph_input_cannot_normalize_a_restamped_plan():
+    runtime, plan = _multi_input_plan()
+    operation, _, _ = _operation(runtime, _Resolver(plan))
+    before = plan.input_bodies
+    object.__setattr__(plan, "input_bodies", tuple(reversed(before)))
+    with pytest.raises(WorkspaceMaterializeOperationError, match="not canonical"):
+        operation._selected_graph_input(object(), plan)
 
 
 def test_operation_executes_publishes_fanout_and_exactly_retries() -> None:

@@ -66,6 +66,38 @@ def seal(namespace: dict[str, Any], handoff: tuple[Any, ...] | None) -> None:
                         for value in function.__code__.co_consts
                     )
                     function.__code__ = function.__code__.replace(co_consts=constants)
+    conversion = handoff[1]
+    if type(conversion) is types.BuiltinFunctionType:
+        module = conversion.__self__
+        if type(module) is types.ModuleType:
+            exports = vars(module)
+            if all(type(key) is str for key in exports):
+                abi = exports.get("ASCII_PATH_BATCH_ABI")
+                method = exports.get("ascii_paths_last")
+                function = namespace["_sequence"]
+                if (
+                    type(abi) is int
+                    and abi == 1
+                    and type(method) is types.BuiltinFunctionType
+                    and method.__self__ is module
+                    and method.__name__ == "ascii_paths_last"
+                    and type(function) is types.FunctionType
+                ):
+                    import weakref
+
+                    reference = weakref.ref(handoff[0])
+                    constants = tuple(
+                        (value[0], method, reference)
+                        if type(value) is tuple
+                        and len(value) == 3
+                        and type(value[0]) is str
+                        and value[0] == "__workspace_ascii_paths_slot_v1__"
+                        and value[1] is None
+                        and value[2] is None
+                        else value
+                        for value in function.__code__.co_consts
+                    )
+                    function.__code__ = function.__code__.replace(co_consts=constants)
     names = (
         "_validate",
         "_path",

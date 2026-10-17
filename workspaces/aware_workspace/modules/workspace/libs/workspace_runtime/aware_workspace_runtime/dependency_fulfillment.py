@@ -118,11 +118,13 @@ class _Fulfillment:
     body: SemanticBody | None
     heads: tuple[object, ...] = ()
     terminal: bool = False
+    input_wires: tuple[tuple[str, bytes, tuple[tuple[bytes, bytes], ...]], ...] | None = None
 
     def retire(self):
         self.terminal = True
         self.body = None
         self.heads = ()
+        self.input_wires = None
 
 
 def _verify_original_entry(runtime, *, require_publisher=False):
@@ -212,6 +214,8 @@ class _WorkspaceEmptyDependencyFulfillmentRuntime:
             (self, "_check_publisher"),
             (self, "_check_live"),
             (source_reader, "digest"),
+            (publisher, "_read_graph_input_bodies"),
+            (publisher, "_read_graph_v2_invocation"),
         ):
             descriptor = inspect.getattr_static(receiver, name)
             method = getattr(receiver, name)
@@ -267,7 +271,7 @@ class _WorkspaceEmptyDependencyFulfillmentRuntime:
     def _call_publisher(self, index, *args, **kwargs):
         check = self.publisher_entrances[9][3]
         check()
-        if index in (0, 1, 4, 5, 6, 7):
+        if index in (0, 1, 4, 5, 6, 7, 12, 13):
             # Preserve this captured dispatcher through the complete nested chain.
             # Publisher/store readers never dynamically look up the next method.
             kwargs["_retained_read"] = self.publisher_entrances[8][3]
@@ -522,6 +526,77 @@ class _WorkspaceEmptyDependencyFulfillmentRuntime:
             ):
                 _unavailable("dependency_products_correspondence_differs")
             self._resolution(resolution, expected.resolution, empty=False)
+        except BaseException:
+            if record is not None:
+                record.retire()
+            raise
+
+    def read_inputs(self, handle, resolution, expected):
+        """Deliver original supplier inputs beneath each exact direct pin.
+
+        This is a retained owner entrance, not a caller-directed CAS lookup.
+        Direct demands are unchanged. Descendant products remain inside their
+        parent's original Code dependency body, never promoted to root demands.
+        """
+        from .semantic_materialization_publication import (
+            WorkspaceSemanticMaterializationHeadRereadEvidenceV3,
+            WorkspaceSemanticMaterializationHeadRereadEvidenceV4,
+        )
+
+        record = next(
+            (value for original, value in self.records.items() if original is handle),
+            None,
+        )
+        try:
+            body = _WorkspaceEmptyDependencyFulfillmentRuntime.read(
+                self, handle, resolution, expected,
+            )
+            if record is None:
+                _unavailable("foreign_dependency_fulfillment")
+            value = decode_dependency_product_input(body.canonical_body)
+            if len(value.products) != len(record.heads):
+                _unavailable("dependency_input_parent_count_differs")
+            rows, wires, total = [], [], 0
+            for product, retained in zip(value.products, record.heads, strict=True):
+                h1 = self.publisher_entrances[8][3](
+                    0, product.coordinate.package.package_ref,
+                    observation_role="dependency_h1",
+                )
+                if type(h1) not in (
+                    WorkspaceSemanticMaterializationHeadRereadEvidenceV3,
+                    WorkspaceSemanticMaterializationHeadRereadEvidenceV4,
+                ) or (
+                    h1.materialization_head_revision,
+                    canonical_json_bytes(h1.head.to_wire()),
+                ) != retained:
+                    _unavailable("dependency_input_parent_head_changed")
+                # V4 wraps, rather than replaces, the same qualified base head.
+                base = (h1.head.base_head
+                        if type(h1) is WorkspaceSemanticMaterializationHeadRereadEvidenceV4
+                        else h1.head)
+                inputs = self.publisher_entrances[8][3](12, base)
+                if canonical_json_bytes(h1.head.to_wire()) != retained[1]:
+                    _unavailable("dependency_input_parent_head_changed")
+                total += sum(item.coordinate.size_bytes for item in inputs)
+                if total > 8 * 1024 * 1024:
+                    _unavailable("dependency_input_closure_capacity")
+                rows.append((product.demand_digest, product.coordinate, inputs))
+                wires.append((
+                    product.demand_digest.value,
+                    canonical_json_bytes(product.coordinate.to_wire()),
+                    tuple((canonical_json_bytes(item.coordinate.to_wire()), item.canonical_body)
+                          for item in inputs),
+                ))
+            # Recheck all original parents after every body read, not only the
+            # last one. A failure terminally retires this fulfillment right.
+            _WorkspaceEmptyDependencyFulfillmentRuntime.read(
+                self, handle, resolution, expected,
+            )
+            exact = tuple(wires)
+            if record.input_wires is not None and record.input_wires != exact:
+                _unavailable("dependency_input_closure_changed")
+            record.input_wires = exact
+            return tuple(rows)
         except BaseException:
             if record is not None:
                 record.retire()

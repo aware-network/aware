@@ -84,10 +84,10 @@ async def _local_graph_source_scope(tmp_path, monkeypatch, *, with_input=True):
 
 
 @pytest.mark.parametrize("with_input", [False, True])
-async def test_graph_window_reuses_only_original_registered_input(tmp_path, monkeypatch, with_input):
+async def test_graph_window_reuses_original_source_or_registered_input(tmp_path, monkeypatch, with_input):
     async with _local_graph_source_scope(tmp_path, monkeypatch, with_input=with_input) as (value, holder, state, observed):
         validate_direct_cli_graph_scope(holder)
-        assert observed == [with_input]
+        assert observed == [True]
         assert value.issuer._semantic_source_window is None
         assert not state.terminal
 
@@ -258,20 +258,25 @@ async def test_graph_window_checks_each_original_dispatch(tmp_path, monkeypatch,
             return None
 
         def poison_code():
-            one = two = three = four = None
-
-            def poison(*args, **kwargs):
-                _ = (one, two, three, four)
-                current_probe = globals()["_graph_dispatch_probe"]
-                current_probe["calls"].append(True)
-                if current_probe["mode"] == "raise":
-                    raise AssertionError("substituted dispatcher code executed")
-                if current_probe["mode"] == "restore":
-                    current_probe["original"].__code__ = current_probe["code"]
-                    return current_probe["original"](*args, **kwargs)
-                return None
-
-            return poison.__code__
+            # Preserve the exact attack with the implementation's actual
+            # closure arity; the private dispatcher's shape is not an ABI.
+            names = ["cell_" + str(index) for index in range(len(code.co_freevars))]
+            declaration = "".join("    " + name + " = None\n" for name in names)
+            body = (
+                "    def poison(*args, **kwargs):\n"
+                "        _ = (" + ",".join(names) + ("," if names else "") + ")\n"
+                "        current_probe = globals()[\"_graph_dispatch_probe\"]\n"
+                "        current_probe[\"calls\"].append(True)\n"
+                "        if current_probe[\"mode\"] == \"raise\":\n"
+                "            raise AssertionError(\"substituted dispatcher code executed\")\n"
+                "        if current_probe[\"mode\"] == \"restore\":\n"
+                "            current_probe[\"original\"].__code__ = current_probe[\"code\"]\n"
+                "            return current_probe[\"original\"](*args, **kwargs)\n"
+                "        return None\n"
+            )
+            namespace = {}
+            exec("def factory():\n" + declaration + body + "    return poison\n", namespace)  # noqa: S102 - fixed local code-restamp proof, no external input
+            return namespace["factory"]().__code__
 
         replacement_code = poison_code()
         assert len(replacement_code.co_freevars) == len(code.co_freevars)
@@ -420,6 +425,42 @@ async def test_original_local_graph_executes_publishes_and_rereads(
                         node.package_head_reread_evidence.materialization_head_digest
                         == node.result_head_digest
                     )
+                    # Graph/input scopes have already closed. Delivery is
+                    # through the actual publisher's original outer lifetime.
+                    from aware_code_retained_registry_policy_runtime import (
+                        product_execution_inputs,
+                    )
+                    from aware_code_semantic_contract_runtime import ContentDigest
+
+                    context = publication.read_direct_cli_product_execution_context(
+                        command, product, planned, node_digest=node.node_digest)
+                    completion = product_execution_inputs.read_product_execution_input_completion(
+                        product.host.code_host, context)
+                    with pytest.raises(ContractViolation):
+                        publication.read_direct_cli_product_execution_context(command, product, planned,
+                            node_digest=ContentDigest.of_bytes(b"unknown node"))
+                    assert publication.read_direct_cli_product_execution_context(
+                        command, product, planned, node_digest=node.node_digest) is context
+                    assert product_execution_inputs.read_product_execution_input_completion(
+                        product.host.code_host, context) is completion
+                    source_calls = []
+                    with monkeypatch.context() as no_source_read:
+                        no_source_read.setattr(publication, "_execution_participant",
+                            lambda *args: source_calls.append(True))
+                        assert publication.read_direct_cli_product_execution_context(
+                            command, product, planned, node_digest=node.node_digest) is context
+                    assert source_calls == []
+                    wire = planned.wire
+                    object.__setattr__(planned, "wire", wire + b"\n")
+                    with pytest.raises(ContractViolation, match="plan changed"):
+                        publication.read_direct_cli_product_execution_context(
+                            command, product, planned, node_digest=node.node_digest)
+                    object.__setattr__(planned, "wire", wire)
+                    with pytest.raises(ContractViolation, match="unavailable"):
+                        publication.read_direct_cli_product_execution_context(
+                            command, product, planned, node_digest=node.node_digest)
+                    assert product_execution_inputs.read_product_execution_input_completion(
+                        product.host.code_host, context) is completion
                     trace.stop(marker)
                     trace.attach("result", {
                         "status": result.status,
@@ -572,7 +613,7 @@ async def test_host_identity_substitution_is_terminal_without_behavior(
     )
     with (
         monkeypatch.context() as poison,
-        pytest.raises(ContractViolation, match="identity behavior substituted"),
+        pytest.raises(ContractViolation, match="identity behavior substituted|foreign or closed host"),
     ):
         async with sources(tmp_path, authored) as (root, _, _, borrowed, _, _):
             with (
@@ -601,8 +642,10 @@ async def test_host_identity_substitution_is_terminal_without_behavior(
                             command, source, product, planned, retention=retained
                         )
                 assert not calls
-                assert direct_host._identity_registry_get(direct_host._HOSTS, host).closed
-                # Restore while the original host is still retained: rejection is final.
+                record = direct_host._identity_registry_get(direct_host._HOSTS, host)
+                assert record is None or record.closed
+                # Code may dispose immediately or retain a closed record for
+                # composer cleanup. Both are terminal; restoration cannot resume.
                 delattr(direct_host.DirectValidationHost, attribute)
                 with pytest.raises(ContractViolation, match="unavailable|closed"):
                     execution.validate_direct_cli_selected_host(product)
@@ -700,3 +743,98 @@ async def test_interruption_retires_scope_and_preserves_original_failure(
                 assert record is None
         assert not any(record.host is host for record in product_execution._READ_ORIGINS.values())
         assert not any(record.host is host for _, record in composition._SELECTED_INPUT_NODES)
+
+
+@pytest.mark.parametrize("phase", ["unprepared", "empty_inputs"])
+@pytest.mark.parametrize("target", ["body", "declaration", "journal", "interrupt", "association"])
+async def test_graph_fallback_window_terminal_failure_is_irreversible(tmp_path, monkeypatch, phase, target):
+    async with _local_graph_source_scope(tmp_path, monkeypatch, with_input=False) as (value, holder, state, observed):
+        if phase == "unprepared":
+            state.prepared = None
+        original = publication.derive_selected_root_intent
+        path = value.root / (
+            "workspaces/network/modules/main/package/a.bin" if target == "body"
+            else "workspaces/network/aware.workspace.toml"
+        )
+        before = path.read_bytes()
+        selected_record = value.issuer._selected_record(value.selected)
+        digest = selected_record.digest
+        selected = state.source
+        def poison(*args):
+            result = original(*args)
+            assert value.issuer._semantic_source_window is not None
+            if target == "interrupt":
+                raise KeyboardInterrupt("original fallback interrupted")
+            if target == "journal":
+                object.__setattr__(selected_record, "digest", type(digest).of_bytes(b"changed original binding"))
+            elif target == "association":
+                state.source = object()
+            else:
+                path.write_bytes(before + b"changed")
+            return result
+        try:
+            with monkeypatch.context() as patch:
+                patch.setattr(publication, "derive_selected_root_intent", poison)
+                with pytest.raises((RuntimeError, ValueError, BaseExceptionGroup, KeyboardInterrupt)):
+                    validate_direct_cli_graph_scope(holder)
+        finally:
+            path.write_bytes(before)
+            object.__setattr__(selected_record, "digest", digest)
+            state.source = selected
+        assert observed == [True]
+        assert value.issuer._semantic_source_window is None and state.terminal
+        with pytest.raises(ContractViolation, match="terminal"):
+            validate_direct_cli_graph_scope(holder)
+
+
+@pytest.mark.parametrize("phase", ["entry", "inside_window"])
+@pytest.mark.parametrize("mode", ["return", "raise", "restore"])
+@pytest.mark.parametrize("binding", ["alias", "code"])
+async def test_graph_fallback_original_port_is_never_dispatched(tmp_path, monkeypatch, phase, mode, binding):
+    async with _local_graph_source_scope(tmp_path, monkeypatch, with_input=False) as (value, holder, state, _):
+        state.prepared = None
+        kind = type(value.issuer)
+        original = vars(kind)["selected_source_validation_scope"]
+        host_check = publication.validate_direct_cli_selected_host
+        original_code = original.__code__
+        calls = []
+        count = len(original.__closure__ or ())
+        setup = "".join(f"    capture_{i} = None\n" for i in range(count))
+        use = "".join(f"        _ = capture_{i}\n" for i in range(count))
+        sandbox = {}
+        exec("def outer():\n" + setup + "    def hostile(*args, **kwargs):\n" + use  # noqa: S102 -- fixed closure-arity poison, no external input
+             + "        probe = globals()['_graph_fallback_probe']\n"
+             + "        probe['calls'].append(True)\n"
+             + "        if probe['mode'] == 'restore': probe['function'].__code__ = probe['code']\n"
+             + "        if probe['mode'] == 'raise': raise RuntimeError('hostile source code')\n"
+             + "        return None\n    return hostile\n", sandbox)
+        poison_code = sandbox["outer"]().__code__
+        def hostile(*args, **kwargs):
+            calls.append(True)
+            if mode == "restore":
+                kind.selected_source_validation_scope = original
+            if mode == "raise":
+                raise RuntimeError("hostile source port")
+        def replace(patch):
+            if binding == "alias":
+                patch.setattr(kind, "selected_source_validation_scope", hostile)
+            else:
+                patch.setattr(original, "__code__", poison_code)
+        def change(product):
+            host_check(product)
+            assert value.issuer._semantic_source_window is not None
+            replace(monkeypatch)
+        with monkeypatch.context() as patch:
+            patch.setitem(original.__globals__, "_graph_fallback_probe",
+                          {"function": original, "code": original_code, "mode": mode, "calls": calls})
+            if phase == "entry":
+                replace(patch)
+            else:
+                patch.setattr(publication, "validate_direct_cli_selected_host", change)
+            with pytest.raises((RuntimeError, ValueError, BaseExceptionGroup)):
+                validate_direct_cli_graph_scope(holder)
+        monkeypatch.undo()
+        assert calls == [] and state.terminal
+        assert value.issuer._semantic_source_window is None
+        with pytest.raises(ContractViolation, match="terminal"):
+            validate_direct_cli_graph_scope(holder)

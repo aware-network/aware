@@ -601,9 +601,12 @@ async def test_batch_rejects_substituted_dispatch_without_calls(
                 node.validate()
 
 
+@pytest.mark.parametrize("checkpoint", [False, True])
 async def test_batch_never_encloses_owner_execution_and_checks_original_result(
-    tmp_path, monkeypatch
+    tmp_path, monkeypatch, checkpoint,
 ):
+    from contextlib import ExitStack, contextmanager
+
     from aware_code_semantic_contract_runtime import (
         ContentDigest,
         ContractViolation,
@@ -638,6 +641,9 @@ async def test_batch_never_encloses_owner_execution_and_checks_original_result(
             validator_entrance=value.issuer.validate_semantic_input_source,
             reader=value.issuer, reader_entrance=value.issuer.read_semantic_input_sources,
             retain_result=True,
+            validation_scope_entrance=(
+                producers.capture_semantic_input_validation_scope(value.issuer) if checkpoint else None
+            ),
         )
         try:
             with open_read(value) as node:
@@ -649,7 +655,14 @@ async def test_batch_never_encloses_owner_execution_and_checks_original_result(
                     host, registration, source_admission=value.selected, expected=expected,
                 )
                 node.retain_source_result(host, registration, expected=expected, result=result)
-                node.validate()
+                with ExitStack() as stack:
+                    if checkpoint:
+                        stack.enter_context(contextmanager(producers._original_result_checkpoint_scope)(
+                            host, registration, source_admission=value.selected,
+                            expected=expected, result=result, expectations=(expected,),
+                        ))
+                        assert value.issuer._semantic_source_window is not None
+                    node.validate()
                 assert value.issuer._semantic_source_window is None
                 assert calls == [True]
                 object.__setattr__(result, "canonical_body", b"forged")
@@ -3350,3 +3363,40 @@ async def test_provider_resolution_operation_original_dispatch(tmp_path, monkeyp
             monkeypatch.setattr(composition, "_original_group_method", original)
         assert armed and calls == []
         assert value.issuer._semantic_source_window is None
+
+
+async def test_checkpoint_mixed_grouped_batch_preserves_distinct_original_windows(tmp_path):
+    from contextlib import contextmanager
+
+    from test_grouped_selected_source_input import dependency_group, scope
+
+    async with dependency_group(tmp_path) as (original, root, participant, edge):
+        with scope(original, root=root, participants=(participant,), dependency_edges=(edge,)) as grouped:
+            expectations = (root.selection_expected, grouped)
+            with contextmanager(original.issuer.semantic_input_checkpoint_validation_scope)(
+                original.selected, expected=root.selection_expected, expectations=expectations,
+            ) as enabled:
+                assert enabled is False
+                assert original.issuer._semantic_source_window is None
+                original.issuer._validate_retained_semantic_inputs(
+                    original.selected, expectations=expectations, results=(),
+                )
+            assert original.issuer._semantic_source_window is None
+
+
+async def test_checkpoint_same_source_uses_original_terminal_bracket(tmp_path, monkeypatch):
+    from contextlib import contextmanager
+
+    from test_selected_input_read_node import read_fixture
+
+    async with read_fixture(tmp_path, monkeypatch) as value:
+        issuer = value.issuer
+        with issuer.original_pre_request_input(
+            value.selected, use_ref="checkpoint-source", stage="pre_request", source_coordinates=value.coordinates,
+        ) as expected:
+            with contextmanager(issuer.semantic_input_checkpoint_validation_scope)(
+                value.selected, expected=expected, expectations=(expected,),
+            ) as enabled:
+                assert enabled is True and issuer._semantic_source_window is not None
+                issuer.validate_semantic_input_source(value.selected, expected=expected)
+            assert issuer._semantic_source_window is None

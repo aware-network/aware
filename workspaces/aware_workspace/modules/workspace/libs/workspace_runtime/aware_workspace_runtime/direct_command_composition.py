@@ -859,8 +859,11 @@ def _compose_direct_workspace_declaration_sources(
     store: WorkspaceRepositoryDeltaRetentionClient,
     workspace_manifest_path: str,
     exclusion: WorkspaceSourceExclusion,
+    consumer_bound: bool = False,
 ) -> Iterator[_DirectWorkspaceDeclarationSources]:
     """Retain real repository declarations under the original command parent."""
+    if type(consumer_bound) is not bool:
+        raise TypeError("exact consumer declaration mode required")
     if type(exclusion) is not WorkspaceSourceExclusion:
         raise TypeError("original WorkspaceSourceExclusion required")
     exclusion.check_live()
@@ -871,7 +874,10 @@ def _compose_direct_workspace_declaration_sources(
             session=session, store=store, exclusion=exclusion
         )
         cleanup.append(observation_runtime.close)
-        observation = observation_runtime.observe_declarations()
+        observation = (
+            observation_runtime.observe_declarations(consumer_scope_key=workspace_manifest_path)
+            if consumer_bound else observation_runtime.observe_declarations()
+        )
         issuer = WorkspaceDeclarationScopeRuntime(
             observation_runtime=observation_runtime
         )
@@ -1038,6 +1044,7 @@ def _compose_direct_workspace_command_resources(
     workspace_manifest_path: str,
     qualified: bool = False,
     source_rail: str = "existing",
+    consumer_bound: bool = False,
 ) -> Iterator[_DirectWorkspaceCommandResources]:
     """Fixed ownership, with no runtime/factory/cleanup injection entrance.
 
@@ -1053,6 +1060,8 @@ def _compose_direct_workspace_command_resources(
         source_rail == "declaration_v3" and qualified
     ):
         raise ValueError("exact direct command source rail required")
+    if type(consumer_bound) is not bool or consumer_bound and source_rail != "declaration_v3":
+        raise ValueError("exact consumer declaration mode required")
     lifetime = WorkspaceCommandLifetimeRuntime()
     close_parent = lifetime.close
     parent_close_attempted = False
@@ -1081,6 +1090,7 @@ def _compose_direct_workspace_command_resources(
                 store=store,
                 workspace_manifest_path=workspace_manifest_path,
                 exclusion=exclusion,
+                consumer_bound=consumer_bound,
             )
             if source_rail == "declaration_v3"
             else _compose_direct_workspace_sources(
@@ -1191,6 +1201,7 @@ def _compose_direct_workspace_command_source(
         store=store,
         workspace_manifest_path=proposal.workspace_manifest_name,
         source_rail="declaration_v3",
+        consumer_bound=type(proposal) is WorkspaceMaterializeCommandProposalV3,
     ) as command:
         expected_parent = DirectInvocationExpectation(
             command.lifetime_runtime.invocation_identity,
@@ -3263,6 +3274,7 @@ class _CommandOwnedSelectedInputReadSession:
         stage,
         source_contracts,
         context_contracts=(),
+        context_receipts=(),
     ):
         """Reuse the original selected-source reader and this node's predecessor."""
         record = expected = issuer = None
@@ -3300,6 +3312,7 @@ class _CommandOwnedSelectedInputReadSession:
                     stage=stage,
                     source_contracts=source_contracts,
                     context_contracts=context_contracts,
+                    context_receipts=context_receipts,
                 )
             )
             _retain_selected_input_expectation(record, expected, depth=depth)
@@ -3313,6 +3326,42 @@ class _CommandOwnedSelectedInputReadSession:
         finally:
             record = expected = issuer = host = registration = result = None
             self = selection_expected = source_contracts = context_contracts = None  # noqa: PLW0642 - clear rejection custody
+
+    def retain_source_evidence(self, retention):
+        """Retire this read node; retain only its original source scopes.
+
+        Planning evidence can outlive the sole active read node. No assembly,
+        dependency admission, execution verification or publication use transfers.
+        The original producer host and parent remain independently borrowed.
+        """
+        record = owned = None
+        try:
+            _SELECTED_INPUT_READ_VALIDATE(self)
+            record = _selected_input_read_record(self)
+            if (type(retention) is not ExitStack or retention is record.stack
+                or record.assembly_binding is not None or record.dependency_binding is not None
+                or record.closure is not None or not record.expectations):
+                raise RuntimeError("only unassembled original source evidence may be retained")
+            assert record.stack is not None
+            owned = record.stack.pop_all()
+            _retire_selected_input_read(record)
+            if record.command is not None:
+                raise RuntimeError("source evidence retirement awaits original guard release")
+            retention.callback(owned.close)
+            owned = None
+        except BaseException as error:  # noqa: BLE001 - retirement must cover cancellation and retain no rights
+            _clear_selected_input_rejection_frames(error)
+            if record is not None:
+                if owned is not None and record.command is not None:
+                    # Preserve custody for denial-safe retry of retirement, not
+                    # the terminal node's execution/publication rights.
+                    record.stack, owned = owned, None
+                _retire_selected_input_read(record)
+            raise
+        finally:
+            if owned is not None:
+                owned.close()
+            record = owned = retention = self = None  # noqa: PLW0642 - clear rejection custody
 
 
     def admit_dependency_products(self, operation, resolution, fulfillment, *, body):
@@ -3415,7 +3464,7 @@ def _bind_selected_input_source_operations(dispatch):
             record = issuer = retained = None
 
     def prepare_source_expectation(
-        self, *, use_ref, stage, source_coordinates, context_contracts=()
+        self, *, use_ref, stage, source_coordinates, context_contracts=(), context_receipts=()
     ):
         """Own the existing issuer's context, without rewriting its identity."""
         record = expected = None
@@ -3436,6 +3485,7 @@ def _bind_selected_input_source_operations(dispatch):
                         stage=stage,
                         source_coordinates=source_coordinates,
                         context_contracts=context_contracts,
+                        context_receipts=context_receipts,
                     )
                 )
                 _retain_selected_input_expectation(record, expected, depth=1)

@@ -122,6 +122,16 @@ def _cleanup_payload(value: Any) -> dict[str, Any]:
     return review_value_to_payload(value)
 
 
+def _exception_metadata(error: BaseException) -> dict[str, Any]:
+    result: dict[str, Any] = {
+        "error_type": type(error).__name__,
+        "interruption": not isinstance(error, Exception),
+    }
+    if error.__cause__ is not None:
+        result["cause_type"] = type(error.__cause__).__name__
+    return result
+
+
 def _error_payload(error: BaseException) -> dict[str, Any]:
     value: dict[str, Any] = {
         "error_type": type(error).__name__,
@@ -161,6 +171,43 @@ def _error_payload(error: BaseException) -> dict[str, Any]:
             if failure.cleanup is None
             else review_value_to_payload(failure.cleanup),
         )
+        # These additive owner fields may be absent in older SDK carriers.
+        # Absence does not fabricate a refusal or imply that no reads occurred.
+        reads = getattr(failure, "reads", None)
+        if reads is not None:
+            from aware_file_system.private_directory import (
+                private_directory_value_to_payload,
+            )
+
+            value["reads"] = []
+            for index, read in enumerate(reads):
+                try:
+                    value["reads"].append(private_directory_value_to_payload(read))
+                except BaseException as projection_error:  # noqa: BLE001 -- retain primary evidence if a bounded owner codec cannot encode a read
+                    value["reads"].append(None)
+                    value.setdefault("presentation_errors", {})[f"reads[{index}]"] = (
+                        _exception_metadata(projection_error)
+                    )
+        refusal = getattr(failure, "refusal", None)
+        if refusal is not None:
+            try:
+                value["refusal"] = review_value_to_payload(refusal)
+            except BaseException as projection_error:  # noqa: BLE001 -- no raw-record fallback for an unencodable owner value
+                value.setdefault("presentation_errors", {})["refusal"] = (
+                    _exception_metadata(projection_error)
+                )
+        retention_error = (
+            getattr(error, "retention_error", None)
+            if type(error) is SetupReviewError
+            else getattr(error, "setup_review_retention_error", None)
+        )
+        if isinstance(retention_error, BaseException):
+            # Capture interruption can be the primary interrupt object itself.
+            # Preserve its identity relationship without recursively encoding it.
+            value["retention_error"] = _exception_metadata(retention_error)
+            value["retention_error"]["same_as_primary_exception"] = (
+                retention_error is error
+            )
     completion = getattr(error, "setup_scope_completion", None)
     if completion is not None:
         value["scope_completion"] = _scope_payload(completion)
@@ -180,6 +227,9 @@ def _error_payload(error: BaseException) -> dict[str, Any]:
 def _incomplete_owner_evidence(payload: dict[str, Any]) -> bool:
     """Project original retention outcomes, independently of later cleanup."""
     retention = payload.get("retention", {}).get("value", {})
+    cleanup = payload.get("cleanup")
+    if cleanup is not None and not cleanup["value"]["ledger_complete"]:
+        return True
     if retention.get("status") in ("incomplete", "unknown") or (
         retention.get("status") in ("captured", "published")
         and not retention.get("ledger_complete")
@@ -433,6 +483,15 @@ def review_payload(
     if _incomplete_owner_evidence(payload):
         payload["status"] = "incomplete"
         code = 130 if code == 130 else 3
+    presentation_errors = payload.get("error", {}).get("presentation_errors", {})
+    if presentation_errors:
+        payload["status"] = "incomplete"
+        code = (
+            130
+            if code == 130
+            or any(e["interruption"] for e in presentation_errors.values())
+            else 3
+        )
     return payload, code, raw
 
 
@@ -512,16 +571,46 @@ def _summary(payload: dict[str, Any]) -> str:
             )
     if "reference" in payload:
         lines.append(
-            "Reference (exact SDK JSON, reuse unchanged): "
+            (
+                "Owner reference (evidence only, not a review or admission): "
+                if payload.get("error", {}).get("refusal") is not None
+                else "Reference (exact SDK JSON, reuse unchanged): "
+            )
             + json.dumps(payload["reference"], sort_keys=True, separators=(",", ":"))
         )
     if "error" in payload:
+        failure = payload["error"]
         lines.append(
-            "Error: "
-            + _terminal_text(
-                payload["error"].get("code", payload["error"]["error_type"])
-            )
+            "Primary failure: "
+            + _terminal_text(failure.get("code", failure["error_type"]))
         )
+        if "phase" in failure:
+            lines.append("Owner phase: " + _terminal_text(failure["phase"]))
+        if "retention" in failure:
+            retention = failure["retention"]["value"]
+            lines.append(
+                "Evidence retention: "
+                + _terminal_text(retention["status"])
+                + "; ledger complete: "
+                + str(retention["ledger_complete"]).lower()
+            )
+        if failure.get("refusal") is not None:
+            refusal = failure["refusal"]["value"]
+            lines.append(
+                "Product dispatch for this refused action: "
+                + _terminal_text(refusal["product_dispatch"])
+                + ". This does not describe historical effects or evidence writes."
+            )
+        if failure.get("cleanup") is not None:
+            lines.append(
+                "Original owner cleanup complete: "
+                + str(failure["cleanup"]["value"]["ledger_complete"]).lower()
+            )
+        if "retention_error" in failure:
+            lines.append(
+                "Independent retention error: "
+                + _terminal_text(failure["retention_error"]["error_type"])
+            )
     if "client_cleanup" in payload:
         lines.append(
             "Client cleanup complete: "
@@ -551,6 +640,7 @@ def _handle(invocation: AwareCommandInvocation) -> int:
                 file=sys.stderr,
             )
         else:
+            failure = payload.get("error", {})
             outcome = payload.get("outcome") or payload.get("error", {}).get("outcome")
             scope = payload.get("scope_completion") or payload.get("error", {}).get(
                 "scope_completion"
@@ -563,12 +653,22 @@ def _handle(invocation: AwareCommandInvocation) -> int:
                     or not outcome["retention"]["value"]["ledger_complete"]
                 )
             ) or (scope is not None and scope["status"] == "incomplete")
+            failed_retention = failure.get("retention", {}).get("value", {})
+            unavailable_capture = (
+                unavailable_capture
+                or bool(failure.get("presentation_errors"))
+                or (
+                    failed_retention.get("status") in ("incomplete", "unknown")
+                    or failed_retention.get("status") in ("published", "captured")
+                    and not failed_retention.get("ledger_complete")
+                )
+            )
             print(
                 json.dumps(payload, sort_keys=True)
                 if invocation.args.json or unavailable_capture
                 else _summary(payload)
             )
     except (OSError, UnicodeError):
-        # Output failure cannot erase an executed operation or cause redispatch.
-        return 3
+        # Output failure cannot erase interruption or cause redispatch/cleanup.
+        return 130 if code == 130 else 3
     return code

@@ -34,6 +34,9 @@ if TYPE_CHECKING:
     from aware_issue_sdk.workspace_setup_admission_values import (
         IssueWorkspaceSetupClientCleanup as OriginalIssueClientCleanup,
     )
+    from aware_issue_sdk.workspace_setup_admission_values import (
+        IssueWorkspaceSetupSourcesObservation as OriginalIssueSourcesObservation,
+    )
 
     from .architecture_setup import (
         ArchitectureSetupRequest as OriginalArchitectureRequest,
@@ -67,6 +70,8 @@ ProductStatus = Literal[
 ]
 DecisionRequired = Literal["scope_review", "apply_review", "none"]
 PrivacyProfile = Literal["effective_user_private_namespace_v1"]
+RefusalReason = Literal["review_issue_changed", "review_authority_sources_changed"]
+RefusalDispatch = Literal["not_invoked"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -288,6 +293,25 @@ class SetupConciseResult:
 
 
 @dataclass(frozen=True, slots=True)
+class SetupRefusalRecord:
+    """A retained current-input denial; never a review, intent or admission."""
+
+    review_ref: SetupEvidenceRef
+    request: SetupReviewRequest
+    code: RefusalReason
+    phase: str
+    observed_issue: OriginalIssueReadResult
+    observed_sources: OriginalIssueSourcesObservation | None
+    issue_cleanup: OriginalIssueClientCleanup | None
+    reads: tuple[PrivateFileReadResult, ...]
+    scope_decision: SetupScopeDecision | None
+    apply_decision: SetupApplyDecision | None
+    inputs_ref: SetupEvidenceRef | None
+    product_dispatch: RefusalDispatch
+    authorizes_retry: Literal[False]
+
+
+@dataclass(frozen=True, slots=True)
 class SetupReviewFailure:
     code: str
     phase: str
@@ -297,6 +321,8 @@ class SetupReviewFailure:
     retention: RetentionEvidence
     cleanup: SetupReviewClientCleanup | None
     interruption: bool
+    reads: tuple[PrivateFileReadResult, ...] = ()
+    refusal: SetupRefusalRecord | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -317,9 +343,16 @@ class DirectoryIdentity:
 class SetupReviewError(RuntimeError):
     """Typed known prefix; failure does not authorize retry."""
 
-    def __init__(self, code: str, *, failure: SetupReviewFailure):
+    def __init__(
+        self,
+        code: str,
+        *,
+        failure: SetupReviewFailure,
+        retention_error: BaseException | None = None,
+    ):
         self.code = code
         self.failure = failure
+        self.retention_error = retention_error
         super().__init__(code)
 
 
@@ -348,6 +381,7 @@ REVIEW_SCHEMA_IDS = MappingProxyType(
         SetupCommandOutcome: None,
         SetupEvidenceRead: None,
         SetupConciseResult: "aware.workspace.setup-review.setup-concise-result.v1",
+        SetupRefusalRecord: "aware.workspace.setup-review.setup-refusal-record.v1",
         SetupReviewFailure: None,
         SetupReviewClientCleanup: "aware.workspace.setup-review.setup-review-client-cleanup.v1",
         DirectoryIdentity: "aware.workspace.setup-review.directory-identity.v1",
@@ -535,6 +569,23 @@ REVIEW_FIELD_TYPES = MappingProxyType(
             ("retention", "RetentionEvidence"),
             ("cleanup", "Nullable[SetupReviewClientCleanup]"),
             ("interruption", "Bool"),
+            ("reads", "Array[PrivateFileReadResult,40]"),
+            ("refusal", "Nullable[SetupRefusalRecord]"),
+        ),
+        SetupRefusalRecord: (
+            ("review_ref", "SetupEvidenceRef"),
+            ("request", "SetupReviewRequest"),
+            ("code", "RefusalReason"),
+            ("phase", "Code"),
+            ("observed_issue", "OriginalIssueReadResult"),
+            ("observed_sources", "Nullable[OriginalIssueSourcesObservation]"),
+            ("issue_cleanup", "Nullable[OriginalIssueClientCleanup]"),
+            ("reads", "Array[PrivateFileReadResult,40]"),
+            ("scope_decision", "Nullable[SetupScopeDecision]"),
+            ("apply_decision", "Nullable[SetupApplyDecision]"),
+            ("inputs_ref", "Nullable[SetupEvidenceRef]"),
+            ("product_dispatch", "RefusalDispatch"),
+            ("authorizes_retry", "False"),
         ),
         SetupReviewClientCleanup: (
             ("workspace", "Nullable[OriginalWorkspaceClientCleanup]"),
@@ -573,6 +624,8 @@ REVIEW_ENUMS = MappingProxyType(
         ),
         "DecisionRequired": ("scope_review", "apply_review", "none"),
         "PrivacyProfile": ("effective_user_private_namespace_v1",),
+        "RefusalReason": ("review_issue_changed", "review_authority_sources_changed"),
+        "RefusalDispatch": ("not_invoked",),
     }
 )
 REVIEW_SCALARS = MappingProxyType(

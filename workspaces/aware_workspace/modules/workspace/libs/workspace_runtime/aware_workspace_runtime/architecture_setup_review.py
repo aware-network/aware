@@ -90,6 +90,21 @@ def _refuse(code) -> NoReturn:
     raise SetupReviewValueError(code)
 
 
+class _CurrentInputRefusal(Exception):
+    """Issued only by the original comparisons before a product dispatch."""
+
+    def __init__(self, code, *, record, reference, observed_issue, sources=None):
+        self.code = code
+        self.record = record
+        self.reference = reference
+        self.observed_issue = observed_issue
+        self.sources = sources
+        self.scope_decision: v.SetupScopeDecision | None = None
+        self.apply_decision: v.SetupApplyDecision | None = None
+        self.inputs_ref: v.SetupEvidenceRef | None = None
+        super().__init__(code)
+
+
 def _digest(body):
     return "sha256:" + hashlib.sha256(body).hexdigest()
 
@@ -481,7 +496,56 @@ class WorkspaceSetupReviewRuntime:
         return self.store.retention()
 
     def _raise_failure(self, error, phase):
-        if self._store is not None:
+        retention_error = None
+        refusal = None
+        primary = error
+        owner_cleanup_error = getattr(error, "setup_review_issue_cleanup_failure", None)
+        if (
+            type(error) is _CurrentInputRefusal
+            and phase in ("read_review", "record_review_decision", "apply_reviewed")
+            and self._outcome is None
+        ):
+            # The refusal is distinct from the physical attempt to retain it.
+            # Do not clear prior uncertainty or label unwritten bytes captured.
+            self._reference = error.reference
+            try:
+                refusal = v.SetupRefusalRecord(
+                    error.reference,
+                    error.record.request,
+                    error.code,
+                    phase,
+                    error.observed_issue,
+                    error.sources,
+                    self._issue_cleanup if error.sources is not None else None,
+                    tuple(self.store.reads),
+                    error.scope_decision,
+                    error.apply_decision,
+                    error.inputs_ref,
+                    "not_invoked",
+                    False,
+                )
+                if isinstance(owner_cleanup_error, BaseException) and not isinstance(
+                    owner_cleanup_error, Exception
+                ):
+                    raise owner_cleanup_error
+                self._reference_for(
+                    refusal,
+                    attempt=error.reference.attempt_ref,
+                    kind="refusal",
+                    target=error.reference.target,
+                )
+            except BaseException as capture_error:  # noqa: BLE001 - preserve primary denial and capture interruption separately
+                self._terminal = True
+                retention_error = (
+                    capture_error if capture_error is not owner_cleanup_error else None
+                )
+                self.store.failed(capture_error)
+                if not isinstance(capture_error, Exception):
+                    error = capture_error
+                    BaseException.__setattr__(
+                        error, "setup_review_primary_failure", primary
+                    )
+        elif self._store is not None:
             self.store.failed(error)
         retention = self._retention()
         if self._store is None:
@@ -518,7 +582,7 @@ class WorkspaceSetupReviewRuntime:
                 self._closed = v.SetupReviewClientCleanup(
                     None, None, cleanup, cleanup.release == "confirmed", ()
                 )
-        code = getattr(error, "code", None)
+        code = getattr(primary, "code", None)
         if (
             type(error) is SetupReviewValueError
             and error.args
@@ -547,11 +611,19 @@ class WorkspaceSetupReviewRuntime:
             retention,
             cleanup,
             not isinstance(error, Exception),
+            tuple(self.store.reads) if self._store is not None else (),
+            refusal,
         )
         if not isinstance(error, Exception):
             BaseException.__setattr__(error, "setup_review_failure", failure)
+            if retention_error is not None:
+                BaseException.__setattr__(
+                    error, "setup_review_retention_error", retention_error
+                )
             raise error
-        raise v.SetupReviewError(code, failure=failure) from error
+        raise v.SetupReviewError(
+            code, failure=failure, retention_error=retention_error
+        ) from error
 
     @contextmanager
     def _action(self, phase):
@@ -652,6 +724,7 @@ class WorkspaceSetupReviewRuntime:
                 (v.SetupScopeOutcomeRecord, "scope-outcome"),
                 (v.SetupOutcomeRecord, "outcome"),
                 (v.SetupDispatchIntent, "intent"),
+                (v.SetupRefusalRecord, "refusal"),
             )
         }
         if reference.record_contract not in catalog:
@@ -675,13 +748,23 @@ class WorkspaceSetupReviewRuntime:
             _refuse("review_intent_locator_mismatch")
         return value, raw
 
-    def _current_issue(self, record):
+    def _current_issue(self, record, reference):
         current = self.store.read_issue(record.request.target.issue_tag)
+        if current.outcome not in (
+            issue.IssueReadProjectionResolveOutcome.FOUND,
+            issue.IssueReadProjectionResolveOutcome.ABSENT,
+        ):
+            _refuse("review_issue_read_incomplete")
         # The owner wire intentionally excludes raw Markdown. Compare the exact
         # owner projection, including its source digest, rather than treating
         # the decoder's intentionally absent raw body as source drift.
         if encode_issue_result(current) != encode_issue_result(record.issue_read):
-            _refuse("review_issue_changed")
+            raise _CurrentInputRefusal(
+                "review_issue_changed",
+                record=record,
+                reference=reference,
+                observed_issue=current,
+            )
         # Reuse the original source owner; do not read or reconstruct authority.
         from aware_issue_sdk.workspace_setup_admission import (
             IssueWorkspaceSetupAdmissionClient,
@@ -699,13 +782,21 @@ class WorkspaceSetupReviewRuntime:
             sources = issuer.observe_authority_sources(
                 issue_ref=record.request.target.issue_path
             )
+            if not sources.ledger_complete:
+                _refuse("review_authority_sources_incomplete")
             if (
                 sources.issue_source.content_sha256
                 != record.review_guards.issue_source_sha256
                 or sources.authority_manifest_source.content_sha256
                 != record.review_guards.authority_manifest_sha256
             ):
-                _refuse("review_authority_sources_changed")
+                raise _CurrentInputRefusal(
+                    "review_authority_sources_changed",
+                    record=record,
+                    reference=reference,
+                    observed_issue=current,
+                    sources=sources,
+                )
         except BaseException as error:
             primary = error
             raise
@@ -757,7 +848,7 @@ class WorkspaceSetupReviewRuntime:
         if purpose == "current_use":
             if record.request.execution_ref != self.execution:
                 _refuse("fresh_execution_review_required")
-            self._current_issue(record)
+            self._current_issue(record, reference)
         return v.SetupReviewRead(
             reference,
             record,
@@ -949,9 +1040,16 @@ class WorkspaceSetupReviewRuntime:
             review_value_to_payload(decision)
             if type(decision) not in (v.SetupScopeDecision, v.SetupApplyDecision):
                 _refuse("explicit_original_decision_required")
-            review = self._read_review(
-                reference, expected_target=reference.target, purpose="current_use"
-            )
+            try:
+                review = self._read_review(
+                    reference, expected_target=reference.target, purpose="current_use"
+                )
+            except _CurrentInputRefusal as error:
+                if type(decision) is v.SetupScopeDecision:
+                    error.scope_decision = decision
+                else:
+                    error.apply_decision = decision
+                raise
             action = "scope" if type(decision) is v.SetupScopeDecision else "apply"
             key = review_action_key(action, reference.record_sha256)
             if key in self._decisions or len(self._decisions) >= 128:
@@ -1117,9 +1215,14 @@ class WorkspaceSetupReviewRuntime:
                 _refuse("apply_intent_mismatch")
             self._applied.add(id(inputs))
             reference = inputs.record.decision.review
-            review = self._read_review(
-                reference, expected_target=reference.target, purpose="current_use"
-            )
+            try:
+                review = self._read_review(
+                    reference, expected_target=reference.target, purpose="current_use"
+                )
+            except _CurrentInputRefusal as error:
+                error.apply_decision = inputs.record.decision
+                error.inputs_ref = inputs.reference
+                raise
             stored, _ = self._load(inputs.reference, expected_target=reference.target)
             if (
                 type(stored) is not v.SetupApplyInputRecord

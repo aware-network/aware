@@ -872,6 +872,462 @@ def test_terminal_display_is_quoted_ascii_and_lossless(text):
     assert json.loads(display) == text
 
 
+def stale_refusal_arguments(repository, capsys, monkeypatch, drift, phase):
+    """Arrange drift at an original public call boundary, not a fabricated denial."""
+    from aware_workspace_runtime.architecture_setup_review import (
+        WorkspaceSetupReviewRuntime,
+    )
+
+    review = (
+        scoped(repository, capsys)[1]
+        if phase == "apply"
+        else prepare(repository, capsys)
+    )
+    path = repository[0] / (ISSUE if drift == "issue" else "aware.protocol.toml")
+
+    def change():
+        path.write_bytes(path.read_bytes() + b"\n# independent current-input change\n")
+
+    if phase == "read":
+        change()
+    else:
+        method = "read_review" if phase == "decision" else "record_review_decision"
+        original = getattr(WorkspaceSetupReviewClient, method)
+
+        def intervening(owner, *args, **kwargs):
+            result = original(owner, *args, **kwargs)
+            change()
+            return result
+
+        monkeypatch.setattr(WorkspaceSetupReviewClient, method, intervening)
+
+    def no_product_dispatch(*args, **kwargs):
+        pytest.fail("current-input denial dispatched the Workspace product driver")
+
+    monkeypatch.setattr(WorkspaceSetupReviewRuntime, "_run_driver", no_product_dispatch)
+    action = "apply" if phase == "apply" else "scope"
+    flag = (
+        "--accept-reviewed-final-files"
+        if phase == "apply"
+        else "--accept-reviewed-effect-scope"
+    )
+    arguments = [
+        "workspace",
+        "review",
+        action,
+        "--repository-root",
+        str(repository[0]),
+        "--evidence-root",
+        str(repository[1]),
+        "--reference",
+        reference(review),
+        "--client-intent-id",
+        "stale-request",
+        flag,
+    ]
+    return review, arguments
+
+
+@pytest.mark.parametrize("drift", ["issue", "manifest"])
+@pytest.mark.parametrize("phase", ["read", "decision", "apply"])
+@pytest.mark.parametrize("human", [False, True])
+def test_original_refusal_retention_and_cleanup_are_distinct(
+    repository, capsys, monkeypatch, drift, phase, human
+):
+    from aware_agent_cli import workspace_review
+    from aware_file_system.private_directory import private_directory_value_to_payload
+    from aware_workspace_sdk.architecture_setup_review_codec import (
+        review_value_from_json,
+        review_value_to_payload,
+    )
+    from aware_workspace_sdk.architecture_setup_review_values import SetupRefusalRecord
+
+    review, arguments = stale_refusal_arguments(
+        repository, capsys, monkeypatch, drift, phase
+    )
+    seen, errors = [], []
+    project, summarize = workspace_review._error_payload, workspace_review._summary
+
+    def capture(error):
+        errors.append(error)
+        return project(error)
+
+    def summary(payload):
+        seen.append(payload)
+        return summarize(payload)
+
+    monkeypatch.setattr(workspace_review, "_error_payload", capture)
+    monkeypatch.setattr(workspace_review, "_summary", summary)
+    foreign = (
+        (repository[0] / "foreign.py").read_bytes(),
+        (repository[0] / "foreign.py").stat().st_mode,
+    )
+    code = client.main(arguments + ([] if human else ["--json"]))
+    output = capsys.readouterr()
+    assert not output.err and code == 2
+    payload = seen[0] if human else json.loads(output.out)
+    failure = payload["error"]
+    original = errors[0].failure
+    assert payload["status"] == "refused" and not payload["authorizes_retry"]
+    assert failure["code"] == original.code
+    assert (
+        failure["phase"]
+        == {
+            "read": "read_review",
+            "decision": "record_review_decision",
+            "apply": "apply_reviewed",
+        }[phase]
+    )
+    assert failure["refusal"] == review_value_to_payload(original.refusal)
+    assert failure["reads"] == [
+        private_directory_value_to_payload(read) for read in original.reads
+    ]
+    assert original.refusal.product_dispatch == "not_invoked"
+    assert failure["retention"]["value"]["status"] == "published"
+    assert failure["retention"]["value"]["ledger_complete"]
+    assert payload["client_cleanup"]["value"]["ledger_complete"]
+    assert "retention_error" not in failure
+    assert (repository[0] / "foreign.py").read_bytes() == foreign[0]
+    assert (repository[0] / "foreign.py").stat().st_mode == foreign[1]
+    assert not (repository[0] / "aware.repo.toml").exists()
+    if human:
+        assert 'Evidence retention: "published"; ledger complete: true' in output.out
+        assert 'Product dispatch for this refused action: "not_invoked"' in output.out
+        assert "historical effects or evidence writes" in output.out
+        assert "Client cleanup complete: true" in output.out
+        assert "evidence only, not a review or admission" in output.out
+    ref = review_value_from_payload(SetupEvidenceRef, failure["reference"])
+    assert ref.record_contract == failure["refusal"]["contract"]
+    with WorkspaceSetupReviewClient.filesystem(
+        repository_root=repository[0],
+        evidence_root=repository[1],
+        execution_id=EXECUTION,
+        authority_manifest_locator="aware.protocol.toml",
+    ) as owner:
+        raw = owner.read_evidence(ref, expected_target=ref.target).raw_bytes
+    decoded = review_value_from_json(SetupRefusalRecord, raw.decode())
+    assert review_value_to_payload(decoded) == failure["refusal"]
+    assert decoded.review_ref == review_value_from_payload(
+        SetupEvidenceRef, review["reference"]
+    )
+    code = client.main(
+        [
+            "workspace",
+            "review",
+            "evidence",
+            "--repository-root",
+            str(repository[0]),
+            "--evidence-root",
+            str(repository[1]),
+            "--reference",
+            review_value_to_json(ref),
+        ]
+    )
+    capture = capsys.readouterr()
+    assert code == 0 and capture.out.encode() == raw
+    assert json.loads(capture.err)["client_cleanup"]["value"]["ledger_complete"]
+
+
+@pytest.mark.parametrize("drift", ["issue", "manifest"])
+@pytest.mark.parametrize("fault", ["write", "lost_return", "cleanup", "cancel"])
+def test_refusal_capture_failure_retains_original_evidence_without_promotion(
+    repository, capsys, monkeypatch, drift, fault
+):
+    from aware_agent_cli import workspace_review
+    from aware_file_system import private_directory as private
+    from aware_workspace_fs_adapter.architecture_setup_review import (
+        FilesystemSetupReview,
+    )
+
+    review, arguments = stale_refusal_arguments(
+        repository, capsys, monkeypatch, drift, "read"
+    )
+    write = FilesystemSetupReview.write_metadata
+    release = private.release_private_file_sequence
+    calls, errors = [], []
+    secondary = (
+        KeyboardInterrupt("refusal capture interrupted")
+        if fault == "cancel"
+        else OSError("refusal capture unavailable")
+    )
+
+    def failed_write(owner, name, raw):
+        calls.append("write")
+        if fault == "lost_return":
+            write(owner, name, raw)
+        raise secondary
+
+    def incomplete_release(child):
+        calls.append("release")
+        actual = release(child)
+        return replace(
+            actual,
+            sequence=replace(actual.sequence, release="unknown", ledger_complete=False),
+        )
+
+    if fault == "cleanup":
+        monkeypatch.setattr(
+            private, "release_private_file_sequence", incomplete_release
+        )
+    else:
+        monkeypatch.setattr(FilesystemSetupReview, "write_metadata", failed_write)
+    project = workspace_review._error_payload
+
+    def capture(error):
+        errors.append(error)
+        return project(error)
+
+    monkeypatch.setattr(workspace_review, "_error_payload", capture)
+    # Human invocation must fall back to full available evidence, not lose it.
+    code = client.main(arguments)
+    payload = json.loads(capsys.readouterr().out)
+    assert (
+        code == (130 if fault == "cancel" else 3) and payload["status"] == "incomplete"
+    )
+    failure = payload["error"]
+    assert failure["code"] == (
+        "review_issue_changed"
+        if drift == "issue"
+        else "review_authority_sources_changed"
+    )
+    assert failure["refusal"]["value"]["code"] == failure["code"]
+    assert failure["reads"] and not failure["retention"]["value"]["ledger_complete"]
+    assert (
+        failure["reference"] == review["reference"]
+    )  # original review, not claimed refusal publication
+    assert "retention_error" in failure and not payload["authorizes_retry"]
+    assert len(calls) == 1 and not (repository[0] / "aware.repo.toml").exists()
+    if fault == "cancel":
+        assert errors[0] is secondary and failure["interruption"]
+        assert failure["retention_error"]["same_as_primary_exception"]
+    if fault == "lost_return":
+        assert len(list(repository[1].glob("*-refusal.json"))) == 1
+
+
+@pytest.mark.parametrize("cleanup", ["unknown", "raised", "cancel"])
+def test_original_issue_cleanup_uncertainty_is_never_upgraded(
+    repository, capsys, monkeypatch, cleanup
+):
+    from aware_issue_sdk.workspace_setup_admission import (
+        IssueWorkspaceSetupAdmissionClient,
+    )
+
+    _, arguments = stale_refusal_arguments(
+        repository, capsys, monkeypatch, "manifest", "read"
+    )
+    release = IssueWorkspaceSetupAdmissionClient.release_client
+    calls = []
+
+    def uncertain(owner):
+        actual = release(owner)
+        calls.append(actual)
+        if cleanup == "cancel":
+            raise KeyboardInterrupt("Issue cleanup interrupted")
+        if cleanup == "raised":
+            raise OSError("Issue cleanup return unavailable")
+        return replace(actual, outcome="unknown", ledger_complete=False)
+
+    monkeypatch.setattr(IssueWorkspaceSetupAdmissionClient, "release_client", uncertain)
+    code = client.main(arguments + ["--json"])
+    payload = json.loads(capsys.readouterr().out)
+    assert code == (130 if cleanup == "cancel" else 3)
+    assert payload["status"] == "incomplete"
+    assert payload["error"]["code"] == "review_authority_sources_changed"
+    assert not payload["error"]["cleanup"]["value"]["ledger_complete"]
+    assert not payload["client_cleanup"]["value"]["ledger_complete"]
+    if cleanup != "cancel":
+        assert payload["error"]["retention"]["value"]["ledger_complete"]
+    assert len(calls) == 1
+
+
+def test_spent_apply_preserves_physical_failure_and_published_bytes(repository, capsys):
+    _, second = scoped(repository, capsys)
+    code, _ = invoke(
+        repository,
+        capsys,
+        "apply",
+        "--reference",
+        reference(second),
+        "--client-intent-id",
+        "completed-apply",
+        "--accept-reviewed-final-files",
+    )
+    assert code == 0
+    root = repository[0]
+    before = (root / "aware.repo.toml").read_bytes(), (root / ISSUE).read_bytes()
+    code, payload = invoke(
+        repository,
+        capsys,
+        "apply",
+        "--reference",
+        reference(second),
+        "--client-intent-id",
+        "explicit-spent-use",
+        "--accept-reviewed-final-files",
+    )
+    assert code == 3 and payload["status"] == "incomplete"
+    assert "refusal" not in payload["error"]
+    assert payload["error"]["retention"]["value"]["physical_refusal"] is not None
+    assert before == (
+        (root / "aware.repo.toml").read_bytes(),
+        (root / ISSUE).read_bytes(),
+    )
+
+
+@pytest.mark.parametrize("interrupt", [False, True])
+@pytest.mark.parametrize("component", ["refusal", "reads"])
+def test_owner_codec_projection_failure_keeps_primary_and_separate_uncertainty(
+    repository, capsys, monkeypatch, interrupt, component
+):
+    from aware_agent_cli import workspace_review
+    from aware_file_system import private_directory as private
+    from aware_workspace_sdk import architecture_setup_review_codec as codec
+    from aware_workspace_sdk.architecture_setup_review_values import SetupRefusalRecord
+
+    _, arguments = stale_refusal_arguments(
+        repository, capsys, monkeypatch, "issue", "read"
+    )
+    encode, project = codec.review_value_to_payload, workspace_review._error_payload
+    private_encode = private.private_directory_value_to_payload
+    projecting = []
+
+    def fail_only_presentation(value):
+        if projecting and type(value) is SetupRefusalRecord:
+            if interrupt:
+                raise KeyboardInterrupt("presentation interrupted")
+            raise codec.SetupReviewValueError("review_document_limit")
+        return encode(value)
+
+    def fail_read_presentation(value):
+        if projecting and type(value) is private.PrivateFileReadResult:
+            if interrupt:
+                raise KeyboardInterrupt("read presentation interrupted")
+            raise ValueError("read evidence cannot be projected")
+        return private_encode(value)
+
+    def capture(error):
+        projecting.append(True)
+        try:
+            return project(error)
+        finally:
+            projecting.pop()
+
+    if component == "refusal":
+        monkeypatch.setattr(codec, "review_value_to_payload", fail_only_presentation)
+    else:
+        monkeypatch.setattr(
+            private, "private_directory_value_to_payload", fail_read_presentation
+        )
+    monkeypatch.setattr(workspace_review, "_error_payload", capture)
+    code = client.main(arguments)
+    payload = json.loads(capsys.readouterr().out)
+    assert code == (130 if interrupt else 3) and payload["status"] == "incomplete"
+    assert payload["error"]["code"] == "review_issue_changed"
+    assert payload["error"]["retention"]["value"]["status"] == "published"
+    assert payload["error"]["reads"] and payload["reference"]["value"][
+        "record_contract"
+    ].endswith("setup-refusal-record.v1")
+    key = "refusal" if component == "refusal" else "reads[0]"
+    assert payload["error"]["presentation_errors"][key]["interruption"] is interrupt
+
+
+@pytest.mark.parametrize("origin", ["retention", "projection"])
+@pytest.mark.parametrize("terminal", ["pipe", "unicode"])
+@pytest.mark.parametrize("interrupt", [False, True])
+def test_terminal_failure_preserves_interruption_without_repeating_owner_calls(
+    repository, capsys, monkeypatch, origin, terminal, interrupt
+):
+    import builtins
+
+    from aware_agent_cli import workspace_review
+    from aware_workspace_fs_adapter.architecture_setup_review import (
+        FilesystemSetupReview,
+    )
+    from aware_workspace_sdk import architecture_setup_review_codec as codec
+    from aware_workspace_sdk.architecture_setup_review_values import SetupRefusalRecord
+
+    _, arguments = stale_refusal_arguments(
+        repository, capsys, monkeypatch, "issue", "read"
+    )
+    root = repository[0]
+    before = (root / ISSUE).read_bytes(), (root / "foreign.py").read_bytes()
+    dispatch, project = workspace_review.review_payload, workspace_review._error_payload
+    encode = codec.review_value_to_payload
+    read = WorkspaceSetupReviewClient.read_review
+    release = WorkspaceSetupReviewClient.release_client
+    printer = builtins.print
+    calls, observed, projecting = [], [], []
+
+    def fault():
+        calls.append(origin)
+        if interrupt:
+            raise KeyboardInterrupt("original refusal evidence interrupted")
+        raise OSError("original refusal evidence unavailable")
+
+    def failed_write(*args, **kwargs):
+        fault()
+
+    def failed_projection(value):
+        if projecting and type(value) is SetupRefusalRecord:
+            fault()
+        return encode(value)
+
+    def capture(error):
+        projecting.append(True)
+        try:
+            return project(error)
+        finally:
+            projecting.pop()
+
+    def read_once(owner, *args, **kwargs):
+        calls.append("read")
+        return read(owner, *args, **kwargs)
+
+    def release_once(owner):
+        calls.append("release")
+        return release(owner)
+
+    def record(args):
+        calls.append("dispatch")
+        result = dispatch(args)
+        observed.append(result)
+        return result
+
+    def failed_output(*args, **kwargs):
+        if (
+            args
+            and isinstance(args[0], str)
+            and '"contract": "aware.agent.workspace-review.v1"' in args[0]
+        ):
+            calls.append("output")
+            if terminal == "pipe":
+                raise BrokenPipeError("terminal unavailable")
+            raise UnicodeEncodeError("ascii", "é", 0, 1, "terminal unavailable")
+        return printer(*args, **kwargs)
+
+    if origin == "retention":
+        monkeypatch.setattr(FilesystemSetupReview, "write_metadata", failed_write)
+    else:
+        monkeypatch.setattr(codec, "review_value_to_payload", failed_projection)
+        monkeypatch.setattr(workspace_review, "_error_payload", capture)
+    monkeypatch.setattr(WorkspaceSetupReviewClient, "read_review", read_once)
+    monkeypatch.setattr(WorkspaceSetupReviewClient, "release_client", release_once)
+    monkeypatch.setattr(workspace_review, "review_payload", record)
+    monkeypatch.setattr(builtins, "print", failed_output)
+
+    code = client.main(arguments)
+    assert len(observed) == 1
+    payload, before_output, raw = observed[0]
+    assert before_output == code == (130 if interrupt else 3)
+    assert raw is None and payload["status"] == "incomplete"
+    assert payload["error"]["code"] == "review_issue_changed"
+    assert payload["client_cleanup"]["value"]["ledger_complete"]
+    assert not payload["authorizes_retry"]
+    assert calls == ["dispatch", "read", origin, "release", "output"]
+    assert before == ((root / ISSUE).read_bytes(), (root / "foreign.py").read_bytes())
+    assert not (root / "aware.repo.toml").exists()
+
+
 def test_fresh_process_help_does_not_import_sdk_or_providers():
     program = """
 import sys, importlib.abc

@@ -12,6 +12,7 @@ from aware_command_runtime import AwareCommandRegistry, run_cli
 
 # Interface mounting only. Package membership belongs to portable_protocols.
 _REGISTRARS = {
+    "goal": ("aware_goal_native_cli.commands", ("register_goal_commands",)),
     "issue": ("aware_issue_cli.main", ("register_issue_commands",)),
     "protocol": (
         "aware_protocol_cli.main",
@@ -89,7 +90,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="aware",
         description=(
-            "Use neutral Issue, Protocol, Specification and Workspace setup operations through "
+            "Use neutral Goal reads, Issue, Protocol, Specification and Workspace setup operations through "
             "their canonical SDKs. Run aware FAMILY --help for exact leaf inputs."
         ),
         epilog=(

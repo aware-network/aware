@@ -647,8 +647,19 @@ def _sequence(payload: dict[str, Any]) -> str:
         payload["read_guard_paths"]
     ) != len(set(payload["read_guard_paths"])):
         _refuse("tree effect or guard paths duplicate")
-    for path in effects + payload["effect_paths"] + payload["read_guard_paths"]:
-        _path(path, maximum=limits["maximum_path_utf8_bytes"])
+    batch_slot: Any = ("__workspace_ascii_paths_slot_v1__", None, None)
+    batch = batch_slot[1]
+    last_path = None
+    try:
+        if batch is not None:
+            last_path = batch(batch_slot[2](), effects, payload, limits)
+        if last_path is None:
+            for path in effects + payload["effect_paths"] + payload["read_guard_paths"]:
+                _path(path, maximum=limits["maximum_path_utf8_bytes"])
+        else:
+            path = last_path
+    finally:
+        batch_slot = batch = last_path = None
     if wire_size > limits["maximum_metadata_bytes"]:
         _refuse("tree metadata exceeds requested byte bound")
     return wire
