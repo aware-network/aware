@@ -116,3 +116,28 @@ For the separate pure example, bind the public source read-only at `/mnt`, hide
 development/home/temp and retained exported source, mount the retained probe into
 a fresh private scratch and execute with the freshly installed isolated Python.
 No authority-bearing operation is needed or admitted by this probe.
+
+## Local implementation and independent review handoff
+
+Public implementation `1146006cc27852be6d4cd10dd1a2dbc2c600af67` has exactly
+eleven admitted paths; original publication ref is
+`git:1146006cc27852be6d4cd10dd1a2dbc2c600af67`. Original observed Issue guard
+and committed Issue bytes are
+`sha256:53bb254140c93d12129e4a6819f0c1569fd7005d002e2610c9e8fa411a28dddc`.
+Dry-run and identical apply match actual scope. Reference CAS and shared-index
+projection applied with no reconciliation debt; checkout/index were clean after
+implementation. The complete apply capture is SHA-256
+`b4bd0a812270a44698823ba24beec6af215248dda73114175c4ce83de9abc2a3`.
+Complete open/read/update/dry-run/apply captures remain under the private proof
+root, not truncated console summaries. Report and original Issue receive this
+separately observed two-path handoff, without changing any instruction pin.
+
+Independent review should reproduce the seven-case suite in a fresh private
+installation and the separate pure typed example; verify fourteen pins, exact
+eleven-path/two-path deltas, original Issue/receipt correlation, all baseline
+bytes/modes and unchanged operational blocks/software/source/legal carriage.
+Both Issues remain In Progress; this implementation is not independent acceptance.
+After acceptance, owners may close through their original lifecycle rails.
+Publication remains separately authorized for exact target and outgoing range,
+with acquisition proof and separately admitted evaluation. No frozen external
+U/V/R changes, broader runtime claim or push follows from this local freeze.
