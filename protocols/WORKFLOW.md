@@ -1,15 +1,18 @@
 # Aware filesystem workflow
 
-Locally selected reviewed-workflow successor. Instructions are frozen locally,
-pending independent instruction review; public delivery is not yet authorized.
+The reviewed-workflow software was published at
+[`42a6740e29bb39ec9d332a63d52cb59540655ccd`](https://github.com/aware-network/aware/blob/42a6740e29bb39ec9d332a63d52cb59540655ccd/protocols/WORKFLOW.md).
+The [status record](../releases/canonical-reviewed-workflow-fs-v1/PUBLIC-STATUS.md)
+distinguishes software delivery from this wording update and its review checkpoint;
+software and operational blocks are unchanged.
 One installation supplies the original Issue, Protocol and SPEC entrances and
 the bounded repository-manifest Workspace review flow. Agent is 0.2.0a7;
 Workspace SDK/runtime/FS are 0.2.10/0.2.15/0.1.9; FileSystem is 0.3.8 and Issue
 SDK is 0.10.6. Existing Issue CLI, Protocol and SPEC operations remain carried.
-The previously delivered candidate remains available unchanged. This local
-successor is not yet publicly delivered, a historical aggregate PASS or
-unassisted onboarding proof. [Exact instruction pins](../releases/canonical-reviewed-workflow-fs-v1/INSTRUCTION-FREEZE.md)
-bind this guidance without granting operation or publication authority.
+The earlier A1 predecessor remains available unchanged. Delivery establishes
+neither a new historical aggregate PASS nor unassisted onboarding. [Successor instruction pins](../releases/canonical-reviewed-workflow-fs-v1/PUBLIC-INSTRUCTIONS.json)
+and [public status](../releases/canonical-reviewed-workflow-fs-v1/PUBLIC-STATUS.md)
+bind this wording update without granting operation or additional publication authority.
 
 ## Install with the complete envelope
 

@@ -1,11 +1,13 @@
 # Reviewed Workspace whole distribution
 
-Locally selected successor; public delivery is not yet authorized. Envelope `canonical-reviewed-workflow-source-notice-review-v1.tar.gz` is SHA-256 `03eb59691cfa1aa1e01e95a7c2727eb3d093ac28e5bd26ae7073416bb61f01b2`;
+Software was published at
+[`42a6740e29bb39ec9d332a63d52cb59540655ccd`](https://github.com/aware-network/aware/blob/42a6740e29bb39ec9d332a63d52cb59540655ccd/releases/canonical-reviewed-workflow-fs-v1/README.md).
+Envelope `canonical-reviewed-workflow-source-notice-review-v1.tar.gz` is SHA-256 `03eb59691cfa1aa1e01e95a7c2727eb3d093ac28e5bd26ae7073416bb61f01b2`;
 accepted software is `899b2ef4beabf074fbdf7ea5980d4eaea1967ef4318b3ebc772814ee84b54727`. Use [the entrance](../../README.md) and
 [the original whole-envelope installer](../../protocols/install.py). Instructions
-are frozen locally, pending independent instruction review. [Local selection](LOCAL-SELECTION.md)
-is independently accepted; [instruction pins](INSTRUCTION-FREEZE.md) require
-their own review. Public delivery remains separately governed and unauthorized.
+are bound by [successor pins](PUBLIC-INSTRUCTIONS.json). [Local selection](LOCAL-SELECTION.md) is accepted and
+[historical freeze](INSTRUCTION-FREEZE.md) remains unchanged. [Public status](PUBLIC-STATUS.md)
+distinguishes delivered software from this wording update and records its review checkpoint.
 
 Read [LICENSE](LICENSE), [NOTICE](NOTICE),
 [third-party notices](source-history/THIRD_PARTY_NOTICES.md),

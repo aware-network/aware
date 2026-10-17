@@ -1,8 +1,11 @@
 # Reviewed repository setup
 
-This prepared, unselected successor adds `aware workspace review` for one
-bounded A1 task: creating `aware.repo.toml` through the original Workspace,
-FileSystem and Issue owners. Instructions remain draft. Start with
+The reviewed-workflow software was published at
+[`42a6740e29bb39ec9d332a63d52cb59540655ccd`](https://github.com/aware-network/aware/blob/42a6740e29bb39ec9d332a63d52cb59540655ccd/protocols/workspace/REVIEWED-SETUP.md).
+[Status and review provenance](../../releases/canonical-reviewed-workflow-fs-v1/PUBLIC-STATUS.md)
+remain separate from operation authority. `aware workspace review` performs one bounded A1
+task: creating `aware.repo.toml` through the original Workspace, FileSystem and
+Issue owners. Its operational guidance is unchanged. Start with
 [the entrance](../../README.md) and [first Issue](../issues/FIRST-ISSUE.md).
 This is not package creation, application implementation, A2 or tree completion.
 

@@ -14,8 +14,10 @@ Preserve partial publication and cleanup evidence. Drafts are not approval,
 approved iterations, durable Issue bindings or Goals. Do not manufacture such
 records to fill unsupported entrances. See [coherence](../COHERENCE.md).
 
-This candidate's guidance is frozen locally, pending independent instruction
-review, not public delivery authorization. [Exact instruction pins](../../releases/canonical-reviewed-workflow-fs-v1/INSTRUCTION-FREEZE.md)
-include the canonical typed example. Executing it only prepares input bytes;
+The draft software was published at
+[`42a6740e29bb39ec9d332a63d52cb59540655ccd`](https://github.com/aware-network/aware/blob/42a6740e29bb39ec9d332a63d52cb59540655ccd/protocols/specification/README.md).
+[Status and review provenance](../../releases/canonical-reviewed-workflow-fs-v1/PUBLIC-STATUS.md)
+remain separate from operation authority. [Successor instruction pins](../../releases/canonical-reviewed-workflow-fs-v1/PUBLIC-INSTRUCTIONS.json)
+include the unchanged canonical typed example. Executing it only prepares input bytes;
 setup, draft preview/apply, observation and publication retain their original
 owners and separately admitted authority.

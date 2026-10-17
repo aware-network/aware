@@ -9,13 +9,13 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-The accepted reviewed-workflow successor is selected locally. Instructions are
-frozen locally, pending independent instruction review; public delivery is not yet
-authorized. Use this reviewed checkout, not
-unchanged public main. The [delivery pointer](releases/SELECTED.json) binds the
-exact whole envelope; [local selection](releases/canonical-reviewed-workflow-fs-v1/LOCAL-SELECTION.md)
-records the review boundaries. [Instruction pins and review](releases/canonical-reviewed-workflow-fs-v1/INSTRUCTION-FREEZE.md)
-do not authorize publication. Use the exact reviewed instruction set.
+The reviewed-workflow software was published at
+[`42a6740e29bb39ec9d332a63d52cb59540655ccd`](https://github.com/aware-network/aware/blob/42a6740e29bb39ec9d332a63d52cb59540655ccd/README.md).
+The [delivery pointer](releases/SELECTED.json)
+binds the accepted whole envelope; [public status](releases/canonical-reviewed-workflow-fs-v1/PUBLIC-STATUS.md)
+and [successor instruction pins](releases/canonical-reviewed-workflow-fs-v1/PUBLIC-INSTRUCTIONS.json)
+distinguish delivered software from this wording update and record its review checkpoint. Historical freeze
+records remain unchanged. Instructions and delivery records grant no operation authority.
 Do not overlay installations or migrate contributor commands.
 
 ## Understand the rules
