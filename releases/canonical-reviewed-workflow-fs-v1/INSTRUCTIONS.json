@@ -1,0 +1,79 @@
+{
+  "record_kind": "candidate_instruction_byte_pins",
+  "status": "frozen_locally_review_pending",
+  "baseline_revision": "30c6cab568c587916cbda55569fa293b81d2d009",
+  "canonical_profile": "portable_protocols",
+  "catalog_revision": "ec4717726c3c7c822fa4fcc5cb7390fce4127f43",
+  "source_is_composite": true,
+  "package_selection_owner": "Workspace authored profile; this record is not a package catalog",
+  "envelope_sha256": "03eb59691cfa1aa1e01e95a7c2727eb3d093ac28e5bd26ae7073416bb61f01b2",
+  "payload_sha256": "899b2ef4beabf074fbdf7ea5980d4eaea1967ef4318b3ebc772814ee84b54727",
+  "source_index_sha256": "f5a702c49e3e6ec8107e852517b918cb7086f8b3608ae68be22a7490941fcf22",
+  "public_delivery_authorized": false,
+  "whole_envelope_required": true,
+  "detached_wheels_accepted": false,
+  "unassisted_onboarding_proven": false,
+  "workspace_agent_mount_admitted": true,
+  "workspace_mount_profile": "bounded-reviewed-repository-manifest-a1",
+  "init_supplies_configuration_not_admission": true,
+  "a2_admitted": false,
+  "tree_completion_admitted": false,
+  "files": {
+    "README.md": {
+      "bytes": 7235,
+      "sha256": "b1ef0ebe68748747a800a133ad8e94aff344d77cda75a07db0c44303f469c463"
+    },
+    "protocols/COHERENCE.md": {
+      "bytes": 2584,
+      "sha256": "d643dd349141001b71d910ee326e081d3031dc05b070421e9a4fad3d17d1e925"
+    },
+    "protocols/INITIALIZATION.md": {
+      "bytes": 1295,
+      "sha256": "7514305b3f73da328c499fc1ea60aab0bba16fd9103f322154078f7e2bc434b3"
+    },
+    "protocols/README.md": {
+      "bytes": 882,
+      "sha256": "cb4ac9d6c67e79477ce65965c766dc6a8b10b38ce27867ec65cea8e7026f3685"
+    },
+    "protocols/WORKFLOW.md": {
+      "bytes": 23168,
+      "sha256": "a59de960ca96a0b26995be03413462079abf0a9b62b33842425278c5d6af0deb"
+    },
+    "protocols/issues/FIRST-ISSUE.md": {
+      "bytes": 7785,
+      "sha256": "6a006c9bdc86fdbc4baf618de9db799b804c8486b760f92d9a0221fd79f12873"
+    },
+    "protocols/issues/README.md": {
+      "bytes": 1184,
+      "sha256": "70161e1c6f5d29196eefe714d30a8a71ba29a7e1f0128a9cd50c56a35b3a17ba"
+    },
+    "protocols/repository/README.md": {
+      "bytes": 1351,
+      "sha256": "ae476cb23bb59d4117a074f47654b2708137ef32707f758bc534967dc69785d5"
+    },
+    "protocols/specification/README.md": {
+      "bytes": 1355,
+      "sha256": "616c1259fb0276e78ff00f28510510ff4f0b78e5ccb82b90c52919dcad4b9ca4"
+    },
+    "protocols/workspace/README.md": {
+      "bytes": 856,
+      "sha256": "de77fa2f2a46cfa1d6fc896508d568206fca2f51d5d59e65d118b4ee458ab8f9"
+    },
+    "protocols/workspace/REVIEWED-SETUP.md": {
+      "bytes": 6961,
+      "sha256": "cc4ebb5ea07dd34e0bfbb4a58e5bd8b2af08e859c43421401934fd613c7e501a"
+    },
+    "releases/README.md": {
+      "bytes": 1021,
+      "sha256": "fe9e9649b0044a197db78c89383c7988df1055f8fad0d3d0b256c067b32fc38c"
+    },
+    "releases/canonical-reviewed-workflow-fs-v1/README.md": {
+      "bytes": 1989,
+      "sha256": "dcc87c6cb32d65ffe7b73310f09e7a0cc604f512ea215c6812c6730f1fe421bf"
+    },
+    "workspaces/aware_kernel/modules/specification/sdks/specification/python/cli/examples/prepare_draft_input.py": {
+      "bytes": 2081,
+      "sha256": "21e1bea900ae75e47be2ff889e87d514cba08ba9f325681dcc0ee3f1df68bcb5"
+    }
+  }
+}

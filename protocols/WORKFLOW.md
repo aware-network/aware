@@ -1,12 +1,15 @@
 # Aware filesystem workflow
 
-Prepared unselected reviewed-workflow successor; instructions remain draft.
+Locally selected reviewed-workflow successor. Instructions are frozen locally,
+pending independent instruction review; public delivery is not yet authorized.
 One installation supplies the original Issue, Protocol and SPEC entrances and
 the bounded repository-manifest Workspace review flow. Agent is 0.2.0a7;
 Workspace SDK/runtime/FS are 0.2.10/0.2.15/0.1.9; FileSystem is 0.3.8 and Issue
 SDK is 0.10.6. Existing Issue CLI, Protocol and SPEC operations remain carried.
-The old delivered candidate remains selected; this private layout is not public
-availability, a new historical aggregate PASS or unassisted onboarding proof.
+The previously delivered candidate remains available unchanged. This local
+successor is not yet publicly delivered, a historical aggregate PASS or
+unassisted onboarding proof. [Exact instruction pins](../releases/canonical-reviewed-workflow-fs-v1/INSTRUCTION-FREEZE.md)
+bind this guidance without granting operation or publication authority.
 
 ## Install with the complete envelope
 
