@@ -27,14 +27,17 @@
 
 
 
+
 ## Problem
 1. Delivered software still carries frozen preparation-time unselected or pending-review wording across root, SPEC and Workspace customer entrances.
 
 
 
 
+
 ## Goal
 1. Align status only to exact delivered revision, preserve historical freeze and software/guards/commands/legal carriage, derive successor fourteen-file pins and submit local alignment for independent review without a push.
+
 
 
 
@@ -48,7 +51,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Eight status checks passed, zero skipped, including fresh offline hidden-checkout 42-package installation and fourteen successor pins. All 1583 unaffected files and 1592 baseline modes preserved. Historical freeze/software/commands/guards/legal carriage unchanged; status metadata is checkpoint provenance, not live remote observation or operation authority. Thirteen-path local implementation and two-path evidence handoff only; independent review, extra-range authorization/acquisition and fresh evaluation remain separate. No push, U/V/R or CPython work. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Local implementation 285feba1e2f75462e64c3b5af7f2d70621a89cf6 exactly matches thirteen admitted paths and original receipts. CAS/index applied, no reconciliation debt, checkout clean after apply. Eight status cases pass including fresh hidden-checkout 42-package installation; fourteen successor pins e6668d1d verified. Public main remains delivered software 42a6740e29bb39ec9d332a63d52cb59540655ccd. This two-path ledger/Issue handoff preserves checkpoint provenance and operation boundaries. Independent review next; no additional push or U/V/R authorized. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

@@ -94,3 +94,19 @@ Issues. A later explicit authorization must name the additional outgoing public
 range; revision-pinned acquisition follows it. Fresh unassisted evaluation needs
 separate admission against the qualified aligned revision. Do not infer either
 authorization from earlier software publication or this local metadata.
+
+## Original-owner local implementation receipt
+
+Commit 285feba1e2f75462e64c3b5af7f2d70621a89cf6 publishes exactly the thirteen
+admitted paths. The original contributor a6 performed a successful dry-run
+followed by identical apply under the genuine In Progress Issue and observed
+guard sha256:2409dd925d2695f5041f98217c9eea2a47c189eabd0e1b4e5996963fca5abe26.
+The actual Git delta equals the original receipt's target_paths. Reference
+update is cas_applied, shared-index projection is applied and
+index_reconciliation_pending=false. The checkout/index were clean after apply.
+Original complete dry-run capture SHA-256:
+2709092facb9b20820ee20c7f8ba7b653a72865865c890e08f35722104e5fcfe.
+Original complete apply capture SHA-256:
+851a04c78bc11ed4befa154ed130508e10668344e752a114486158cf761058cd.
+The following handoff changes only this ledger and its admitted public Issue;
+independent review and any additional outgoing authorization remain separate.
