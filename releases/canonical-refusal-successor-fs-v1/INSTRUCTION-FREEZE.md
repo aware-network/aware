@@ -141,3 +141,29 @@ After acceptance, owners may close through their original lifecycle rails.
 Publication remains separately authorized for exact target and outgoing range,
 with acquisition proof and separately admitted evaluation. No frozen external
 U/V/R changes, broader runtime claim or push follows from this local freeze.
+
+## Independent acceptance
+
+The Human supplied bounded independent PASS for producer `5167ad9fa79f` /
+`8e769e7d434f`, with no blocker. Independent receipt
+`/tmp/aware-refusal-freeze-review.R3QWpZ2w/freeze.xml` was read and hash-verified:
+SHA-256 `523072a40afe98b9706eaaa3f52a90c5f2c14d2286a49f5530b5008546cb4a71`.
+Seven cases pass with zero failures/errors/skips, including fresh offline,
+checkout-hidden installation of 42 packages. Fourteen instruction pins, exact
+public eleven-path implementation `1146006cc278` / two-path handoff `d2a34631c70b`,
+original Issue guards and complete CAS/index receipts were independently verified.
+Operational blocks, software, installer, source/notice carriage and contributor
+selection remain unchanged.
+
+The separate independently reported installed example round-trips 1,142 bytes
+exactly, purely renders six members and reports cleanup `closed`; no rendered
+documents or authority were created. It is not an eighth JUnit case, a domain
+matrix replay or unassisted onboarding. No installation or test was repeated
+to record this acceptance, and no instruction pin or delivery pointer changed.
+
+The original owners may record confirmation and close both bounded freeze
+Issues. Publication still requires explicit target/outgoing-range authorization,
+followed by pinned acquisition proof and separately admitted evaluation. Whole-
+envelope delivery remains mandatory, including the six detached-wheel gaps,
+twelve raw findings and native-provenance qualifications. Frozen U/V/R remains
+unchanged. No software rebuild, push, deployment, deletion or CPython action.
