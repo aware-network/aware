@@ -1,0 +1,87 @@
+# Refusal successor: local delivery selection
+
+Selected locally, pending independent bounded review. Public delivery is not
+authorized and instructions remain draft. This is not instruction freeze,
+unassisted onboarding, new operation admission or approval to push.
+
+Execution: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`.
+Issue: `fb/2026-10-18/canonical-refusal-successor-local-selection-v0`.
+Baseline: `4f3afd5fd04985f3c41326c5c880d672ea0198aa`, the original public
+integration owner's Issue-only closeout. Producer integration acceptance is
+`563d1bd2b253`; its bounded Issue closed at `a7935b7b6bca`.
+The unchanged contributor a6, contract 1.2.1, governs this selection—not the
+consumer successor. All actor/owner evidence remains declared, not authenticated.
+
+## Exact accepted delivery
+
+The pointer is derived from unchanged accepted layout, source index and envelope
+bytes. It records delivery coordinates, not a package list or authority grant.
+The authored Workspace `portable_protocols` profile remains the sole selector.
+Composite sources retain per-file supplier revisions, not one monolithic source
+revision. Catalog cut `ec4717726c3c7c822fa4fcc5cb7390fce4127f43` is not a claim
+that every package was built from that revision.
+
+- Layout: `2377067bb1f8f2400701c4d4ffb91920a8da71ce7df12ca1425fa2081958ed94`.
+- Envelope: `e96946272b7812e833d41370ec5bfbba722f2f6f91720f994abcf9f407c975f7`.
+- Software: `34c3c9d16d5bec1aba75add5ce03e55d32b25c828da78e878288b19453d6a51c`.
+- Source index: `9b6dcbc7b5a6f05a9ef6ab207de79f3788ca4fe92f03c8857a1a27b4d815ee34`.
+
+Eight admitted paths are the root README, current alignment, releases README,
+SELECTED.json, successor README, this report, maintainer selection test and
+the real selection Issue. Only local-status prose, derived delivery pointer and
+selection evidence change. All 1,626 unaffected baseline files and 1,631 Git
+executable modes must remain preserved. Software, installer, all sources/notices,
+predecessor releases, operational shell blocks, contracts and contributor selection
+are unchanged. The eight-path delta adds three files; final tree is 1,634 files.
+
+## Boundaries and evidence
+
+Use [the entrance](../../README.md) and [original installer](../../protocols/install.py)
+from this reviewed local checkout, not unchanged public main. The installer keeps
+the full envelope and returns `retained_source_and_notices`; keep that directory
+with the software. Complete source/legal carriage remains mandatory. Six
+detached-wheel gaps, twelve raw findings and `clearance=not_granted` remain explicit.
+No detached wheels, stripped bundles or registry publication are accepted.
+Conservative native/PSF/component accounts are not exact binary linkage, complete
+header/toolchain provenance, exhaustive clearance or a legal warranty.
+
+Init supplies configuration, not Issue admission, scope approval or apply authority.
+Both review decisions and unchanged SDK references/guards remain required.
+Primary refusal, retention and client cleanup stay separate; original release
+unknown remains unknown after later cleanup. Selection renews no authority and
+permits no retry or automatic guard refresh. Current cut remains Issue → optional
+SPEC → bounded repository-manifest A1. Project/Goal elevation, A2/tree, services,
+objects, materialization, parser lowering and native performance remain unaccepted.
+
+The maintainer selection proof checks baseline bytes/modes, exact scope, pointer
+derivation, source/notice/installer conservation, contributor/predecessor preservation,
+status-only root changes and links. Fresh installation delegates the exact accepted
+integration smoke, rather than copying an installer. Proof and original publication
+coordinates will be appended after their genuine results exist.
+
+Both selection Issues remain In Progress for independent review. Frozen external
+U/V/R is unchanged; neither earlier U nor this scripted proof establishes successor
+unassisted onboarding. Instruction freeze, public target/range authorization,
+pinned acquisition and fresh evaluation are separately governed. No software
+rebuild, deployment, push, deletion or CPython product action occurs in this cut.
+
+## Recorded proof
+
+Seven selection cases pass with no failures/errors/skips. Receipt:
+`/tmp/aware-refusal-local-selection.FXNHLsCd/selection.xml`, SHA-256
+`bc7f5b08664214c0387efe43e9171cfaad1db7b17e373abaa065afcb7a3895eb`.
+Fresh offline, source-hidden Linux x86-64/Python 3.12 installation verifies all
+42 packages against the accepted lock, dependency checks, no editable/direct-URL
+installs, exact complete retained envelope, fifteen supported help entrances,
+missing-harness init with no effect, environment-reuse refusal and private 0700
+scratch. Twenty top-level command captures remain retained in
+`/tmp/aware-refusal-selection-installed.7CLqADl8`. Installed receipt SHA-256:
+`4c3ee619cfa4b7118052b5b728d942bf008b1303668fe4ddc806bd572eea6827`.
+
+The hash-pinned original integration smoke is reused unchanged, including public
+Workspace and retained exported-source hiding during installed commands. There
+is no copied installer or operation replay. Source/legal/installer bytes and
+operational blocks remain unchanged. No governed two-review/apply, broad runtime
+matrix, unassisted onboarding or V/R execution is repeated by this proof.
+Original refusal/retention/cleanup distinctions and historical uncertainty remain
+preserved. Ruff/format and authored whitespace checks pass.
