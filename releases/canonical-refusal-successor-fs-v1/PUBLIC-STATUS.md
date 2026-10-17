@@ -105,3 +105,29 @@ explicit held installation read-only; do not build, clone or install another cop
 These are local review-checkpoint coordinates, not another delivered revision.
 Additional publication and fresh V/R remain separate admissions; frozen external
 U/V/R and GC retention/disposition are unchanged.
+
+## Independent bounded acceptance
+
+The Human supplied bounded independent PASS for producer `046cf6528335` /
+`d1bb161f69f9`, with no blocker. Independent receipt
+`/tmp/aware-refusal-status-review.JWWiFslf/status.xml` was read and hash-verified:
+SHA-256 `d3e0df5283e680d8a47d07bb93d8a1a47d9c79265f78722cb1eb92193e272d33`.
+Eight cases pass with zero failures/errors/skips. All fourteen successor pins
+match. Retained read-only installation checks confirm 42 packages, clean
+dependencies and thirteen help entrances, without another checkout, build or
+installation. No proof or installed command was repeated to record acceptance.
+
+The exact thirteen-path implementation `03c8e9162478` and two-path handoff
+`6dbafb21545c` match original Issue guards and complete publication receipts;
+reference CAS and shared-index results completed without debt. Historical freeze,
+operational blocks, software, installer, notices and contributor selection remain
+unchanged. The disclosed truncated original public-open capture remains a limit;
+subsequent original read projections and complete publication receipts support
+the accepted scope, not a reconstruction of that creation receipt.
+
+The owners may close both bounded status Issues through their original lifecycle
+rails. Additional publication still needs explicit target/outgoing-range
+authorization and pinned acquisition; fresh evaluation needs separate admission.
+Whole-envelope delivery, original unknowns, frozen external U/V/R and all GC
+holds remain mandatory. No instruction pin, software, GC disposition, public ref
+or external evaluation changes for this acceptance.
