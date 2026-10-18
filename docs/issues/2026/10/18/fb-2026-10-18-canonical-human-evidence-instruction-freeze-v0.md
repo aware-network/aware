@@ -2,7 +2,7 @@
 
 - Slug: canonical-human-evidence-instruction-freeze-v0
 - Tag: fb/2026-10-18/canonical-human-evidence-instruction-freeze-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -27,6 +27,7 @@
 
 
 
+
 ## Problem
 1. Accepted local delivery needs distinct instruction freeze and current P1-reviewed versus real-activation-unqualified guidance.
 
@@ -35,8 +36,10 @@
 
 
 
+
 ## Goal
 1. Pin fourteen exact instruction/example files without changing operational blocks,software,installer,source/notices,predecessors or contributor command selection.
+
 
 
 
@@ -53,9 +56,18 @@
 
 
 
+
+## Verified-by
+- Independent seven retained-verification checks;XMLsha256:ccab67397c355b50772a2b2cbe97db35fcddd6ad785351932e8ec231e3c306a6;separate exact1142byte pure-example result29b3a962210676d579f63b2f85a5d8b961039f9b73c8f616f3afdc18db234428;initial failures retained.
+- git:3e71f56b6506d0f6fb6e720ee22870608f86a70e
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Seven instruction checks pass,zero skipped,fourteen exactpins;XML49b9982ced53c35514419ebbbbaeebbf9aa4ed3efb738c60b1fe4b3562c7d3b8. Retained42-package verification only,sixteen read commands/137 originalorigins. Separate installed pureexample1142bytes exactroundtrip/6inmemorymembers/cleanupclosed,no documents/authority. Initial pure record derivation refused incorrect newreceiver digest;failedcapture retained,literal corrected,accepted software/envelope unchanged. Current activation P1 reviewed vs real integration/artifacts/private A-B unqualified. Independent review beforecloseout,no delivery/activation/GC/push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Implementation04984fc9dc1c9a4b1ea2510f22812ba53abb0c97 exact11paths;original planned/applied receipts and committedIssue guard correlate,CAS/index applied,no reconciliation debt. Seven current cases,14pins,retained42-package read verification;separate1142byte pureexample roundtrip/6members/cleanupclosed. Independent review next;current P1-reviewed and real-activation-unqualified distinction preserved,history unchanged. No software/installer/operationalblock/source-notice change,new install,activation,GC or push;frozen U/V/R intact. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Independent bounded PASS04984fc9dc1c/7fe6be90d904,producer04e5d11bec7a:seven retained-verification checks,14pins,unchanged commands,exact11+2scopes and original Issue/CAS/index receipts pass. XMLsha256:ccab67397c355b50772a2b2cbe97db35fcddd6ad785351932e8ec231e3c306a6. Independent pure1142byte roundtrip/six in-memory members/cleanupclosed;only snapshot written. Initial review mount failed before execution;both captures and original receiver failure preserved. No correction;close through original owner. P1 reviewed vs realactivationintegration/artifacts/A-B unqualified accurate. Whole envelope required;publication/acquisition/evaluation separate,no new install/activation/GC/push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Accepted bounded instruction freeze;no publication,activation or unassisted-onboarding authority. Whole-envelope carriage and real activation qualification limits remain.
