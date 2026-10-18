@@ -24,8 +24,10 @@
 - `releases/canonical-init-summary-fs-v1/test_implementation_integration.py`
 
 
+
 ## Problem
 1. Accepted task implementation guidance needs exact governed local integration over pinned public baseline.
+
 
 
 
@@ -34,11 +36,14 @@
 
 
 
+
 ## Acceptance Checklist
 - [ ] Exact eleven paths, eighteen pins, original draft commands, sources/notices and modes preserved; retained receiving checks pass; independent review before close.
+
 
 
 
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Implementation47b781fff1c2 exact11paths; 8 receiving cases pass,18instruction pins and16 retained reads. Original CAS/index completed,no debt. Initial result-envelope receiver error stopped after admission,before projection; corrected original nested projection consumed unchanged,no owner mutation replay. No software/install/customer replay/push. Independent integration review next; Issue remains In Progress. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
