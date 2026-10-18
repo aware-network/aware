@@ -1,11 +1,12 @@
 # Human evidence whole distribution
 
-Selected locally; public delivery is not yet authorized. Envelope `canonical-human-evidence-source-notice-review-v1.tar.gz` is SHA256 `55790f137bf751a3500accd0fe064fd16305b677808a0d4cf7ac4f5e6d216272`;
+Software delivered at [`02866aeb17b99d6c374eba000e9997ef562400cf`](https://github.com/aware-network/aware/tree/02866aeb17b99d6c374eba000e9997ef562400cf). Envelope `canonical-human-evidence-source-notice-review-v1.tar.gz` is SHA256 `55790f137bf751a3500accd0fe064fd16305b677808a0d4cf7ac4f5e6d216272`;
 accepted software is `edf602d26547e39c13de452f23179faa3c186eaf4e99d3701294cd32be9e3e35`. Use [the entrance](../../README.md) and
-the [original whole-envelope installer](../../protocols/install.py). Instructions
-are frozen locally, pending independent review; public delivery is not yet
-authorized. See [local selection](LOCAL-SELECTION.md), [exact instruction pins](INSTRUCTIONS.json)
-and the [freeze record](INSTRUCTION-FREEZE.md). Activation and publication remain separate.
+the [original whole-envelope installer](../../protocols/install.py). See
+[successor instruction pins](PUBLIC-INSTRUCTIONS.json) and [status provenance](PUBLIC-STATUS.md)
+for current delivery and review-checkpoint distinctions; the [historical selection](LOCAL-SELECTION.md),
+[original pins](INSTRUCTIONS.json) and [freeze record](INSTRUCTION-FREEZE.md) remain exact.
+Delivery and instruction review grant no activation or operation authority.
 The activation-core P1 correction passed independent review; real
 validator/control-runtime integration, artifacts and private A/B activation
 proof remain unqualified.

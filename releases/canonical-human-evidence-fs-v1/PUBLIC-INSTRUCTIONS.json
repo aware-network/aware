@@ -1,0 +1,86 @@
+{
+  "record_kind": "candidate_instruction_byte_pins",
+  "status": "status_alignment_review_pending",
+  "baseline_revision": "02866aeb17b99d6c374eba000e9997ef562400cf",
+  "canonical_profile": "portable_protocols",
+  "catalog_revision": "ec4717726c3c7c822fa4fcc5cb7390fce4127f43",
+  "source_is_composite": true,
+  "package_selection_owner": "Workspace authored profile; this record is not a package catalog",
+  "envelope_sha256": "55790f137bf751a3500accd0fe064fd16305b677808a0d4cf7ac4f5e6d216272",
+  "payload_sha256": "edf602d26547e39c13de452f23179faa3c186eaf4e99d3701294cd32be9e3e35",
+  "source_index_sha256": "1d4c359ada523b2928283b44de835f9973192bf7f9890cd8086e7ce838b79eef",
+  "public_delivery_authorized": true,
+  "whole_envelope_required": true,
+  "detached_wheels_accepted": false,
+  "unassisted_onboarding_proven": false,
+  "workspace_agent_mount_admitted": true,
+  "workspace_mount_profile": "bounded-reviewed-repository-manifest-a1",
+  "init_supplies_configuration_not_admission": true,
+  "a2_admitted": false,
+  "tree_completion_admitted": false,
+  "activation_core_p1_reviewed": true,
+  "real_activation_integration_qualified": false,
+  "activation_artifacts_qualified": false,
+  "private_ab_activation_proven": false,
+  "files": {
+    "README.md": {
+      "bytes": 9211,
+      "sha256": "96e453b0f203b41ca89664a12c70cc208fb14db6cd641290ebefae4a00a785b8"
+    },
+    "protocols/COHERENCE.md": {
+      "bytes": 2584,
+      "sha256": "d643dd349141001b71d910ee326e081d3031dc05b070421e9a4fad3d17d1e925"
+    },
+    "protocols/INITIALIZATION.md": {
+      "bytes": 1295,
+      "sha256": "7514305b3f73da328c499fc1ea60aab0bba16fd9103f322154078f7e2bc434b3"
+    },
+    "protocols/README.md": {
+      "bytes": 882,
+      "sha256": "cb4ac9d6c67e79477ce65965c766dc6a8b10b38ce27867ec65cea8e7026f3685"
+    },
+    "protocols/WORKFLOW.md": {
+      "bytes": 23708,
+      "sha256": "33ab2080b5fce3c83e173a6593bf5ee397e51de5fb9b6d8aaba661b455e124dd"
+    },
+    "protocols/issues/FIRST-ISSUE.md": {
+      "bytes": 7785,
+      "sha256": "6a006c9bdc86fdbc4baf618de9db799b804c8486b760f92d9a0221fd79f12873"
+    },
+    "protocols/issues/README.md": {
+      "bytes": 1184,
+      "sha256": "70161e1c6f5d29196eefe714d30a8a71ba29a7e1f0128a9cd50c56a35b3a17ba"
+    },
+    "protocols/repository/README.md": {
+      "bytes": 1351,
+      "sha256": "ae476cb23bb59d4117a074f47654b2708137ef32707f758bc534967dc69785d5"
+    },
+    "protocols/specification/README.md": {
+      "bytes": 2934,
+      "sha256": "9514deb09a297b3d62eded40b29e195288afb54abf98f161e02b62df0296e094"
+    },
+    "protocols/workspace/README.md": {
+      "bytes": 923,
+      "sha256": "76616e0a4f6914be93f467f3939718077a085adbbd407ebcd5ebfc277ecc946f"
+    },
+    "protocols/workspace/REVIEWED-SETUP.md": {
+      "bytes": 8957,
+      "sha256": "2bdf379c22187a181b7ce613ece6c6db706937640a9a91be0563f7d5971369c8"
+    },
+    "releases/README.md": {
+      "bytes": 1128,
+      "sha256": "7b0b5fa94edb4d80e2cb4bfdc6f0d737b6fdeeb2f228df30fa8e89c1ee2e0956"
+    },
+    "releases/canonical-human-evidence-fs-v1/README.md": {
+      "bytes": 2181,
+      "sha256": "eeb6ec8774b17556ed17816ed16089ff3ab895c65aab42aee61394afe134c05b"
+    },
+    "workspaces/aware_kernel/modules/specification/sdks/specification/python/cli/examples/prepare_draft_input.py": {
+      "bytes": 2081,
+      "sha256": "21e1bea900ae75e47be2ff889e87d514cba08ba9f325681dcc0ee3f1df68bcb5"
+    }
+  },
+  "published_software_revision": "02866aeb17b99d6c374eba000e9997ef562400cf",
+  "historical_instruction_sha256": "d9f4266afd4ac569e940fb54f9cafcf2d5a48f9afa12b06bdc427a04ccb46adf",
+  "instruction_alignment_publication_authorized": false
+}

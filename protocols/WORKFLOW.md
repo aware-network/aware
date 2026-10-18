@@ -1,12 +1,15 @@
 # Aware filesystem workflow
 
-Human-evidence instructions are frozen locally, pending independent review;
-public delivery is not yet authorized. These pins are not operation authority.
+Human-evidence software was delivered at
+[`02866aeb17b99d6c374eba000e9997ef562400cf`](https://github.com/aware-network/aware/tree/02866aeb17b99d6c374eba000e9997ef562400cf).
+[Status and review provenance](../releases/canonical-human-evidence-fs-v1/PUBLIC-STATUS.md)
+and [successor instruction pins](../releases/canonical-human-evidence-fs-v1/PUBLIC-INSTRUCTIONS.json)
+describe the exact delivery and this review checkpoint, not renewed authority.
 Agent 0.2.0a10 composes the original Issue, Protocol, SPEC and reviewed Workspace
 owners in one 42-package installation. Workspace SDK/runtime/FS remain
 0.2.11/0.2.16/0.1.10, FileSystem 0.3.8 and Issue SDK 0.10.6.
-The delivered refusal predecessor remains unchanged; local selection identifies
-this successor, not public availability or unassisted onboarding proof.
+The delivered refusal predecessor remains unchanged. Delivery does not establish
+unassisted successor onboarding or broader carried capabilities.
 
 The activation-core P1 correction passed independent review; real
 validator/control-runtime integration, artifacts and private A/B activation

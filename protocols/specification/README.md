@@ -29,8 +29,11 @@ and [status provenance](../../releases/canonical-refusal-successor-fs-v1/PUBLIC-
 describe this review checkpoint, not renewed operational authority. The typed
 example and all operational commands remain unchanged.
 
-The human-evidence successor has [locally frozen instruction pins](../../releases/canonical-human-evidence-fs-v1/INSTRUCTIONS.json),
-pending independent review, not public delivery or renewed authority.
-Its [instruction record](../../releases/canonical-human-evidence-fs-v1/INSTRUCTION-FREEZE.md)
-preserves the same installed typed example, explicit review/apply and original
-Issue/publication owners. No approval, iteration or activation workflow is admitted.
+The human-evidence software was delivered at
+[`02866aeb17b99d6c374eba000e9997ef562400cf`](https://github.com/aware-network/aware/blob/02866aeb17b99d6c374eba000e9997ef562400cf/protocols/specification/README.md).
+Its [successor instruction pins](../../releases/canonical-human-evidence-fs-v1/PUBLIC-INSTRUCTIONS.json)
+and [status provenance](../../releases/canonical-human-evidence-fs-v1/PUBLIC-STATUS.md)
+describe this review checkpoint, not renewed operational authority. The
+[historical freeze record](../../releases/canonical-human-evidence-fs-v1/INSTRUCTION-FREEZE.md)
+and canonical typed example remain unchanged. Explicit review/apply and original
+Issue/publication owners remain required; no approval, iteration or activation workflow is admitted.

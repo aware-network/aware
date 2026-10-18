@@ -9,12 +9,13 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-The accepted Agent **0.2.0a10** human-evidence instructions are frozen locally,
-pending independent review; public delivery is not yet authorized. Use this
-reviewed checkout, not unchanged public main. The
-[delivery pointer](releases/SELECTED.json) binds the complete envelope;
-[local selection](releases/canonical-human-evidence-fs-v1/LOCAL-SELECTION.md)
-records the boundaries. Publication remains separately authorized.
+Agent **0.2.0a10** human-evidence software is delivered at
+[`02866aeb17b99d6c374eba000e9997ef562400cf`](https://github.com/aware-network/aware/tree/02866aeb17b99d6c374eba000e9997ef562400cf).
+The [delivery pointer](releases/SELECTED.json) binds the complete envelope.
+[Current status and review provenance](releases/canonical-human-evidence-fs-v1/PUBLIC-STATUS.md)
+and [successor instruction pins](releases/canonical-human-evidence-fs-v1/PUBLIC-INSTRUCTIONS.json)
+distinguish delivered software from this alignment's review checkpoint.
+Review-status fields are provenance, not live remote state or operation authority.
 Do not overlay installations, activate tooling or migrate contributor commands.
 
 The activation-core P1 correction passed independent review; real
