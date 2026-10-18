@@ -31,3 +31,20 @@ GC holds and the one retained installation remain unchanged; no payload copies.
 
 Independent review precedes original-owner closeout. Instruction freeze and
 exact-target/outgoing-range publication require separate governance. No push.
+
+## Implementation and independent review
+
+Source receiver: `ee12efaaa498d200319da7eae6df93c58b8ebe55`.
+Local implementation: `0c8d5b0fb0d2c5a1ef89257d3e29c0cd68918afb`, exactly eight
+paths. Seven receiving cases passed using the retained installation. Original
+planned/applied paths, committed Issue guard and CAS/index results must match
+the actual commit. Both selection Issues remain In Progress pending review.
+This two-path handoff changes no software or operational instructions and is
+not an instruction freeze or remote-publication approval.
+
+Reviewer inputs: the exact baseline, this committed receiver, original Issue
+and publication receipts, unchanged envelope/source/legal bindings and the held
+a12 installation. Choose a fresh small private read-capture directory; do not
+install, copy payloads or replay customer work. Original retained-reader input
+names remain `AWARE_INIT_SUMMARY_INTEGRATION_CANDIDATE` and
+`AWARE_INIT_SUMMARY_INTEGRATION_REPLAY_ROOT` despite the a12 binding.
