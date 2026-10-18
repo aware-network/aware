@@ -53,14 +53,17 @@
 
 
 
+
 ## Problem
 1. Accepted human-evidence layout is not yet integrated against the exact incoming public revision.
 
 
 
 
+
 ## Goal
 1. Project the reviewed 35-path delta with complete source/notice carriage, preserving contributor governance and predecessor selection.
+
 
 
 
@@ -73,7 +76,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Original exact projection completed35 accepted changes; 28 producer guards and8 public integration checks pass. Retained exact42-package installation verified read-only through16 subprocesses and137 original module origins. Failed initial producer test filenames retained. No new build/install,customer replay,selection,freeze,activation,push or GC change. Independent review remains required; acceptance boxes are not automatically checked. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Implementation b191ca630554963e5a7793cb28f15c8ea7842ddd has exact39-path scope and matching committed Issue guard; original planned/applied receipts complete with cas_applied/shared-index applied and no reconciliation pending. 28 projection guards +8 integration cases pass using retained installation, not fresh/customer replay. Independent review required before closeout; selection/freeze remain separate. No push/GC change; frozen U/V/R preserved. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

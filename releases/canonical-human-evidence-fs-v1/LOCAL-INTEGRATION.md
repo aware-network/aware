@@ -29,3 +29,15 @@ Human output preserves known Issue scope effects separately from manifest apply,
 Whole-envelope source/notice carriage remains mandatory. Six detached-wheel legal gaps, twelve relative-fixture findings and native/header/toolchain qualifications remain explicit; raw `clearance=not_granted` is unchanged. No detached wheels, stripped bundles, registry delivery, exhaustive legal clearance or provenance warranty is admitted.
 
 Current bounded use remains Issue → optional SPEC → reviewed repository-manifest A1. A2/tree completion, Project/Goal elevation, service/API, object execution, materialization, parser lowering and CPython product work are not qualified here. Frozen U/V/R and GC holds remain unchanged. No activation, selection, instruction freeze, deployment or push is authorized by this integration.
+
+## Implementation receipt and review handoff
+
+Public implementation: `b191ca630554963e5a7793cb28f15c8ea7842ddd`.
+Original `public-implementation-plan.json` and `public-implementation-apply.json` retain the planned/applied owner outcomes. The 39 actual changed paths equal the admitted scope and receipt target paths; the committed Issue bytes equal the fresh observed guard `sha256:e8c6851690b8be9a69dd899acb32f8d6acbf24355e9ed3bcbea5cf3e1fcbca90`.
+Reference update is `cas_applied`, shared-index projection `applied`, reconciliation pending `false`. Checkout/index were clean after implementation. Baseline-to-implementation `git diff --check` exited zero with empty raw stdout; its SHA-256 is `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+
+`guards-corrected.xml` SHA-256: `595823cb93f1cffb9f97d2debe0d3f6ca0b110dec3aa9d6f8507021e3bfbc147` (28 passes).
+`integration.xml` SHA-256: `b46ec93c9c17e8d330b4555b2501d8dcca7de56770c965e8d00415105c15a9cc` (eight passes).
+`implementation-account.json` binds original receipt scope, actual commit paths and Issue-byte correlation.
+
+Independent integration review remains required before closing either integration Issue. Acceptance boxes remain authored review criteria, not automatically checked by successful tests. Selection and instruction freeze remain separately governed later steps.
