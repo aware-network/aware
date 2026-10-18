@@ -1,0 +1,161 @@
+{
+  "accepted_handoff_revision": "80be1b6993ef709f320f7ecc6fbdf379d1adb01d",
+  "accepted_postimages": {
+    "README.md": {
+      "after_sha256": "63c098965eb7d83af5cd4cba6253164a8718726d1f94ab63e2c317423d8a5b66",
+      "before_sha256": "5447c255c76d5132771dc8ba2eec4d7553cd1095d4df1d7b8ecdcc3628fd07b3",
+      "bytes": 5714,
+      "git_mode": "100644"
+    },
+    "docs/alignment/CURRENT.md": {
+      "after_sha256": "6986d4c372bf18aada30f9222c2253a4b9f88da2f67af8f02371fa9fd7edba1e",
+      "before_sha256": "130ec25bd76980677faf8901bf9fbc26f21bca4824df291c21070df758038db0",
+      "bytes": 1321,
+      "git_mode": "100644"
+    },
+    "protocols/EVIDENCE-MAP.json": {
+      "after_sha256": "526919899c486912c3d40d3a33344a47b9220d7729e58d1d97e6f16b2d915d2e",
+      "before_sha256": null,
+      "bytes": 6934,
+      "git_mode": "100644"
+    },
+    "protocols/FIRST-USEFUL-TASK.md": {
+      "after_sha256": "8bacf115587ccf44ad1218d1a4bb3c4329eb8d7b351e4a8a093ba6b34c0586e6",
+      "before_sha256": null,
+      "bytes": 11318,
+      "git_mode": "100644"
+    },
+    "protocols/INIT.md": {
+      "after_sha256": "d2159d77ab44d5e55c53323317c2547342d0d0710171a33a8984f8dbf7234b22",
+      "before_sha256": "5a0e86a6e364f7edab51146f58f34ce52458b558ca937af954ed67c9ef8ce442",
+      "bytes": 3741,
+      "git_mode": "100644"
+    },
+    "protocols/README.md": {
+      "after_sha256": "cc0f54f671ba665912098a9b16c15f1970f887a2cd43c87155e425ff3feedcb6",
+      "before_sha256": "cb4ac9d6c67e79477ce65965c766dc6a8b10b38ce27867ec65cea8e7026f3685",
+      "bytes": 983,
+      "git_mode": "100644"
+    },
+    "protocols/WORKFLOW.md": {
+      "after_sha256": "5a52cf7bae5fe92024dc1c5d5c55493e4d75ffed41c59e63cbb320e5193db1b6",
+      "before_sha256": "01fa96169dafa67be0d50811fcea77c6c63595b30aba5d8e166eb76cd0be58b9",
+      "bytes": 23636,
+      "git_mode": "100644"
+    },
+    "protocols/specification/README.md": {
+      "after_sha256": "4217f1e9387e3e6c0a4dc329bcf915e1b252712e47312a71d959f190263683e0",
+      "before_sha256": "7cb08f493357537ba02cd3cf7e91de5bcd2c3a99e3e0343d1296c4a3b0e3947d",
+      "bytes": 3363,
+      "git_mode": "100644"
+    },
+    "protocols/tasks/JSON-CHECKER.md": {
+      "after_sha256": "88a39a91928fea9d5cbdacf74f74bc1f9be2bb5f27a0591200835ebc42035224",
+      "before_sha256": null,
+      "bytes": 2957,
+      "git_mode": "100644"
+    },
+    "releases/README.md": {
+      "after_sha256": "990466e462fa1902742552775cd94a86f2205aa8016d9049c99fcf6e47c7b60d",
+      "before_sha256": "8255a0874416c5b6cdfadba1d990650fc8f004812faf0ffbe61b044d3a4f7f57",
+      "bytes": 567,
+      "git_mode": "100644"
+    },
+    "releases/SELECTED.json": {
+      "after_sha256": "3f834f5ee0169a5d2623a4f71b9e0bcf167c5872ec43430e7fee0580dadefe1a",
+      "before_sha256": "a9a09a657b8c594cd5a41009d31c4f196a53793eb229931d12dab647b9b4b931",
+      "bytes": 1925,
+      "git_mode": "100644"
+    },
+    "releases/canonical-init-summary-fs-v1/PUBLIC-INSTRUCTIONS.json": {
+      "after_sha256": "fc1d43d1d7110c3f98ba1b7ab3f40710885c163d0ff66bd654b9835441eb731b",
+      "before_sha256": null,
+      "bytes": 4370,
+      "git_mode": "100644"
+    },
+    "releases/canonical-init-summary-fs-v1/PUBLIC-STATUS.md": {
+      "after_sha256": "d02458f57fcf829f8721016747d821b9b6fb967287f95db7096b07becb0d0ad7",
+      "before_sha256": null,
+      "bytes": 934,
+      "git_mode": "100644"
+    },
+    "releases/canonical-init-summary-fs-v1/README.md": {
+      "after_sha256": "ba38f89ab068adbe5ff4ec214b86f7af5ca9b2a7521bce4db12d92e3211e380f",
+      "before_sha256": "60ace3b77f7169dc9c0fbd4bb23d42499f496ae58c86e218cf71876b9ce29c7a",
+      "bytes": 1923,
+      "git_mode": "100644"
+    }
+  },
+  "accepted_source_revision": "732cd241cebc7c583b237709a1563e9ade9425b1",
+  "admitted_issue_source_sha256": "sha256:b14aa65a633e59722d5cf85e0a098d662b54b9048bc443957a3f659eb390b9bd",
+  "baseline_file_count": 1709,
+  "baseline_revision": "faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89",
+  "expected_file_count_after_implementation": 1718,
+  "independent_integration_acceptance": false,
+  "instruction_pins": 18,
+  "integration_extra_paths": [
+    "docs/issues/2026/10/18/fb-2026-10-18-public-useful-task-integration-v0.md",
+    "releases/canonical-init-summary-fs-v1/USEFUL-TASK-INTEGRATION.json",
+    "releases/canonical-init-summary-fs-v1/USEFUL-TASK-INTEGRATION.md",
+    "releases/canonical-init-summary-fs-v1/test_useful_task_integration.py"
+  ],
+  "new_build_or_installation": false,
+  "protected_inputs": {
+    ".aware/agent-bootstrap.json": {
+      "git_mode": "100644",
+      "sha256": "2d924a85725872ee4161a9757eecb893145c9d7898430820f28c9fc72e1349d5"
+    },
+    "AGENTS.md": {
+      "git_mode": "100644",
+      "sha256": "2515aaed324f1f03c5d709bccde06c930987c369092f2bc223bfe9a9371af8e9"
+    },
+    "aware.protocol.toml": {
+      "git_mode": "100644",
+      "sha256": "924735fd1bab9479765d3f118a6b41c5ed0ad15f1c10cbac10706b4f9f6ae902"
+    },
+    "protocols/install.py": {
+      "git_mode": "100644",
+      "sha256": "cea1b36b8d45fe4266bcfe1082125b2bfad9721b468ca692c2be26563e7a0c2e"
+    },
+    "releases/canonical-init-summary-fs-v1/INSTRUCTION-FREEZE.md": {
+      "git_mode": "100644",
+      "sha256": "254b0c55320918814a64eb769761f9ccd2164d4b0bb937b7ad70ebbfe8f1c75c"
+    },
+    "releases/canonical-init-summary-fs-v1/INSTRUCTIONS.json": {
+      "git_mode": "100644",
+      "sha256": "eb47b7752ca43f80df6926e37175a1f2822772034da0a32d3138352dc32ef2a8"
+    },
+    "releases/canonical-init-summary-fs-v1/LOCAL-SELECTION.md": {
+      "git_mode": "100644",
+      "sha256": "f2febc8d032d2b625cfc4c6a7914e7e11ca423c19a81ef0afc0b736c65c6fa6d"
+    },
+    "releases/canonical-init-summary-fs-v1/canonical-init-summary-source-notice-review-v1.tar.gz": {
+      "git_mode": "100644",
+      "sha256": "73f5038b365dcc7f193b7ebd71b77145d12fe2386311be75dcffd9afadd25df9"
+    }
+  },
+  "push_authorized": false,
+  "qualification": "Accepted instruction postimages over delivered software; retained reads, not customer evaluation.",
+  "receiver_sha256": "b6025e473901a3fa93115333874ac0f745a20cda9ad14deaa40de6d6594d7aa0",
+  "record_kind": "local_useful_task_integration_receiving_account",
+  "scope_paths": [
+    "README.md",
+    "docs/alignment/CURRENT.md",
+    "docs/issues/2026/10/18/fb-2026-10-18-public-useful-task-integration-v0.md",
+    "protocols/EVIDENCE-MAP.json",
+    "protocols/FIRST-USEFUL-TASK.md",
+    "protocols/INIT.md",
+    "protocols/README.md",
+    "protocols/WORKFLOW.md",
+    "protocols/specification/README.md",
+    "protocols/tasks/JSON-CHECKER.md",
+    "releases/README.md",
+    "releases/SELECTED.json",
+    "releases/canonical-init-summary-fs-v1/PUBLIC-INSTRUCTIONS.json",
+    "releases/canonical-init-summary-fs-v1/PUBLIC-STATUS.md",
+    "releases/canonical-init-summary-fs-v1/README.md",
+    "releases/canonical-init-summary-fs-v1/USEFUL-TASK-INTEGRATION.json",
+    "releases/canonical-init-summary-fs-v1/USEFUL-TASK-INTEGRATION.md",
+    "releases/canonical-init-summary-fs-v1/test_useful_task_integration.py"
+  ]
+}

@@ -6,9 +6,8 @@ or conflict-free swarms. Issue, optional SPEC and bounded work is today's cut.
 Guidance, tooling, configuration, admission and service startup are distinct.
 This filesystem route starts no service; deltas are evidence, not inferred meaning.
 
-The init-summary successor is selected locally; instructions are frozen locally
-pending independent review, not publicly delivered. The delivery pointer binds
-accepted artifacts only.
+Agent 0.2.0a11 software was published at `faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`. This instruction alignment changes guidance, not software or operation authority. Historical freezes remain unchanged.
+Start with [a useful task](../../protocols/FIRST-USEFUL-TASK.md).
 Both review decisions remain explicit. Known effects, retention and cleanup stay
 separate; no retry or guard refresh follows. Contributor selection is unchanged.
 [Whole-envelope carriage](../../releases/canonical-init-summary-fs-v1/README.md) remains mandatory.

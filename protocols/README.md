@@ -13,3 +13,5 @@ installation support, not copied domain implementations or historical previews.
 catalog. Workspace's `portable_protocols` profile is the sole package selector.
 Root contributor AGENTS retains its own selected CLI; customer init does not
 migrate it or authorize service startup.
+
+Start with [a useful customer task](FIRST-USEFUL-TASK.md); setup alone is not the customer outcome.

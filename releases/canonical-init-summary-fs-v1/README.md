@@ -1,13 +1,7 @@
 # Init summary whole distribution
 
-Selected locally; public delivery is not yet authorized. Envelope `canonical-init-summary-source-notice-review-v1.tar.gz` is SHA256 `73f5038b365dcc7f193b7ebd71b77145d12fe2386311be75dcffd9afadd25df9`;
-accepted software is `d133ae36d78648b0f1c77652b7ab56ded7b2180620e0c023eccf9da4c2cc88e0`. Use [the entrance](../../README.md) and
-the [original whole-envelope installer](../../protocols/install.py). Instructions
-are frozen locally pending independent review; publication remains separate.
-[Local selection](LOCAL-SELECTION.md) binds complete accepted artifact coordinates;
-it does not activate tooling or grant operational authority.
-[Exact instruction pins](INSTRUCTIONS.json) and [freeze record](INSTRUCTION-FREEZE.md)
-bind this guidance, not packages or operation authority.
+Agent 0.2.0a11 software was published at `faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`. This instruction alignment changes guidance, not software or operation authority. Historical freezes remain unchanged.
+Use [the entrance](../../README.md) and unchanged [installer](../../protocols/install.py). [Current pins](PUBLIC-INSTRUCTIONS.json) and [status](PUBLIC-STATUS.md) are separate from unchanged historical [pins](INSTRUCTIONS.json), [freeze](INSTRUCTION-FREEZE.md) and [local selection](LOCAL-SELECTION.md). None grants operation authority.
 
 The activation-core P1 correction, independent control installation and
 bounded positive A/B proof passed review. Failure/interruption qualification

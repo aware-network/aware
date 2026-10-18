@@ -1,18 +1,5 @@
 # Filesystem distributions
 
-[canonical-init-summary-fs-v1](canonical-init-summary-fs-v1/README.md) is selected
-locally. Public delivery is not yet authorized; instructions are frozen locally
-pending independent review.
-[SELECTED.json](SELECTED.json) derives exact accepted artifact coordinates and
-[local selection](canonical-init-summary-fs-v1/LOCAL-SELECTION.md) records its
-limits. Package selection belongs solely to `portable_protocols`, not this
-delivery pointer. The [installer](../protocols/install.py) is unchanged.
-Whole-envelope source, terms and notice carriage is mandatory; no wheel-only or
-stripped delivery. [Instruction pins](canonical-init-summary-fs-v1/INSTRUCTIONS.json)
-and [freeze record](canonical-init-summary-fs-v1/INSTRUCTION-FREEZE.md) bind this
-local checkpoint; publication remains a separate authorization.
+Agent 0.2.0a11 software was published at `faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`. This instruction alignment changes guidance, not software or operation authority. Historical freezes remain unchanged.
 
-The activation-core P1 correction, independent control installation and
-bounded positive A/B proof passed review. Failure/interruption qualification
-and the stable consumer bridge remain held. None is included or activated
-by this delivery.
+Read [the starting instructions](../README.md) and the [whole distribution](canonical-init-summary-fs-v1/README.md). [SELECTED.json](SELECTED.json) is an artifact pointer; `portable_protocols` remains the sole package selector. Complete source/notice carriage is mandatory. No wheel-only delivery, services or activation is admitted.

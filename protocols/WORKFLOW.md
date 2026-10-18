@@ -1,13 +1,6 @@
 # Aware filesystem workflow
 
-Agent 0.2.0a11 init-summary successor is selected locally. Instructions are
-frozen locally pending independent review; public delivery is not yet authorized.
-One 42-package installation composes the original Issue, Protocol, SPEC and
-reviewed Workspace owners. SDK/runtime/FS remain 0.2.11/0.2.16/0.1.10,
-FileSystem 0.3.8 and Issue SDK 0.10.6. This local checkpoint is not public
-availability or unassisted proof. [Exact instruction pins](../releases/canonical-init-summary-fs-v1/INSTRUCTIONS.json)
-and [freeze record](../releases/canonical-init-summary-fs-v1/INSTRUCTION-FREEZE.md)
-bind guidance, not operation authority.
+Agent 0.2.0a11 software was published at `faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`. This instruction alignment changes guidance, not software or operation authority. Historical freezes remain unchanged.
 Read [init summary streams and decisions](INIT.md); full receipts remain
 available in the same invocation without replay or renewed authority.
 

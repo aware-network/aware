@@ -22,8 +22,7 @@ include the unchanged canonical typed example. Executing it only prepares input 
 setup, draft preview/apply, observation and publication retain their original
 owners and separately admitted authority.
 
-The init-summary successor is selected locally, with instruction bytes frozen
-pending independent review. Public delivery is not yet authorized. Its
+The init-summary software was published at `faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`. Historical
 [exact instruction pins](../../releases/canonical-init-summary-fs-v1/INSTRUCTIONS.json)
 include the unchanged canonical typed example; this binds bytes, not authority.
 The [freeze record](../../releases/canonical-init-summary-fs-v1/INSTRUCTION-FREEZE.md)

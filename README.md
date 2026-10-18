@@ -2,62 +2,38 @@
 
 Coherent work between agents in your Git repository.
 
-Aware provides shared rules and tooling so agents understand the same work,
-make bounded changes and leave evidence another execution can continue from.
-Issues coordinate work; Specifications describe its intended shape. Coherence
-is the value, not a promise of faster agents or conflict-free swarms.
+Aware helps an agent make a bounded change and leave evidence another execution
+can review and lawfully continue. Issues coordinate the work; a Specification
+draft is optional when the task needs shared intent. The agent still implements
+and tests the customer's change. Aware is not a sandbox or an application
+correctness checker, and coherence is not a promise of faster agents.
 
-Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
+## Complete something useful
 
-The accepted Agent **0.2.0a11** init-summary successor is selected locally;
-public delivery is not yet authorized. Instructions are frozen locally,
-pending independent review. Use this
-reviewed checkout, not unchanged public main. The
-[delivery pointer](releases/SELECTED.json) binds the complete envelope;
-[local selection](releases/canonical-init-summary-fs-v1/LOCAL-SELECTION.md)
-records the boundaries. [Exact instruction pins](releases/canonical-init-summary-fs-v1/INSTRUCTIONS.json)
-and [freeze record](releases/canonical-init-summary-fs-v1/INSTRUCTION-FREEZE.md)
-bind this checkpoint; publication remains separately authorized.
-Do not overlay installations, activate tooling or migrate contributor commands.
-Read [the init stream and review guide](protocols/INIT.md) before initialization.
+Start with a small customer-approved outcome: a bug fix, a read-only tool or a
+tested improvement to an owned repository. Follow
+[your first useful task](protocols/FIRST-USEFUL-TASK.md). A starter
+[JSON-checker task](protocols/tasks/JSON-CHECKER.md) gives explicit acceptance
+criteria, not a prewritten implementation or mandatory task.
 
-The activation-core P1 correction, independent control installation and
-bounded positive A/B proof passed review. Failure/interruption qualification
-and the stable consumer bridge remain held. None is included or activated
-by this delivery.
+Today's path is **Issue → optional SPEC → bounded work → verification → local
+publication and closeout**. A generated manifest is setup, not completion of the
+customer's application. Project/Goal direction and language/Meta materialization
+are parallel future elevations, not prerequisites for this path.
 
-## Keep source-checkout and customer instructions separate
+## Start with the shipped software
 
-The acquired public source checkout has its own contributor `AGENTS.md` and
-separately pinned a6 command selection. Those instructions govern contributions
-there; they are not a bootstrap to copy into your customer repository or a
-reason to replace its selected command.
+Agent **0.2.0a11**, with its 42-package closure, was published at
+[`faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`](https://github.com/aware-network/aware/tree/faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89).
+This guidance alignment changes no software and authorizes no customer operation.
+Acquire that exact revision. Verify exact payload/envelope provenance before
+reusing any installation; a matching version label alone is insufficient.
 
-In your explicitly chosen customer target, read the `AGENTS.md` and
-`aware.protocol.toml` produced by init. Use the installed consumer command's
-help and [first-Issue guide](protocols/issues/FIRST-ISSUE.md). Do not infer that
-a contributor composition or command name is available in the consumer product.
-For unfinished work, keep the durable owner and effect evidence; a different
-execution needs lawful transfer/admission, not merely a new process or transcript.
-
-## Understand the rules
-
-Read [coherence](protocols/COHERENCE.md), [Issues](protocols/issues/README.md),
-[publication](protocols/repository/README.md) and [SPEC drafts](protocols/specification/README.md).
-Readable guidance explains shared rules; tooling invokes separately admitted
-operations. Tool installation, repository configuration and service startup are
-distinct. This filesystem composition starts no service.
-
-## Inspect terms and install once
-
-Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Read
-[complete distribution terms and source](releases/canonical-init-summary-fs-v1/README.md)
-before installation. Keep the entire envelope: terms, sources, corresponding
-source, component evidence and raw audit. Six detached-wheel legal gaps remain
-unrepaired; wheel-only acquisition, stripped bundles and registry publication
-are unaccepted.
-
-From the root of this reviewed checkout:
+Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Inspect
+[complete terms and sources](releases/canonical-init-summary-fs-v1/README.md)
+and keep the whole envelope. Six detached-wheel legal gaps remain unresolved;
+wheel-only delivery, stripped bundles and registry publication are unaccepted.
+From the acquired checkout root, use the original installer once:
 
 ```sh
 set -eu
@@ -71,23 +47,16 @@ AWARE="$aware_init_env/bin/aware"
 "$AWARE" --help
 ```
 
-Installation is offline after acquisition. The original installer verifies and
-retains the whole envelope, prints its absolute `retained_source_and_notices`
-directory, and delegates to the existing payload installer. Keep that directory;
-the workflow's `aware_envelope_root` names it for the typed input example.
-Environment reuse refuses. No editable checkout or development source is needed.
+Keep the printed `retained_source_and_notices` directory with the installation.
+The installer refuses existing destinations; never overlay a retained environment
+or substitute development-checkout imports.
 
-## Initialize and admit an Issue
+## Initialize then admit the customer's Issue
 
-Preview and apply below are separate decisions. Stop after preview and review
-its result before accepting creation; do not run the block unattended.
-Optional init summaries go to stdout and complete JSON goes to stderr in the
-same invocation. Default/explicit JSON remains on stdout. Keep both streams;
-never repeat mutation to obtain nicer output. See [init guidance](protocols/INIT.md).
-
-Use a genuine harness with exactly one nonblank `CODEX_THREAD_ID` or
-`CLAUDE_CODE_SESSION_ID`; do not borrow or invent identities. Set
-`aware_repo_root` to your explicit absolute target under an existing parent:
+Read [init streams and explicit decisions](protocols/INIT.md), select the absolute
+customer repository and use your genuine supported harness identity. Stop after
+preview and review it before the separate apply decision; do not execute this
+block unattended:
 
 ```sh
 "$AWARE" init --repo-root "$aware_repo_root" \
@@ -96,79 +65,45 @@ Use a genuine harness with exactly one nonblank `CODEX_THREAD_ID` or
   --create-repository --apply --format json
 ```
 
-For an existing Git repository omit `--create-repository`. Existing configuration
-or guidance refuses rather than overwriting. Preview gives Workspace preparation
-and prospective Protocol inputs, not two admitted owner plans. Apply obtains
-fresh Protocol admission after repository preparation.
+Init supplies configuration, not Issue admission, scope approval or Workspace
+apply authority. It creates no seed commit or remote and starts no service. Read
+the target's `AGENTS.md` and `aware.protocol.toml`. Follow the original
+[first-Issue operations](protocols/issues/FIRST-ISSUE.md), replacing its draft-only
+example with the customer's actual outcome and exact source/test/document scope.
+Do not use the sample draft scope unchanged for application edits.
 
-Init supplies the Protocol configuration used by this qualified fresh-repository
-workflow. It does not admit an Issue, approve scope or authorize Workspace apply.
-It stages nothing, creates no seed commit or remote and starts no service.
-Preserve both owners' effects and cleanup; non-success is not rollback or retry
-permission. Read the init-created `AGENTS.md` and `aware.protocol.toml`.
+Use approved engineering tools for source changes and task tests. If repository
+manifest setup is needed, preserve [both review decisions](protocols/workspace/REVIEWED-SETUP.md).
+If shared design is needed, follow [SPEC setup and drafting](protocols/WORKFLOW.md).
+Neither is compulsory setup for every task. After verification and explicit local
+publication authorization, use the original
+[publication and closeout owners](protocols/repository/README.md), with exact paths
+and dry-run before apply. Publication and closeout are not atomic; preserve both
+receipts. Remote push needs separate authorization.
 
-`--issue-ref` is `fb/YYYY-MM-DD/lowercase-hyphenated-slug`, not a UUID, title or
-Markdown path. Follow [the first-Issue guide](protocols/issues/FIRST-ISSUE.md)
-to create/observe the record, choose scope and start progress. Keep reference and
-record path distinct. Missing identity, invalid references and stale guards stop;
-do not guess retries, fabricate authority or silently refresh guards.
+## Inspect the evidence and boundaries
 
-## Review Workspace setup in two decisions
+[The evidence map](protocols/EVIDENCE-MAP.json) links exact public U/V/R reports.
+U completed bounded manifest setup with coordinator-prepared installation, not
+application implementation or publication. Guided V established specific stale
+refusals and measured state preservation; spent reuse still exits 3 with genuine
+incompleteness. Planned R established lawful continuation, with an intended-name
+mismatch qualification. These do not establish customer-code productivity, broad
+onboarding, crash recovery or conflict-free swarms.
 
-Follow [reviewed repository setup](protocols/workspace/REVIEWED-SETUP.md).
-The original SDKs retain guards, complete physical scope, final files and evidence.
-First review the physical effect scope and explicitly bind it. Then inspect the
-second preview and separately authorize final-file apply. Reuse exact SDK-issued
-references; do not handwrite records or copy guards into new requests.
+Keep full original receipts from the same invocation. Stale requests require
+new explicit review, never automatic refresh or mutation retry. Incompleteness
+does not erase known effects. Original release unknown remains unknown even after
+later client cleanup. Historical references do not restore live authority.
+Exact-reference stdin/focus navigation remains an unshipped parallel successor.
 
-The qualified fresh-repository route uses init-created `aware.protocol.toml`
-directly, without another configuration step. Issue admission and both decisions
-remain necessary. Missing inputs mean stop, not fabrication or governance bypass.
-Stale/spent requests do not refresh or retry automatically. The newly qualified
-review route creates a repository manifest, not a complete package/application.
+[Current guidance pins](releases/canonical-init-summary-fs-v1/PUBLIC-INSTRUCTIONS.json)
+and [status](releases/canonical-init-summary-fs-v1/PUBLIC-STATUS.md) are distinct
+from unchanged historical freezes. `portable_protocols` remains the sole package
+selector; the delivery pointer is not operation authority.
 
-## Use the existing SPEC and publication owners
-
-[The complete workflow](protocols/WORKFLOW.md) preserves the original first-Issue,
-SPEC setup, typed input, target-fit preparation, explicit draft preview/apply,
-observation and paired publication/closeout commands. A target match is layout
-evidence, not Issue eligibility or write authority. Manifests are repository-relative;
-explicit absolute snapshot paths avoid cwd ambiguity. Guard labels identify
-different exact bytes; a stale request needs a new preparation and review decision.
-
-Publication and closeout are distinct effects, not an atomic transaction. Preserve
-known commits, closeout refusals, foreign work, index state and unknown outcomes.
-Do not republish to recover spent authority. Remote push is separately authorized.
-[Saved-receipt presentation](protocols/WORKFLOW.md#review-a-saved-receipt-without-repeating-the-operation)
-reads full evidence or validated summaries without replay or renewed authority.
-
-## Read the result honestly
-
-Reviewed Workspace summaries answer five questions: **What happened**,
-**What changed**, **What remains uncertain**, **What next (guidance, not authority)**
-and **Where is full evidence**. The original Issue scope mutation outcome is
-separate from retained evidence and later manifest apply. A known applied scope
-stays applied even if its capture fails; non-success is not rollback or permission
-to repeat scope. Summaries retain final files, complete effect scope, original
-admission/release and independent client cleanup. Original release uncertainty
-remains unknown after later client cleanup succeeds. Clean stale Issue/authority refusals exit 2 with original typed evidence.
-Spent-reference incompleteness remains 3; interruptions remain 130. Original
-release unknown alone does not force non-success. Incomplete current retention
-or output does not erase completed effects or authorize redispatch. Preserve the
-full evidence. `show` accepts historical review records only; use `show --json`
-for their complete record. `evidence` reads supported retained refusals/outcomes
-using the same explicit roots and exact SDK reference. A reference container kind
-is not necessarily the schema of the captured command bytes. A missing reference
-must not be invented; incomplete retention can leave only earlier evidence.
-
-This successor has a bounded scripted installed proof, not unassisted onboarding
-or the historical 2,819-case aggregate. Carried code, help and scripts do not
-admit A2, tree completion, materialization, Meta/Object execution, services,
-approval, iterations or native performance. Workspace deltas are change evidence,
-not inferred meaning or authority.
-
-Projects → Goals → Issues → bounded work is the higher-level direction, not
-an admission of that elevation here. Start with Issue → optional SPEC today. [Sources](workspaces/README.md) are
-the canonical `portable_protocols` snapshot with composite supplier revisions,
-not a second catalog or editable operational installation. Contributor governance
-and its command selection remain separate and unchanged.
+The source checkout's contributor `AGENTS.md` and a6 command selection govern
+contributions there, not customer work. Do not copy that bootstrap or replace an
+existing repository's selected command. Read [coherence](protocols/COHERENCE.md)
+before effects. A2/tree completion, objects, materialization, services and
+activation are not admitted by this release.

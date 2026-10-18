@@ -1,0 +1,105 @@
+{
+  "a2_admitted": false,
+  "activation_core_p1_reviewed": true,
+  "activation_included_in_this_delivery": false,
+  "baseline_revision": "498b2c4f8296f47f5b9d1ecbb2dd2d20e1d1b3c5",
+  "bounded_positive_ab_proof_reviewed": true,
+  "canonical_profile": "portable_protocols",
+  "catalog_revision": "ec4717726c3c7c822fa4fcc5cb7390fce4127f43",
+  "detached_wheels_accepted": false,
+  "envelope_sha256": "73f5038b365dcc7f193b7ebd71b77145d12fe2386311be75dcffd9afadd25df9",
+  "failure_interruption_qualified": false,
+  "files": {
+    "README.md": {
+      "bytes": 5714,
+      "sha256": "63c098965eb7d83af5cd4cba6253164a8718726d1f94ab63e2c317423d8a5b66"
+    },
+    "protocols/COHERENCE.md": {
+      "bytes": 2584,
+      "sha256": "d643dd349141001b71d910ee326e081d3031dc05b070421e9a4fad3d17d1e925"
+    },
+    "protocols/EVIDENCE-MAP.json": {
+      "bytes": 6934,
+      "sha256": "526919899c486912c3d40d3a33344a47b9220d7729e58d1d97e6f16b2d915d2e"
+    },
+    "protocols/FIRST-USEFUL-TASK.md": {
+      "bytes": 11318,
+      "sha256": "8bacf115587ccf44ad1218d1a4bb3c4329eb8d7b351e4a8a093ba6b34c0586e6"
+    },
+    "protocols/INIT.md": {
+      "bytes": 3741,
+      "sha256": "d2159d77ab44d5e55c53323317c2547342d0d0710171a33a8984f8dbf7234b22"
+    },
+    "protocols/INITIALIZATION.md": {
+      "bytes": 1295,
+      "sha256": "7514305b3f73da328c499fc1ea60aab0bba16fd9103f322154078f7e2bc434b3"
+    },
+    "protocols/README.md": {
+      "bytes": 983,
+      "sha256": "cc0f54f671ba665912098a9b16c15f1970f887a2cd43c87155e425ff3feedcb6"
+    },
+    "protocols/WORKFLOW.md": {
+      "bytes": 23636,
+      "sha256": "5a52cf7bae5fe92024dc1c5d5c55493e4d75ffed41c59e63cbb320e5193db1b6"
+    },
+    "protocols/issues/FIRST-ISSUE.md": {
+      "bytes": 7785,
+      "sha256": "6a006c9bdc86fdbc4baf618de9db799b804c8486b760f92d9a0221fd79f12873"
+    },
+    "protocols/issues/README.md": {
+      "bytes": 1184,
+      "sha256": "70161e1c6f5d29196eefe714d30a8a71ba29a7e1f0128a9cd50c56a35b3a17ba"
+    },
+    "protocols/repository/README.md": {
+      "bytes": 1351,
+      "sha256": "ae476cb23bb59d4117a074f47654b2708137ef32707f758bc534967dc69785d5"
+    },
+    "protocols/specification/README.md": {
+      "bytes": 3363,
+      "sha256": "4217f1e9387e3e6c0a4dc329bcf915e1b252712e47312a71d959f190263683e0"
+    },
+    "protocols/tasks/JSON-CHECKER.md": {
+      "bytes": 2957,
+      "sha256": "88a39a91928fea9d5cbdacf74f74bc1f9be2bb5f27a0591200835ebc42035224"
+    },
+    "protocols/workspace/README.md": {
+      "bytes": 635,
+      "sha256": "3b32d4b6518db6b2445abc77737c697b4a08372e6da5b0a07bde019559310bf6"
+    },
+    "protocols/workspace/REVIEWED-SETUP.md": {
+      "bytes": 8608,
+      "sha256": "b20188ec640c84b0438a95ca4ddac79cc480576fda223f6e3ffc4a837c20830c"
+    },
+    "releases/README.md": {
+      "bytes": 567,
+      "sha256": "990466e462fa1902742552775cd94a86f2205aa8016d9049c99fcf6e47c7b60d"
+    },
+    "releases/canonical-init-summary-fs-v1/README.md": {
+      "bytes": 1923,
+      "sha256": "ba38f89ab068adbe5ff4ec214b86f7af5ca9b2a7521bce4db12d92e3211e380f"
+    },
+    "workspaces/aware_kernel/modules/specification/sdks/specification/python/cli/examples/prepare_draft_input.py": {
+      "bytes": 2081,
+      "sha256": "21e1bea900ae75e47be2ff889e87d514cba08ba9f325681dcc0ee3f1df68bcb5"
+    }
+  },
+  "historical_instruction_sha256": "eb47b7752ca43f80df6926e37175a1f2822772034da0a32d3138352dc32ef2a8",
+  "independent_control_installation_reviewed": true,
+  "init_supplies_configuration_not_admission": true,
+  "instruction_alignment_publication_authorized": false,
+  "package_selection_owner": "Workspace authored profile; this record is not a package catalog",
+  "payload_sha256": "d133ae36d78648b0f1c77652b7ab56ded7b2180620e0c023eccf9da4c2cc88e0",
+  "public_delivery_authorized": true,
+  "published_software_revision": "faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89",
+  "record_kind": "candidate_instruction_byte_pins",
+  "source_index_sha256": "3bfb00f7950169a6bf916f38dc1a81536b0e4a5f243ce97c79302946a64bc164",
+  "source_is_composite": true,
+  "stable_consumer_bridge_qualified": false,
+  "status": "useful_task_alignment_review_pending",
+  "tooling_activation_performed": false,
+  "tree_completion_admitted": false,
+  "unassisted_onboarding_proven": false,
+  "whole_envelope_required": true,
+  "workspace_agent_mount_admitted": true,
+  "workspace_mount_profile": "bounded-reviewed-repository-manifest-a1"
+}

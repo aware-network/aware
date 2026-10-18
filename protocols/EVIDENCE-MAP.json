@@ -1,0 +1,93 @@
+{
+  "contract": "aware.protocols.first-useful-task.evidence-map.v1",
+  "status": "draft_for_independent_review",
+  "role": "claim_to_evidence_index_not_package_selection_or_authority",
+  "public_contract_published": false,
+  "customer_run_performed": false,
+  "product": {
+    "repository": "aware-network/aware",
+    "revision": "faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89",
+    "agent_version": "0.2.0a11",
+    "packages": 42,
+    "envelope_sha256": "73f5038b365dcc7f193b7ebd71b77145d12fe2386311be75dcffd9afadd25df9",
+    "payload_sha256": "d133ae36d78648b0f1c77652b7ab56ded7b2180620e0c023eccf9da4c2cc88e0",
+    "whole_envelope_required": true,
+    "detached_wheel_gaps": 6,
+    "raw_fixture_findings": 12,
+    "native_provenance_qualified": true,
+    "installation_provenance_before_reuse": true
+  },
+  "archive": {
+    "repository": "aware-network/aware-client-evaluations",
+    "revision": "33b3916f1a0d81c9662b03f54fac4a4f6afaefd8",
+    "v2_validation_is_format_not_claim_truth": true,
+    "earlier_freezes_preserved": true
+  },
+  "claims": [
+    {
+      "id": "bounded_setup",
+      "packet": "U",
+      "statement": "A fresh task execution completed init, Issue admission and separately reviewed manifest setup without Human product hints.",
+      "limits": ["Coordinator-prepared installation and capture; I not run.", "Manifest only: no application tests, commit or closeout.", "Absent target did not exercise unrelated-work preservation."]
+    },
+    {
+      "id": "exercised_safeguards",
+      "packet": "V",
+      "statement": "Guided probes preserved measured customer state and retained complete typed stale Issue/configuration refusals.",
+      "limits": ["Missing consent refused at parser, not demonstrated SDK admission.", "Spent reuse exited 3 with incomplete retention and cleanup, not a clean refusal or proven spent-check causality.", "No rollback or resolution of original release uncertainty is inferred."]
+    },
+    {
+      "id": "planned_continuation",
+      "packet": "R",
+      "statement": "A distinct receiver resumed lawfully with fresh reviews and completed manifest setup, preserving predecessor scope and sentinel bytes/mode.",
+      "limits": ["Planned coordinator-assisted transfer, not unassisted or crash recovery.", "Ambiguous brief caused actual nameluis-init-summary-recovery rather than intended luis-init-summary-recovery; exact intended-name conformance is not accepted.", "No customer code, tests, publication or closeout; shared filesystem visibility disclosed."]
+    }
+  ],
+  "not_established": [
+    "useful_customer_code_outcome",
+    "measured_productivity_improvement",
+    "broad_onboarding_readiness",
+    "full_cross_agent_coherence",
+    "authenticated_actor_actions_or_isolation",
+    "automatic_or_crash_recovery",
+    "package_a2_or_tree_completion",
+    "project_goal_materialization_services_or_activation"
+  ],
+  "next_run": {
+    "status": "proposed_not_run",
+    "primary_outcome": "A customer-approved source change with task tests and documented use; setup artifacts alone do not satisfy it.",
+    "spec_optional": true,
+    "repository_manifest_optional_unless_task_requires": true,
+    "publication_requires_explicit_authorization": true,
+    "measure_separately": ["application_tests", "scope_and_foreign_preservation", "publication_and_closeout", "human_product_hints", "manual_reference_extractions", "product_invocations", "shell_batches", "document_reads", "unknowns_and_blockers"]
+  },
+  "parallel_navigation": {
+    "included_in_shipped_product": false,
+    "not_required": true,
+    "absent_options": ["--reference-from-stdin", "show --focus"]
+  },
+  "pins": [
+    {"repository": "product", "path": "README.md", "sha256": "5447c255c76d5132771dc8ba2eec4d7553cd1095d4df1d7b8ecdcc3628fd07b3", "bytes": 9771},
+    {"repository": "product", "path": "protocols/INIT.md", "sha256": "5a0e86a6e364f7edab51146f58f34ce52458b558ca937af954ed67c9ef8ce442", "bytes": 3678},
+    {"repository": "product", "path": "protocols/COHERENCE.md", "sha256": "d643dd349141001b71d910ee326e081d3031dc05b070421e9a4fad3d17d1e925", "bytes": 2584},
+    {"repository": "product", "path": "protocols/issues/FIRST-ISSUE.md", "sha256": "6a006c9bdc86fdbc4baf618de9db799b804c8486b760f92d9a0221fd79f12873", "bytes": 7785},
+    {"repository": "product", "path": "protocols/WORKFLOW.md", "sha256": "01fa96169dafa67be0d50811fcea77c6c63595b30aba5d8e166eb76cd0be58b9", "bytes": 24055},
+    {"repository": "product", "path": "protocols/workspace/REVIEWED-SETUP.md", "sha256": "b20188ec640c84b0438a95ca4ddac79cc480576fda223f6e3ffc4a837c20830c", "bytes": 8608},
+    {"repository": "product", "path": "protocols/repository/README.md", "sha256": "ae476cb23bb59d4117a074f47654b2708137ef32707f758bc534967dc69785d5", "bytes": 1351},
+    {"repository": "product", "path": "protocols/evaluations/README.md", "sha256": "859058ba84becad97250914212772e695f28cd5b37858117785c06af724ffd9d", "bytes": 6919},
+    {"repository": "product", "path": "releases/SELECTED.json", "sha256": "a9a09a657b8c594cd5a41009d31c4f196a53793eb229931d12dab647b9b4b931", "bytes": 1787},
+    {"repository": "product", "path": "releases/canonical-init-summary-fs-v1/README.md", "sha256": "60ace3b77f7169dc9c0fbd4bb23d42499f496ae58c86e218cf71876b9ce29c7a", "bytes": 2159},
+    {"repository": "archive", "packet": "U", "path": "evaluations/2026/10/18/workspace-faed3f-unassisted/evaluation.md", "sha256": "9e5ba28b99642dc8af2a922757a87a6b382c9902503e5f13b7f5ae535e647ace", "bytes": 4346},
+    {"repository": "archive", "packet": "V", "path": "evaluations/2026/10/18/workspace-faed3f-guided-v-sanitization1/evaluation.md", "sha256": "5790503d7d5b0094176be63c1364457c143b90199c0ac367a55780ac11114f89", "bytes": 5989},
+    {"repository": "archive", "packet": "R", "path": "evaluations/2026/10/18/workspace-faed3f-planned-r-correction1/evaluation.md", "sha256": "e6985e39360b8a9ab541e0c16c2502771a86200e7a2ec51a507fb0ecd25b9b51", "bytes": 9479},
+    {"repository": "producer", "revision": "79d15fcf7a496d53200462543188f696fecc9210", "path": "docs/reports/workspace-faed3f-client-evidence-admission-20261018.md", "sha256": "976f4815c64c0661a0e96118d7722e39f798396e27d2e44246c63456f9755d31", "bytes": 12116},
+    {"repository": "producer", "revision": "b9eefa9011ee3b6e5a1191511a415c3c49a23948", "path": "docs/reports/canonical-init-summary-publication-20261018.json", "sha256": "4e78253131befd04d09a7a3734c13f99e4fbbea9b7ebafe121e81cb356ad3dad", "bytes": 10585}
+  ],
+  "consumption": {
+    "public_agent_needs_aware_dev": false,
+    "public_product_url_prefix": "https://github.com/aware-network/aware/blob/faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89/",
+    "public_evaluation_url_prefix": "https://github.com/aware-network/aware-client-evaluations/blob/33b3916f1a0d81c9662b03f54fac4a4f6afaefd8/",
+    "producer_pins_are_review_provenance_not_customer_prerequisites": true,
+    "current_status_alignment_required_before_public_integration": true
+  }
+}
