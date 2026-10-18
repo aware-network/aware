@@ -2,7 +2,7 @@
 
 - Slug: canonical-reference-public-integration-v0
 - Tag: fb/2026-10-19/canonical-reference-public-integration-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -56,6 +56,7 @@
 
 
 
+
 ## Problem
 1. Accepted a12 layout is not integrated against clean local055ce1d; remote379cd5 remains separately observed.
 
@@ -63,8 +64,10 @@
 
 
 
+
 ## Goal
 1. Project the reviewed 37-path delta preserving complete carriage, useful-task branches, contributor governance and predecessor selection.
+
 
 
 
@@ -79,8 +82,17 @@
 
 
 
+
+## Verified-by
+- Independent /tmp/aware-reference-integration-review.y9AtDpl2/guards.xml SHA2563f683d36843395da063b00923225a93e090f80ff094a50b5d6522a4e164f4783;separate eight receiving checks and154originalorigins
+- git:adbef3b01e818f3d6ec1c851c74569a0e3d8297d
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Accepted1745postimages/modes projected with original contributor rail.38 guard controls and8 receiving cases pass. Retained42package a12 reads16commands incl13help,versions,deps,missingidentity/noeffect;154originalorigins verify. No newinstall or customerreplay. Wholeenvelope1801members/1342sources,6gaps12findings/nativequals preserved. Local055ce1d vsremote379cd5 separately observed;selection unchanged. Initial collector/overbroad7oldversionfailures retained. Exact41path publication next;independentreview beforeclose,no push/GCchange. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Implementation adbef3b01e818f3d6ec1c851c74569a0e3d8297d exact41paths originalguard5b9a9c44095a,CAS/indexapplied no debt.38controls+8receivingpass;16readonlyinstalledcommands42versions/154origins,no newenv/customerreplay. Producer source0b2efa89b28c;LOCAL-INTEGRATION handoff updated. Originalfailed/unusedreceivingplans retained. Independentreview next,IssueInProgress;selection/freeze separately scoped,no push/GCchange. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independent bounded integration PASS:38controls+8receiving;exact41path implementation and2path handoff,1745postimages and originalCAS/index match. Selection/freeze separate,no push.
