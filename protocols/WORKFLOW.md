@@ -1,11 +1,16 @@
 # Aware filesystem workflow
 
-Prepared, unselected Agent human-evidence successor; instructions remain draft.
+Human-evidence instructions are frozen locally, pending independent review;
+public delivery is not yet authorized. These pins are not operation authority.
 Agent 0.2.0a10 composes the original Issue, Protocol, SPEC and reviewed Workspace
 owners in one 42-package installation. Workspace SDK/runtime/FS remain
 0.2.11/0.2.16/0.1.10, FileSystem 0.3.8 and Issue SDK 0.10.6.
-The delivered refusal predecessor and its selection remain unchanged. This
-private proposal is not public availability or unassisted onboarding proof.
+The delivered refusal predecessor remains unchanged; local selection identifies
+this successor, not public availability or unassisted onboarding proof.
+
+The activation-core P1 correction passed independent review; real
+validator/control-runtime integration, artifacts and private A/B activation
+proof remain unqualified.
 
 ## Install with the complete envelope
 

@@ -9,13 +9,17 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-The accepted Agent **0.2.0a10** human-evidence successor is selected locally;
-public delivery is not yet authorized. Instructions remain draft. Use this
+The accepted Agent **0.2.0a10** human-evidence instructions are frozen locally,
+pending independent review; public delivery is not yet authorized. Use this
 reviewed checkout, not unchanged public main. The
 [delivery pointer](releases/SELECTED.json) binds the complete envelope;
 [local selection](releases/canonical-human-evidence-fs-v1/LOCAL-SELECTION.md)
-records the boundaries. Instruction freeze and publication remain separate.
+records the boundaries. Publication remains separately authorized.
 Do not overlay installations, activate tooling or migrate contributor commands.
+
+The activation-core P1 correction passed independent review; real
+validator/control-runtime integration, artifacts and private A/B activation
+proof remain unqualified.
 
 ## Keep source-checkout and customer instructions separate
 

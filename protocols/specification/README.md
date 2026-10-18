@@ -28,3 +28,9 @@ Its [successor instruction pins](../../releases/canonical-refusal-successor-fs-v
 and [status provenance](../../releases/canonical-refusal-successor-fs-v1/PUBLIC-STATUS.md)
 describe this review checkpoint, not renewed operational authority. The typed
 example and all operational commands remain unchanged.
+
+The human-evidence successor has [locally frozen instruction pins](../../releases/canonical-human-evidence-fs-v1/INSTRUCTIONS.json),
+pending independent review, not public delivery or renewed authority.
+Its [instruction record](../../releases/canonical-human-evidence-fs-v1/INSTRUCTION-FREEZE.md)
+preserves the same installed typed example, explicit review/apply and original
+Issue/publication owners. No approval, iteration or activation workflow is admitted.
