@@ -9,11 +9,13 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-Agent **0.2.0a11** init-summary software is prepared and unselected in this
-private proposal. Instructions remain draft; integration, selection, freeze and
-publication require separate governance. The existing
-[delivery pointer](releases/SELECTED.json) still names the delivered a10
-predecessor. This layout does not claim public availability or update a client.
+The accepted Agent **0.2.0a11** init-summary successor is selected locally;
+public delivery is not yet authorized. Instructions remain draft. Use this
+reviewed checkout, not unchanged public main. The
+[delivery pointer](releases/SELECTED.json) binds the complete envelope;
+[local selection](releases/canonical-init-summary-fs-v1/LOCAL-SELECTION.md)
+records the boundaries. Instruction freeze and publication remain separate.
+Do not overlay installations, activate tooling or migrate contributor commands.
 Read [the init stream and review guide](protocols/INIT.md) before initialization.
 
 The activation-core P1 correction passed independent review; real

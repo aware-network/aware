@@ -1,9 +1,11 @@
 # Init summary whole distribution
 
-Prepared and unselected. Envelope `canonical-init-summary-source-notice-review-v1.tar.gz` is SHA256 `73f5038b365dcc7f193b7ebd71b77145d12fe2386311be75dcffd9afadd25df9`;
+Selected locally; public delivery is not yet authorized. Envelope `canonical-init-summary-source-notice-review-v1.tar.gz` is SHA256 `73f5038b365dcc7f193b7ebd71b77145d12fe2386311be75dcffd9afadd25df9`;
 accepted software is `d133ae36d78648b0f1c77652b7ab56ded7b2180620e0c023eccf9da4c2cc88e0`. Use [the entrance](../../README.md) and
 the [original whole-envelope installer](../../protocols/install.py). Instructions
-remain draft; integration, selection, freeze and publication are separate.
+remain draft; instruction freeze and publication are separate.
+[Local selection](LOCAL-SELECTION.md) binds complete accepted artifact coordinates;
+it does not activate tooling or grant operational authority.
 
 Read [LICENSE](LICENSE), [NOTICE](NOTICE),
 [third-party notices](source-history/THIRD_PARTY_NOTICES.md),
