@@ -26,3 +26,19 @@ Complete original implementation and handoff receipts remain retained for
 independent review. Both integration Issues remain In Progress. Acceptance,
 closeout, explicit remote publication authorization and separately admitted
 discoverability/useful-work evaluations are still distinct next gates.
+
+## Independent acceptance
+
+Independent review accepted implementation `7f4b8cded74a` and handoff
+`8e2936fba782`: eight integration and sixteen adapter checks passed. The retained
+52-case pre-effect receipt was verified, not rerun against the integrated tree.
+All fourteen postimages, eighteen pins, original Issue guards and completed
+CAS/index receipts match. Historical freezes, software, sources/notices and
+contributor governance remain unchanged.
+
+Review receipt: `/tmp/aware-useful-integration-review.GvLO4nMY/integration.xml`,
+SHA-256 `8051f841f03c09b6a4574c92841cce0d5942cac919e808bd266b5401f420df5d`.
+This accepts bounded local integration. Remote publication requires explicit
+target and outgoing-range authorization, followed by pinned acquisition.
+Discoverability and useful-work evaluations remain separate. No new installation,
+customer run, activation, GC change or push accompanies this acceptance.
