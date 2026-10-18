@@ -1,0 +1,90 @@
+{
+  "record_kind": "candidate_instruction_byte_pins",
+  "status": "frozen_locally_review_pending",
+  "baseline_revision": "498b2c4f8296f47f5b9d1ecbb2dd2d20e1d1b3c5",
+  "canonical_profile": "portable_protocols",
+  "catalog_revision": "ec4717726c3c7c822fa4fcc5cb7390fce4127f43",
+  "source_is_composite": true,
+  "package_selection_owner": "Workspace authored profile; this record is not a package catalog",
+  "envelope_sha256": "73f5038b365dcc7f193b7ebd71b77145d12fe2386311be75dcffd9afadd25df9",
+  "payload_sha256": "d133ae36d78648b0f1c77652b7ab56ded7b2180620e0c023eccf9da4c2cc88e0",
+  "source_index_sha256": "3bfb00f7950169a6bf916f38dc1a81536b0e4a5f243ce97c79302946a64bc164",
+  "public_delivery_authorized": false,
+  "whole_envelope_required": true,
+  "detached_wheels_accepted": false,
+  "unassisted_onboarding_proven": false,
+  "workspace_agent_mount_admitted": true,
+  "workspace_mount_profile": "bounded-reviewed-repository-manifest-a1",
+  "init_supplies_configuration_not_admission": true,
+  "a2_admitted": false,
+  "tree_completion_admitted": false,
+  "activation_core_p1_reviewed": true,
+  "independent_control_installation_reviewed": true,
+  "bounded_positive_ab_proof_reviewed": true,
+  "failure_interruption_qualified": false,
+  "stable_consumer_bridge_qualified": false,
+  "activation_included_in_this_delivery": false,
+  "tooling_activation_performed": false,
+  "files": {
+    "README.md": {
+      "bytes": 9771,
+      "sha256": "5447c255c76d5132771dc8ba2eec4d7553cd1095d4df1d7b8ecdcc3628fd07b3"
+    },
+    "protocols/COHERENCE.md": {
+      "bytes": 2584,
+      "sha256": "d643dd349141001b71d910ee326e081d3031dc05b070421e9a4fad3d17d1e925"
+    },
+    "protocols/INIT.md": {
+      "bytes": 3678,
+      "sha256": "5a0e86a6e364f7edab51146f58f34ce52458b558ca937af954ed67c9ef8ce442"
+    },
+    "protocols/INITIALIZATION.md": {
+      "bytes": 1295,
+      "sha256": "7514305b3f73da328c499fc1ea60aab0bba16fd9103f322154078f7e2bc434b3"
+    },
+    "protocols/README.md": {
+      "bytes": 882,
+      "sha256": "cb4ac9d6c67e79477ce65965c766dc6a8b10b38ce27867ec65cea8e7026f3685"
+    },
+    "protocols/WORKFLOW.md": {
+      "bytes": 24055,
+      "sha256": "01fa96169dafa67be0d50811fcea77c6c63595b30aba5d8e166eb76cd0be58b9"
+    },
+    "protocols/issues/FIRST-ISSUE.md": {
+      "bytes": 7785,
+      "sha256": "6a006c9bdc86fdbc4baf618de9db799b804c8486b760f92d9a0221fd79f12873"
+    },
+    "protocols/issues/README.md": {
+      "bytes": 1184,
+      "sha256": "70161e1c6f5d29196eefe714d30a8a71ba29a7e1f0128a9cd50c56a35b3a17ba"
+    },
+    "protocols/repository/README.md": {
+      "bytes": 1351,
+      "sha256": "ae476cb23bb59d4117a074f47654b2708137ef32707f758bc534967dc69785d5"
+    },
+    "protocols/specification/README.md": {
+      "bytes": 3414,
+      "sha256": "7cb08f493357537ba02cd3cf7e91de5bcd2c3a99e3e0343d1296c4a3b0e3947d"
+    },
+    "protocols/workspace/README.md": {
+      "bytes": 635,
+      "sha256": "3b32d4b6518db6b2445abc77737c697b4a08372e6da5b0a07bde019559310bf6"
+    },
+    "protocols/workspace/REVIEWED-SETUP.md": {
+      "bytes": 8608,
+      "sha256": "b20188ec640c84b0438a95ca4ddac79cc480576fda223f6e3ffc4a837c20830c"
+    },
+    "releases/README.md": {
+      "bytes": 1079,
+      "sha256": "8255a0874416c5b6cdfadba1d990650fc8f004812faf0ffbe61b044d3a4f7f57"
+    },
+    "releases/canonical-init-summary-fs-v1/README.md": {
+      "bytes": 2159,
+      "sha256": "60ace3b77f7169dc9c0fbd4bb23d42499f496ae58c86e218cf71876b9ce29c7a"
+    },
+    "workspaces/aware_kernel/modules/specification/sdks/specification/python/cli/examples/prepare_draft_input.py": {
+      "bytes": 2081,
+      "sha256": "21e1bea900ae75e47be2ff889e87d514cba08ba9f325681dcc0ee3f1df68bcb5"
+    }
+  }
+}

@@ -1,10 +1,16 @@
 # Init summary streams and explicit decisions
 
-Draft instructions for the prepared, unselected Agent 0.2.0a11 successor.
+Agent 0.2.0a11 is selected locally; these instructions are frozen locally pending independent
+review. Public delivery is not yet authorized.
 Use the one [whole-envelope installation](../README.md) and your genuine harness
 identity. Keep the [public contributor checkout](../AGENTS.md) separate from
 the explicitly selected customer target. No service, Issue admission or
 Workspace apply authority follows from installing or configuring tooling.
+
+The activation-core P1 correction, independent control installation and
+bounded positive A/B proof passed review. Failure/interruption qualification
+and the stable consumer bridge remain held. None is included or activated
+by this delivery.
 
 ## Read init summaries and preserve full receipts
 

@@ -22,6 +22,13 @@ include the unchanged canonical typed example. Executing it only prepares input 
 setup, draft preview/apply, observation and publication retain their original
 owners and separately admitted authority.
 
+The init-summary successor is selected locally, with instruction bytes frozen
+pending independent review. Public delivery is not yet authorized. Its
+[exact instruction pins](../../releases/canonical-init-summary-fs-v1/INSTRUCTIONS.json)
+include the unchanged canonical typed example; this binds bytes, not authority.
+The [freeze record](../../releases/canonical-init-summary-fs-v1/INSTRUCTION-FREEZE.md)
+preserves explicit preview/apply and whole-envelope delivery requirements.
+
 The refusal successor's software was published at
 [`afa2d7116a296b5585ed7acac158eede2c447d5b`](https://github.com/aware-network/aware/blob/afa2d7116a296b5585ed7acac158eede2c447d5b/protocols/specification/README.md).
 Its [successor instruction pins](../../releases/canonical-refusal-successor-fs-v1/PUBLIC-INSTRUCTIONS.json)

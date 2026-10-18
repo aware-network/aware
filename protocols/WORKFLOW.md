@@ -1,16 +1,20 @@
 # Aware filesystem workflow
 
-Prepared, unselected Agent 0.2.0a11 init-summary successor; instructions are draft.
+Agent 0.2.0a11 init-summary successor is selected locally. Instructions are
+frozen locally pending independent review; public delivery is not yet authorized.
 One 42-package installation composes the original Issue, Protocol, SPEC and
 reviewed Workspace owners. SDK/runtime/FS remain 0.2.11/0.2.16/0.1.10,
-FileSystem 0.3.8 and Issue SDK 0.10.6. Existing a10 selection and delivery remain
-unchanged. This private layout is not public availability or unassisted proof.
+FileSystem 0.3.8 and Issue SDK 0.10.6. This local checkpoint is not public
+availability or unassisted proof. [Exact instruction pins](../releases/canonical-init-summary-fs-v1/INSTRUCTIONS.json)
+and [freeze record](../releases/canonical-init-summary-fs-v1/INSTRUCTION-FREEZE.md)
+bind guidance, not operation authority.
 Read [init summary streams and decisions](INIT.md); full receipts remain
 available in the same invocation without replay or renewed authority.
 
-The activation-core P1 correction passed independent review; real
-validator/control-runtime integration, artifacts and private A/B activation
-proof remain unqualified.
+The activation-core P1 correction, independent control installation and
+bounded positive A/B proof passed review. Failure/interruption qualification
+and the stable consumer bridge remain held. None is included or activated
+by this delivery.
 
 ## Install with the complete envelope
 
