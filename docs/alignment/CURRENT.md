@@ -19,4 +19,7 @@ by this delivery.
 
 ## Prepared reference successor
 
-A12 stdin/focus navigation is independently qualified but unselected; it does not automate Issue guards, select work or activate a service. Current useful-task instructions and frozen evaluations remain preserved. Publication stays separate.
+A12 stdin/focus navigation is selected locally; public delivery is not yet authorized.
+Instructions remain draft. It does not automate Issue guards, select work or
+activate a service. Useful-task instructions and frozen evaluations are preserved.
+Instruction freeze and publication remain separate; whole-envelope carriage is mandatory.

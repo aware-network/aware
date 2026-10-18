@@ -23,12 +23,13 @@ are parallel future elevations, not prerequisites for this path.
 
 ## Prepared reference successor
 
-Agent **0.2.0a12** is prepared and unselected; instructions remain draft.
-The proposed installer targets this candidate, not the currently selected a11.
-See [reference navigation](protocols/workspace/REFERENCE-NAVIGATION.md) and
-[qualification bounds](releases/canonical-reference-fs-v1/REVIEW-STATUS.md). Existing useful-task and
-implementation/draft branches remain unchanged. Workspace stdin/focus does not
-automate Issue guards. Integration, selection, freeze and publication are separate.
+Agent **0.2.0a12** is selected locally; public delivery is not yet authorized.
+Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
+[local selection](releases/canonical-reference-fs-v1/LOCAL-SELECTION.md) records
+the limits. Existing useful-task and implementation/draft branches are unchanged.
+Workspace stdin/focus does not automate Issue guards. Instruction freeze and
+publication remain separate; do not overlay installations or migrate contributor commands.
 
 ## Start with the shipped software
 
