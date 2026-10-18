@@ -2,7 +2,7 @@
 
 - Slug: canonical-human-evidence-public-integration-v0
 - Tag: fb/2026-10-18/canonical-human-evidence-public-integration-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -55,6 +55,7 @@
 
 
 
+
 ## Problem
 1. Accepted human-evidence layout is not yet integrated against the exact incoming public revision.
 
@@ -63,8 +64,10 @@
 
 
 
+
 ## Goal
 1. Project the reviewed 35-path delta with complete source/notice carriage, preserving contributor governance and predecessor selection.
+
 
 
 
@@ -81,9 +84,18 @@
 
 
 
+
+## Verified-by
+- Independent28 guards+8 integration passes,XMLsha256:7e42f0387a7ff3fe58e816387fab432a3736afa74b8cc3f484e61512d067ad44;retained installation only;no customer replay.
+- git:e867178a4d82aa1b6e091ce2a954e59243738686
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Original exact projection completed35 accepted changes; 28 producer guards and8 public integration checks pass. Retained exact42-package installation verified read-only through16 subprocesses and137 original module origins. Failed initial producer test filenames retained. No new build/install,customer replay,selection,freeze,activation,push or GC change. Independent review remains required; acceptance boxes are not automatically checked. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Implementation b191ca630554963e5a7793cb28f15c8ea7842ddd has exact39-path scope and matching committed Issue guard; original planned/applied receipts complete with cas_applied/shared-index applied and no reconciliation pending. 28 projection guards +8 integration cases pass using retained installation, not fresh/customer replay. Independent review required before closeout; selection/freeze remain separate. No push/GC change; frozen U/V/R preserved. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Human supplied independent bounded PASS for b191ca630554/9a2df4a056d3, producer1cf769faf243:28 guards+8 integration passes,39+2 exact scopes,all1662 accepted postimages/modes,original Issue guards and complete CAS/index without debt. Retained read-only proof,not fresh installation/customer replay;initial filename failures remain retained. XML7e42f0387a7ff3fe58e816387fab432a3736afa74b8cc3f484e61512d067ad44. No correction;closure may proceed through original owner. Activation-core correction remains outstanding;no selection/activation/push/GC change. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Accepted bounded exact local integration; selection,freeze,activation and publication remain separate.
