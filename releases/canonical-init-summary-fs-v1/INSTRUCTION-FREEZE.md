@@ -48,3 +48,12 @@ written; no rendered documents or authority. The first mount failed before probe
 execution; only that mount target changed for the passing execution. Both
 captures remain retained. Independent review and original-owner closeout remain
 pending after local publication.
+
+## Local publication handoff
+
+Implementation: `1aaa663ff6e5913d52088bf46e9f6e2b22eb8080`, exactly 12 paths.
+Actual targets and committed Issue bytes match original dry-run/apply receipts
+and observed guard. The owner reports `cas_applied`, shared-index `applied` and
+reconciliation pending `false`. Fifteen pins match exact guidance/example bytes;
+software and all operational shell blocks remain unchanged. This two-path
+Issue/report handoff is not public-delivery or activation authorization.

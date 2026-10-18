@@ -26,14 +26,17 @@
 
 
 
+
 ## Problem
 1. Accepted local selection lacks exact successor instruction pins and current qualification wording.
 
 
 
 
+
 ## Goal
 1. Freeze 15 exact instruction/example pins across 12 admitted paths without operational changes, activation or public delivery.
+
 
 
 
@@ -46,7 +49,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Seven instruction checks pass using retained installation:15exact pins,12path scope,1697unaffected files/all1705modes, unchanged operational blocks/software/source/notices/installer/contributor governance. Current accepted control-installation and bounded positive A/B evidence distinguished from held failure/interruption and stable bridge; nothing included/activated. Separate pure installed example roundtrips1142bytes, renders6members in memory, cleanup closed; only input snapshot written. Initial probe mount failed before execution, corrected mount passes, both captures retained. No fresh install/customer replay/GC change/push; independent review pending. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Implementation1aaa663ff6e5 has exact12-path scope; original Issue guard matches committed bytes, CAS/shared index applied/no debt.15pins and seven instruction cases pass; unchanged operational blocks,software/source/notices/installer/contributor governance. Separate pure installed1142byte exact roundtrip/six in-memory members/cleanup closed, no documents or authority. Initial mount failure preserved. Both Issues In Progress for independent review. Accepted bounded control installation/positive A/B distinct from held failure/interruption/stable bridge, nothing included or activated. No public-delivery authority, new install/payload copy,GC change or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
