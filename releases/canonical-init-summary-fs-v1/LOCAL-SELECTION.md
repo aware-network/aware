@@ -34,3 +34,13 @@ operation or restore authority. Frozen evaluations and GC holds remain unchanged
 Independent selection review precedes original-owner closeout. Instruction freeze
 and exact-range publication are separately governed. No activation, new build,
 installation, customer replay or push is included.
+
+## Implementation and independent review handoff
+
+Source receiver: `153021b7678e289f074fa94f264a0ebcdaf53849`.
+Local implementation: `249813b6a6602a2c741f79383aaf0f02ae412d3d`, exactly eight
+paths. Seven receiving cases passed using the retained installation. Actual
+commit scope and Issue-byte guard match the original receipt targets; CAS/index
+completed without reconciliation debt. No software or source/notice bytes were
+changed. Both selection Issues remain In Progress pending independent review.
+This two-path handoff is not an instruction freeze or public-delivery approval.
