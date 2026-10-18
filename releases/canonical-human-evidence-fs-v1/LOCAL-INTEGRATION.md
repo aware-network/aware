@@ -41,3 +41,9 @@ Reference update is `cas_applied`, shared-index projection `applied`, reconcilia
 `implementation-account.json` binds original receipt scope, actual commit paths and Issue-byte correlation.
 
 Independent integration review remains required before closing either integration Issue. Acceptance boxes remain authored review criteria, not automatically checked by successful tests. Selection and instruction freeze remain separately governed later steps.
+
+## Independent acceptance
+
+Independent bounded PASS for implementation `b191ca630554` and handoff `9a2df4a056d3`, producer record `1cf769faf243`, reproduced 28 projection guards and eight integration cases. The independent XML is `/tmp/aware-human-integration-review.2NrGZwPy/integration.xml`, SHA-256 `7e42f0387a7ff3fe58e816387fab432a3736afa74b8cc3f484e61512d067ad44`; it reports zero failures, errors or skips. Exact 39-path implementation and two-path handoff, accepted postimages/modes, original Issue guards and CAS/index receipts match without reconciliation debt. Sixteen read-only installed commands and all 137 original module-origin hashes verify.
+
+No correction was requested. The original owner may close this bounded integration Issue using the actual acceptance publication receipt. Authored acceptance boxes remain unchanged, not an automated verdict. The activation-core correction remains outstanding and is not accepted, activated or required by this local integration. Selection and instruction freeze remain separately scoped cuts; whole-envelope requirements, frozen evaluations and GC holds remain unchanged.
