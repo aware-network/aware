@@ -54,6 +54,7 @@
 
 
 
+
 ## Problem
 1. Accepted init-summary layout is not yet integrated against the exact incoming public revision.
 
@@ -61,8 +62,10 @@
 
 
 
+
 ## Goal
 1. Project the reviewed 35-path delta with complete source/notice carriage, preserving contributor governance and predecessor selection.
+
 
 
 
@@ -77,8 +80,10 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - 28 projection guards and eight maintainer checks pass. Exact 1698 layout postimages/modes, 39-path public scope, complete source/notices, predecessor and contributor governance preserved. Retained exact-candidate read-only proof: 42 versions, 13 help entrances, dependencies, no-identity refusal effect none and 153 original module hashes. No fresh install, customer workflow, selection, activation, GC change or push. Independent integration review pending. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Local implementation 217ee82151e45c6ea60b5645a7f88a76d48a5bf5 has exactly 39 admitted paths. Actual Issue bytes match original observed digest; original apply reports cas_applied, shared index applied and no reconciliation debt. 28 guards and eight maintainer cases passed, including sixteen retained-installation read commands and 153 module hashes. Whole-envelope carriage required. Independent review pending; Issue remains In Progress. No fresh install, customer replay, selection, activation, GC change or push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Human supplied independent PASS for 217ee82151e4/a36484252731, producer a975f69ef30e. 28 guards and eight integration passes independently reproduced; exact39/two-path scopes,1698postimages/executable modes, original Issue guards and CAS/index without debt verified. Retained42versions/dependencies/13help/no-identity refusal/153origin hashes verify; complete carriage and predecessor/contributor governance preserved. Record acceptance without rerunning tests. This is retained verification, not fresh install or customer replay. Whole-envelope mandatory; selection/freeze separate, no activation/GC change/push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
