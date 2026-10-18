@@ -1,0 +1,112 @@
+{
+  "accepted_handoff_revision": "79e6fc742c5fb11ddfc4fe0ad732ae19502f0c82",
+  "accepted_postimages": {
+    "protocols/FIRST-USEFUL-TASK.md": {
+      "after_sha256": "077d09e7b25ae5e4110e3bc390a4ddc89ef120f6d4c53f15ba7ccfdb52928638",
+      "before_sha256": "8bacf115587ccf44ad1218d1a4bb3c4329eb8d7b351e4a8a093ba6b34c0586e6",
+      "bytes": 11872,
+      "git_mode": "100644"
+    },
+    "protocols/issues/FIRST-ISSUE.md": {
+      "after_sha256": "c9b1546327f9c61f401fd67501a9913c8288eba110bd65caa06927f1622032e0",
+      "before_sha256": "6a006c9bdc86fdbc4baf618de9db799b804c8486b760f92d9a0221fd79f12873",
+      "bytes": 18207,
+      "git_mode": "100644"
+    },
+    "protocols/tasks/JSON-CHECKER.md": {
+      "after_sha256": "d78ebce65c148761f9074f2627548c62e92258d62e72f2386ea15d1bab544e46",
+      "before_sha256": "88a39a91928fea9d5cbdacf74f74bc1f9be2bb5f27a0591200835ebc42035224",
+      "bytes": 2977,
+      "git_mode": "100644"
+    },
+    "releases/SELECTED.json": {
+      "after_sha256": "7645089918aeaf89fced69ed37f4c3f2f7aaed6047b54e884745a4804b3625fc",
+      "before_sha256": "3f834f5ee0169a5d2623a4f71b9e0bcf167c5872ec43430e7fee0580dadefe1a",
+      "bytes": 1927,
+      "git_mode": "100644"
+    },
+    "releases/canonical-init-summary-fs-v1/PUBLIC-INSTRUCTIONS.json": {
+      "after_sha256": "1015bb6d4b33d404492045212a44421942cb3fce68cd39fcd4322f5a3bb904fe",
+      "before_sha256": "fc1d43d1d7110c3f98ba1b7ab3f40710885c163d0ff66bd654b9835441eb731b",
+      "bytes": 4447,
+      "git_mode": "100644"
+    },
+    "releases/canonical-init-summary-fs-v1/PUBLIC-STATUS.md": {
+      "after_sha256": "88a3630e12adb50990b9de836dbc022ccef6d851bdcd51d92e57ea42576bfb35",
+      "before_sha256": "d02458f57fcf829f8721016747d821b9b6fb967287f95db7096b07becb0d0ad7",
+      "bytes": 2922,
+      "git_mode": "100644"
+    },
+    "releases/canonical-init-summary-fs-v1/README.md": {
+      "after_sha256": "f421e0594f866391934e900b7c1ea95ec3deb964c7d458b478b211387626f7cc",
+      "before_sha256": "ba38f89ab068adbe5ff4ec214b86f7af5ca9b2a7521bce4db12d92e3211e380f",
+      "bytes": 2388,
+      "git_mode": "100644"
+    }
+  },
+  "accepted_source_revision": "4ff7d7dc2315047838b2fc86cf7318a66cfd2535",
+  "admitted_issue_source_sha256": "sha256:49a0588c6d900294dc53212e93075089c459976d14b3e1c0cd3e2b5c56c0a999",
+  "baseline_file_count": 1718,
+  "baseline_revision": "379cd5dcbe26c256be82c760b73fc100fdfc0fc6",
+  "expected_file_count_after_implementation": 1722,
+  "independent_integration_acceptance": false,
+  "instruction_pins": 18,
+  "integration_extra_paths": [
+    "docs/issues/2026/10/18/fb-2026-10-18-public-implementation-integration-v0.md",
+    "releases/canonical-init-summary-fs-v1/IMPLEMENTATION-INTEGRATION.json",
+    "releases/canonical-init-summary-fs-v1/IMPLEMENTATION-INTEGRATION.md",
+    "releases/canonical-init-summary-fs-v1/test_implementation_integration.py"
+  ],
+  "new_build_or_installation": false,
+  "protected_inputs": {
+    ".aware/agent-bootstrap.json": {
+      "git_mode": "100644",
+      "sha256": "2d924a85725872ee4161a9757eecb893145c9d7898430820f28c9fc72e1349d5"
+    },
+    "AGENTS.md": {
+      "git_mode": "100644",
+      "sha256": "2515aaed324f1f03c5d709bccde06c930987c369092f2bc223bfe9a9371af8e9"
+    },
+    "aware.protocol.toml": {
+      "git_mode": "100644",
+      "sha256": "924735fd1bab9479765d3f118a6b41c5ed0ad15f1c10cbac10706b4f9f6ae902"
+    },
+    "protocols/install.py": {
+      "git_mode": "100644",
+      "sha256": "cea1b36b8d45fe4266bcfe1082125b2bfad9721b468ca692c2be26563e7a0c2e"
+    },
+    "releases/canonical-init-summary-fs-v1/INSTRUCTION-FREEZE.md": {
+      "git_mode": "100644",
+      "sha256": "254b0c55320918814a64eb769761f9ccd2164d4b0bb937b7ad70ebbfe8f1c75c"
+    },
+    "releases/canonical-init-summary-fs-v1/INSTRUCTIONS.json": {
+      "git_mode": "100644",
+      "sha256": "eb47b7752ca43f80df6926e37175a1f2822772034da0a32d3138352dc32ef2a8"
+    },
+    "releases/canonical-init-summary-fs-v1/LOCAL-SELECTION.md": {
+      "git_mode": "100644",
+      "sha256": "f2febc8d032d2b625cfc4c6a7914e7e11ca423c19a81ef0afc0b736c65c6fa6d"
+    },
+    "releases/canonical-init-summary-fs-v1/canonical-init-summary-source-notice-review-v1.tar.gz": {
+      "git_mode": "100644",
+      "sha256": "73f5038b365dcc7f193b7ebd71b77145d12fe2386311be75dcffd9afadd25df9"
+    }
+  },
+  "push_authorized": false,
+  "qualification": "Shipped a11 retained reads; no new installation, customer evaluation, a12 requirement or Issue-guard automation.",
+  "receiver_sha256": "90a56bcb3b14366deb7d4822fe39d19c85d3e32156978184ab07a72387e3f9e8",
+  "record_kind": "local_implementation_instruction_integration",
+  "scope_paths": [
+    "docs/issues/2026/10/18/fb-2026-10-18-public-implementation-integration-v0.md",
+    "protocols/FIRST-USEFUL-TASK.md",
+    "protocols/issues/FIRST-ISSUE.md",
+    "protocols/tasks/JSON-CHECKER.md",
+    "releases/SELECTED.json",
+    "releases/canonical-init-summary-fs-v1/IMPLEMENTATION-INTEGRATION.json",
+    "releases/canonical-init-summary-fs-v1/IMPLEMENTATION-INTEGRATION.md",
+    "releases/canonical-init-summary-fs-v1/PUBLIC-INSTRUCTIONS.json",
+    "releases/canonical-init-summary-fs-v1/PUBLIC-STATUS.md",
+    "releases/canonical-init-summary-fs-v1/README.md",
+    "releases/canonical-init-summary-fs-v1/test_implementation_integration.py"
+  ]
+}

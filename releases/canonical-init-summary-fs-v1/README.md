@@ -24,3 +24,7 @@ twelve findings and raw clearance=not_granted. Native/PSF accounts do not prove
 exact linkage or complete header/toolchain origin. The outer customer guide
 supersedes the immutable inner README's obsolete pre-init wording; source
 READMEs are history, not instructions. No legal warranty or broad readiness follows.
+
+## Current supported use
+
+The shipped a11 software is available at the published revision named above. The latest evaluated guidance is `379cd5dcbe26`; it uses the same installation. See [current supported use and evidence limits](PUBLIC-STATUS.md), including the reported useful-code trial and supplemental discoverability observation. Historical checkpoints and legal/source maps remain below their own evidence boundaries; they are not a new runtime admission.

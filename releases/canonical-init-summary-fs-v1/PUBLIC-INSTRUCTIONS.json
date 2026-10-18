@@ -23,8 +23,8 @@
       "sha256": "526919899c486912c3d40d3a33344a47b9220d7729e58d1d97e6f16b2d915d2e"
     },
     "protocols/FIRST-USEFUL-TASK.md": {
-      "bytes": 11318,
-      "sha256": "8bacf115587ccf44ad1218d1a4bb3c4329eb8d7b351e4a8a093ba6b34c0586e6"
+      "bytes": 11872,
+      "sha256": "077d09e7b25ae5e4110e3bc390a4ddc89ef120f6d4c53f15ba7ccfdb52928638"
     },
     "protocols/INIT.md": {
       "bytes": 3741,
@@ -43,8 +43,8 @@
       "sha256": "5a52cf7bae5fe92024dc1c5d5c55493e4d75ffed41c59e63cbb320e5193db1b6"
     },
     "protocols/issues/FIRST-ISSUE.md": {
-      "bytes": 7785,
-      "sha256": "6a006c9bdc86fdbc4baf618de9db799b804c8486b760f92d9a0221fd79f12873"
+      "bytes": 18207,
+      "sha256": "c9b1546327f9c61f401fd67501a9913c8288eba110bd65caa06927f1622032e0"
     },
     "protocols/issues/README.md": {
       "bytes": 1184,
@@ -59,8 +59,8 @@
       "sha256": "4217f1e9387e3e6c0a4dc329bcf915e1b252712e47312a71d959f190263683e0"
     },
     "protocols/tasks/JSON-CHECKER.md": {
-      "bytes": 2957,
-      "sha256": "88a39a91928fea9d5cbdacf74f74bc1f9be2bb5f27a0591200835ebc42035224"
+      "bytes": 2977,
+      "sha256": "d78ebce65c148761f9074f2627548c62e92258d62e72f2386ea15d1bab544e46"
     },
     "protocols/workspace/README.md": {
       "bytes": 635,
@@ -75,8 +75,8 @@
       "sha256": "990466e462fa1902742552775cd94a86f2205aa8016d9049c99fcf6e47c7b60d"
     },
     "releases/canonical-init-summary-fs-v1/README.md": {
-      "bytes": 1923,
-      "sha256": "ba38f89ab068adbe5ff4ec214b86f7af5ca9b2a7521bce4db12d92e3211e380f"
+      "bytes": 2388,
+      "sha256": "f421e0594f866391934e900b7c1ea95ec3deb964c7d458b478b211387626f7cc"
     },
     "workspaces/aware_kernel/modules/specification/sdks/specification/python/cli/examples/prepare_draft_input.py": {
       "bytes": 2081,
@@ -95,7 +95,8 @@
   "source_index_sha256": "3bfb00f7950169a6bf916f38dc1a81536b0e4a5f243ce97c79302946a64bc164",
   "source_is_composite": true,
   "stable_consumer_bridge_qualified": false,
-  "status": "useful_task_alignment_review_pending",
+  "status": "implementation_guidance_review_pending",
+  "tested_guidance_revision": "379cd5dcbe26c256be82c760b73fc100fdfc0fc6",
   "tooling_activation_performed": false,
   "tree_completion_admitted": false,
   "unassisted_onboarding_proven": false,

@@ -42,6 +42,8 @@ about a missing target, material ambiguity or additional effect. Read the target
 instructions before mutation. Do not infer a task, scope or authority from a
 transcript, cached selection or the fact that a command is available.
 
+The latest evaluated guidance is `379cd5dcbe26c256be82c760b73fc100fdfc0fc6`; shipped software remains Agent a11 at `faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`. These are guidance and software coordinates, not two installations. Read [current supported use](../releases/canonical-init-summary-fs-v1/PUBLIC-STATUS.md) for exact evidence and limits; historical checkpoints are not live availability.
+
 ## Follow one installed consumer rail
 
 Use the [pinned public acquisition and installation instructions](https://github.com/aware-network/aware/blob/faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89/README.md)
@@ -76,11 +78,7 @@ into a customer repository or replace an existing selected command implicitly.
    summary mode keeps full JSON on stderr in the same invocation. Init supplies
    configuration, not Issue admission, scope approval or apply authority. It
    creates no seed commit or remote and starts no service.
-3. Follow the [first-Issue operations](https://github.com/aware-network/aware/blob/faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89/protocols/issues/FIRST-ISSUE.md)
-   with the customer's outcome, acceptance and exact paths. Its sample is
-   draft-only: replace that task text and scope explicitly; do not run it
-   unchanged and call it application work. Observe actual ownership, scope and
-   `in_progress` state through the original owner before editing.
+3. Use the complete [implementation branch](issues/FIRST-ISSUE.md#implementation-branch-for-a-tested-json-checker) for the selected JSON checker, or separately admit your own task's exact paths. The draft branch remains available for draft-only work. Observe owner, exact scope and `in_progress` through the original Issue owner before editing; no translation from a draft objective is needed.
 4. Add a SPEC draft only if selected for this task, using the original
    [setup, typed input, target-fit and explicit preview/apply workflow](https://github.com/aware-network/aware/blob/faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89/protocols/WORKFLOW.md).
    Choose that before the affected design work; a draft does not approve an
@@ -141,8 +139,7 @@ visibility was disclosed; these are not isolated swarm or crash-recovery proofs.
 
 These observations support bounded coordination and clearer immediate decisions.
 They do not measure faster work, reduced Human intervention, broad onboarding,
-customer application correctness or full coherence. The next useful-work run
-must establish those task outcomes separately rather than inherit them from U/V/R.
+customer application correctness or full coherence. A later coordinator-selected useful-work U reported code and local closeout; its [current evidence and limits](../releases/canonical-init-summary-fs-v1/PUBLIC-STATUS.md) are separate from that earlier U/V/R. The next task trial should be genuinely customer-selected and compatibility-reviewed for an existing repository.
 
 For that run, report the exact customer outcome; test commands/results and actual
 interpreter; source scope and preservation; publication/closeout state; blockers,
