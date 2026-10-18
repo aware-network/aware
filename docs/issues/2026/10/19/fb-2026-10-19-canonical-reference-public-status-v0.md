@@ -30,14 +30,17 @@
 
 
 
+
 ## Problem
 1. Delivered f372cf75aaa2 currentguides retain localfreeze labels;historical records must remain unchanged.
 
 
 
 
+
 ## Goal
 1. Align currentdelivery wording and19successorpins,without changing software,commands or original authority.
+
 
 
 
@@ -50,7 +53,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - EightreceivingPASS19successorpins andoriginalstale/missingrevision/bytecontrols. Exact16pathstatusscope preserves1744unaffectedfiles/1756modes,software/installer/legal/history/contributora6. Commands/example/evidence-map unchanged;usefultask links pinnedtodeliveredf372 withoutclaimingnewa12evaluation.16retainedreadonlycommands42versions154origins,noinstall/replay. Sourcec619a4adf571. Independent review next;additionalrangepublicationunauthorized,no activation/GCchange/push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Implementationa83b5d23a423aa7f027cae1319848470806edc75 exact16paths;8checksPASS19successorpins,16retainedreadonlycommands42versions/154origins. PUBLIC-STATUS handoff added,sourcec619a4adf571. Commands/history/software/source/legal preserved;newa12evaluationunclaimed. Originalplans/guards/CASindex andactualscope verification retained. Independent review next,bothIssuesInProgress;no additionalpush/newinstall/replay/activation/GCchange. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
