@@ -162,3 +162,7 @@ Repository publication and Issue closeout remain separate original operations;
 reviewed setup neither commits customer files nor closes the Issue. This guide
 is supported by scripted installed cases, not fresh unassisted onboarding,
 multi-agent coherence, crash recovery or application correctness acceptance.
+
+## Prepared reference navigation
+
+The unselected a12 [reference-navigation guide](REFERENCE-NAVIGATION.md) adds explicit captured-result stdin and historical focus. It grants no authority, approval or Issue-guard automation.

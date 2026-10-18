@@ -438,3 +438,7 @@ refusals exit 2; genuine incompleteness remains 3; interruption remains 130.
 Carried code does not admit A2/tree completion, services, objects,
 materialization, Project/Goal workflows or broader native performance.
 Read [the entrance](../README.md) and retain complete source/notice carriage.
+
+## Prepared reference navigation
+
+The prepared a12 [stdin and focused-history guide](workspace/REFERENCE-NAVIGATION.md) retains two explicit decisions and manual Issue guards. It is unselected draft guidance, not a new admission.

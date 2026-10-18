@@ -365,7 +365,8 @@ container; returned bytes may be its original captured command, not that
 container's schema. Both commands require the same explicit roots and exact
 SDK-issued reference. Wrong-kind `show` still preserves its actual failure,
 retention uncertainty and exit outcome; a reader hint does not clear them.
-No Agent file reader, record writer, private plan access or decoder is involved.
+No Agent file reader, record writer, private plan access or SDK-schema/capture
+decoder is involved.
 
 For incomplete retention/cleanup, the human explanation goes to stderr and
 **full available JSON remains on stdout in the same invocation**. This does
@@ -408,4 +409,67 @@ or authority is created. Original full command JSON v1 stays unchanged.
 
 This source cut still needs independently accepted successor versions/artifacts
 and joined installed qualification; existing public installations are unchanged.
+
+### Exact result input and focused history source successor
+
+This source-only successor adds `--reference-from-stdin` to `show`, `scope`,
+`apply` and `evidence`, mutually exclusive with `--reference`. It reads one saved
+Agent `--json` result and selects only its top-level `/reference`, then uses the
+original SDK codec and readers. No custom reference, guard or live continuation
+is reconstructed. Status/ready fields in a capture grant no approval. Explicit
+roots, client intent and both separate consent decisions remain required.
+
+Capture JSON from the original invocation once; shell redirection saves tooling
+output, not an agent-authored record. Do not rerun a mutation to get JSON. If it
+was not saved, retain the original inline reference and use the legacy option.
+For a separately qualified successor, a saved first result can be inspected:
+
+```bash
+aware workspace review show \
+  --repository-root "$repository_root" --evidence-root "$evidence_root" \
+  --reference-from-stdin --focus scope < /absolute/saved-first-result.json
+```
+
+Only after that review, the caller explicitly invokes scope with the same saved
+result, a new declared intent and `--accept-reviewed-effect-scope`. Save that
+original scope result, inspect its second preview/final files, then explicitly
+invoke apply using that result and `--accept-reviewed-final-files`. Do not pipe
+prepare directly into mutation or pre-approve a review that has not occurred.
+Stale input refuses unchanged; no automatic observation, refresh or retry.
+
+Stdin must be noninteractive binary input, strict UTF-8, exactly one JSON object
+with the existing Agent result contract, and at most 2 MiB. Duplicate keys,
+non-finite numbers, depth above 64 and more than 65,536 nodes refuse before SDK
+client acquisition. Only top-level `/reference` is selected: no nested fallback,
+latest-file lookup, alias, file reader or receipt store. Raw `evidence` output
+and human explanations are not input frames. SDK limits still apply to the
+selected reference. Caller stdin is not closed. A byte limit is not a time
+limit: a producer that never sends EOF can block until cancellation.
+
+New transport adds only `reference_input` metadata: fixed source/selector,
+observed byte count, EOF observed and full-frame SHA-256 (null until EOF).
+A prefix is not a complete capture or authenticated owner evidence. Original
+SDK failures retain their reasons; local read/framing refusals exit 2 and input
+interruption exits 130 without creating an SDK record or invoking the product.
+
+Explicit `show --focus overview|scope|files|guards` selects a human historical
+view; scope and files list every selected original path, guards label original
+Issue, authority-manifest and plan guards. Target/context, uncertainty and client
+cleanup remain visible. No view observes fresh guards or grants current use.
+Explicit focus with `--json` refuses; omitted focus preserves the original output.
+Existing JSON defaults and raw evidence bytes remain unchanged. This is not a
+semantic summary of arbitrary refusal/outcome captures or a spent-cause diagnosis.
+
+Review reporting explicitly flushes output and closes only a failed terminal
+buffer, preserving 3/130 through shutdown. If sole stdout delivery fails before
+any stderr use, original values are attempted once on stderr. In the existing
+incomplete two-channel mode, each original channel is still attempted once;
+loss of its full-output channel does not guarantee complete delivery through
+the explanation channel. Retain surviving output and never redispatch to repair
+reporting. Terminal stream closure is not SDK cleanup or outcome confirmation.
+
+Version allocation, artifacts and installed proof follow independent source
+review. Do not build these changed sources under the accepted a11 identity or
+overlay current consumers. Frozen evaluations and inherited qualifications stay
+unchanged.
 It does not rebuild the immutable 0.2.0a9 artifacts under their existing identity.

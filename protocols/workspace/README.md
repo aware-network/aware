@@ -8,3 +8,5 @@ and full evidence reads renew no authority; no retry or guard refresh is offered
 The [manual guide](FIRST-SETUP.md) remains history, not broader acceptance.
 Read the [workflow](../WORKFLOW.md) and [coherence rules](../COHERENCE.md).
 No A2/tree, Service, Object or materialization join is admitted.
+
+[Prepared a12 reference navigation](REFERENCE-NAVIGATION.md) is draft and unselected; current explicit decisions and original guards remain.

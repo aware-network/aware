@@ -1,0 +1,4082 @@
+{
+  "candidate_archive_sha256": "8c804765c0aae2ee8ffe72768158867eab29dae93c669ec6c259421103eaf0e8",
+  "candidate_manifest_sha256": "d7afc351070ccaa3a72acb52881924ab92b3f92a0c212ccbbafd672be31ee915",
+  "delivery_requirement": "whole_envelope_only",
+  "detached_wheel_gaps": [
+    "aware-code-module-manifest-contract-runtime",
+    "aware-code-package-delta-contract",
+    "aware-code-retained-registry-policy-runtime",
+    "aware-code-semantic-contract-runtime",
+    "aware-workspace-runtime",
+    "aware-workspace-sdk"
+  ],
+  "inherited_inputs": {
+    "build-inputs/jsonschema/SOURCE.json": {
+      "bytes": 691,
+      "sha256": "b1a88bb412f742c9a0ae9a8e9489390611cacfd964bea356bd8c1d83aadfe936"
+    },
+    "build-inputs/jsonschema/build-constraints-jsonschema-v1.txt": {
+      "bytes": 778,
+      "sha256": "f5ec3a01df64088a17fea59482bc6f3a1756f0d87099cb4708c7cfc106457bba"
+    },
+    "build-inputs/jsonschema/jsonschema_omit_benchmarks_v1.py": {
+      "bytes": 13562,
+      "sha256": "22e4cdd3a50e1ae4e35d75460f64deb63e596256498713193da02c7c17517141"
+    },
+    "notices/json-schema/COPYING.jsonschema-specifications": {
+      "bytes": 1057,
+      "sha256": "42dcd63495f87b4eb7c7757afa379bb55a53f94afd7a5f657d9adf57236e515c"
+    },
+    "notices/json-schema/INDEX.json": {
+      "bytes": 1029,
+      "sha256": "75d0fe7c87412ffcbfc4002c35fd0707d8e18dee172765e5bf4ab9523e0b23f5"
+    },
+    "notices/json-schema/LICENSE.json-schema-spec": {
+      "bytes": 11739,
+      "sha256": "909b25a80d4945b21d3adb2fb17f90bf592e0274bdf117c069c088a8e44dc7b6"
+    },
+    "notices/json-schema/SCHEMA-NOTICE.md": {
+      "bytes": 4688,
+      "sha256": "66e92a3865a66587f31ac6ff1ffc47a2e85110bfa294d09b2bed460cc4c7f067"
+    },
+    "notices/new-dependencies/NOTICE.md": {
+      "bytes": 661,
+      "sha256": "20b9d0cfe927cbee89fde64a0e6cc72c05babc77436b9ec34c3cbd87f06d2cf3"
+    },
+    "notices/new-dependencies/SHA256SUMS": {
+      "bytes": 16220,
+      "sha256": "ad7b11913fd5116db4f5cc12d9279c99653f4de9ad63cd7255f1047d2ca03811"
+    },
+    "notices/new-dependencies/acquisition.json": {
+      "bytes": 3136,
+      "sha256": "d8dce98e02b8ff20afb90986bea93166c64c637d34380954ca40fe1201fcb30a"
+    },
+    "notices/new-dependencies/component-evidence/pydantic-core-current.json": {
+      "bytes": 17809,
+      "sha256": "93b86f4fdfc38aae35aef0a455146582609f05d2a7db11587ac777701a48d410"
+    },
+    "notices/new-dependencies/component-evidence/pydantic-core/Cargo.lock": {
+      "bytes": 24727,
+      "sha256": "c3c27fc600d7dafd149229c6501271dbc5f6b4f7b1bfa116b32e77217c2b5038"
+    },
+    "notices/new-dependencies/component-evidence/pydantic-core/Cargo.toml": {
+      "bytes": 2875,
+      "sha256": "20fcd4066f125dec91012a0cdb7f7c901963226c98906a7e414210a64ac1fcc3"
+    },
+    "notices/new-dependencies/component-evidence/pydantic-core/current-publisher.cyclonedx.json": {
+      "bytes": 125376,
+      "sha256": "34670207347e90bf2c010cd61dd75f6b340d146b6523c057c3d5bae3efac5fce"
+    },
+    "notices/new-dependencies/component-evidence/rpds-current.json": {
+      "bytes": 18684,
+      "sha256": "71cc0bf8a70bbe1197c0d1c941afe09dd2299f4d6e3a55de2f7ec1d932d34aff"
+    },
+    "notices/new-dependencies/component-evidence/rpds-py/Cargo.lock": {
+      "bytes": 5992,
+      "sha256": "8fb59015879aea2a3ca6e9c9e542ea949bf057b67b57d9e0fbbba4179a9acb61"
+    },
+    "notices/new-dependencies/component-evidence/rpds-py/Cargo.toml": {
+      "bytes": 403,
+      "sha256": "789c4004477da78b812ac5493f1d14f5610e3d3a96a4796fcd8174ce22fd1513"
+    },
+    "notices/new-dependencies/component-legal/rpds/archery/1.2.2/LICENSE.md": {
+      "bytes": 1068,
+      "sha256": "e326b5fef9084c437878cc2184ba6dfa15503f46e5359dd67246f51761ea709f"
+    },
+    "notices/new-dependencies/component-legal/rpds/autocfg/1.5.0/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/new-dependencies/component-legal/rpds/autocfg/1.5.0/LICENSE-MIT": {
+      "bytes": 1054,
+      "sha256": "27995d58ad5c1145c1a8cd86244ce844886958a35eb2b78c6b772748669999ac"
+    },
+    "notices/new-dependencies/component-legal/rpds/cc/1.2.48/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/new-dependencies/component-legal/rpds/cc/1.2.48/LICENSE-MIT": {
+      "bytes": 1057,
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+    },
+    "notices/new-dependencies/component-legal/rpds/find-msvc-tools/0.1.5/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/new-dependencies/component-legal/rpds/find-msvc-tools/0.1.5/LICENSE-MIT": {
+      "bytes": 1057,
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+    },
+    "notices/new-dependencies/component-legal/rpds/heck/0.5.0/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/new-dependencies/component-legal/rpds/heck/0.5.0/LICENSE-MIT": {
+      "bytes": 1071,
+      "sha256": "7b63ecd5f1902af1b63729947373683c32745c16a10e8e6292e2e2dcd7e90ae0"
+    },
+    "notices/new-dependencies/component-legal/rpds/indoc/2.0.7/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/new-dependencies/component-legal/rpds/indoc/2.0.7/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/new-dependencies/component-legal/rpds/libc/0.2.177/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/new-dependencies/component-legal/rpds/libc/0.2.177/LICENSE-MIT": {
+      "bytes": 1076,
+      "sha256": "a8d47ff51ca256f56a8932dba07660672dbfe3004257ca8de708aac1415937a1"
+    },
+    "notices/new-dependencies/component-legal/rpds/memoffset/0.9.1/LICENSE": {
+      "bytes": 1055,
+      "sha256": "3234ac55816264ee7b6c7ee27efd61cf0a1fe775806870e3d9b4c41ea73c5cb1"
+    },
+    "notices/new-dependencies/component-legal/rpds/once_cell/1.21.3/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/new-dependencies/component-legal/rpds/once_cell/1.21.3/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/new-dependencies/component-legal/rpds/portable-atomic/1.11.1/LICENSE-APACHE": {
+      "bytes": 10174,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    },
+    "notices/new-dependencies/component-legal/rpds/portable-atomic/1.11.1/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/new-dependencies/component-legal/rpds/proc-macro2/1.0.103/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/new-dependencies/component-legal/rpds/proc-macro2/1.0.103/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/new-dependencies/component-legal/rpds/pyo3-build-config/0.27.2/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/new-dependencies/component-legal/rpds/pyo3-build-config/0.27.2/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/new-dependencies/component-legal/rpds/pyo3-ffi/0.27.2/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/new-dependencies/component-legal/rpds/pyo3-ffi/0.27.2/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/new-dependencies/component-legal/rpds/pyo3-macros-backend/0.27.2/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/new-dependencies/component-legal/rpds/pyo3-macros-backend/0.27.2/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/new-dependencies/component-legal/rpds/pyo3-macros/0.27.2/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/new-dependencies/component-legal/rpds/pyo3-macros/0.27.2/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/new-dependencies/component-legal/rpds/pyo3/0.27.2/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/new-dependencies/component-legal/rpds/pyo3/0.27.2/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/new-dependencies/component-legal/rpds/pyo3/0.27.2/pyo3-runtime/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/new-dependencies/component-legal/rpds/pyo3/0.27.2/pyo3-runtime/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/new-dependencies/component-legal/rpds/python3-dll-a/0.2.14/LICENSE": {
+      "bytes": 1120,
+      "sha256": "c760d1f2e4614d58f2b91cd41b9826457989c09041be0219158b8f7f6d3f8763"
+    },
+    "notices/new-dependencies/component-legal/rpds/quote/1.0.42/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/new-dependencies/component-legal/rpds/quote/1.0.42/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/new-dependencies/component-legal/rpds/rpds/1.2.0/LICENSE.md": {
+      "bytes": 1068,
+      "sha256": "e326b5fef9084c437878cc2184ba6dfa15503f46e5359dd67246f51761ea709f"
+    },
+    "notices/new-dependencies/component-legal/rpds/rustversion/1.0.22/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/new-dependencies/component-legal/rpds/rustversion/1.0.22/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/new-dependencies/component-legal/rpds/shlex/1.3.0/LICENSE-APACHE": {
+      "bytes": 566,
+      "sha256": "553fffcd9b1cb158bc3e9edc35da85ca5c3b3d7d2e61c883ebcfa8a65814b583"
+    },
+    "notices/new-dependencies/component-legal/rpds/shlex/1.3.0/LICENSE-MIT": {
+      "bytes": 1092,
+      "sha256": "4455bf75a91154108304cb283e0fea9948c14f13e20d60887cf2552449dea3b1"
+    },
+    "notices/new-dependencies/component-legal/rpds/syn/2.0.111/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/new-dependencies/component-legal/rpds/syn/2.0.111/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/new-dependencies/component-legal/rpds/target-lexicon/0.13.3/LICENSE": {
+      "bytes": 12243,
+      "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
+    },
+    "notices/new-dependencies/component-legal/rpds/triomphe/0.1.15/LICENSE-APACHE": {
+      "bytes": 10849,
+      "sha256": "a6b7260485462860838b76ad1846d21f1605e6d239141c3aa949a601d992676c"
+    },
+    "notices/new-dependencies/component-legal/rpds/triomphe/0.1.15/LICENSE-MIT": {
+      "bytes": 1074,
+      "sha256": "15656cc11a8331f28c0986b8ab97220d3e76f98e60ed388b5ffad37dfac4710c"
+    },
+    "notices/new-dependencies/component-legal/rpds/unicode-ident/1.0.22/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/new-dependencies/component-legal/rpds/unicode-ident/1.0.22/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/new-dependencies/component-legal/rpds/unicode-ident/1.0.22/LICENSE-UNICODE": {
+      "bytes": 1995,
+      "sha256": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1"
+    },
+    "notices/new-dependencies/component-legal/rpds/unindent/0.2.4/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/new-dependencies/component-legal/rpds/unindent/0.2.4/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/new-dependencies/generator/COPYING.txt": {
+      "bytes": 756,
+      "sha256": "e1eb1c49a8508e8173dac30157e4a6439a44ad8846194746c424fbc3fc2b95d7"
+    },
+    "notices/new-dependencies/generator/LICENSE.txt": {
+      "bytes": 10174,
+      "sha256": "9568a2b155e66ac3e0ba1fd80b52b827b9460e6cf6f233125e7cbca8e206ddc3"
+    },
+    "notices/new-dependencies/generator/publisher.json": {
+      "bytes": 67681,
+      "sha256": "a3d9610bdc1715ac718c6cadfd21ddaa78e4ad46a354154af748feb07761aa23"
+    },
+    "notices/new-dependencies/historical/notices/additional-dependencies/packaging/LICENSE": {
+      "bytes": 197,
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48"
+    },
+    "notices/new-dependencies/historical/notices/additional-dependencies/packaging/LICENSE.APACHE": {
+      "bytes": 10174,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    },
+    "notices/new-dependencies/historical/notices/additional-dependencies/packaging/LICENSE.BSD": {
+      "bytes": 1344,
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5"
+    },
+    "notices/new-dependencies/historical/notices/additional-dependencies/packaging/src/packaging/licenses/__init__.py": {
+      "bytes": 7859,
+      "sha256": "590d12eee73ddbec53b4e9ee5bfc64d9cb3aacb4940e8ebcba260757ce56740b"
+    },
+    "notices/new-dependencies/historical/notices/additional-dependencies/packaging/src/packaging/licenses/_spdx.py": {
+      "bytes": 51122,
+      "sha256": "596ec35e2ca0ebcba9fd8343ff0a51625af548786257815f24b41f7e08613314"
+    },
+    "notices/new-dependencies/historical/notices/additional-dependencies/sources/packaging-26.3.tar.gz": {
+      "bytes": 313412,
+      "sha256": "94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/NOTICE-INPUTS.md": {
+      "bytes": 1952,
+      "sha256": "5b826ca9b21a9604705df405f85d3e2329eac28f197112ee606a5b7f12446227"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/SHA256SUMS": {
+      "bytes": 2134,
+      "sha256": "6605b0ecd7b89be5fbb209083615edc5dd833e009094c4399b826ce6ff3a9c12"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/components/msgpack/GENERATED-C-HEADER.txt": {
+      "bytes": 32,
+      "sha256": "1d6cf9dc81778409b189a7919b1ccc77250da579503830af3138be4b0285a027"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/components/msgpack/msgpack/pack.h": {
+      "bytes": 1653,
+      "sha256": "3b70e975f3b86d86eb49f21bc04da53f8b295e39982ebc85b051049ccd443f47"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/components/msgpack/msgpack/pack_template.h": {
+      "bytes": 17009,
+      "sha256": "ba486ff8a50724cde275e499fa84f54e7205add958cf2dab3cc7e15a1d25124d"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/components/msgpack/msgpack/sysdep.h": {
+      "bytes": 6452,
+      "sha256": "83405edb4ae5744c76c991d8facede16dcf1edd6659e88270aeb4b34bd82cacf"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/components/msgpack/msgpack/unpack.h": {
+      "bytes": 11772,
+      "sha256": "2d126969ba76030d373197a6d5f0fade7cad9ec8130ce92bf324719bbfdbb066"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/components/msgpack/msgpack/unpack_define.h": {
+      "bytes": 2366,
+      "sha256": "79bb8a9638fab7679bed454cf9c97a72bda5d282b43dc331de5ed986aabac044"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/components/msgpack/msgpack/unpack_template.h": {
+      "bytes": 14473,
+      "sha256": "2d60ba195016e8959cf479e6415348ab2ed3cc15ac13ef98cf24c3a98138653c"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/components/pyyaml/ci.yaml": {
+      "bytes": 24890,
+      "sha256": "5004399ff14a6683eb02e45882fc3ffc5e4d6b8bb78f5496a26269fe67dd6ea8"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/components/pyyaml/libyaml.sh": {
+      "bytes": 1208,
+      "sha256": "8ca31fdc0d246ddc2fd050bdf15d385844d723b9bd4363d56ee89ef4af5fa118"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/manifest.json": {
+      "bytes": 10979,
+      "sha256": "080c6863cb0ebf6218adfa54654bdf11cf33657dd04a143cf63724de023882a8"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/notices/common/LICENSE-APACHE-2.0": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/notices/cython-3.3.0/COPYING.txt": {
+      "bytes": 756,
+      "sha256": "e1eb1c49a8508e8173dac30157e4a6439a44ad8846194746c424fbc3fc2b95d7"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/notices/cython-3.3.0/LICENSE.txt": {
+      "bytes": 10174,
+      "sha256": "9568a2b155e66ac3e0ba1fd80b52b827b9460e6cf6f233125e7cbca8e206ddc3"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/notices/libyaml-0.2.5/License": {
+      "bytes": 1101,
+      "sha256": "c40112449f254b9753045925248313e9270efa36d226b22d82d4cc6c43c57f29"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/notices/msgpack/COPYING": {
+      "bytes": 614,
+      "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/notices/pathspec/LICENSE": {
+      "bytes": 16726,
+      "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/notices/pyyaml/LICENSE": {
+      "bytes": 1101,
+      "sha256": "8d3928f9dc4490fd635707cb88eb26bd764102a7282954307d3e5167a577e8a4"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/sources/cython-3.3.0.tar.gz": {
+      "bytes": 3727515,
+      "sha256": "eed0d93fbca7087f143b42c34b05a825849bdf17f101572c2105acfa49aa88b8"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/sources/msgpack-1.2.3.tar.gz": {
+      "bytes": 196517,
+      "sha256": "32edb81a2b5eb7cd7c9d941b2bfbbb082fd2cd09e0e725930316af6b708db186"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/sources/pathspec-1.1.1.tar.gz": {
+      "bytes": 135180,
+      "sha256": "17db5ecd524104a120e173814c90367a96a98d07c45b2e10c2f3919fff91bf5a"
+    },
+    "notices/new-dependencies/historical/notices/new-dependencies/sources/pyyaml-6.0.3.tar.gz": {
+      "bytes": 130960,
+      "sha256": "d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f"
+    },
+    "notices/new-dependencies/legal/annotated-types/LICENSE": {
+      "bytes": 1083,
+      "sha256": "fe1049884b1a0d9342901e88e07f32925d24b3121d9972b6a6805fb9824b095d"
+    },
+    "notices/new-dependencies/legal/msgpack/COPYING": {
+      "bytes": 614,
+      "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427"
+    },
+    "notices/new-dependencies/legal/packaging/LICENSE": {
+      "bytes": 197,
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48"
+    },
+    "notices/new-dependencies/legal/packaging/LICENSE.APACHE": {
+      "bytes": 10174,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    },
+    "notices/new-dependencies/legal/packaging/LICENSE.BSD": {
+      "bytes": 1344,
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5"
+    },
+    "notices/new-dependencies/legal/packaging/src/packaging/licenses/__init__.py": {
+      "bytes": 5715,
+      "sha256": "56c2b8a36ec225759f4e2f2bdb26c99ac06809d8699c15ae36bb2468254a3fb5"
+    },
+    "notices/new-dependencies/legal/packaging/src/packaging/licenses/_spdx.py": {
+      "bytes": 48398,
+      "sha256": "a009b5ced3c5c25b2608a7bb94002cbff38839f4b57160eef5b34191ebbeda7b"
+    },
+    "notices/new-dependencies/legal/pydantic-core/LICENSE": {
+      "bytes": 1080,
+      "sha256": "2afdd30d54b4d62b6f488a6bcc1546e84ec5061f13f4209c03d012348783795a"
+    },
+    "notices/new-dependencies/legal/pydantic/LICENSE": {
+      "bytes": 1129,
+      "sha256": "a9e186f3ca16b5eef84318e7a701721351a00cb7b8ae3a4394b67b49e3529ef3"
+    },
+    "notices/new-dependencies/legal/rpds-py/LICENSE": {
+      "bytes": 1057,
+      "sha256": "314e4e91be3baa93c0fb4bccc9e4e97cd643eb839b065af921782c2175fe9909"
+    },
+    "notices/new-dependencies/legal/typing-inspection/LICENSE": {
+      "bytes": 1090,
+      "sha256": "804b59b25f2c31bd278f9202a19ae49a3945aa2664387e2d0a128c7cacc61ec3"
+    },
+    "notices/new-dependencies/manifest.json": {
+      "bytes": 27079,
+      "sha256": "593afadbd87c6fca6cb1384280f462e99891396b8cc01212be5a2c927aa7755e"
+    },
+    "notices/new-dependencies/publishers/annotated-types.json": {
+      "bytes": 17444,
+      "sha256": "485116aef8ac66993a2681ff3ac1b66f67de2cb4a29ec11b1a3112ea39870fe5"
+    },
+    "notices/new-dependencies/publishers/msgpack.json": {
+      "bytes": 63861,
+      "sha256": "d3a70f24ff91a0a03c81b4b685b743571a549bf4b08e3f6ea413d1ed59a3af20"
+    },
+    "notices/new-dependencies/publishers/packaging.json": {
+      "bytes": 5501,
+      "sha256": "6ab300d7b0735a50109912decebb1731ed292f1ed88a3ce5e4bb7876b182cac0"
+    },
+    "notices/new-dependencies/publishers/pydantic-core.json": {
+      "bytes": 113156,
+      "sha256": "0d2f2a438b6c4a89233ced786b23c77043f6666f80b67904e3079afc7851741f"
+    },
+    "notices/new-dependencies/publishers/pydantic.json": {
+      "bytes": 112586,
+      "sha256": "3fd33147b782c8c2d9152af69b77d41d39cdaab4d2b4dc05ee0b8f3d86322e1c"
+    },
+    "notices/new-dependencies/publishers/rpds-py.json": {
+      "bytes": 104792,
+      "sha256": "3d483a85d90018b0d75e321e3795121cb4658e7e8296e5f2af3a27ed53f88d61"
+    },
+    "notices/new-dependencies/publishers/typing-inspection.json": {
+      "bytes": 4625,
+      "sha256": "18246ec4d1215822a861d39c2cacdc6b9b2d073e8da22a2414c0241fa50a1bd2"
+    },
+    "notices/new-dependencies/sources/annotated_types-0.7.0.tar.gz": {
+      "bytes": 16081,
+      "sha256": "aff07c09a53a08bc8cfccb9c85b05f1aa9a2a6f23728d790723543408344ce89"
+    },
+    "notices/new-dependencies/sources/crates/archery-1.2.2.crate": {
+      "bytes": 16228,
+      "sha256": "70e0a5f99dfebb87bb342d0f53bb92c81842e100bbb915223e38349580e5441d"
+    },
+    "notices/new-dependencies/sources/crates/autocfg-1.5.0.crate": {
+      "bytes": 18729,
+      "sha256": "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
+    },
+    "notices/new-dependencies/sources/crates/cc-1.2.48.crate": {
+      "bytes": 92458,
+      "sha256": "c481bdbf0ed3b892f6f806287d72acd515b352a4ec27a208489b8c1bc839633a"
+    },
+    "notices/new-dependencies/sources/crates/find-msvc-tools-0.1.5.crate": {
+      "bytes": 30942,
+      "sha256": "3a3076410a55c90011c298b04d0cfa770b00fa04e1e3c97d3f6c9de105a03844"
+    },
+    "notices/new-dependencies/sources/crates/heck-0.5.0.crate": {
+      "bytes": 11517,
+      "sha256": "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
+    },
+    "notices/new-dependencies/sources/crates/indoc-2.0.7.crate": {
+      "bytes": 17184,
+      "sha256": "79cf5c93f93228cf8efb3ba362535fb11199ac548a09ce117c9b1adc3030d706"
+    },
+    "notices/new-dependencies/sources/crates/libc-0.2.177.crate": {
+      "bytes": 792045,
+      "sha256": "2874a2af47a2325c2001a6e6fad9b16a53b802102b528163885171cf92b15976"
+    },
+    "notices/new-dependencies/sources/crates/memoffset-0.9.1.crate": {
+      "bytes": 9032,
+      "sha256": "488016bfae457b036d996092f6cb448677611ce4449e970ceaf42695203f218a"
+    },
+    "notices/new-dependencies/sources/crates/once_cell-1.21.3.crate": {
+      "bytes": 34534,
+      "sha256": "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
+    },
+    "notices/new-dependencies/sources/crates/portable-atomic-1.11.1.crate": {
+      "bytes": 185506,
+      "sha256": "f84267b20a16ea918e43c6a88433c2d54fa145c92a811b5b047ccbe153674483"
+    },
+    "notices/new-dependencies/sources/crates/proc-macro2-1.0.103.crate": {
+      "bytes": 60024,
+      "sha256": "5ee95bc4ef87b8d5ba32e8b7714ccc834865276eab0aed5c9958d00ec45f49e8"
+    },
+    "notices/new-dependencies/sources/crates/pyo3-0.27.2.crate": {
+      "bytes": 1171342,
+      "sha256": "ab53c047fcd1a1d2a8820fe84f05d6be69e9526be40cb03b73f86b6b03e6d87d"
+    },
+    "notices/new-dependencies/sources/crates/pyo3-build-config-0.27.2.crate": {
+      "bytes": 35564,
+      "sha256": "b455933107de8642b4487ed26d912c2d899dec6114884214a0b3bb3be9261ea6"
+    },
+    "notices/new-dependencies/sources/crates/pyo3-ffi-0.27.2.crate": {
+      "bytes": 78552,
+      "sha256": "1c85c9cbfaddf651b1221594209aed57e9e5cff63c4d11d1feead529b872a089"
+    },
+    "notices/new-dependencies/sources/crates/pyo3-macros-0.27.2.crate": {
+      "bytes": 8913,
+      "sha256": "0a5b10c9bf9888125d917fb4d2ca2d25c8df94c7ab5a52e13313a07e050a3b02"
+    },
+    "notices/new-dependencies/sources/crates/pyo3-macros-backend-0.27.2.crate": {
+      "bytes": 82513,
+      "sha256": "03b51720d314836e53327f5871d4c0cfb4fb37cc2c4a11cc71907a86342c40f9"
+    },
+    "notices/new-dependencies/sources/crates/python3-dll-a-0.2.14.crate": {
+      "bytes": 103489,
+      "sha256": "d381ef313ae70b4da5f95f8a4de773c6aa5cd28f73adec4b4a31df70b66780d8"
+    },
+    "notices/new-dependencies/sources/crates/quote-1.0.42.crate": {
+      "bytes": 31504,
+      "sha256": "a338cc41d27e6cc6dce6cefc13a0729dfbb81c262b1f519331575dd80ef3067f"
+    },
+    "notices/new-dependencies/sources/crates/rpds-1.2.0.crate": {
+      "bytes": 72664,
+      "sha256": "9e75f485e819d4d3015e6c0d55d02a4fd3db47c1993d9e603e0361fba2bffb34"
+    },
+    "notices/new-dependencies/sources/crates/rustversion-1.0.22.crate": {
+      "bytes": 21096,
+      "sha256": "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
+    },
+    "notices/new-dependencies/sources/crates/shlex-1.3.0.crate": {
+      "bytes": 18713,
+      "sha256": "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
+    },
+    "notices/new-dependencies/sources/crates/syn-2.0.111.crate": {
+      "bytes": 302117,
+      "sha256": "390cc9a294ab71bdb1aa2e99d13be9c753cd2d7bd6560c77118597410c4d2e87"
+    },
+    "notices/new-dependencies/sources/crates/target-lexicon-0.13.3.crate": {
+      "bytes": 28498,
+      "sha256": "df7f62577c25e07834649fc3b39fafdc597c0a3527dc1c60129201ccfcbaa50c"
+    },
+    "notices/new-dependencies/sources/crates/triomphe-0.1.15.crate": {
+      "bytes": 34711,
+      "sha256": "dd69c5aa8f924c7519d6372789a74eac5b94fb0f8fcf0d4a97eb0bfc3e785f39"
+    },
+    "notices/new-dependencies/sources/crates/unicode-ident-1.0.22.crate": {
+      "bytes": 47919,
+      "sha256": "9312f7c4f6ff9069b165498234ce8be658059c6728633667c526e27dc2cf1df5"
+    },
+    "notices/new-dependencies/sources/crates/unindent-0.2.4.crate": {
+      "bytes": 7422,
+      "sha256": "7264e107f553ccae879d21fbea1d6724ac785e8c3bfc762137959b5802826ef3"
+    },
+    "notices/new-dependencies/sources/cython-3.1.4.tar.gz": {
+      "bytes": 3190778,
+      "sha256": "9aefefe831331e2d66ab31799814eae4d0f8a2d246cbaaaa14d1be29ef777683"
+    },
+    "notices/new-dependencies/sources/msgpack-1.1.2.tar.gz": {
+      "bytes": 173581,
+      "sha256": "3b60763c1373dd60f398488069bcdc703cd08a711477b5d480eecc9f9626f47e"
+    },
+    "notices/new-dependencies/sources/packaging-25.0.tar.gz": {
+      "bytes": 165727,
+      "sha256": "d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f"
+    },
+    "notices/new-dependencies/sources/pydantic-2.13.4.tar.gz": {
+      "bytes": 844775,
+      "sha256": "c40756b57adaa8b1efeeced5c196f3f3b7c435f90e84ea7f443901bec8099ef6"
+    },
+    "notices/new-dependencies/sources/pydantic_core-2.46.4.tar.gz": {
+      "bytes": 471464,
+      "sha256": "62f875393d7f270851f20523dd2e29f082bcc82292d66db2b64ea71f64b6e1c1"
+    },
+    "notices/new-dependencies/sources/rpds_py-0.30.0.tar.gz": {
+      "bytes": 69469,
+      "sha256": "dd8ff7cf90014af0c0f787eea34794ebf6415242ee1d6fa91eaba725cc441e84"
+    },
+    "notices/new-dependencies/sources/typing_inspection-0.4.2.tar.gz": {
+      "bytes": 75949,
+      "sha256": "ba561c48a67c5958007083d386c3295464928b01faa735ab8547c5692e87f464"
+    },
+    "notices/pydantic-core/crates/ahash-0.8.12/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/ahash-0.8.12/LICENSE-MIT": {
+      "bytes": 1057,
+      "sha256": "0444c6991eead6822f7b9102e654448d51624431119546492e8b231db42c48bb"
+    },
+    "notices/pydantic-core/crates/aho-corasick-1.1.3/COPYING": {
+      "bytes": 126,
+      "sha256": "01c266bced4a434da0051174d6bee16a4c82cf634e2679b6155d40d75012390f"
+    },
+    "notices/pydantic-core/crates/aho-corasick-1.1.3/LICENSE-MIT": {
+      "bytes": 1081,
+      "sha256": "0f96a83840e146e43c0ec96a22ec1f392e0680e6c1226e6f3ba87e0740af850f"
+    },
+    "notices/pydantic-core/crates/aho-corasick-1.1.3/UNLICENSE": {
+      "bytes": 1211,
+      "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
+    },
+    "notices/pydantic-core/crates/allocator-api2-0.2.21/LICENSE-APACHE": {
+      "bytes": 9899,
+      "sha256": "20fe7b00e904ed690e3b9fd6073784d3fc428141dbd10b81c01fd143d0797f58"
+    },
+    "notices/pydantic-core/crates/allocator-api2-0.2.21/LICENSE-MIT": {
+      "bytes": 1046,
+      "sha256": "36516aefdc84c5d5a1e7485425913a22dbda69eb1930c5e84d6ae4972b5194b9"
+    },
+    "notices/pydantic-core/crates/autocfg-1.3.0/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/autocfg-1.3.0/LICENSE-MIT": {
+      "bytes": 1054,
+      "sha256": "27995d58ad5c1145c1a8cd86244ce844886958a35eb2b78c6b772748669999ac"
+    },
+    "notices/pydantic-core/crates/base64-0.22.1/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/base64-0.22.1/LICENSE-MIT": {
+      "bytes": 1076,
+      "sha256": "0dd882e53de11566d50f8e8e2d5a651bcf3fabee4987d70f306233cf39094ba7"
+    },
+    "notices/pydantic-core/crates/bitflags-2.9.1/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/bitflags-2.9.1/LICENSE-MIT": {
+      "bytes": 1071,
+      "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb"
+    },
+    "notices/pydantic-core/crates/bitvec-1.0.1/LICENSE.txt": {
+      "bytes": 1082,
+      "sha256": "411781fd38700f2357a14126d0ab048164ab881f1dcb335c1bb932e232c9a2f5"
+    },
+    "notices/pydantic-core/crates/bumpalo-3.19.0/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/bumpalo-3.19.0/LICENSE-MIT": {
+      "bytes": 1059,
+      "sha256": "65f94e99ddaf4f5d1782a6dae23f35d4293a9a01444a13135a6887017d353cee"
+    },
+    "notices/pydantic-core/crates/cc-1.0.101/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/cc-1.0.101/LICENSE-MIT": {
+      "bytes": 1057,
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+    },
+    "notices/pydantic-core/crates/cfg-if-1.0.0/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/cfg-if-1.0.0/LICENSE-MIT": {
+      "bytes": 1057,
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+    },
+    "notices/pydantic-core/crates/displaydoc-0.2.5/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/displaydoc-0.2.5/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/enum_dispatch-0.3.13/LICENSE": {
+      "bytes": 1070,
+      "sha256": "1e5d3ddaf5cbc111c8517df39e6f252e4c16dbda26b7cc1ad54c9e3efb0586be"
+    },
+    "notices/pydantic-core/crates/equivalent-1.0.2/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/equivalent-1.0.2/LICENSE-MIT": {
+      "bytes": 1049,
+      "sha256": "7365cc8878a1d7ce155a58c4ca09c3d7a6be413efa5334a80ea842912b669349"
+    },
+    "notices/pydantic-core/crates/foldhash-0.2.0/LICENSE": {
+      "bytes": 856,
+      "sha256": "b1181a40b2a7b25cf66fd01481713bc1005df082c53ef73e851e55071b102744"
+    },
+    "notices/pydantic-core/crates/form_urlencoded-1.2.2/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/form_urlencoded-1.2.2/LICENSE-MIT": {
+      "bytes": 1072,
+      "sha256": "20c7855c364d57ea4c97889a5e8d98470a9952dade37bd9248b9a54431670e5e"
+    },
+    "notices/pydantic-core/crates/funty-2.0.0/LICENSE.txt": {
+      "bytes": 1082,
+      "sha256": "f790cc576999f5998c766d3d26d7d64dc368e805a98461484f65e8d961ec6d9f"
+    },
+    "notices/pydantic-core/crates/getrandom-0.3.3/LICENSE-APACHE": {
+      "bytes": 10849,
+      "sha256": "aaff376532ea30a0cd5330b9502ad4a4c8bf769c539c87ffe78819d188a18ebf"
+    },
+    "notices/pydantic-core/crates/getrandom-0.3.3/LICENSE-MIT": {
+      "bytes": 1130,
+      "sha256": "29e9fe5074bd27e0e5d5d110394fbbcd841baee2651a3c4b4560a632702cede4"
+    },
+    "notices/pydantic-core/crates/hashbrown-0.16.1/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/hashbrown-0.16.1/LICENSE-MIT": {
+      "bytes": 1060,
+      "sha256": "ff8f68cb076caf8cefe7a6430d4ac086ce6af2ca8ce2c4e5a2004d4552ef52a2"
+    },
+    "notices/pydantic-core/crates/heck-0.5.0/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/heck-0.5.0/LICENSE-MIT": {
+      "bytes": 1071,
+      "sha256": "7b63ecd5f1902af1b63729947373683c32745c16a10e8e6292e2e2dcd7e90ae0"
+    },
+    "notices/pydantic-core/crates/hex-0.4.3/LICENSE-APACHE": {
+      "bytes": 11358,
+      "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08"
+    },
+    "notices/pydantic-core/crates/hex-0.4.3/LICENSE-MIT": {
+      "bytes": 1125,
+      "sha256": "f7bdb3426d045cd50efd4953026e3eb5a83d0199f458a075602611b9344da5b9"
+    },
+    "notices/pydantic-core/crates/icu_collections-1.5.0/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/icu_locid-1.5.0/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/icu_locid_transform-1.5.0/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/icu_locid_transform_data-1.5.0/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/icu_normalizer-1.5.0/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/icu_normalizer_data-1.5.0/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/icu_properties-1.5.1/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/icu_properties_data-1.5.0/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/icu_provider-1.5.0/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/icu_provider_macros-1.5.0/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/idna-1.1.0/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/idna-1.1.0/LICENSE-MIT": {
+      "bytes": 1072,
+      "sha256": "b38f11f6096706e6de553dabe2a7ed142d59b6fa8c97e290c67496154745cdd5"
+    },
+    "notices/pydantic-core/crates/idna_adapter-1.2.0/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/idna_adapter-1.2.0/LICENSE-MIT": {
+      "bytes": 1062,
+      "sha256": "8b43ce8accd61e9d370b5ca9e9c4f953279b5c239926c62315b40e24df51b726"
+    },
+    "notices/pydantic-core/crates/itoa-1.0.11/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/pydantic-core/crates/itoa-1.0.11/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/jiter-0.14.0/LICENSE": {
+      "bytes": 1091,
+      "sha256": "7c7134b9f7b978c03fca875517cf398db91f19bbb8109b6685e742aa3f57468e"
+    },
+    "notices/pydantic-core/crates/js-sys-0.3.77/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/js-sys-0.3.77/LICENSE-MIT": {
+      "bytes": 1057,
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+    },
+    "notices/pydantic-core/crates/lexical-parse-float-1.0.5/LICENSE-APACHE": {
+      "bytes": 10850,
+      "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+    },
+    "notices/pydantic-core/crates/lexical-parse-float-1.0.5/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/lexical-parse-float-1.0.5/LICENSE.md": {
+      "bytes": 19251,
+      "sha256": "99aab70a96f3ecab683d8a319d9070af2213ae4c1601fb053fbe85e1361e32fe"
+    },
+    "notices/pydantic-core/crates/lexical-parse-integer-1.0.5/LICENSE-APACHE": {
+      "bytes": 10850,
+      "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+    },
+    "notices/pydantic-core/crates/lexical-parse-integer-1.0.5/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/lexical-parse-integer-1.0.5/LICENSE.md": {
+      "bytes": 19251,
+      "sha256": "99aab70a96f3ecab683d8a319d9070af2213ae4c1601fb053fbe85e1361e32fe"
+    },
+    "notices/pydantic-core/crates/lexical-util-1.0.6/LICENSE-APACHE": {
+      "bytes": 10850,
+      "sha256": "8173d5c29b4f956d532781d2b86e4e30f83e6b7878dce18c919451d6ba707c90"
+    },
+    "notices/pydantic-core/crates/lexical-util-1.0.6/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/libc-0.2.185/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/pydantic-core/crates/libc-0.2.185/LICENSE-MIT": {
+      "bytes": 1066,
+      "sha256": "123a331b5dbf04c30097fa43b8f858bc85df671fe776de498d01f3d6b7c1f69e"
+    },
+    "notices/pydantic-core/crates/litemap-0.7.3/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/log-0.4.27/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/log-0.4.27/LICENSE-MIT": {
+      "bytes": 1071,
+      "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb"
+    },
+    "notices/pydantic-core/crates/lru-0.16.3/LICENSE": {
+      "bytes": 1071,
+      "sha256": "061dc50af2cd9340703daf61978af3200cf681b12ea67a323c33ba109a23a45e"
+    },
+    "notices/pydantic-core/crates/memchr-2.7.4/COPYING": {
+      "bytes": 126,
+      "sha256": "01c266bced4a434da0051174d6bee16a4c82cf634e2679b6155d40d75012390f"
+    },
+    "notices/pydantic-core/crates/memchr-2.7.4/LICENSE-MIT": {
+      "bytes": 1081,
+      "sha256": "0f96a83840e146e43c0ec96a22ec1f392e0680e6c1226e6f3ba87e0740af850f"
+    },
+    "notices/pydantic-core/crates/memchr-2.7.4/UNLICENSE": {
+      "bytes": 1211,
+      "sha256": "7e12e5df4bae12cb21581ba157ced20e1986a0508dd10d0e8a4ab9a4cf94e85c"
+    },
+    "notices/pydantic-core/crates/num-bigint-0.4.6/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/num-bigint-0.4.6/LICENSE-MIT": {
+      "bytes": 1071,
+      "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb"
+    },
+    "notices/pydantic-core/crates/num-integer-0.1.46/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/num-integer-0.1.46/LICENSE-MIT": {
+      "bytes": 1071,
+      "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb"
+    },
+    "notices/pydantic-core/crates/num-traits-0.2.19/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/num-traits-0.2.19/LICENSE-MIT": {
+      "bytes": 1071,
+      "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb"
+    },
+    "notices/pydantic-core/crates/once_cell-1.21.3/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/once_cell-1.21.3/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/percent-encoding-2.3.2/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/percent-encoding-2.3.2/LICENSE-MIT": {
+      "bytes": 1072,
+      "sha256": "b38f11f6096706e6de553dabe2a7ed142d59b6fa8c97e290c67496154745cdd5"
+    },
+    "notices/pydantic-core/crates/portable-atomic-1.6.0/LICENSE-APACHE": {
+      "bytes": 10174,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    },
+    "notices/pydantic-core/crates/portable-atomic-1.6.0/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/proc-macro2-1.0.86/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/pydantic-core/crates/proc-macro2-1.0.86/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/pyo3-0.28.3/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/pydantic-core/crates/pyo3-0.28.3/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/pydantic-core/crates/pyo3-0.28.3/pyo3-runtime/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/pydantic-core/crates/pyo3-0.28.3/pyo3-runtime/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/pydantic-core/crates/pyo3-build-config-0.28.3/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/pydantic-core/crates/pyo3-build-config-0.28.3/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/pydantic-core/crates/pyo3-ffi-0.28.3/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/pydantic-core/crates/pyo3-ffi-0.28.3/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/pydantic-core/crates/pyo3-macros-0.28.3/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/pydantic-core/crates/pyo3-macros-0.28.3/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/pydantic-core/crates/pyo3-macros-backend-0.28.3/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/pydantic-core/crates/pyo3-macros-backend-0.28.3/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/pydantic-core/crates/python3-dll-a-0.2.14/LICENSE": {
+      "bytes": 1120,
+      "sha256": "c760d1f2e4614d58f2b91cd41b9826457989c09041be0219158b8f7f6d3f8763"
+    },
+    "notices/pydantic-core/crates/quote-1.0.44/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/pydantic-core/crates/quote-1.0.44/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/r-efi-5.2.0/AUTHORS": {
+      "bytes": 3652,
+      "sha256": "c42285aa32440c3b5358fd4805b817cd8d6e1795111d2e4c547530be41896b2d"
+    },
+    "notices/pydantic-core/crates/radium-0.7.0/LICENSE.txt": {
+      "bytes": 1079,
+      "sha256": "13f4cc9fbc8d4a447b28aa84019c10ad4abf4b5f6919db061bf6690ccc23bc02"
+    },
+    "notices/pydantic-core/crates/regex-1.12.3/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/regex-1.12.3/LICENSE-MIT": {
+      "bytes": 1071,
+      "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb"
+    },
+    "notices/pydantic-core/crates/regex-automata-0.4.13/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/regex-automata-0.4.13/LICENSE-MIT": {
+      "bytes": 1071,
+      "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb"
+    },
+    "notices/pydantic-core/crates/regex-syntax-0.8.5/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/regex-syntax-0.8.5/LICENSE-MIT": {
+      "bytes": 1071,
+      "sha256": "6485b8ed310d3f0340bf1ad1f47645069ce4069dcc6bb46c7d5c6faf41de1fdb"
+    },
+    "notices/pydantic-core/crates/regex-syntax-0.8.5/src/unicode_tables/LICENSE-UNICODE": {
+      "bytes": 2847,
+      "sha256": "74db5baf44a41b1000312c673544b3374e4198af5605c7f9080a402cec42cfa3"
+    },
+    "notices/pydantic-core/crates/rustversion-1.0.17/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/pydantic-core/crates/rustversion-1.0.17/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/serde-1.0.228/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/pydantic-core/crates/serde-1.0.228/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/serde_core-1.0.228/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/pydantic-core/crates/serde_core-1.0.228/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/serde_derive-1.0.228/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/pydantic-core/crates/serde_derive-1.0.228/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/serde_json-1.0.149/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/pydantic-core/crates/serde_json-1.0.149/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/smallvec-1.15.1/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/smallvec-1.15.1/LICENSE-MIT": {
+      "bytes": 1072,
+      "sha256": "0b28172679e0009b655da42797c03fd163a3379d5cfa67ba1f1655e974a2a1a9"
+    },
+    "notices/pydantic-core/crates/speedate-0.17.0/LICENSE": {
+      "bytes": 1080,
+      "sha256": "2afdd30d54b4d62b6f488a6bcc1546e84ec5061f13f4209c03d012348783795a"
+    },
+    "notices/pydantic-core/crates/stable_deref_trait-1.2.0/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/stable_deref_trait-1.2.0/LICENSE-MIT": {
+      "bytes": 1056,
+      "sha256": "5e05b024f653a5ce199e77cbbbd42fb5553562ec714b819421ed0c3e552a75d7"
+    },
+    "notices/pydantic-core/crates/static_assertions-1.1.0/LICENSE-APACHE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "notices/pydantic-core/crates/static_assertions-1.1.0/LICENSE-MIT": {
+      "bytes": 1072,
+      "sha256": "ea084a2373ebc1f0902c09266e7bf25a05ab3814c1805bb017ffa7308f90c061"
+    },
+    "notices/pydantic-core/crates/strum-0.27.2/LICENSE": {
+      "bytes": 1072,
+      "sha256": "8bce3b45e49ecd1461f223b46de133d8f62cd39f745cfdaf81bee554b908bd42"
+    },
+    "notices/pydantic-core/crates/strum_macros-0.27.2/LICENSE": {
+      "bytes": 1072,
+      "sha256": "8bce3b45e49ecd1461f223b46de133d8f62cd39f745cfdaf81bee554b908bd42"
+    },
+    "notices/pydantic-core/crates/syn-2.0.82/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/pydantic-core/crates/syn-2.0.82/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/synstructure-0.13.1/LICENSE": {
+      "bytes": 1052,
+      "sha256": "219920e865eee70b7dcfc948a86b099e7f4fe2de01bcca2ca9a20c0a033f2b59"
+    },
+    "notices/pydantic-core/crates/tap-1.0.1/LICENSE.txt": {
+      "bytes": 1090,
+      "sha256": "8b4e95f5cf0dc40269c99f7b787203ffe04ded245ca2427422c196efa2b2f42a"
+    },
+    "notices/pydantic-core/crates/target-lexicon-0.13.4/LICENSE": {
+      "bytes": 12243,
+      "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
+    },
+    "notices/pydantic-core/crates/tinystr-0.7.6/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/unicode-ident-1.0.12/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/pydantic-core/crates/unicode-ident-1.0.12/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/unicode-ident-1.0.12/LICENSE-UNICODE": {
+      "bytes": 2315,
+      "sha256": "68f5b9f5ea36881a0942ba02f558e9e1faf76cc09cb165ad801744c61b738844"
+    },
+    "notices/pydantic-core/crates/url-2.5.8/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/url-2.5.8/LICENSE-MIT": {
+      "bytes": 1072,
+      "sha256": "b38f11f6096706e6de553dabe2a7ed142d59b6fa8c97e290c67496154745cdd5"
+    },
+    "notices/pydantic-core/crates/utf16_iter-1.0.5/COPYRIGHT": {
+      "bytes": 1743,
+      "sha256": "b84efe109a420fa3ca98be33f4227327af7ffa426195812c270feb1268bc2426"
+    },
+    "notices/pydantic-core/crates/utf16_iter-1.0.5/LICENSE-APACHE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "notices/pydantic-core/crates/utf16_iter-1.0.5/LICENSE-MIT": {
+      "bytes": 1053,
+      "sha256": "3fa4ca83dcc9237839b1bdeb2e6d16bdfb5ec0c5ce42b24694d8bbf0dcbef72c"
+    },
+    "notices/pydantic-core/crates/utf8_iter-1.0.4/COPYRIGHT": {
+      "bytes": 1742,
+      "sha256": "c30152c94a6d75e021adbc52b3a52470366a46edb917e17deae3259251af244c"
+    },
+    "notices/pydantic-core/crates/utf8_iter-1.0.4/LICENSE-APACHE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "notices/pydantic-core/crates/utf8_iter-1.0.4/LICENSE-MIT": {
+      "bytes": 1053,
+      "sha256": "3fa4ca83dcc9237839b1bdeb2e6d16bdfb5ec0c5ce42b24694d8bbf0dcbef72c"
+    },
+    "notices/pydantic-core/crates/uuid-1.23.0/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/uuid-1.23.0/LICENSE-MIT": {
+      "bytes": 1157,
+      "sha256": "436bc5a105d8e57dcd8778730f3754f7bf39c14d2f530e4cde4bd2d17a83ec3d"
+    },
+    "notices/pydantic-core/crates/version_check-0.9.5/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/version_check-0.9.5/LICENSE-MIT": {
+      "bytes": 1085,
+      "sha256": "b7e650f3fce5c53249d1cdc608b54df156a97edd636cf9d23498d0cfe7aec63e"
+    },
+    "notices/pydantic-core/crates/wasi-0.14.2+wasi-0.2.4/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/wasi-0.14.2+wasi-0.2.4/LICENSE-Apache-2.0_WITH_LLVM-exception": {
+      "bytes": 12243,
+      "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
+    },
+    "notices/pydantic-core/crates/wasi-0.14.2+wasi-0.2.4/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/wasm-bindgen-0.2.100/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/wasm-bindgen-0.2.100/LICENSE-MIT": {
+      "bytes": 1057,
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+    },
+    "notices/pydantic-core/crates/wasm-bindgen-backend-0.2.100/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/wasm-bindgen-backend-0.2.100/LICENSE-MIT": {
+      "bytes": 1057,
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+    },
+    "notices/pydantic-core/crates/wasm-bindgen-macro-0.2.100/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/wasm-bindgen-macro-0.2.100/LICENSE-MIT": {
+      "bytes": 1057,
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+    },
+    "notices/pydantic-core/crates/wasm-bindgen-macro-support-0.2.100/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/wasm-bindgen-macro-support-0.2.100/LICENSE-MIT": {
+      "bytes": 1057,
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+    },
+    "notices/pydantic-core/crates/wasm-bindgen-shared-0.2.100/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/wasm-bindgen-shared-0.2.100/LICENSE-MIT": {
+      "bytes": 1057,
+      "sha256": "378f5840b258e2779c39418f3f2d7b2ba96f1c7917dd6be0713f88305dbda397"
+    },
+    "notices/pydantic-core/crates/wit-bindgen-rt-0.39.0/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/pydantic-core/crates/wit-bindgen-rt-0.39.0/LICENSE-Apache-2.0_WITH_LLVM-exception": {
+      "bytes": 12243,
+      "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
+    },
+    "notices/pydantic-core/crates/wit-bindgen-rt-0.39.0/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/crates/write16-1.0.0/COPYRIGHT": {
+      "bytes": 770,
+      "sha256": "3210be7332b5bdf48eb24a945258b9f38616a2cceb0dfc06e3c3c7e9740475a0"
+    },
+    "notices/pydantic-core/crates/write16-1.0.0/LICENSE-APACHE": {
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "notices/pydantic-core/crates/write16-1.0.0/LICENSE-MIT": {
+      "bytes": 1053,
+      "sha256": "3fa4ca83dcc9237839b1bdeb2e6d16bdfb5ec0c5ce42b24694d8bbf0dcbef72c"
+    },
+    "notices/pydantic-core/crates/writeable-0.5.5/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/wyz-0.5.1/LICENSE.txt": {
+      "bytes": 1082,
+      "sha256": "411781fd38700f2357a14126d0ab048164ab881f1dcb335c1bb932e232c9a2f5"
+    },
+    "notices/pydantic-core/crates/yoke-0.7.4/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/yoke-derive-0.7.4/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/zerocopy-0.8.25/LICENSE-APACHE": {
+      "bytes": 11350,
+      "sha256": "9d185ac6703c4b0453974c0d85e9eee43e6941009296bb1f5eb0b54e2329e9f3"
+    },
+    "notices/pydantic-core/crates/zerocopy-0.8.25/LICENSE-BSD": {
+      "bytes": 1275,
+      "sha256": "83c1763356e822adde0a2cae748d938a73fdc263849ccff6b27776dff213bd32"
+    },
+    "notices/pydantic-core/crates/zerocopy-0.8.25/LICENSE-MIT": {
+      "bytes": 1060,
+      "sha256": "1a2f5c12ddc934d58956aa5dbdd3255fe55fd957633ab7d0d39e4f0daa73f7df"
+    },
+    "notices/pydantic-core/crates/zerocopy-derive-0.8.25/LICENSE-APACHE": {
+      "bytes": 11350,
+      "sha256": "9d185ac6703c4b0453974c0d85e9eee43e6941009296bb1f5eb0b54e2329e9f3"
+    },
+    "notices/pydantic-core/crates/zerocopy-derive-0.8.25/LICENSE-BSD": {
+      "bytes": 1275,
+      "sha256": "83c1763356e822adde0a2cae748d938a73fdc263849ccff6b27776dff213bd32"
+    },
+    "notices/pydantic-core/crates/zerocopy-derive-0.8.25/LICENSE-MIT": {
+      "bytes": 1060,
+      "sha256": "1a2f5c12ddc934d58956aa5dbdd3255fe55fd957633ab7d0d39e4f0daa73f7df"
+    },
+    "notices/pydantic-core/crates/zerofrom-0.1.4/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/zerofrom-derive-0.1.4/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/zerovec-0.10.4/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/zerovec-derive-0.10.3/LICENSE": {
+      "bytes": 2195,
+      "sha256": "f367c1b8e1aa262435251e442901da4607b4650e0e63a026f5044473ecfb90f2"
+    },
+    "notices/pydantic-core/crates/zmij-1.0.6/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/pydantic-core/manifest.json": {
+      "bytes": 75996,
+      "sha256": "0e3aa106b3bc6edb8bcdc59a43c77bd9f66f9bed9a4b45d57644fc518317dd62"
+    },
+    "notices/pydantic-core/publisher.cyclonedx.json": {
+      "bytes": 125376,
+      "sha256": "4f40c790f0cb384a793663331904117a914a50ef220b112c399d77f1463e3dd5"
+    },
+    "notices/rpds/INDEX.json": {
+      "bytes": 25101,
+      "sha256": "6bf410b43fa40aa4af3d0af6bde9b402127af006075d5bf682db7e71319fd9b7"
+    },
+    "notices/rpds/crates/archery/1.2.2/LICENSE.md": {
+      "bytes": 1068,
+      "sha256": "e326b5fef9084c437878cc2184ba6dfa15503f46e5359dd67246f51761ea709f"
+    },
+    "notices/rpds/crates/heck/0.5.0/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/rpds/crates/heck/0.5.0/LICENSE-MIT": {
+      "bytes": 1071,
+      "sha256": "7b63ecd5f1902af1b63729947373683c32745c16a10e8e6292e2e2dcd7e90ae0"
+    },
+    "notices/rpds/crates/libc/0.2.177/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/rpds/crates/libc/0.2.177/LICENSE-MIT": {
+      "bytes": 1076,
+      "sha256": "a8d47ff51ca256f56a8932dba07660672dbfe3004257ca8de708aac1415937a1"
+    },
+    "notices/rpds/crates/once_cell/1.21.3/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/rpds/crates/once_cell/1.21.3/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/rpds/crates/portable-atomic/1.11.1/LICENSE-APACHE": {
+      "bytes": 10174,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    },
+    "notices/rpds/crates/portable-atomic/1.11.1/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/rpds/crates/proc-macro2/1.0.103/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/rpds/crates/proc-macro2/1.0.103/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/rpds/crates/pyo3-build-config/0.29.0/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/rpds/crates/pyo3-build-config/0.29.0/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/rpds/crates/pyo3-ffi/0.29.0/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/rpds/crates/pyo3-ffi/0.29.0/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/rpds/crates/pyo3-macros-backend/0.29.0/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/rpds/crates/pyo3-macros-backend/0.29.0/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/rpds/crates/pyo3-macros/0.29.0/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/rpds/crates/pyo3-macros/0.29.0/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/rpds/crates/pyo3/0.29.0/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/rpds/crates/pyo3/0.29.0/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/rpds/crates/pyo3/0.29.0/pyo3-runtime/LICENSE-APACHE": {
+      "bytes": 9807,
+      "sha256": "32c76dbe0e73d79100d5ece77c158399f2e2541bc5c78548a4ba45c1cb53c5c9"
+    },
+    "notices/rpds/crates/pyo3/0.29.0/pyo3-runtime/LICENSE-MIT": {
+      "bytes": 1107,
+      "sha256": "afcbe3b2e6b37172b5a9ca869ee4c0b8cdc09316e5d4384864154482c33e5af6"
+    },
+    "notices/rpds/crates/quote/1.0.42/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/rpds/crates/quote/1.0.42/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/rpds/crates/rpds/1.2.1/LICENSE.md": {
+      "bytes": 1068,
+      "sha256": "e326b5fef9084c437878cc2184ba6dfa15503f46e5359dd67246f51761ea709f"
+    },
+    "notices/rpds/crates/smallvec/1.15.1/LICENSE-APACHE": {
+      "bytes": 10847,
+      "sha256": "a60eea817514531668d7e00765731449fe14d059d3249e0bc93b36de45f759f2"
+    },
+    "notices/rpds/crates/smallvec/1.15.1/LICENSE-MIT": {
+      "bytes": 1072,
+      "sha256": "0b28172679e0009b655da42797c03fd163a3379d5cfa67ba1f1655e974a2a1a9"
+    },
+    "notices/rpds/crates/syn/2.0.111/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/rpds/crates/syn/2.0.111/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/rpds/crates/target-lexicon/0.13.3/LICENSE": {
+      "bytes": 12243,
+      "sha256": "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"
+    },
+    "notices/rpds/crates/triomphe/0.1.15/LICENSE-APACHE": {
+      "bytes": 10849,
+      "sha256": "a6b7260485462860838b76ad1846d21f1605e6d239141c3aa949a601d992676c"
+    },
+    "notices/rpds/crates/triomphe/0.1.15/LICENSE-MIT": {
+      "bytes": 1074,
+      "sha256": "15656cc11a8331f28c0986b8ab97220d3e76f98e60ed388b5ffad37dfac4710c"
+    },
+    "notices/rpds/crates/unicode-ident/1.0.22/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/rpds/crates/unicode-ident/1.0.22/LICENSE-MIT": {
+      "bytes": 1023,
+      "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+    },
+    "notices/rpds/crates/unicode-ident/1.0.22/LICENSE-UNICODE": {
+      "bytes": 1995,
+      "sha256": "f7db81051789b729fea528a63ec4c938fdcb93d9d61d97dc8cc2e9df6d47f2a1"
+    },
+    "notices/rpds/rpds-wheel/LICENSE": {
+      "bytes": 1057,
+      "sha256": "314e4e91be3baa93c0fb4bccc9e4e97cd643eb839b065af921782c2175fe9909"
+    },
+    "notices/rpds/rpds-wheel/rpds-py.cyclonedx.json": {
+      "bytes": 20594,
+      "sha256": "80a3bfbae1607e51b2569566a469b8a6d9a984d4923c0824086418a6c8a3e763"
+    },
+    "notices/rpds/rust-1.96.0/BSD-2-Clause.txt": {
+      "bytes": 1267,
+      "sha256": "f32fb3b417a194167cfad068223fc975ba96c5960513a10f66a3c28720aec1df"
+    },
+    "notices/rpds/rust-1.96.0/COPYRIGHT-library.html": {
+      "bytes": 425651,
+      "sha256": "78c163fcec50e64bfd85fedb850c273595602fafa2b41f30f75d4e410b80ee83"
+    },
+    "notices/rpds/rust-1.96.0/FUCHSIA-BSD-NOTICE.txt": {
+      "bytes": 2055,
+      "sha256": "cd341f17a30824f82fd0f2e16cf1d3e3ed70542196f15c4000c5b5974352bc4f"
+    },
+    "notices/rpds/rust-1.96.0/LICENSE-APACHE": {
+      "bytes": 9723,
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+    },
+    "notices/rpds/rust-1.96.0/LICENSE-MIT": {
+      "bytes": 1068,
+      "sha256": "b71bd43a069ca0641a9ecfe585ca7b3c53b5cc1608f8b68321168698e28b5ea1"
+    },
+    "notices/rpds/rust-1.96.0/Unicode-3.0.txt": {
+      "bytes": 1995,
+      "sha256": "f5062c9a188d81dfe66b56db4182dcf9e4b17c0d9b0d311a8e20b3a1b075c443"
+    }
+  },
+  "packages": [
+    {
+      "declared_license_files": [
+        "LICENSE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/annotated_types-0.7.0-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 1083,
+          "path": "annotated_types-0.7.0.dist-info/licenses/LICENSE",
+          "sha256": "fe1049884b1a0d9342901e88e07f32925d24b3121d9972b6a6805fb9824b095d"
+        }
+      ],
+      "license_classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "license_expression": null,
+      "literal_scan_findings": [],
+      "member_count": 7,
+      "missing_declared_license_files": [],
+      "name": "annotated-types",
+      "origin": "registry",
+      "resources": [
+        {
+          "bytes": 0,
+          "path": "annotated_types/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "sha256": "1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53",
+      "version": "0.7.0"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/attrs-26.1.0-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 1109,
+          "path": "attrs-26.1.0.dist-info/licenses/LICENSE",
+          "sha256": "882115c95dfc2af1eeb6714f8ec6d5cbcabf667caff8729f42420da63f714e9f"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "MIT",
+      "literal_scan_findings": [],
+      "member_count": 35,
+      "missing_declared_license_files": [],
+      "name": "attrs",
+      "origin": "registry",
+      "resources": [
+        {
+          "bytes": 0,
+          "path": "attr/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 0,
+          "path": "attrs/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309",
+      "version": "26.1.0"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [
+        {
+          "bytes": 52,
+          "declarations": "[console_scripts]\naware = aware_agent_cli.main:main\n",
+          "path": "aware_agent_cli-0.2.0a12.dist-info/entry_points.txt",
+          "sha256": "c757a499a94a9347a2c4ea3b4f44ea05872c0514f6a45d4270de17a4d9d59c94"
+        }
+      ],
+      "file": "wheelhouse/aware_agent_cli-0.2.0a12-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_agent_cli-0.2.0a12.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 223,
+          "path": "aware_agent_cli-0.2.0a12.dist-info/licenses/NOTICE",
+          "sha256": "1ffacfc043a2f2cfe70e8742645fdd00e67f3bf8171e7f31cbd3a1766d90645c"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 14,
+      "missing_declared_license_files": [],
+      "name": "aware-agent-cli",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 0,
+          "path": "aware_agent_cli/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "sha256": "6360e39354ba91e433dda17816363a79ce9bd5555dc7bd5a2e29ec35e2659665",
+      "version": "0.2.0a12"
+    },
+    {
+      "declared_license_files": [],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_code_module_manifest_contract_runtime-0.1.1-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 24,
+      "missing_declared_license_files": [],
+      "name": "aware-code-module-manifest-contract-runtime",
+      "origin": "aware_source",
+      "resources": [],
+      "sha256": "4e255733b5a3690ef02dbcb67fb257051902f18a4f5aa7a0ae11a31b6b446af8",
+      "version": "0.1.1"
+    },
+    {
+      "declared_license_files": [],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_code_package_delta_contract-0.1.0-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 5,
+      "missing_declared_license_files": [],
+      "name": "aware-code-package-delta-contract",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 1,
+          "path": "aware_code_package_delta_contract/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "4b7cebfbd41a0e0e68a1becd49ec6f145cdf520b98ff2bca64350072cadc62dc",
+      "version": "0.1.0"
+    },
+    {
+      "declared_license_files": [],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_code_retained_registry_policy_runtime-0.1.2-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 49,
+      "missing_declared_license_files": [],
+      "name": "aware-code-retained-registry-policy-runtime",
+      "origin": "aware_source",
+      "resources": [],
+      "sha256": "6703cace070291090f486b9aae0f3f514aa6129e7ac0be2e21b5a9c6bef09c65",
+      "version": "0.1.2"
+    },
+    {
+      "declared_license_files": [],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_code_semantic_contract_runtime-0.2.0-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 59,
+      "missing_declared_license_files": [],
+      "name": "aware-code-semantic-contract-runtime",
+      "origin": "aware_source",
+      "resources": [],
+      "sha256": "bb049dd15275d0667aa1d785039deb8d50776cb2db822ec8989fddf6f75d9426",
+      "version": "0.2.0"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_command_runtime-0.1.1-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_command_runtime-0.1.1.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_command_runtime-0.1.1.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 8,
+      "missing_declared_license_files": [],
+      "name": "aware-command-runtime",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 1,
+          "path": "aware_command_runtime/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "074eee769d6d2ca0ec3a367535333d7ba1af1e99ef05483f139e24fe4e287340",
+      "version": "0.1.1"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_file_system-0.3.8-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_file_system-0.3.8.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        }
+      ],
+      "license_classifiers": [
+        "License :: OSI Approved :: Apache Software License"
+      ],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 80,
+      "missing_declared_license_files": [],
+      "name": "aware-file-system",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 253,
+          "path": "aware_file_system/configs/default.yaml",
+          "sha256": "6835a3b693ecb88761d5beaddfc0a8884e8426eae01e31446ebc6f674e6f88ef"
+        },
+        {
+          "bytes": 1,
+          "path": "aware_file_system/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "76d4a5bfe43bcfbeafe59d5952589d99eb77830e42d31fc9bc6cb4d03bf9fc59",
+      "version": "0.3.8"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [
+        {
+          "bytes": 62,
+          "declarations": "[console_scripts]\naware-issue-cli = aware_issue_cli.main:main\n",
+          "path": "aware_issue_cli-0.8.3.dist-info/entry_points.txt",
+          "sha256": "0bb5bddd957c4982669abe96d8369689379c29497cf88696382775e5df077af8"
+        }
+      ],
+      "file": "wheelhouse/aware_issue_cli-0.8.3-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_issue_cli-0.8.3.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_issue_cli-0.8.3.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 11,
+      "missing_declared_license_files": [],
+      "name": "aware-issue-cli",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 0,
+          "path": "aware_issue_cli/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "sha256": "29a8d88ad960594c5e20bf817a58ff662565d02cec5c2c8ae3f0ada320e2cdf9",
+      "version": "0.8.3"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_issue_fs_adapter-0.9.6-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_issue_fs_adapter-0.9.6.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_issue_fs_adapter-0.9.6.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 14,
+      "missing_declared_license_files": [],
+      "name": "aware-issue-fs-adapter",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 0,
+          "path": "aware_issue_fs_adapter/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "sha256": "53167bd5649d1bf721b23aa4cbd9b374e1f9a380a150e66c618874c4b569045e",
+      "version": "0.9.6"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_issue_operational_runtime-0.3.4-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_issue_operational_runtime-0.3.4.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_issue_operational_runtime-0.3.4.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 20,
+      "missing_declared_license_files": [],
+      "name": "aware-issue-operational-runtime",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 1,
+          "path": "aware_issue_operational_runtime/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "fac1fdde363c9426a7ff6f945d422a1408c7206e157a4c6fd2496e06074cb9b8",
+      "version": "0.3.4"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_issue_runtime-0.3.0-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_issue_runtime-0.3.0.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_issue_runtime-0.3.0.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 13,
+      "missing_declared_license_files": [],
+      "name": "aware-issue-runtime",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 1,
+          "path": "aware_issue_runtime/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "380943acf7fa4b655c14126a4f1a6f5d588ae473ce1807b56e02c04d85ddeffc",
+      "version": "0.3.0"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_issue_sdk-0.10.6-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_issue_sdk-0.10.6.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_issue_sdk-0.10.6.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 25,
+      "missing_declared_license_files": [],
+      "name": "aware-issue-sdk",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 1,
+          "path": "aware_issue_sdk/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "b53490b64faf6008932e96853dbd152f7c84ed574691d65fe4543f42537919bd",
+      "version": "0.10.6"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_meta_type_schema-0.1.1-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_meta_type_schema-0.1.1.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_meta_type_schema-0.1.1.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 24,
+      "missing_declared_license_files": [],
+      "name": "aware-meta-type-schema",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 0,
+          "path": "aware_meta_type_schema/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "sha256": "1f999d2a8a05fe0b2435c4220c676ca6bcf7cc55c5ecf61248768afeb4bfd297",
+      "version": "0.1.1"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [
+        {
+          "bytes": 64,
+          "declarations": "[console_scripts]\naware-protocol = aware_protocol_cli.main:main\n",
+          "path": "aware_protocol_cli-0.3.5.dist-info/entry_points.txt",
+          "sha256": "853825e3bde1736a5ad15e9a537edce0acaea56743946227e72959484662e8a2"
+        }
+      ],
+      "file": "wheelhouse/aware_protocol_cli-0.3.5-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_protocol_cli-0.3.5.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 168,
+          "path": "aware_protocol_cli-0.3.5.dist-info/licenses/NOTICE",
+          "sha256": "c01f142a5cf8e7b37c716b3d52653c88de7cfe5245b47c1e0280aea8f1c3a909"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 11,
+      "missing_declared_license_files": [],
+      "name": "aware-protocol-cli",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 1,
+          "path": "aware_protocol_cli/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "e92697e17cde23c163c102be99ea46c97a17381e561ae67dbaae4a4609ef441b",
+      "version": "0.3.5"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_protocol_fs_adapter-0.6.5-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_protocol_fs_adapter-0.6.5.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_protocol_fs_adapter-0.6.5.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 21,
+      "missing_declared_license_files": [],
+      "name": "aware-protocol-fs-adapter",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 1,
+          "path": "aware_protocol_fs_adapter/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        {
+          "bytes": 4102,
+          "path": "aware_protocol_fs_adapter/schemas/aware-protocol-manifest-v1.schema.json",
+          "sha256": "60125e4734e9b0c0b559a2b27642769f90ef30e3905b208a56c5053405833e69"
+        },
+        {
+          "bytes": 1562,
+          "path": "aware_protocol_fs_adapter/templates/AGENTS.md",
+          "sha256": "0e1c104a61217a651ed20508ecff8a12b8385126c48e4385d732445af77b478c"
+        },
+        {
+          "bytes": 1430,
+          "path": "aware_protocol_fs_adapter/templates/ISSUES-PROTOCOL.md",
+          "sha256": "df6396e5bf1b1b04e97bcc9634ca1b0d8e6f6af91b82d09871c83e8048a0678e"
+        }
+      ],
+      "sha256": "408738f17f8cf449583bdd0cfa31fe139ff2f8e414a9e9acb10f41b1f593d2b2",
+      "version": "0.6.5"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_protocol_runtime-0.1.1-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_protocol_runtime-0.1.1.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_protocol_runtime-0.1.1.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 9,
+      "missing_declared_license_files": [],
+      "name": "aware-protocol-runtime",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 1,
+          "path": "aware_protocol_runtime/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "a5dd63ca8b0d52f7af415664c16136de3007130ef10d8681654a68ee80b79260",
+      "version": "0.1.1"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_protocol_sdk-0.3.2-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_protocol_sdk-0.3.2.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_protocol_sdk-0.3.2.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 13,
+      "missing_declared_license_files": [],
+      "name": "aware-protocol-sdk",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 1,
+          "path": "aware_protocol_sdk/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "10f18f845b9aa544580c4840dbcb4e9864cbb20c4b8dee92ac05be68e7ad25a0",
+      "version": "0.3.2"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_sdk_contract_runtime-0.1.1-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_sdk_contract_runtime-0.1.1.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_sdk_contract_runtime-0.1.1.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 17,
+      "missing_declared_license_files": [],
+      "name": "aware-sdk-contract-runtime",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 1,
+          "path": "aware_sdk_contract_runtime/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "79130964fbc9aa1dd6cf85eba2ccb248d61bfa30614ef55e7c8da89fdbb15831",
+      "version": "0.1.1"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [
+        {
+          "bytes": 65,
+          "declarations": "[console_scripts]\naware-spec = aware_specification_cli.main:main\n",
+          "path": "aware_specification_cli-0.4.4.dist-info/entry_points.txt",
+          "sha256": "914ac5090ace447660a91b8ac2258dc99f1beaa89f0a8b67d190607371a05ebb"
+        }
+      ],
+      "file": "wheelhouse/aware_specification_cli-0.4.4-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_specification_cli-0.4.4.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_specification_cli-0.4.4.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 11,
+      "missing_declared_license_files": [],
+      "name": "aware-specification-cli",
+      "origin": "aware_source",
+      "resources": [],
+      "sha256": "a1fca86d5b4e3e67bd6d39bf550a23e4ed4e8588c7de5ef03b33dcf922445217",
+      "version": "0.4.4"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_specification_fs_adapter-0.1.0-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_specification_fs_adapter-0.1.0.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_specification_fs_adapter-0.1.0.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 13,
+      "missing_declared_license_files": [],
+      "name": "aware-specification-fs-adapter",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 0,
+          "path": "aware_specification_fs_adapter/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "sha256": "a4a7ac38cb9a61383d735e28f928feda8d05afff6569865acc8585e0d46f4c68",
+      "version": "0.1.0"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_specification_fs_sdk_adapter-0.4.4-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_specification_fs_sdk_adapter-0.4.4.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_specification_fs_sdk_adapter-0.4.4.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 14,
+      "missing_declared_license_files": [],
+      "name": "aware-specification-fs-sdk-adapter",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 5707,
+          "path": "aware_specification_fs_sdk_adapter/resources/aware-spec-v1.schema.json",
+          "sha256": "142acd207dd179cbcd7e397f39802d6b2d919ac70c4354319d9d73e9a6d493d3"
+        }
+      ],
+      "sha256": "c5ce4daef31305fa96732ce3d05e8178db404edf88a102597479b368ddd1b0d0",
+      "version": "0.4.4"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_specification_fs_source_contract-0.1.0-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_specification_fs_source_contract-0.1.0.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_specification_fs_source_contract-0.1.0.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 9,
+      "missing_declared_license_files": [],
+      "name": "aware-specification-fs-source-contract",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 1,
+          "path": "aware_specification_fs_source_contract/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "64ed9955ded63381d3f8efd5aacf374a8b78c01e7ed1660629830624a4ed0c9c",
+      "version": "0.1.0"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_specification_runtime-0.1.0-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_specification_runtime-0.1.0.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_specification_runtime-0.1.0.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 12,
+      "missing_declared_license_files": [],
+      "name": "aware-specification-runtime",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 1,
+          "path": "aware_specification_runtime/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "e21e8a471c48a33e12f1ba0cc30f4d49d05c0e933c7c4377c3924bcb6209300e",
+      "version": "0.1.0"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_specification_sdk-0.3.4-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_specification_sdk-0.3.4.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_specification_sdk-0.3.4.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 12,
+      "missing_declared_license_files": [],
+      "name": "aware-specification-sdk",
+      "origin": "aware_source",
+      "resources": [],
+      "sha256": "6282de4a533c3ab2ae66c462fec31992148018c928dec0eebc19203e205c0d24",
+      "version": "0.3.4"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_workspace_fs_adapter-0.1.10-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_workspace_fs_adapter-0.1.10.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 218,
+          "path": "aware_workspace_fs_adapter-0.1.10.dist-info/licenses/NOTICE",
+          "sha256": "9c68e9ae4bf12a1306c385b1b4222ada0fa29341ddf68ebf7fea6b7ca83e0011"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 21,
+      "missing_declared_license_files": [],
+      "name": "aware-workspace-fs-adapter",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 0,
+          "path": "aware_workspace_fs_adapter/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "sha256": "4714610b26d3a114aeca00c4dda61c261e3758372c7bbc240d488dc825a7ea91",
+      "version": "0.1.10"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "NOTICE"
+      ],
+      "entrypoint_files": [
+        {
+          "bytes": 87,
+          "declarations": "[aware_cli.command_packs]\ncommit = aware_workspace_operator.cli.pack:get_command_specs\n",
+          "path": "aware_workspace_operator-0.4.1.dist-info/entry_points.txt",
+          "sha256": "a890d11ca9192e712d4728058bd283c113c00a69d51ebf6995b537b7a262fbec"
+        }
+      ],
+      "file": "wheelhouse/aware_workspace_operator-0.4.1-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 11358,
+          "path": "aware_workspace_operator-0.4.1.dist-info/licenses/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "bytes": 234,
+          "path": "aware_workspace_operator-0.4.1.dist-info/licenses/NOTICE",
+          "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 104,
+      "missing_declared_license_files": [],
+      "name": "aware-workspace-operator",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 4391,
+          "path": "aware_workspace_operator/assets/aware_grammar_docs/ANNOTATIONS.md",
+          "sha256": "ad7880d01ae3b36866882124a5146ef4d11a23f4fd453d5aeb5475daa3299191"
+        },
+        {
+          "bytes": 1861,
+          "path": "aware_workspace_operator/assets/aware_grammar_docs/BRANCHABILITY.md",
+          "sha256": "759f69a52c4fd28a7c48c6b20d9e8e22374a013c1b74a4c747b2e4b2b43cf0de"
+        },
+        {
+          "bytes": 3222,
+          "path": "aware_workspace_operator/assets/aware_grammar_docs/HIGHLIGHTING.md",
+          "sha256": "6aa48284879919429a6a8c873ce5a150836036fd875c96116644c5d980dc076b"
+        },
+        {
+          "bytes": 1470,
+          "path": "aware_workspace_operator/assets/aware_grammar_docs/IMPORTS.md",
+          "sha256": "a5ff7186bb558a20c2044b5629f5e8ea11b88431d81e3d0e2ce56958cb644f79"
+        },
+        {
+          "bytes": 1753,
+          "path": "aware_workspace_operator/assets/aware_grammar_docs/PATTERNS.md",
+          "sha256": "0f7996d56442b426b7b31bb638c756fb7c5b41607d73c4b85e04079d69dda470"
+        },
+        {
+          "bytes": 11931,
+          "path": "aware_workspace_operator/assets/aware_grammar_docs/PROGRAMS.md",
+          "sha256": "51c7bb2e876f0ffeb1c8473fc047386d1ee80c92c623e8bf39f5f2b9f8c06add"
+        },
+        {
+          "bytes": 6568,
+          "path": "aware_workspace_operator/assets/aware_grammar_docs/PROJECTIONS.md",
+          "sha256": "34ee89176556e77534605768330ea66c9f11a5ac97a81fd0b08ebd75633d4ccb"
+        },
+        {
+          "bytes": 5870,
+          "path": "aware_workspace_operator/assets/aware_grammar_docs/PROJECTION_VIEWS.md",
+          "sha256": "07e05cde75904c01159a77825a6516b562616ef0e59ae3528a6fe2d7cf211102"
+        },
+        {
+          "bytes": 2612,
+          "path": "aware_workspace_operator/assets/aware_grammar_docs/README.md",
+          "sha256": "83cb6935aad755af5e007469d53009605f5ba918be7e8da5da40d5438ce21d57"
+        },
+        {
+          "bytes": 5258,
+          "path": "aware_workspace_operator/assets/aware_grammar_docs/SYNTAX.md",
+          "sha256": "a163ba47fed640ab74736ad09e8ae68b15facd1011dc6ff29d8546b3464f2fd0"
+        },
+        {
+          "bytes": 6387,
+          "path": "aware_workspace_operator/assets/aware_grammar_docs/TRANSPILATION.md",
+          "sha256": "fbe6b40405095f2ece7b3b0bfe200bda45d9ba96f6cb51ee62ae02d0250e8b48"
+        },
+        {
+          "bytes": 1272,
+          "path": "aware_workspace_operator/assets/aware_grammar_docs/VALIDATION.md",
+          "sha256": "35aa0f4b02aa47da6eedb103fd0b52362ff1397ae369b10dab7e97dcc9585a4f"
+        },
+        {
+          "bytes": 4143,
+          "path": "aware_workspace_operator/assets/contracts/aware_repo_quality_gates.toml",
+          "sha256": "f713b66b99014d07b55c3c4ec2b9db68a83245472d1fb9f7c2945ddc0c77a57e"
+        },
+        {
+          "bytes": 1211,
+          "path": "aware_workspace_operator/assets/seeds/README.md",
+          "sha256": "10e1bde0a3c77a878ce4fb86f6c4ca21d80b8216b7bca95e1bfe0dc9e64e4a0c"
+        },
+        {
+          "bytes": 1767,
+          "path": "aware_workspace_operator/assets/seeds/aware.programs.toml",
+          "sha256": "862bbbf56a6da31a2b3e3dc3daf289713907dd76b81ab8ed4535eb1eb79611fc"
+        },
+        {
+          "bytes": 18441,
+          "path": "aware_workspace_operator/assets/seeds/aware_kernel.seed.aware",
+          "sha256": "43a636a0ef8be90fad2da39db5b66c52f41d1639bb268de1377c6a15e41ab6df"
+        },
+        {
+          "bytes": 2397,
+          "path": "aware_workspace_operator/assets/seeds/aware_kernel.seed.profile.toml",
+          "sha256": "2033b34cd16f39cf2f6a280143db064f75dd9edf74c4a9eeb3852be88de97967"
+        },
+        {
+          "bytes": 1712,
+          "path": "aware_workspace_operator/assets/seeds/aware_kernel.seed.toml",
+          "sha256": "2db03d7481a6ef7322ed786da0530ce6dd38bbfca3bde4b39e14b144d2864db9"
+        },
+        {
+          "bytes": 4725,
+          "path": "aware_workspace_operator/assets/software/README.md",
+          "sha256": "68fdb6ab9203357b020f6cd696bc1d53cb424264173f8cbff6a762fe031d40a9"
+        },
+        {
+          "bytes": 4737,
+          "path": "aware_workspace_operator/assets/software/assets/act-react-v1/act-react.v1.schema.json",
+          "sha256": "95004389cc58ffb885b9dff1230274f53e37ec6b3db65ad5a52dce3fa6d5a10e"
+        },
+        {
+          "bytes": 1842,
+          "path": "aware_workspace_operator/assets/software/assets/act-react-v1/conformance/README.md",
+          "sha256": "aa711bae3fa7ac9ba47b5d881fa16c7895b96da7620d5e039de3932520797eb8"
+        },
+        {
+          "bytes": 850,
+          "path": "aware_workspace_operator/assets/software/assets/minimal-references/0-config.md",
+          "sha256": "b45badaac90eeb0a1a7a523ef627c577e10df0d8bcdd5a07f08a3c79af865e53"
+        },
+        {
+          "bytes": 526,
+          "path": "aware_workspace_operator/assets/software/assets/minimal-references/1-runtime.md",
+          "sha256": "47356dca5577bbcbab6d113bc4b4b823597ae532cddaceb09425a5088c2c6b99"
+        },
+        {
+          "bytes": 587,
+          "path": "aware_workspace_operator/assets/software/assets/minimal-references/2-representation.md",
+          "sha256": "e535c13c91b08ca8b3954eb803d10d039ef8fba04aeeaba7bbe2d75f46b037d7"
+        },
+        {
+          "bytes": 895,
+          "path": "aware_workspace_operator/assets/software/assets/minimal-references/3-programs.md",
+          "sha256": "634556154d304854a2c117083281c85a61cdb0e24928d8ce3e6556a87cd5d327"
+        },
+        {
+          "bytes": 1024,
+          "path": "aware_workspace_operator/assets/software/assets/minimal-references/4-policy.md",
+          "sha256": "388cdb66ff3e51ed62e9f6923642f49104ddb9329f2b8838457123339d233745"
+        },
+        {
+          "bytes": 1340,
+          "path": "aware_workspace_operator/assets/software/assets/minimal-references/5-reactivity.md",
+          "sha256": "4e8c3bb4f248de1abd1342cc72640cc3687c2aaf0e7395492697353b85995fd4"
+        },
+        {
+          "bytes": 638,
+          "path": "aware_workspace_operator/assets/software/assets/minimal-references/end-to-end-checklist.md",
+          "sha256": "a483da66cee406343c4141a78617848b3bcab4271ead22894d3382e391e44e8a"
+        },
+        {
+          "bytes": 210,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/0-config/aware_compiler_instructions.md",
+          "sha256": "31c7d1dba088b5a52b8f77b4ce3ee598a756447a165a9360f098f1f2110523fc"
+        },
+        {
+          "bytes": 136,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/0-config/aware_grammar_instructions.md",
+          "sha256": "6a112b083412626ebaa80ba8aca8a1c0416fb053326cf6d3c7f272c5d53092a4"
+        },
+        {
+          "bytes": 159,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/0-config/class_declaration.md",
+          "sha256": "5e0fe5beb494f80b5f22cdc666330d9dcc3e480acb55b54c1719ea8c1d260d87"
+        },
+        {
+          "bytes": 283,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/0-config/configuration_instructions.md",
+          "sha256": "b44b624ba48c882534638f2be824eda764613bb1c8165b2a5a79ec3a86bc5788"
+        },
+        {
+          "bytes": 169,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/0-config/enum_declaration.md",
+          "sha256": "af472d3afd1eafbb0fb1a7731eba28e8528675e2c8625008fecc0bdbadd6b5e9"
+        },
+        {
+          "bytes": 333,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/0-config/function_declaration.md",
+          "sha256": "b6682af73959c6a2934823ba17e65a64ef6e6b2795d0563878bf1e44b05d46d9"
+        },
+        {
+          "bytes": 296,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/0-config/function_instructions.md",
+          "sha256": "27642b4e5df0a4a290b9e40c7b1750f9698d3ddeef9a9396be4e4fdf6b311de2"
+        },
+        {
+          "bytes": 243,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/0-config/projection_declaration.md",
+          "sha256": "c8aa9ea1cfcd2907ef5239cfa23a5cbd62f2989cfef68c2cfb2ea2085287fdd0"
+        },
+        {
+          "bytes": 285,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/0-config/projection_instructions.md",
+          "sha256": "8d1163e1a5ab1ca89320ff99d88d3b11cee6d8c24e95284b6404519a56aae458"
+        },
+        {
+          "bytes": 370,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/1-runtime/runtime_declaration.md",
+          "sha256": "d33eaebed510bc85af4b55e9a11c8077083f72b71184008edb342e35dbba3e67"
+        },
+        {
+          "bytes": 331,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/1-runtime/runtime_instructions.md",
+          "sha256": "a1e68e29b86301757c3c68bfd040be5fd0b65ce31ad1b6c7dc0703bd700d33d7"
+        },
+        {
+          "bytes": 354,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/1-runtime/runtime_proof.md",
+          "sha256": "cc4810d986294b76bf16e5f280d34173ad8dce4412b2763d317bbf41243147a3"
+        },
+        {
+          "bytes": 372,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/2-representation/representation_declaration.md",
+          "sha256": "9961049b4d05a96a6a6ec59e32f8130258915b418ea3bdba0a5084e634b7864d"
+        },
+        {
+          "bytes": 339,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/2-representation/representation_instructions.md",
+          "sha256": "55a507e35dc9d54c4860a8276fac63ca5d3772e8035d3fb7c4c94d315236bb78"
+        },
+        {
+          "bytes": 374,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/2-representation/representation_proof.md",
+          "sha256": "bd32371b91fdb868ec66165a55803838d72a06ed506b968bedb61873bdd1e4fb"
+        },
+        {
+          "bytes": 454,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/3-programs/program_declaration.md",
+          "sha256": "2478a1eb8ca12b9624892abb4f5ed24fc858b3cf9b872cc494e9a9a4c1dacf9c"
+        },
+        {
+          "bytes": 685,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/3-programs/program_instructions.md",
+          "sha256": "050022df60024ac9ee42ea4445445ed6b76ac348f2b2833f68560747010b7f82"
+        },
+        {
+          "bytes": 402,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/3-programs/program_proof.md",
+          "sha256": "a142bcb6b8e25c400ac7e4e118e087a2929e61ecae5cf31ea5b8cdfd8de9bb6c"
+        },
+        {
+          "bytes": 554,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/4-policy/role_config_declaration.md",
+          "sha256": "e6ba11d1a54e2720adc86162fcb6463cab7f9fd9f9d8cd482b690eb5833a7ab7"
+        },
+        {
+          "bytes": 675,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/4-policy/role_config_instructions.md",
+          "sha256": "57b9d1847621de531809cc7bd8c92147e385ac69b19cb883959152bcd524c773"
+        },
+        {
+          "bytes": 642,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/4-policy/role_instantiation_declaration.md",
+          "sha256": "5f30f298453df16a5284fcb368f026e114ed0963b9365d720796425a651d2273"
+        },
+        {
+          "bytes": 798,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/4-policy/role_instantiation_instructions.md",
+          "sha256": "7632c53c609321219f3c09b51f373930aa49b96ba73824da45a1e7bcc5e82dda"
+        },
+        {
+          "bytes": 217,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/5-reactivity/action_config_declaration.md",
+          "sha256": "f37b562f5359f9845554f8ddb55e67e83b51637bf8bfe7592199b5d432efaddf"
+        },
+        {
+          "bytes": 162,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/5-reactivity/action_config_instructions.md",
+          "sha256": "2b46defed0744a3765b8ff1e8de5631ca4a44d1b106781eb1af9ce1336adba45"
+        },
+        {
+          "bytes": 856,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/5-reactivity/actor_subscription_declaration.md",
+          "sha256": "5b3356df7ced2fcdecf3cd5ac5028dd428a380112ae2f5ac16087e0014f0f230"
+        },
+        {
+          "bytes": 979,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/5-reactivity/actor_subscription_instructions.md",
+          "sha256": "77eac9a8cf2bea727231ace71b870087d45d5e829f8db93043aa578764982edf"
+        },
+        {
+          "bytes": 353,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/5-reactivity/agent_run_action_config_declaration.md",
+          "sha256": "b72d7c8e30d2a373d4be83550fb540672c399caaef8bc9c6856d442b57bc0099"
+        },
+        {
+          "bytes": 194,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/5-reactivity/agent_run_action_config_instructions.md",
+          "sha256": "1bbcd34c9e356c349c5e0962ab3835310e5b05b6adf62d426c061335ffa087c7"
+        },
+        {
+          "bytes": 259,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/5-reactivity/condition_config_declaration.md",
+          "sha256": "fd6bf6b4f6cd88e4178bb34818fc076b69c54275033389cccafbde4b9056e14a"
+        },
+        {
+          "bytes": 187,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/5-reactivity/condition_config_instructions.md",
+          "sha256": "7d7037c1538afb958007e839646c50ef45d815027f1ce3a8a892102c5f4d9740"
+        },
+        {
+          "bytes": 203,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/5-reactivity/event_config_declaration.md",
+          "sha256": "533600516e3d2b34b327ac2ada83130377d8c143ca8098085139715c51259fb5"
+        },
+        {
+          "bytes": 172,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/5-reactivity/event_config_instructions.md",
+          "sha256": "05cde0b0859dede5ce664f53eefc997e70409d336e42a77bb357cafa28ef0524"
+        },
+        {
+          "bytes": 541,
+          "path": "aware_workspace_operator/assets/software/assets/section-core/5-reactivity/reactivity_instructions.md",
+          "sha256": "6f89dd1dd66384a8e57f64ddfbb51e72c05b1365b75d51db56df1248a7a237c9"
+        },
+        {
+          "bytes": 3126,
+          "path": "aware_workspace_operator/assets/software/profiles/external-default-v1.toml",
+          "sha256": "45ce29927c61d50b1ab4548105948366db6108823d055c1c8a9212f904d64d06"
+        },
+        {
+          "bytes": 3126,
+          "path": "aware_workspace_operator/assets/software/profiles/internal-default-v1.toml",
+          "sha256": "15b50c1baba40375411a059a4e68e28d0ac0888ca796a3d5236a7d95a937dfec"
+        },
+        {
+          "bytes": 476,
+          "path": "aware_workspace_operator/assets/software/templates/mental-model-v1/0-config.md",
+          "sha256": "2455ee9e16c1ea51414cc42b53f257c6cfbb62076b264c7fb3c607c37bac84fe"
+        },
+        {
+          "bytes": 228,
+          "path": "aware_workspace_operator/assets/software/templates/mental-model-v1/1-runtime.md",
+          "sha256": "87058d741b973a52dd7cab2fbe8f00ff1df34df0f0127af17b7f12fac4f1b6a6"
+        },
+        {
+          "bytes": 260,
+          "path": "aware_workspace_operator/assets/software/templates/mental-model-v1/2-representation.md",
+          "sha256": "d3361197a0aff2ec4756b0f5f2dcf8ac160484d172ba18f42e6799f44821cdfc"
+        },
+        {
+          "bytes": 337,
+          "path": "aware_workspace_operator/assets/software/templates/mental-model-v1/3-programs.md",
+          "sha256": "69046cb41c4e4527ff9e05174f852bd0e2d72d5fee061454afc8d434fb947c0a"
+        },
+        {
+          "bytes": 383,
+          "path": "aware_workspace_operator/assets/software/templates/mental-model-v1/4-policy.md",
+          "sha256": "7cbcc7db56eb41212b84a1d7bb9bf9c82353763fff18fc4935784e4c22b93544"
+        },
+        {
+          "bytes": 853,
+          "path": "aware_workspace_operator/assets/software/templates/mental-model-v1/5-reactivity.md",
+          "sha256": "01a2c2dcb450e11e106b8ae5490006bf3e6830536f5e2fdfb85ddf2123a610ba"
+        },
+        {
+          "bytes": 544,
+          "path": "aware_workspace_operator/assets/software/templates/mental-model-v1/index.md",
+          "sha256": "82108a6a99e0fc87a59156b054738916aa7ae5793393aac63098064fba513e7c"
+        },
+        {
+          "bytes": 1,
+          "path": "aware_workspace_operator/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "ad9a9f3b42ec6deca615a04f2f1268b34dc9932e68d4d4cbcf9847c2850767cd",
+      "version": "0.4.1"
+    },
+    {
+      "declared_license_files": [],
+      "entrypoint_files": [
+        {
+          "bytes": 178,
+          "declarations": "[console_scripts]\naware-workspace = aware_workspace_command.architecture_setup_command:main\n\n[aware_cli.command_packs]\nworkspace = aware_workspace_command.pack:get_command_specs\n",
+          "path": "aware_workspace_runtime-0.2.16.dist-info/entry_points.txt",
+          "sha256": "e88c3b413f301625ebaef8f389fb739616c872af642cc50dde44aed099793b6f"
+        }
+      ],
+      "file": "wheelhouse/aware_workspace_runtime-0.2.16-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 111,
+      "missing_declared_license_files": [],
+      "name": "aware-workspace-runtime",
+      "origin": "aware_source",
+      "resources": [],
+      "sha256": "6ebe50aca122d328b4e0bed63bf94b40e73c61367638e4f093f362c24a89b5b6",
+      "version": "0.2.16"
+    },
+    {
+      "declared_license_files": [],
+      "entrypoint_files": [],
+      "file": "wheelhouse/aware_workspace_sdk-0.2.11-cp312-cp312-linux_x86_64.whl",
+      "legacy_license": null,
+      "legal_files": [],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 46,
+      "missing_declared_license_files": [],
+      "name": "aware-workspace-sdk",
+      "origin": "aware_source",
+      "resources": [
+        {
+          "bytes": 174431,
+          "path": "aware_workspace_sdk/_tree_native.c",
+          "sha256": "86c88c4cc1086206621e6cc661dc36eacc9b5bbc3aa3df865e1bb399628d7f5f"
+        },
+        {
+          "bytes": 210280,
+          "path": "aware_workspace_sdk/_tree_native.cpython-312-x86_64-linux-gnu.so",
+          "sha256": "9107d26f8b3d2eb678e4c0334563505ce4d1f21db481d2eed97a3a57e9b661eb"
+        },
+        {
+          "bytes": 2484,
+          "path": "aware_workspace_sdk/features/README.md",
+          "sha256": "dc6a12c2909f3d3100133f4897d5d493630bc6398c34aad57d05df9bdefb376a"
+        },
+        {
+          "bytes": 1498,
+          "path": "aware_workspace_sdk/features/composition/README.md",
+          "sha256": "1f03c9e5df466435df47dd7dac9b82d81510a25a8c8b62cfd94e0e3fb07d774f"
+        },
+        {
+          "bytes": 1,
+          "path": "aware_workspace_sdk/py.typed",
+          "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        }
+      ],
+      "sha256": "d3858dedd5c16cc4f9e2a015a6436a4bfe68c0f054a635d53e97f051409c21ff",
+      "version": "0.2.11"
+    },
+    {
+      "declared_license_files": [
+        "AWARE-MODIFICATIONS.md",
+        "COPYING"
+      ],
+      "entrypoint_files": [
+        {
+          "bytes": 51,
+          "declarations": "[console_scripts]\njsonschema = jsonschema.cli:main\n",
+          "path": "jsonschema-4.26.0+aware.1.dist-info/entry_points.txt",
+          "sha256": "bceeeb5f816cff1215272da99c0b4a8134b17e99e8cc0550d038c29a93319d61"
+        }
+      ],
+      "file": "wheelhouse/jsonschema-4.26.0+aware.1-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 527,
+          "path": "jsonschema-4.26.0+aware.1.dist-info/licenses/AWARE-MODIFICATIONS.md",
+          "sha256": "9e5d34b3cb90d6bf28d571eb7d08430cdd534ac2cfacf8a8d55de3376e8821de"
+        },
+        {
+          "bytes": 1057,
+          "path": "jsonschema-4.26.0+aware.1.dist-info/licenses/COPYING",
+          "sha256": "4f92a015a13c4d1a040bef018aa13430b4f1bc73b41b16bb846c346766de7439"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "MIT",
+      "literal_scan_findings": [],
+      "member_count": 31,
+      "missing_declared_license_files": [],
+      "name": "jsonschema",
+      "origin": "source_derived",
+      "resources": [],
+      "sha256": "167abf85d02a18ec191827e1641b7a58a11c4da477732d0576cdb4e6b6ccd5a2",
+      "version": "4.26.0+aware.1"
+    },
+    {
+      "declared_license_files": [
+        "COPYING"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/jsonschema_specifications-2025.9.1-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 1057,
+          "path": "jsonschema_specifications-2025.9.1.dist-info/licenses/COPYING",
+          "sha256": "42dcd63495f87b4eb7c7757afa379bb55a53f94afd7a5f657d9adf57236e515c"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "MIT",
+      "literal_scan_findings": [],
+      "member_count": 28,
+      "missing_declared_license_files": [],
+      "name": "jsonschema-specifications",
+      "origin": "registry",
+      "resources": [
+        {
+          "bytes": 1785,
+          "path": "jsonschema_specifications/schemas/draft201909/metaschema.json",
+          "sha256": "7b761b3e121f0a0ca1ea2a0b8e2cc856bcf801604b8268d71bacaa202bc0c13b"
+        },
+        {
+          "bytes": 1860,
+          "path": "jsonschema_specifications/schemas/draft201909/vocabularies/applicator",
+          "sha256": "6895100e99726fbb107058512bbec3ecfd4b24e8fd2facee3e505ee72b0d4c31"
+        },
+        {
+          "bytes": 517,
+          "path": "jsonschema_specifications/schemas/draft201909/vocabularies/content",
+          "sha256": "9b7d4f55a4e2fdb02c430068fdffabc732addce238da3f1df2690249c3353274"
+        },
+        {
+          "bytes": 1531,
+          "path": "jsonschema_specifications/schemas/draft201909/vocabularies/core",
+          "sha256": "b5a2c4957f6495d0a5081f0409ebe8a14e4139acb203fc748471f8ede2af5b2c"
+        },
+        {
+          "bytes": 403,
+          "path": "jsonschema_specifications/schemas/draft201909/vocabularies/format",
+          "sha256": "50ebbfe790611a849b8cc400a09c1d0e0fb6ab5c0d43a0f22201fd3625056bf4"
+        },
+        {
+          "bytes": 892,
+          "path": "jsonschema_specifications/schemas/draft201909/vocabularies/meta-data",
+          "sha256": "d47e2445dd6a82271a298d83cc6c6cb8d4ae1e15e0dc56becd37a163ecf01286"
+        },
+        {
+          "bytes": 2834,
+          "path": "jsonschema_specifications/schemas/draft201909/vocabularies/validation",
+          "sha256": "1e526c1d335a734805fc82cf5798c12b960ad7da2517c66cda5a1b09359c3c1c"
+        },
+        {
+          "bytes": 2452,
+          "path": "jsonschema_specifications/schemas/draft202012/metaschema.json",
+          "sha256": "41da76f5afb7ce062d248f762463a92f7ca47e4e0f905b224ba6afeef91ded0f"
+        },
+        {
+          "bytes": 1659,
+          "path": "jsonschema_specifications/schemas/draft202012/vocabularies/applicator",
+          "sha256": "c4a6e4147b91fef7fea6dc058cb1bf93402f7414b76578a8b16aaf1dad6aacef"
+        },
+        {
+          "bytes": 519,
+          "path": "jsonschema_specifications/schemas/draft202012/vocabularies/content",
+          "sha256": "08343747764e4a5814262793cf4d652057a7913863c5950d43297e8e1fdac5b6"
+        },
+        {
+          "bytes": 1564,
+          "path": "jsonschema_specifications/schemas/draft202012/vocabularies/core",
+          "sha256": "c2d12a8e4dd11d336dfc83a3f663aa4c69f0b49b3beb094ffeb25b5316f4803d"
+        },
+        {
+          "bytes": 448,
+          "path": "jsonschema_specifications/schemas/draft202012/vocabularies/format-annotation",
+          "sha256": "abc775adfefd89d22358170d9bf93f4ebd2349563bbbedd60f02bef7c812bcc0"
+        },
+        {
+          "bytes": 445,
+          "path": "jsonschema_specifications/schemas/draft202012/vocabularies/format-assertion",
+          "sha256": "c52242b9a1bb786b26c3e82c7add428c31f9c96e575dce99e56ea5feaa6da20c"
+        },
+        {
+          "bytes": 892,
+          "path": "jsonschema_specifications/schemas/draft202012/vocabularies/meta-data",
+          "sha256": "8f76d6e14f41b9b92ef933b708cdc5144c8b5268651ad11918485fb1754f1c76"
+        },
+        {
+          "bytes": 506,
+          "path": "jsonschema_specifications/schemas/draft202012/vocabularies/unevaluated",
+          "sha256": "2dbfbcb73994b670b0976492adee1fffb46c21682784d2f5a4ca561f9e2d0cb4"
+        },
+        {
+          "bytes": 2834,
+          "path": "jsonschema_specifications/schemas/draft202012/vocabularies/validation",
+          "sha256": "7010a31e541f32d2be721e2de348df75c9b36876a3ed304877fc0abda1d37a58"
+        },
+        {
+          "bytes": 2600,
+          "path": "jsonschema_specifications/schemas/draft3/metaschema.json",
+          "sha256": "2cf75f64436fb5be374a2eaa27ab8b7e1fd651c9b46daea6c67b02fd64e2458b"
+        },
+        {
+          "bytes": 4357,
+          "path": "jsonschema_specifications/schemas/draft4/metaschema.json",
+          "sha256": "e1489d0b4755f02793302591d3fcb8f07b6893a82a94f24895f8e4edf11b82e2"
+        },
+        {
+          "bytes": 4437,
+          "path": "jsonschema_specifications/schemas/draft6/metaschema.json",
+          "sha256": "c29dfce9f54835c3a06c03b3c5d5ec0eda77706568f9c4df7cfbc7566a51006d"
+        },
+        {
+          "bytes": 4819,
+          "path": "jsonschema_specifications/schemas/draft7/metaschema.json",
+          "sha256": "3d5392088261606c559b603f385329c9f1ab45b5d667eb990687453b055d405e"
+        }
+      ],
+      "sha256": "98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe",
+      "version": "2025.9.1"
+    },
+    {
+      "declared_license_files": [
+        "COPYING"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/msgpack-1.1.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 614,
+          "path": "msgpack-1.1.2.dist-info/licenses/COPYING",
+          "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "Apache-2.0",
+      "literal_scan_findings": [],
+      "member_count": 10,
+      "missing_declared_license_files": [],
+      "name": "msgpack",
+      "origin": "registry",
+      "resources": [
+        {
+          "bytes": 1405568,
+          "path": "msgpack/_cmsgpack.cpython-312-x86_64-linux-gnu.so",
+          "sha256": "91a10ae8bfca9bec1acc767c332c1c5c0fc0209da206a4c2b01a636bb14e2a6f"
+        }
+      ],
+      "sha256": "372839311ccf6bdaf39b00b61288e0557916c3729529b301c52c2d88842add42",
+      "version": "1.1.2"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE",
+        "LICENSE.APACHE",
+        "LICENSE.BSD"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/packaging-25.0-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 197,
+          "path": "packaging-25.0.dist-info/licenses/LICENSE",
+          "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48"
+        },
+        {
+          "bytes": 10174,
+          "path": "packaging-25.0.dist-info/licenses/LICENSE.APACHE",
+          "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+        },
+        {
+          "bytes": 1344,
+          "path": "packaging-25.0.dist-info/licenses/LICENSE.BSD",
+          "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5"
+        },
+        {
+          "bytes": 5715,
+          "path": "packaging/licenses/__init__.py",
+          "sha256": "56c2b8a36ec225759f4e2f2bdb26c99ac06809d8699c15ae36bb2468254a3fb5"
+        },
+        {
+          "bytes": 48398,
+          "path": "packaging/licenses/_spdx.py",
+          "sha256": "a009b5ced3c5c25b2608a7bb94002cbff38839f4b57160eef5b34191ebbeda7b"
+        }
+      ],
+      "license_classifiers": [
+        "License :: OSI Approved :: Apache Software License",
+        "License :: OSI Approved :: BSD License"
+      ],
+      "license_expression": null,
+      "literal_scan_findings": [],
+      "member_count": 23,
+      "missing_declared_license_files": [],
+      "name": "packaging",
+      "origin": "registry",
+      "resources": [
+        {
+          "bytes": 0,
+          "path": "packaging/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "sha256": "29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484",
+      "version": "25.0"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/pathspec-1.1.1-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 16726,
+          "path": "pathspec-1.1.1.dist-info/licenses/LICENSE",
+          "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85"
+        }
+      ],
+      "license_classifiers": [
+        "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)"
+      ],
+      "license_expression": null,
+      "literal_scan_findings": [],
+      "member_count": 36,
+      "missing_declared_license_files": [],
+      "name": "pathspec",
+      "origin": "registry",
+      "resources": [
+        {
+          "bytes": 68,
+          "path": "pathspec/py.typed",
+          "sha256": "c2aef0c037b206e9e02ba0ec895e0ef88ba380acc04701f3f78b90b217697445"
+        }
+      ],
+      "sha256": "a00ce642f577bf7f473932318056212bc4f8bfdf53128c78bbd5af0b9b20b189",
+      "version": "1.1.1"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/pydantic-2.13.4-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 1129,
+          "path": "pydantic-2.13.4.dist-info/licenses/LICENSE",
+          "sha256": "a9e186f3ca16b5eef84318e7a701721351a00cb7b8ae3a4394b67b49e3529ef3"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "MIT",
+      "literal_scan_findings": [],
+      "member_count": 111,
+      "missing_declared_license_files": [],
+      "name": "pydantic",
+      "origin": "registry",
+      "resources": [
+        {
+          "bytes": 0,
+          "path": "pydantic/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 0,
+          "path": "pydantic/v1/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "sha256": "45a282cde31d808236fd7ea9d919b128653c8b38b393d1c4ab335c62924d9aba",
+      "version": "2.13.4"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/pydantic_core-2.46.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 1080,
+          "path": "pydantic_core-2.46.4.dist-info/licenses/LICENSE",
+          "sha256": "2afdd30d54b4d62b6f488a6bcc1546e84ec5061f13f4209c03d012348783795a"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "MIT",
+      "literal_scan_findings": [],
+      "member_count": 10,
+      "missing_declared_license_files": [],
+      "name": "pydantic-core",
+      "origin": "registry",
+      "resources": [
+        {
+          "bytes": 4752552,
+          "path": "pydantic_core/_pydantic_core.cpython-312-x86_64-linux-gnu.so",
+          "sha256": "7b3b21e8e6fc722fa6913a893d1f82968542135b0119f83c7cede35fc71c4a2f"
+        },
+        {
+          "bytes": 0,
+          "path": "pydantic_core/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "sha256": "926c9541b14b12b1681dca8a0b75feb510b06c6341b70a8e500c2fdcff837cce",
+      "version": "2.46.4"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "legacy_license": {
+        "characters": 3,
+        "first_line": "MIT",
+        "sha256": "e5dcffe836b6ec8a58e492419b550e65fb8cbdc308503979e5dacb33ac7ea3b7"
+      },
+      "legal_files": [
+        {
+          "bytes": 1101,
+          "path": "pyyaml-6.0.3.dist-info/licenses/LICENSE",
+          "sha256": "8d3928f9dc4490fd635707cb88eb26bd764102a7282954307d3e5167a577e8a4"
+        }
+      ],
+      "license_classifiers": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "license_expression": null,
+      "literal_scan_findings": [],
+      "member_count": 24,
+      "missing_declared_license_files": [],
+      "name": "pyyaml",
+      "origin": "registry",
+      "resources": [
+        {
+          "bytes": 2679264,
+          "path": "yaml/_yaml.cpython-312-x86_64-linux-gnu.so",
+          "sha256": "957a099a4521c1f7669306fb6f79ca63fa4b9a0b4c463f7cac833a65a5c5c0cb"
+        }
+      ],
+      "sha256": "ba1cc08a7ccde2d2ec775841541641e4548226580ab850948cbfda66a1befcdc",
+      "version": "6.0.3"
+    },
+    {
+      "declared_license_files": [
+        "COPYING"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/referencing-0.37.0-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 1057,
+          "path": "referencing-0.37.0.dist-info/licenses/COPYING",
+          "sha256": "42dcd63495f87b4eb7c7757afa379bb55a53f94afd7a5f657d9adf57236e515c"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "MIT",
+      "literal_scan_findings": [],
+      "member_count": 19,
+      "missing_declared_license_files": [],
+      "name": "referencing",
+      "origin": "registry",
+      "resources": [
+        {
+          "bytes": 0,
+          "path": "referencing/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "sha256": "381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231",
+      "version": "0.37.0"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/rpds_py-0.30.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 1057,
+          "path": "rpds_py-0.30.0.dist-info/licenses/LICENSE",
+          "sha256": "314e4e91be3baa93c0fb4bccc9e4e97cd643eb839b065af921782c2175fe9909"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "MIT",
+      "literal_scan_findings": [],
+      "member_count": 8,
+      "missing_declared_license_files": [],
+      "name": "rpds-py",
+      "origin": "registry",
+      "resources": [
+        {
+          "bytes": 0,
+          "path": "rpds/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 1060936,
+          "path": "rpds/rpds.cpython-312-x86_64-linux-gnu.so",
+          "sha256": "627491614eecdb6d41f8d569d20e60545d4b3c5cd59e4ccadc275a940df73336"
+        }
+      ],
+      "sha256": "47f236970bccb2233267d89173d3ad2703cd36a0e2a6e92d0560d333871a3d23",
+      "version": "0.30.0"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/typing_extensions-4.15.0-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 13936,
+          "path": "typing_extensions-4.15.0.dist-info/licenses/LICENSE",
+          "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "PSF-2.0",
+      "literal_scan_findings": [],
+      "member_count": 5,
+      "missing_declared_license_files": [],
+      "name": "typing-extensions",
+      "origin": "registry",
+      "resources": [],
+      "sha256": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
+      "version": "4.15.0"
+    },
+    {
+      "declared_license_files": [
+        "LICENSE"
+      ],
+      "entrypoint_files": [],
+      "file": "wheelhouse/typing_inspection-0.4.2-py3-none-any.whl",
+      "legacy_license": null,
+      "legal_files": [
+        {
+          "bytes": 1090,
+          "path": "typing_inspection-0.4.2.dist-info/licenses/LICENSE",
+          "sha256": "804b59b25f2c31bd278f9202a19ae49a3945aa2664387e2d0a128c7cacc61ec3"
+        }
+      ],
+      "license_classifiers": [],
+      "license_expression": "MIT",
+      "literal_scan_findings": [],
+      "member_count": 9,
+      "missing_declared_license_files": [],
+      "name": "typing-inspection",
+      "origin": "registry",
+      "resources": [
+        {
+          "bytes": 0,
+          "path": "typing_inspection/py.typed",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "sha256": "4ed1cacbdc298c220f1bd249ed5287caa16f34d44ef4e9c3d0cbad5b521545e7",
+      "version": "0.4.2"
+    }
+  ],
+  "predecessor_envelope_sha256": "73f5038b365dcc7f193b7ebd71b77145d12fe2386311be75dcffd9afadd25df9",
+  "qualification": "Current wheel identities rebound to byte-exact inherited sources/notices. Prior indexes are historical; conservative component coverage is not exact binary linkage. Exact-envelope notice sufficiency and disclosure decisions remain pending.",
+  "unchanged_third_party": [
+    {
+      "file": "wheelhouse/annotated_types-0.7.0-py3-none-any.whl",
+      "name": "annotated-types",
+      "origin": "registry",
+      "sha256": "1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53",
+      "version": "0.7.0"
+    },
+    {
+      "file": "wheelhouse/attrs-26.1.0-py3-none-any.whl",
+      "name": "attrs",
+      "origin": "registry",
+      "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309",
+      "version": "26.1.0"
+    },
+    {
+      "file": "wheelhouse/jsonschema-4.26.0+aware.1-py3-none-any.whl",
+      "name": "jsonschema",
+      "origin": "source_derived",
+      "sha256": "167abf85d02a18ec191827e1641b7a58a11c4da477732d0576cdb4e6b6ccd5a2",
+      "version": "4.26.0+aware.1"
+    },
+    {
+      "file": "wheelhouse/jsonschema_specifications-2025.9.1-py3-none-any.whl",
+      "name": "jsonschema-specifications",
+      "origin": "registry",
+      "sha256": "98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe",
+      "version": "2025.9.1"
+    },
+    {
+      "file": "wheelhouse/msgpack-1.1.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "name": "msgpack",
+      "origin": "registry",
+      "sha256": "372839311ccf6bdaf39b00b61288e0557916c3729529b301c52c2d88842add42",
+      "version": "1.1.2"
+    },
+    {
+      "file": "wheelhouse/packaging-25.0-py3-none-any.whl",
+      "name": "packaging",
+      "origin": "registry",
+      "sha256": "29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484",
+      "version": "25.0"
+    },
+    {
+      "file": "wheelhouse/pathspec-1.1.1-py3-none-any.whl",
+      "name": "pathspec",
+      "origin": "registry",
+      "sha256": "a00ce642f577bf7f473932318056212bc4f8bfdf53128c78bbd5af0b9b20b189",
+      "version": "1.1.1"
+    },
+    {
+      "file": "wheelhouse/pydantic-2.13.4-py3-none-any.whl",
+      "name": "pydantic",
+      "origin": "registry",
+      "sha256": "45a282cde31d808236fd7ea9d919b128653c8b38b393d1c4ab335c62924d9aba",
+      "version": "2.13.4"
+    },
+    {
+      "file": "wheelhouse/pydantic_core-2.46.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "name": "pydantic-core",
+      "origin": "registry",
+      "sha256": "926c9541b14b12b1681dca8a0b75feb510b06c6341b70a8e500c2fdcff837cce",
+      "version": "2.46.4"
+    },
+    {
+      "file": "wheelhouse/pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "name": "pyyaml",
+      "origin": "registry",
+      "sha256": "ba1cc08a7ccde2d2ec775841541641e4548226580ab850948cbfda66a1befcdc",
+      "version": "6.0.3"
+    },
+    {
+      "file": "wheelhouse/referencing-0.37.0-py3-none-any.whl",
+      "name": "referencing",
+      "origin": "registry",
+      "sha256": "381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231",
+      "version": "0.37.0"
+    },
+    {
+      "file": "wheelhouse/rpds_py-0.30.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "name": "rpds-py",
+      "origin": "registry",
+      "sha256": "47f236970bccb2233267d89173d3ad2703cd36a0e2a6e92d0560d333871a3d23",
+      "version": "0.30.0"
+    },
+    {
+      "file": "wheelhouse/typing_extensions-4.15.0-py3-none-any.whl",
+      "name": "typing-extensions",
+      "origin": "registry",
+      "sha256": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
+      "version": "4.15.0"
+    },
+    {
+      "file": "wheelhouse/typing_inspection-0.4.2-py3-none-any.whl",
+      "name": "typing-inspection",
+      "origin": "registry",
+      "sha256": "4ed1cacbdc298c220f1bd249ed5287caa16f34d44ef4e9c3d0cbad5b521545e7",
+      "version": "0.4.2"
+    }
+  ],
+  "wheel_legal_copies": [
+    {
+      "attached_path": "notices/wheels/annotated-types/annotated_types-0.7.0.dist-info/licenses/LICENSE",
+      "bytes": 1083,
+      "package": "annotated-types",
+      "path": "annotated_types-0.7.0.dist-info/licenses/LICENSE",
+      "sha256": "fe1049884b1a0d9342901e88e07f32925d24b3121d9972b6a6805fb9824b095d",
+      "wheel_sha256": "1f02e8b43a8fbbc3f3e0d4f0f4bfc8131bcb4eebe8849b8e5c773f3a1c582a53"
+    },
+    {
+      "attached_path": "notices/wheels/attrs/attrs-26.1.0.dist-info/licenses/LICENSE",
+      "bytes": 1109,
+      "package": "attrs",
+      "path": "attrs-26.1.0.dist-info/licenses/LICENSE",
+      "sha256": "882115c95dfc2af1eeb6714f8ec6d5cbcabf667caff8729f42420da63f714e9f",
+      "wheel_sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309"
+    },
+    {
+      "attached_path": "notices/wheels/aware-agent-cli/aware_agent_cli-0.2.0a12.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-agent-cli",
+      "path": "aware_agent_cli-0.2.0a12.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "6360e39354ba91e433dda17816363a79ce9bd5555dc7bd5a2e29ec35e2659665"
+    },
+    {
+      "attached_path": "notices/wheels/aware-agent-cli/aware_agent_cli-0.2.0a12.dist-info/licenses/NOTICE",
+      "bytes": 223,
+      "package": "aware-agent-cli",
+      "path": "aware_agent_cli-0.2.0a12.dist-info/licenses/NOTICE",
+      "sha256": "1ffacfc043a2f2cfe70e8742645fdd00e67f3bf8171e7f31cbd3a1766d90645c",
+      "wheel_sha256": "6360e39354ba91e433dda17816363a79ce9bd5555dc7bd5a2e29ec35e2659665"
+    },
+    {
+      "attached_path": "notices/wheels/aware-command-runtime/aware_command_runtime-0.1.1.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-command-runtime",
+      "path": "aware_command_runtime-0.1.1.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "074eee769d6d2ca0ec3a367535333d7ba1af1e99ef05483f139e24fe4e287340"
+    },
+    {
+      "attached_path": "notices/wheels/aware-command-runtime/aware_command_runtime-0.1.1.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-command-runtime",
+      "path": "aware_command_runtime-0.1.1.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "074eee769d6d2ca0ec3a367535333d7ba1af1e99ef05483f139e24fe4e287340"
+    },
+    {
+      "attached_path": "notices/wheels/aware-file-system/aware_file_system-0.3.8.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-file-system",
+      "path": "aware_file_system-0.3.8.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "76d4a5bfe43bcfbeafe59d5952589d99eb77830e42d31fc9bc6cb4d03bf9fc59"
+    },
+    {
+      "attached_path": "notices/wheels/aware-issue-cli/aware_issue_cli-0.8.3.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-issue-cli",
+      "path": "aware_issue_cli-0.8.3.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "29a8d88ad960594c5e20bf817a58ff662565d02cec5c2c8ae3f0ada320e2cdf9"
+    },
+    {
+      "attached_path": "notices/wheels/aware-issue-cli/aware_issue_cli-0.8.3.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-issue-cli",
+      "path": "aware_issue_cli-0.8.3.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "29a8d88ad960594c5e20bf817a58ff662565d02cec5c2c8ae3f0ada320e2cdf9"
+    },
+    {
+      "attached_path": "notices/wheels/aware-issue-fs-adapter/aware_issue_fs_adapter-0.9.6.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-issue-fs-adapter",
+      "path": "aware_issue_fs_adapter-0.9.6.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "53167bd5649d1bf721b23aa4cbd9b374e1f9a380a150e66c618874c4b569045e"
+    },
+    {
+      "attached_path": "notices/wheels/aware-issue-fs-adapter/aware_issue_fs_adapter-0.9.6.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-issue-fs-adapter",
+      "path": "aware_issue_fs_adapter-0.9.6.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "53167bd5649d1bf721b23aa4cbd9b374e1f9a380a150e66c618874c4b569045e"
+    },
+    {
+      "attached_path": "notices/wheels/aware-issue-operational-runtime/aware_issue_operational_runtime-0.3.4.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-issue-operational-runtime",
+      "path": "aware_issue_operational_runtime-0.3.4.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "fac1fdde363c9426a7ff6f945d422a1408c7206e157a4c6fd2496e06074cb9b8"
+    },
+    {
+      "attached_path": "notices/wheels/aware-issue-operational-runtime/aware_issue_operational_runtime-0.3.4.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-issue-operational-runtime",
+      "path": "aware_issue_operational_runtime-0.3.4.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "fac1fdde363c9426a7ff6f945d422a1408c7206e157a4c6fd2496e06074cb9b8"
+    },
+    {
+      "attached_path": "notices/wheels/aware-issue-runtime/aware_issue_runtime-0.3.0.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-issue-runtime",
+      "path": "aware_issue_runtime-0.3.0.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "380943acf7fa4b655c14126a4f1a6f5d588ae473ce1807b56e02c04d85ddeffc"
+    },
+    {
+      "attached_path": "notices/wheels/aware-issue-runtime/aware_issue_runtime-0.3.0.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-issue-runtime",
+      "path": "aware_issue_runtime-0.3.0.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "380943acf7fa4b655c14126a4f1a6f5d588ae473ce1807b56e02c04d85ddeffc"
+    },
+    {
+      "attached_path": "notices/wheels/aware-issue-sdk/aware_issue_sdk-0.10.6.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-issue-sdk",
+      "path": "aware_issue_sdk-0.10.6.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "b53490b64faf6008932e96853dbd152f7c84ed574691d65fe4543f42537919bd"
+    },
+    {
+      "attached_path": "notices/wheels/aware-issue-sdk/aware_issue_sdk-0.10.6.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-issue-sdk",
+      "path": "aware_issue_sdk-0.10.6.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "b53490b64faf6008932e96853dbd152f7c84ed574691d65fe4543f42537919bd"
+    },
+    {
+      "attached_path": "notices/wheels/aware-meta-type-schema/aware_meta_type_schema-0.1.1.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-meta-type-schema",
+      "path": "aware_meta_type_schema-0.1.1.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "1f999d2a8a05fe0b2435c4220c676ca6bcf7cc55c5ecf61248768afeb4bfd297"
+    },
+    {
+      "attached_path": "notices/wheels/aware-meta-type-schema/aware_meta_type_schema-0.1.1.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-meta-type-schema",
+      "path": "aware_meta_type_schema-0.1.1.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "1f999d2a8a05fe0b2435c4220c676ca6bcf7cc55c5ecf61248768afeb4bfd297"
+    },
+    {
+      "attached_path": "notices/wheels/aware-protocol-cli/aware_protocol_cli-0.3.5.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-protocol-cli",
+      "path": "aware_protocol_cli-0.3.5.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "e92697e17cde23c163c102be99ea46c97a17381e561ae67dbaae4a4609ef441b"
+    },
+    {
+      "attached_path": "notices/wheels/aware-protocol-cli/aware_protocol_cli-0.3.5.dist-info/licenses/NOTICE",
+      "bytes": 168,
+      "package": "aware-protocol-cli",
+      "path": "aware_protocol_cli-0.3.5.dist-info/licenses/NOTICE",
+      "sha256": "c01f142a5cf8e7b37c716b3d52653c88de7cfe5245b47c1e0280aea8f1c3a909",
+      "wheel_sha256": "e92697e17cde23c163c102be99ea46c97a17381e561ae67dbaae4a4609ef441b"
+    },
+    {
+      "attached_path": "notices/wheels/aware-protocol-fs-adapter/aware_protocol_fs_adapter-0.6.5.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-protocol-fs-adapter",
+      "path": "aware_protocol_fs_adapter-0.6.5.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "408738f17f8cf449583bdd0cfa31fe139ff2f8e414a9e9acb10f41b1f593d2b2"
+    },
+    {
+      "attached_path": "notices/wheels/aware-protocol-fs-adapter/aware_protocol_fs_adapter-0.6.5.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-protocol-fs-adapter",
+      "path": "aware_protocol_fs_adapter-0.6.5.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "408738f17f8cf449583bdd0cfa31fe139ff2f8e414a9e9acb10f41b1f593d2b2"
+    },
+    {
+      "attached_path": "notices/wheels/aware-protocol-runtime/aware_protocol_runtime-0.1.1.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-protocol-runtime",
+      "path": "aware_protocol_runtime-0.1.1.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "a5dd63ca8b0d52f7af415664c16136de3007130ef10d8681654a68ee80b79260"
+    },
+    {
+      "attached_path": "notices/wheels/aware-protocol-runtime/aware_protocol_runtime-0.1.1.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-protocol-runtime",
+      "path": "aware_protocol_runtime-0.1.1.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "a5dd63ca8b0d52f7af415664c16136de3007130ef10d8681654a68ee80b79260"
+    },
+    {
+      "attached_path": "notices/wheels/aware-protocol-sdk/aware_protocol_sdk-0.3.2.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-protocol-sdk",
+      "path": "aware_protocol_sdk-0.3.2.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "10f18f845b9aa544580c4840dbcb4e9864cbb20c4b8dee92ac05be68e7ad25a0"
+    },
+    {
+      "attached_path": "notices/wheels/aware-protocol-sdk/aware_protocol_sdk-0.3.2.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-protocol-sdk",
+      "path": "aware_protocol_sdk-0.3.2.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "10f18f845b9aa544580c4840dbcb4e9864cbb20c4b8dee92ac05be68e7ad25a0"
+    },
+    {
+      "attached_path": "notices/wheels/aware-sdk-contract-runtime/aware_sdk_contract_runtime-0.1.1.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-sdk-contract-runtime",
+      "path": "aware_sdk_contract_runtime-0.1.1.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "79130964fbc9aa1dd6cf85eba2ccb248d61bfa30614ef55e7c8da89fdbb15831"
+    },
+    {
+      "attached_path": "notices/wheels/aware-sdk-contract-runtime/aware_sdk_contract_runtime-0.1.1.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-sdk-contract-runtime",
+      "path": "aware_sdk_contract_runtime-0.1.1.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "79130964fbc9aa1dd6cf85eba2ccb248d61bfa30614ef55e7c8da89fdbb15831"
+    },
+    {
+      "attached_path": "notices/wheels/aware-specification-cli/aware_specification_cli-0.4.4.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-specification-cli",
+      "path": "aware_specification_cli-0.4.4.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "a1fca86d5b4e3e67bd6d39bf550a23e4ed4e8588c7de5ef03b33dcf922445217"
+    },
+    {
+      "attached_path": "notices/wheels/aware-specification-cli/aware_specification_cli-0.4.4.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-specification-cli",
+      "path": "aware_specification_cli-0.4.4.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "a1fca86d5b4e3e67bd6d39bf550a23e4ed4e8588c7de5ef03b33dcf922445217"
+    },
+    {
+      "attached_path": "notices/wheels/aware-specification-fs-adapter/aware_specification_fs_adapter-0.1.0.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-specification-fs-adapter",
+      "path": "aware_specification_fs_adapter-0.1.0.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "a4a7ac38cb9a61383d735e28f928feda8d05afff6569865acc8585e0d46f4c68"
+    },
+    {
+      "attached_path": "notices/wheels/aware-specification-fs-adapter/aware_specification_fs_adapter-0.1.0.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-specification-fs-adapter",
+      "path": "aware_specification_fs_adapter-0.1.0.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "a4a7ac38cb9a61383d735e28f928feda8d05afff6569865acc8585e0d46f4c68"
+    },
+    {
+      "attached_path": "notices/wheels/aware-specification-fs-sdk-adapter/aware_specification_fs_sdk_adapter-0.4.4.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-specification-fs-sdk-adapter",
+      "path": "aware_specification_fs_sdk_adapter-0.4.4.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "c5ce4daef31305fa96732ce3d05e8178db404edf88a102597479b368ddd1b0d0"
+    },
+    {
+      "attached_path": "notices/wheels/aware-specification-fs-sdk-adapter/aware_specification_fs_sdk_adapter-0.4.4.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-specification-fs-sdk-adapter",
+      "path": "aware_specification_fs_sdk_adapter-0.4.4.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "c5ce4daef31305fa96732ce3d05e8178db404edf88a102597479b368ddd1b0d0"
+    },
+    {
+      "attached_path": "notices/wheels/aware-specification-fs-source-contract/aware_specification_fs_source_contract-0.1.0.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-specification-fs-source-contract",
+      "path": "aware_specification_fs_source_contract-0.1.0.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "64ed9955ded63381d3f8efd5aacf374a8b78c01e7ed1660629830624a4ed0c9c"
+    },
+    {
+      "attached_path": "notices/wheels/aware-specification-fs-source-contract/aware_specification_fs_source_contract-0.1.0.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-specification-fs-source-contract",
+      "path": "aware_specification_fs_source_contract-0.1.0.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "64ed9955ded63381d3f8efd5aacf374a8b78c01e7ed1660629830624a4ed0c9c"
+    },
+    {
+      "attached_path": "notices/wheels/aware-specification-runtime/aware_specification_runtime-0.1.0.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-specification-runtime",
+      "path": "aware_specification_runtime-0.1.0.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "e21e8a471c48a33e12f1ba0cc30f4d49d05c0e933c7c4377c3924bcb6209300e"
+    },
+    {
+      "attached_path": "notices/wheels/aware-specification-runtime/aware_specification_runtime-0.1.0.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-specification-runtime",
+      "path": "aware_specification_runtime-0.1.0.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "e21e8a471c48a33e12f1ba0cc30f4d49d05c0e933c7c4377c3924bcb6209300e"
+    },
+    {
+      "attached_path": "notices/wheels/aware-specification-sdk/aware_specification_sdk-0.3.4.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-specification-sdk",
+      "path": "aware_specification_sdk-0.3.4.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "6282de4a533c3ab2ae66c462fec31992148018c928dec0eebc19203e205c0d24"
+    },
+    {
+      "attached_path": "notices/wheels/aware-specification-sdk/aware_specification_sdk-0.3.4.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-specification-sdk",
+      "path": "aware_specification_sdk-0.3.4.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "6282de4a533c3ab2ae66c462fec31992148018c928dec0eebc19203e205c0d24"
+    },
+    {
+      "attached_path": "notices/wheels/aware-workspace-fs-adapter/aware_workspace_fs_adapter-0.1.10.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-workspace-fs-adapter",
+      "path": "aware_workspace_fs_adapter-0.1.10.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "4714610b26d3a114aeca00c4dda61c261e3758372c7bbc240d488dc825a7ea91"
+    },
+    {
+      "attached_path": "notices/wheels/aware-workspace-fs-adapter/aware_workspace_fs_adapter-0.1.10.dist-info/licenses/NOTICE",
+      "bytes": 218,
+      "package": "aware-workspace-fs-adapter",
+      "path": "aware_workspace_fs_adapter-0.1.10.dist-info/licenses/NOTICE",
+      "sha256": "9c68e9ae4bf12a1306c385b1b4222ada0fa29341ddf68ebf7fea6b7ca83e0011",
+      "wheel_sha256": "4714610b26d3a114aeca00c4dda61c261e3758372c7bbc240d488dc825a7ea91"
+    },
+    {
+      "attached_path": "notices/wheels/aware-workspace-operator/aware_workspace_operator-0.4.1.dist-info/licenses/LICENSE",
+      "bytes": 11358,
+      "package": "aware-workspace-operator",
+      "path": "aware_workspace_operator-0.4.1.dist-info/licenses/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "wheel_sha256": "ad9a9f3b42ec6deca615a04f2f1268b34dc9932e68d4d4cbcf9847c2850767cd"
+    },
+    {
+      "attached_path": "notices/wheels/aware-workspace-operator/aware_workspace_operator-0.4.1.dist-info/licenses/NOTICE",
+      "bytes": 234,
+      "package": "aware-workspace-operator",
+      "path": "aware_workspace_operator-0.4.1.dist-info/licenses/NOTICE",
+      "sha256": "c7e6f4ad407408d2cd63749ce1e2b3e24dcf9e98acfebc8faaa1a113bfd253df",
+      "wheel_sha256": "ad9a9f3b42ec6deca615a04f2f1268b34dc9932e68d4d4cbcf9847c2850767cd"
+    },
+    {
+      "attached_path": "notices/wheels/jsonschema/jsonschema-4.26.0+aware.1.dist-info/licenses/AWARE-MODIFICATIONS.md",
+      "bytes": 527,
+      "package": "jsonschema",
+      "path": "jsonschema-4.26.0+aware.1.dist-info/licenses/AWARE-MODIFICATIONS.md",
+      "sha256": "9e5d34b3cb90d6bf28d571eb7d08430cdd534ac2cfacf8a8d55de3376e8821de",
+      "wheel_sha256": "167abf85d02a18ec191827e1641b7a58a11c4da477732d0576cdb4e6b6ccd5a2"
+    },
+    {
+      "attached_path": "notices/wheels/jsonschema/jsonschema-4.26.0+aware.1.dist-info/licenses/COPYING",
+      "bytes": 1057,
+      "package": "jsonschema",
+      "path": "jsonschema-4.26.0+aware.1.dist-info/licenses/COPYING",
+      "sha256": "4f92a015a13c4d1a040bef018aa13430b4f1bc73b41b16bb846c346766de7439",
+      "wheel_sha256": "167abf85d02a18ec191827e1641b7a58a11c4da477732d0576cdb4e6b6ccd5a2"
+    },
+    {
+      "attached_path": "notices/wheels/jsonschema-specifications/jsonschema_specifications-2025.9.1.dist-info/licenses/COPYING",
+      "bytes": 1057,
+      "package": "jsonschema-specifications",
+      "path": "jsonschema_specifications-2025.9.1.dist-info/licenses/COPYING",
+      "sha256": "42dcd63495f87b4eb7c7757afa379bb55a53f94afd7a5f657d9adf57236e515c",
+      "wheel_sha256": "98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe"
+    },
+    {
+      "attached_path": "notices/wheels/msgpack/msgpack-1.1.2.dist-info/licenses/COPYING",
+      "bytes": 614,
+      "package": "msgpack",
+      "path": "msgpack-1.1.2.dist-info/licenses/COPYING",
+      "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427",
+      "wheel_sha256": "372839311ccf6bdaf39b00b61288e0557916c3729529b301c52c2d88842add42"
+    },
+    {
+      "attached_path": "notices/wheels/packaging/packaging-25.0.dist-info/licenses/LICENSE",
+      "bytes": 197,
+      "package": "packaging",
+      "path": "packaging-25.0.dist-info/licenses/LICENSE",
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "wheel_sha256": "29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484"
+    },
+    {
+      "attached_path": "notices/wheels/packaging/packaging-25.0.dist-info/licenses/LICENSE.APACHE",
+      "bytes": 10174,
+      "package": "packaging",
+      "path": "packaging-25.0.dist-info/licenses/LICENSE.APACHE",
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "wheel_sha256": "29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484"
+    },
+    {
+      "attached_path": "notices/wheels/packaging/packaging-25.0.dist-info/licenses/LICENSE.BSD",
+      "bytes": 1344,
+      "package": "packaging",
+      "path": "packaging-25.0.dist-info/licenses/LICENSE.BSD",
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "wheel_sha256": "29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484"
+    },
+    {
+      "attached_path": "notices/wheels/packaging/packaging/licenses/__init__.py",
+      "bytes": 5715,
+      "package": "packaging",
+      "path": "packaging/licenses/__init__.py",
+      "sha256": "56c2b8a36ec225759f4e2f2bdb26c99ac06809d8699c15ae36bb2468254a3fb5",
+      "wheel_sha256": "29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484"
+    },
+    {
+      "attached_path": "notices/wheels/packaging/packaging/licenses/_spdx.py",
+      "bytes": 48398,
+      "package": "packaging",
+      "path": "packaging/licenses/_spdx.py",
+      "sha256": "a009b5ced3c5c25b2608a7bb94002cbff38839f4b57160eef5b34191ebbeda7b",
+      "wheel_sha256": "29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484"
+    },
+    {
+      "attached_path": "notices/wheels/pathspec/pathspec-1.1.1.dist-info/licenses/LICENSE",
+      "bytes": 16726,
+      "package": "pathspec",
+      "path": "pathspec-1.1.1.dist-info/licenses/LICENSE",
+      "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85",
+      "wheel_sha256": "a00ce642f577bf7f473932318056212bc4f8bfdf53128c78bbd5af0b9b20b189"
+    },
+    {
+      "attached_path": "notices/wheels/pydantic/pydantic-2.13.4.dist-info/licenses/LICENSE",
+      "bytes": 1129,
+      "package": "pydantic",
+      "path": "pydantic-2.13.4.dist-info/licenses/LICENSE",
+      "sha256": "a9e186f3ca16b5eef84318e7a701721351a00cb7b8ae3a4394b67b49e3529ef3",
+      "wheel_sha256": "45a282cde31d808236fd7ea9d919b128653c8b38b393d1c4ab335c62924d9aba"
+    },
+    {
+      "attached_path": "notices/wheels/pydantic-core/pydantic_core-2.46.4.dist-info/licenses/LICENSE",
+      "bytes": 1080,
+      "package": "pydantic-core",
+      "path": "pydantic_core-2.46.4.dist-info/licenses/LICENSE",
+      "sha256": "2afdd30d54b4d62b6f488a6bcc1546e84ec5061f13f4209c03d012348783795a",
+      "wheel_sha256": "926c9541b14b12b1681dca8a0b75feb510b06c6341b70a8e500c2fdcff837cce"
+    },
+    {
+      "attached_path": "notices/wheels/pyyaml/pyyaml-6.0.3.dist-info/licenses/LICENSE",
+      "bytes": 1101,
+      "package": "pyyaml",
+      "path": "pyyaml-6.0.3.dist-info/licenses/LICENSE",
+      "sha256": "8d3928f9dc4490fd635707cb88eb26bd764102a7282954307d3e5167a577e8a4",
+      "wheel_sha256": "ba1cc08a7ccde2d2ec775841541641e4548226580ab850948cbfda66a1befcdc"
+    },
+    {
+      "attached_path": "notices/wheels/referencing/referencing-0.37.0.dist-info/licenses/COPYING",
+      "bytes": 1057,
+      "package": "referencing",
+      "path": "referencing-0.37.0.dist-info/licenses/COPYING",
+      "sha256": "42dcd63495f87b4eb7c7757afa379bb55a53f94afd7a5f657d9adf57236e515c",
+      "wheel_sha256": "381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231"
+    },
+    {
+      "attached_path": "notices/wheels/rpds-py/rpds_py-0.30.0.dist-info/licenses/LICENSE",
+      "bytes": 1057,
+      "package": "rpds-py",
+      "path": "rpds_py-0.30.0.dist-info/licenses/LICENSE",
+      "sha256": "314e4e91be3baa93c0fb4bccc9e4e97cd643eb839b065af921782c2175fe9909",
+      "wheel_sha256": "47f236970bccb2233267d89173d3ad2703cd36a0e2a6e92d0560d333871a3d23"
+    },
+    {
+      "attached_path": "notices/wheels/typing-extensions/typing_extensions-4.15.0.dist-info/licenses/LICENSE",
+      "bytes": 13936,
+      "package": "typing-extensions",
+      "path": "typing_extensions-4.15.0.dist-info/licenses/LICENSE",
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "wheel_sha256": "f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"
+    },
+    {
+      "attached_path": "notices/wheels/typing-inspection/typing_inspection-0.4.2.dist-info/licenses/LICENSE",
+      "bytes": 1090,
+      "package": "typing-inspection",
+      "path": "typing_inspection-0.4.2.dist-info/licenses/LICENSE",
+      "sha256": "804b59b25f2c31bd278f9202a19ae49a3945aa2664387e2d0a128c7cacc61ec3",
+      "wheel_sha256": "4ed1cacbdc298c220f1bd249ed5287caa16f34d44ef4e9c3d0cbad5b521545e7"
+    }
+  ]
+}

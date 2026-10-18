@@ -11,6 +11,7 @@ from typing import Any
 
 from aware_command_runtime import AwareCommandInvocation, AwareCommandRegistry
 
+from ._review_input import ReferenceInputError, input_observation, read_result_reference
 from .initialization import _execution
 
 
@@ -51,6 +52,12 @@ def _configure(parser: argparse.ArgumentParser) -> None:
         action.add_argument("--repository-root", required=True, type=Path)
         action.add_argument("--evidence-root", required=True, type=Path)
         action.add_argument("--json", action="store_true")
+        if name == "show":
+            action.add_argument(
+                "--focus",
+                choices=("overview", "scope", "files", "guards"),
+                help="Explicit historical human view; incompatible with --json. Omit for unchanged output.",
+            )
         if name == "prepare":
             action.add_argument("--issue-ref", required=True)
             action.add_argument("--issue-path", required=True)
@@ -63,10 +70,15 @@ def _configure(parser: argparse.ArgumentParser) -> None:
             action.add_argument("--actor-evidence-ref", required=True)
             action.add_argument("--include-issue-lifecycle", action="store_true")
         else:
-            action.add_argument(
+            reference = action.add_mutually_exclusive_group(required=True)
+            reference.add_argument(
                 "--reference",
-                required=True,
                 help="Exact SDK-issued SetupEvidenceRef JSON; not a file or handwritten record.",
+            )
+            reference.add_argument(
+                "--reference-from-stdin",
+                action="store_true",
+                help="Read one saved Agent --json result from binary stdin; selects only top-level /reference, not approval or continuation.",
             )
         if name in ("prepare", "scope", "apply"):
             action.add_argument("--client-intent-id", required=True)
@@ -151,6 +163,10 @@ def _error_payload(error: BaseException) -> dict[str, Any]:
         "error_type": type(error).__name__,
         "authorizes_retry": False,
     }
+    if type(error) is ReferenceInputError:
+        value["code"] = str(error)
+    elif (input_code := getattr(error, "reference_input_code", None)) is not None:
+        value["code"] = input_code
     try:
         from aware_workspace_sdk.architecture_setup_review_codec import (
             SetupReviewValueError,
@@ -366,7 +382,18 @@ def review_payload(
     client = None
     raw = None
     code = 2
+    from_stdin = getattr(args, "reference_from_stdin", False)
+    if from_stdin:
+        payload["reference_input"] = input_observation()
     try:
+        if getattr(args, "focus", None) is not None and args.json:
+            raise ReferenceInputError("review_focus_json_incompatible")
+        selected = None
+        execution = None
+        if from_stdin:
+            payload["stage"] = "reference_input"
+            execution = _execution()
+            selected = read_result_reference(sys.stdin, payload["reference_input"])
         from aware_workspace_sdk.architecture_setup import ArchitectureSetupRequest
         from aware_workspace_sdk.architecture_setup_review import (
             WorkspaceSetupReviewClient,
@@ -374,6 +401,7 @@ def review_payload(
         )
         from aware_workspace_sdk.architecture_setup_review_codec import (
             review_value_from_json,
+            review_value_from_payload,
             review_value_to_payload,
         )
         from aware_workspace_sdk.architecture_setup_review_values import (
@@ -384,10 +412,13 @@ def review_payload(
             SetupTarget,
         )
 
-        execution = _execution()
+        if execution is None:
+            execution = _execution()
         reference = (
             None
             if args.review_action == "prepare"
+            else review_value_from_payload(SetupEvidenceRef, selected)
+            if from_stdin
             else review_value_from_json(SetupEvidenceRef, args.reference)
         )
         target = (
@@ -586,8 +617,14 @@ def _next_observation(payload: dict[str, Any]) -> str:
     return "Inspect the original evidence before choosing another operation; no mutation is authorized by this explanation."
 
 
-def _summary(payload: dict[str, Any]) -> str:
+def _summary(payload: dict[str, Any], *, focus: str | None = None) -> str:
     lines = [f"Workspace review {payload['action']}: {payload['status']}"]
+    if focus is not None:
+        lines.append(
+            "Requested historical focus: "
+            + _terminal_text(focus)
+            + "; no current-use authority."
+        )
     failure = payload.get("error") or {}
     scope = payload.get("scope_completion") or failure.get("scope_completion")
     lines.append("What happened:")
@@ -697,14 +734,31 @@ def _summary(payload: dict[str, Any]) -> str:
             ("final_files", "Apply final files"),
             ("existing_scope", "Preserved Issue scope"),
         ):
+            if (
+                focus == "guards"
+                or focus == "files"
+                and key != "final_files"
+                or focus == "scope"
+                and key == "final_files"
+            ):
+                continue
             paths = record[key]
+            shown = paths if focus in ("scope", "files") else paths[:8]
             lines.append(
-                f"{label} ({len(paths)}): " + ", ".join(map(_terminal_text, paths[:8]))
+                f"{label} ({len(paths)}): " + ", ".join(map(_terminal_text, shown))
             )
-            if len(paths) > 8:
+            if len(paths) > len(shown):
                 lines.append(
                     "Additional paths omitted; inspect --json before deciding."
                 )
+        if focus == "guards":
+            guards = record["review_guards"]["value"]
+            for key, label in (
+                ("issue_source_sha256", "Original Issue byte guard"),
+                ("authority_manifest_sha256", "Original authority-manifest byte guard"),
+                ("plan_sha256", "Original review-plan guard"),
+            ):
+                lines.append(label + ": " + _terminal_text(guards.get(key)))
         if not payload.get("ready_for_decision"):
             lines.append(
                 "Not ready for a decision; inspect the retained diagnostics. Do not retry automatically."
@@ -785,23 +839,52 @@ def _summary(payload: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _emit_review_output(text: str, stream: Any, *, end: str = "\n") -> bool:
+    """One terminal write/flush; retire only a poisoned output buffer."""
+    failed = False
+    try:
+        print(text, file=stream, end=end)
+    except (OSError, UnicodeError):
+        failed = True
+    try:
+        stream.flush()
+    except (OSError, UnicodeError):
+        failed = True
+        try:
+            stream.close()
+        except (OSError, UnicodeError):
+            pass
+    return not failed
+
+
 def _handle(invocation: AwareCommandInvocation) -> int:
     payload, code, raw = review_payload(invocation.args)
+    focus = getattr(invocation.args, "focus", None)
+
+    def human_summary() -> str:
+        # Omitted focus preserves both the original call and its exact output.
+        return _summary(payload) if focus is None else _summary(payload, focus=focus)
+
     try:
         if raw is not None:
             # Original UTF-8 capture, not parsed or reserialized JSON v1.
-            sys.stdout.write(raw.decode("utf-8"))
-            print(
+            raw_ok = _emit_review_output(raw.decode("utf-8"), sys.stdout, end="")
+            cleanup = {
+                "client_cleanup": payload.get("client_cleanup"),
+                "error": payload.get("error"),
+                "cleanup_error": payload.get("cleanup_error"),
+            }
+            if "reference_input" in payload:
+                cleanup["reference_input"] = payload["reference_input"]
+            cleanup_ok = _emit_review_output(
                 json.dumps(
-                    {
-                        "client_cleanup": payload.get("client_cleanup"),
-                        "error": payload.get("error"),
-                        "cleanup_error": payload.get("cleanup_error"),
-                    },
+                    cleanup,
                     sort_keys=True,
                 ),
-                file=sys.stderr,
+                sys.stderr,
             )
+            if not raw_ok or not cleanup_ok:
+                return 130 if code == 130 else 3
         else:
             failure = payload.get("error", {})
             outcome = payload.get("outcome") or payload.get("error", {}).get("outcome")
@@ -830,30 +913,37 @@ def _handle(invocation: AwareCommandInvocation) -> int:
                 payload
             )
             if unavailable_capture and not invocation.args.json:
-                failed = False
                 # Each stream gets one independent attempt. A summary-channel
                 # failure must not suppress the available original full values.
-                try:
-                    print(
-                        f"Operation exit before reporting: {code}\n"
-                        + _summary(payload)
-                        + "\nFull available values for this invocation follow on stdout. "
-                        "An earlier reference need not contain this failure/cleanup; "
-                        "do not repeat the operation with --json to recover it.",
-                        file=sys.stderr,
-                    )
-                except (OSError, UnicodeError):
-                    failed = True
-                try:
-                    print(json.dumps(payload, sort_keys=True))
-                except (OSError, UnicodeError):
-                    failed = True
-                return 130 if code == 130 else 3 if failed else code
-            print(
+                human_ok = _emit_review_output(
+                    f"Operation exit before reporting: {code}\n"
+                    + human_summary()
+                    + "\nFull available values for this invocation follow on stdout. "
+                    "An earlier reference need not contain this failure/cleanup; "
+                    "do not repeat the operation with --json to recover it.",
+                    sys.stderr,
+                )
+                evidence_ok = _emit_review_output(
+                    json.dumps(payload, sort_keys=True), sys.stdout
+                )
+                return (
+                    130
+                    if code == 130
+                    else 3
+                    if not human_ok or not evidence_ok
+                    else code
+                )
+            output_ok = _emit_review_output(
                 json.dumps(payload, sort_keys=True)
                 if invocation.args.json
-                else f"Operation exit before reporting: {code}\n" + _summary(payload)
+                else f"Operation exit before reporting: {code}\n" + human_summary(),
+                sys.stdout,
             )
+            if not output_ok:
+                # No prior stderr attempt in this branch. Preserve available
+                # original values there once rather than repeating an operation.
+                _emit_review_output(json.dumps(payload, sort_keys=True), sys.stderr)
+                return 130 if code == 130 else 3
     except (OSError, UnicodeError):
         # Output failure cannot erase interruption or cause redispatch/cleanup.
         return 130 if code == 130 else 3

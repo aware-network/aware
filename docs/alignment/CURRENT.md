@@ -16,3 +16,7 @@ Frozen evaluations remain unchanged. The activation-core P1 correction, independ
 bounded positive A/B proof passed review. Failure/interruption qualification
 and the stable consumer bridge remain held. None is included or activated
 by this delivery.
+
+## Prepared reference successor
+
+A12 stdin/focus navigation is independently qualified but unselected; it does not automate Issue guards, select work or activate a service. Current useful-task instructions and frozen evaluations remain preserved. Publication stays separate.
