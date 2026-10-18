@@ -35,3 +35,25 @@ Frozen evaluations and GC holds stay unchanged. No new build/install copies.
 Independent instruction acceptance precedes owner closeout. Remote publication
 requires explicit target/outgoing-range authorization, then pinned acquisition
 proof. No push, activation or customer replay is included here.
+
+## Implementation and independent review handoff
+
+Source receiver/probe: `63c07a46926810a75d1f3fa2649990c03508cf90`.
+Public implementation: `5fa9c45a60205cca0e70ad2bef0de45e8f24e0f4`, exactly
+fourteen paths. Seven receiving checks pass, with nineteen exact pins and
+unchanged operational shell blocks. Retained reads verify 42 package versions,
+dependencies, thirteen help entrances, missing-identity refusal and 154 original
+module-origin hashes. No new installation or customer workflow replay.
+
+The separately installed canonical example round-trips 1,142 bytes exactly,
+renders six intended members in memory and reports cleanup `closed`. Its sole
+written artifact is the input snapshot; no rendered document or authority was
+created. Original source/example bytes remain unchanged.
+
+Review the original Issue-byte guards, complete planned/applied receipts and
+actual commit scopes. Both freeze Issues remain In Progress pending independent
+review. The original retained reader uses compatibility input names
+`AWARE_INIT_SUMMARY_INTEGRATION_CANDIDATE` and
+`AWARE_INIT_SUMMARY_INTEGRATION_REPLAY_ROOT`; choose fresh small result directories
+only. Reuse the held a12 installation; no build, environment or payload copy.
+This two-path handoff is not public-release approval.
