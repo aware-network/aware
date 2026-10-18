@@ -1,14 +1,17 @@
 # Filesystem distributions
 
-Agent 0.2.0a11 software was published at `faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`. This instruction alignment changes guidance, not software or operation authority. Historical freezes remain unchanged.
+Agent 0.2.0a12 software was published at `f372cf75aaa228f059ab12e4095cec598e998541`.
+This status alignment changes wording and pins, not software or operation authority.
+Historical freezes remain unchanged.
 
-Read [the starting instructions](../README.md). The [delivered a11 predecessor](canonical-init-summary-fs-v1/README.md) remains unchanged; the [locally selected a12 distribution](canonical-reference-fs-v1/README.md) is not yet publicly delivered. [SELECTED.json](SELECTED.json) is an artifact pointer; `portable_protocols` remains the sole package selector. Complete source/notice carriage is mandatory. No wheel-only delivery, services or activation is admitted.
+Read [the starting instructions](../README.md) and [delivered a12 distribution](canonical-reference-fs-v1/README.md). The [a11 predecessor](canonical-init-summary-fs-v1/README.md) remains unchanged. [SELECTED.json](SELECTED.json) is an artifact pointer; `portable_protocols` remains the sole package selector. Complete source/notice carriage is mandatory. No wheel-only delivery, services or activation is admitted.
 
-## Locally frozen reference instructions
+## Delivery and review provenance
 
-[canonical-reference-fs-v1](canonical-reference-fs-v1/README.md) is selected locally;
-public delivery is not yet authorized. Its [selection record](canonical-reference-fs-v1/LOCAL-SELECTION.md)
-binds the exact whole envelope. Instructions are frozen locally pending independent
-review; all predecessor records remain unchanged. [Exact successor pins](canonical-reference-fs-v1/INSTRUCTIONS.json)
-and [freeze record](canonical-reference-fs-v1/INSTRUCTION-FREEZE.md) grant no authority.
-Instruction acceptance and publication are separate gates.
+The [current status](canonical-reference-fs-v1/PUBLIC-STATUS.md) and
+[successor instruction pins](canonical-reference-fs-v1/PUBLIC-INSTRUCTIONS.json)
+distinguish delivery from review-checkpoint provenance. Historical
+[selection](canonical-reference-fs-v1/LOCAL-SELECTION.md),
+[pins](canonical-reference-fs-v1/INSTRUCTIONS.json) and
+[freeze](canonical-reference-fs-v1/INSTRUCTION-FREEZE.md) remain unchanged.
+None grants operational authority or qualifies parallel capabilities.

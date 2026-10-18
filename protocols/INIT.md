@@ -1,8 +1,8 @@
 # Init summary streams and explicit decisions
 
-Agent 0.2.0a12 instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Delivered a11 remains at
-`faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`; historical freezes remain unchanged.
+Agent 0.2.0a12 software was published at `f372cf75aaa228f059ab12e4095cec598e998541`.
+This status alignment changes wording and pins, not software or operation authority.
+Historical freezes remain unchanged.
 Use the one [whole-envelope installation](../README.md) and your genuine harness
 identity. Keep the [public contributor checkout](../AGENTS.md) separate from
 the explicitly selected customer target. No service, Issue admission or

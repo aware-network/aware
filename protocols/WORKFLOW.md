@@ -1,9 +1,8 @@
 # Aware filesystem workflow
 
-Agent 0.2.0a12 instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this exact reviewed checkout for a12.
-The delivered a11 predecessor remains at `faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`;
-historical freezes remain unchanged. Installation does not grant operation authority.
+Agent 0.2.0a12 software was published at `f372cf75aaa228f059ab12e4095cec598e998541`.
+This status alignment changes wording and pins, not software or operation authority.
+Historical freezes remain unchanged; installation does not admit customer work.
 Read [init summary streams and decisions](INIT.md); full receipts remain
 available in the same invocation without replay or renewed authority.
 
@@ -442,7 +441,7 @@ Carried code does not admit A2/tree completion, services, objects,
 materialization, Project/Goal workflows or broader native performance.
 Read [the entrance](../README.md) and retain complete source/notice carriage.
 
-## Reference navigation for this local candidate
+## Reference navigation in the delivered candidate
 
 The a12 [stdin and focused-history guide](workspace/REFERENCE-NAVIGATION.md)
 retains two explicit decisions and manual Issue guards. Its instruction pins

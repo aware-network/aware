@@ -1,5 +1,11 @@
 # Specification drafts
 
+Agent 0.2.0a12 software was published at `f372cf75aaa228f059ab12e4095cec598e998541`.
+This status alignment changes wording and pins, not software or operation authority.
+[Current instruction pins](../../releases/canonical-reference-fs-v1/PUBLIC-INSTRUCTIONS.json)
+and [delivery provenance](../../releases/canonical-reference-fs-v1/PUBLIC-STATUS.md)
+are separate from unchanged historical records below.
+
 Specifications make intended behavior and constraints explicit for cooperating
 agents. After [Issue initialization](../INITIALIZATION.md), use separately
 governed setup, typed input preparation, preview/apply and fresh observation

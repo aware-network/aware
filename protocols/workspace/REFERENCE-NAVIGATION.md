@@ -1,7 +1,8 @@
 # Workspace reference navigation
 
-Agent **0.2.0a12** instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use the [workflow](../WORKFLOW.md) and
+Agent **0.2.0a12** software was published at `f372cf75aaa228f059ab12e4095cec598e998541`.
+This status alignment changes wording and pins, not software or operation authority.
+Use the [workflow](../WORKFLOW.md) and
 keep both explicit decisions. Contributor governance and Issue guards remain separate.
 
 ## Carry an original result explicitly through stdin

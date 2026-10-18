@@ -21,23 +21,24 @@ publication and closeout**. A generated manifest is setup, not completion of the
 customer's application. Project/Goal direction and language/Meta materialization
 are parallel future elevations, not prerequisites for this path.
 
-## Locally frozen reference instructions
+## Delivered reference navigation
 
-Agent **0.2.0a12** instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout, not unchanged public main.
+Agent **0.2.0a12** software was published at
+[`f372cf75aaa228f059ab12e4095cec598e998541`](https://github.com/aware-network/aware/tree/f372cf75aaa228f059ab12e4095cec598e998541).
+This status alignment changes wording and pins, not software or operation authority.
 The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
 [local selection](releases/canonical-reference-fs-v1/LOCAL-SELECTION.md) records
 the limits. Existing useful-task and implementation/draft branches are unchanged.
-Workspace stdin/focus does not automate Issue guards. Instruction acceptance and
-publication remain separate; do not overlay installations or migrate contributor commands.
+Workspace stdin/focus does not automate Issue guards. Review provenance does not
+grant authority; do not overlay installations or migrate contributor commands.
 
-## Install from this reviewed checkout
+## Acquire and install the exact delivered revision
 
 Agent **0.2.0a11**, with its 42-package closure, was published at
 [`faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`](https://github.com/aware-network/aware/tree/faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89).
-That is the delivered predecessor, not a public a12 acquisition coordinate.
-For the locally selected a12 candidate, use the installer in this exact reviewed
-checkout; do not mix predecessor commands with successor reference guidance.
+That predecessor remains available as history. For a12, acquire the exact
+`f372cf75aaa228f059ab12e4095cec598e998541` revision and use its whole-envelope
+installer; do not mix predecessor commands with successor reference guidance.
 Verify exact payload/envelope provenance before reusing any installation;
 a matching version label alone is insufficient. No operation authority follows.
 
@@ -107,13 +108,13 @@ Keep full original receipts from the same invocation. Stale requests require
 new explicit review, never automatic refresh or mutation retry. Incompleteness
 does not erase known effects. Original release unknown remains unknown even after
 later client cleanup. Historical references do not restore live authority.
-Exact-reference stdin/focus navigation is qualified for this local candidate;
+Exact-reference stdin/focus navigation is included in the delivered a12 candidate;
 historical inspection does not restore current-use authority or automate Issue guards.
 
-[Successor instruction pins](releases/canonical-reference-fs-v1/INSTRUCTIONS.json)
-and [local freeze](releases/canonical-reference-fs-v1/INSTRUCTION-FREEZE.md) are distinct
-from unchanged [predecessor status](releases/canonical-init-summary-fs-v1/PUBLIC-STATUS.md)
-and historical freezes. `portable_protocols` remains the sole package
+[Current instruction pins](releases/canonical-reference-fs-v1/PUBLIC-INSTRUCTIONS.json)
+and [delivery/status provenance](releases/canonical-reference-fs-v1/PUBLIC-STATUS.md)
+are distinct from the unchanged [historical freeze](releases/canonical-reference-fs-v1/INSTRUCTION-FREEZE.md).
+`portable_protocols` remains the sole package
 selector; the delivery pointer is not operation authority.
 
 The source checkout's contributor `AGENTS.md` and a6 command selection govern

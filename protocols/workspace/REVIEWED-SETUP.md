@@ -1,7 +1,8 @@
 # Reviewed repository setup
 
-Agent 0.2.0a12 instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use `aware workspace review` for one bounded
+Agent 0.2.0a12 software was published at `f372cf75aaa228f059ab12e4095cec598e998541`.
+This status alignment changes wording and pins, not software or operation authority.
+Use `aware workspace review` for one bounded
 A1 task: creating `aware.repo.toml` through the original Workspace, FileSystem
 and Issue owners. Start with [the entrance](../../README.md),
 [init guidance](../INIT.md) and [first Issue](../issues/FIRST-ISSUE.md).

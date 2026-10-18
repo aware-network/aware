@@ -2,8 +2,9 @@
 
 Use the [two-review repository-manifest guide](REVIEWED-SETUP.md) through the
 original installed SDK owners. Init supplies configuration, not admission or
-apply authority. A12 instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use the exact reviewed local candidate.
+apply authority. Agent a12 software was published at
+`f372cf75aaa228f059ab12e4095cec598e998541`; acquire that exact revision.
+This status alignment changes wording and pins, not software or operation authority.
 Known effects, evidence retention and cleanup stay separate. Historical show
 and full evidence reads renew no authority; no retry or guard refresh is offered.
 The [manual guide](FIRST-SETUP.md) remains history, not broader acceptance.
