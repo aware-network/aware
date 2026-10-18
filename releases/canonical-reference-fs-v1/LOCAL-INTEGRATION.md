@@ -31,3 +31,33 @@ guards, new authority, activation or broader capability is admitted.
 Independent review remains required. Selection, instruction freeze and explicit
 exact-range remote publication are later cuts. GC holds and frozen evaluations
 remain unchanged; no duplicate environment, build tree, deletion or push.
+
+## Implementation and independent review
+
+Original scoped publication is `adbef3b01e818f3d6ec1c851c74569a0e3d8297d`.
+The actual 41-path delta matches original planned/applied target sets. Its
+committed Issue SHA256 is
+`5b9a9c44095a9b0416a19c01a3e9ae6528d4df3fe55f9104292621546d634e6d`,
+matching the original admission guard. Reference CAS and shared-index projection
+both applied; no reconciliation remains pending.
+
+Producer source checkpoint: `0b2efa89b28cfdd0afa5840a5d4ad732ea16e466`.
+The producer report is `docs/reports/canonical-reference-public-integration-20261019.md`.
+**38 guard controls and eight receiving cases pass**. Retained reads execute
+sixteen commands: thirteen help entrances, exact 42-package versions, dependency
+checking and missing-identity/no-effect refusal. All 154 original installed
+module-origin hashes verify. No new installation or customer operation replay.
+
+The initial test collector error and overbroad seven obsolete-version failures
+remain retained. The corrected integration selection passes without supplier
+changes. The unused mismatched-tag producer dry-run is also retained; publication
+uses the corrected original dry-run/apply. None is represented as a product fix.
+
+Reviewer inputs are the original layout account/tree, complete Issue and
+publication receipts, committed receiving template and retained candidate. Use
+fresh small result directories only. The original retained-read function takes
+`AWARE_INIT_SUMMARY_INTEGRATION_CANDIDATE` and
+`AWARE_INIT_SUMMARY_INTEGRATION_REPLAY_ROOT`; those compatibility variable names
+are preserved, while payload and origin cardinality bind the accepted a12.
+Do not install, copy the environment or replay customer work. Both integration
+Issues remain In Progress pending independent acceptance.
