@@ -17,9 +17,9 @@ bounded positive A/B proof passed review. Failure/interruption qualification
 and the stable consumer bridge remain held. None is included or activated
 by this delivery.
 
-## Prepared reference successor
+## Locally frozen reference instructions
 
-A12 stdin/focus navigation is selected locally; public delivery is not yet authorized.
-Instructions remain draft. It does not automate Issue guards, select work or
+A12 instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Stdin/focus does not automate Issue guards, select work or
 activate a service. Useful-task instructions and frozen evaluations are preserved.
-Instruction freeze and publication remain separate; whole-envelope carriage is mandatory.
+Instruction acceptance and publication remain separate; whole-envelope carriage is mandatory.

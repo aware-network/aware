@@ -21,29 +21,31 @@ publication and closeout**. A generated manifest is setup, not completion of the
 customer's application. Project/Goal direction and language/Meta materialization
 are parallel future elevations, not prerequisites for this path.
 
-## Prepared reference successor
+## Locally frozen reference instructions
 
-Agent **0.2.0a12** is selected locally; public delivery is not yet authorized.
-Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+Agent **0.2.0a12** instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout, not unchanged public main.
 The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
 [local selection](releases/canonical-reference-fs-v1/LOCAL-SELECTION.md) records
 the limits. Existing useful-task and implementation/draft branches are unchanged.
-Workspace stdin/focus does not automate Issue guards. Instruction freeze and
+Workspace stdin/focus does not automate Issue guards. Instruction acceptance and
 publication remain separate; do not overlay installations or migrate contributor commands.
 
-## Start with the shipped software
+## Install from this reviewed checkout
 
 Agent **0.2.0a11**, with its 42-package closure, was published at
 [`faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`](https://github.com/aware-network/aware/tree/faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89).
-This guidance alignment changes no software and authorizes no customer operation.
-Acquire that exact revision. Verify exact payload/envelope provenance before
-reusing any installation; a matching version label alone is insufficient.
+That is the delivered predecessor, not a public a12 acquisition coordinate.
+For the locally selected a12 candidate, use the installer in this exact reviewed
+checkout; do not mix predecessor commands with successor reference guidance.
+Verify exact payload/envelope provenance before reusing any installation;
+a matching version label alone is insufficient. No operation authority follows.
 
 Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Inspect
-[complete terms and sources](releases/canonical-init-summary-fs-v1/README.md)
+[complete terms and sources](releases/canonical-reference-fs-v1/README.md)
 and keep the whole envelope. Six detached-wheel legal gaps remain unresolved;
 wheel-only delivery, stripped bundles and registry publication are unaccepted.
-From the acquired checkout root, use the original installer once:
+From this reviewed checkout root, use the original installer once:
 
 ```sh
 set -eu
@@ -105,11 +107,13 @@ Keep full original receipts from the same invocation. Stale requests require
 new explicit review, never automatic refresh or mutation retry. Incompleteness
 does not erase known effects. Original release unknown remains unknown even after
 later client cleanup. Historical references do not restore live authority.
-Exact-reference stdin/focus navigation remains an unshipped parallel successor.
+Exact-reference stdin/focus navigation is qualified for this local candidate;
+historical inspection does not restore current-use authority or automate Issue guards.
 
-[Current guidance pins](releases/canonical-init-summary-fs-v1/PUBLIC-INSTRUCTIONS.json)
-and [status](releases/canonical-init-summary-fs-v1/PUBLIC-STATUS.md) are distinct
-from unchanged historical freezes. `portable_protocols` remains the sole package
+[Successor instruction pins](releases/canonical-reference-fs-v1/INSTRUCTIONS.json)
+and [local freeze](releases/canonical-reference-fs-v1/INSTRUCTION-FREEZE.md) are distinct
+from unchanged [predecessor status](releases/canonical-init-summary-fs-v1/PUBLIC-STATUS.md)
+and historical freezes. `portable_protocols` remains the sole package
 selector; the delivery pointer is not operation authority.
 
 The source checkout's contributor `AGENTS.md` and a6 command selection govern

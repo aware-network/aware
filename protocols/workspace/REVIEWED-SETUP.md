@@ -1,10 +1,11 @@
 # Reviewed repository setup
 
-Prepared, unselected Agent 0.2.0a11 uses `aware workspace review` for one bounded
+Agent 0.2.0a12 instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use `aware workspace review` for one bounded
 A1 task: creating `aware.repo.toml` through the original Workspace, FileSystem
-and Issue owners. Instructions remain draft. Start with [the entrance](../../README.md),
+and Issue owners. Start with [the entrance](../../README.md),
 [init guidance](../INIT.md) and [first Issue](../issues/FIRST-ISSUE.md).
-[Qualification bounds](../../releases/canonical-init-summary-fs-v1/REVIEW-STATUS.md)
+[Qualification bounds](../../releases/canonical-reference-fs-v1/REVIEW-STATUS.md)
 retain the exact candidate limits. This is not package creation, application
 implementation, A2/tree completion or unassisted onboarding acceptance.
 
@@ -165,4 +166,4 @@ multi-agent coherence, crash recovery or application correctness acceptance.
 
 ## Prepared reference navigation
 
-The unselected a12 [reference-navigation guide](REFERENCE-NAVIGATION.md) adds explicit captured-result stdin and historical focus. It grants no authority, approval or Issue-guard automation.
+The a12 [reference-navigation guide](REFERENCE-NAVIGATION.md) adds explicit captured-result stdin and historical focus. It grants no authority, approval or Issue-guard automation.

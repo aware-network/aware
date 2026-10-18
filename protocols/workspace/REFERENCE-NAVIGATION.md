@@ -1,6 +1,8 @@
 # Workspace reference navigation
 
-Draft for prepared, unselected Agent **0.2.0a12**; not current public availability. Use the [workflow](../WORKFLOW.md) and keep both explicit decisions. Contributor governance and Issue guards remain separate.
+Agent **0.2.0a12** instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use the [workflow](../WORKFLOW.md) and
+keep both explicit decisions. Contributor governance and Issue guards remain separate.
 
 ## Carry an original result explicitly through stdin
 

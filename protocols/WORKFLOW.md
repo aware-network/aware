@@ -1,6 +1,9 @@
 # Aware filesystem workflow
 
-Agent 0.2.0a11 software was published at `faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`. This instruction alignment changes guidance, not software or operation authority. Historical freezes remain unchanged.
+Agent 0.2.0a12 instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this exact reviewed checkout for a12.
+The delivered a11 predecessor remains at `faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`;
+historical freezes remain unchanged. Installation does not grant operation authority.
 Read [init summary streams and decisions](INIT.md); full receipts remain
 available in the same invocation without replay or renewed authority.
 
@@ -439,6 +442,8 @@ Carried code does not admit A2/tree completion, services, objects,
 materialization, Project/Goal workflows or broader native performance.
 Read [the entrance](../README.md) and retain complete source/notice carriage.
 
-## Prepared reference navigation
+## Reference navigation for this local candidate
 
-The prepared a12 [stdin and focused-history guide](workspace/REFERENCE-NAVIGATION.md) retains two explicit decisions and manual Issue guards. It is unselected draft guidance, not a new admission.
+The a12 [stdin and focused-history guide](workspace/REFERENCE-NAVIGATION.md)
+retains two explicit decisions and manual Issue guards. Its instruction pins
+bind reviewed bytes, not a new admission or renewed current-use authority.

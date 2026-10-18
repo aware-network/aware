@@ -1,6 +1,8 @@
 # Init summary streams and explicit decisions
 
-Agent 0.2.0a11 software was published at `faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`. This instruction alignment changes guidance, not software or operation authority. Historical freezes remain unchanged.
+Agent 0.2.0a12 instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Delivered a11 remains at
+`faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`; historical freezes remain unchanged.
 Use the one [whole-envelope installation](../README.md) and your genuine harness
 identity. Keep the [public contributor checkout](../AGENTS.md) separate from
 the explicitly selected customer target. No service, Issue admission or
@@ -62,5 +64,5 @@ capture or durable reference was returned.
 After successful initialization read the target's `AGENTS.md` and
 `aware.protocol.toml`, then follow [the first-Issue guide](issues/FIRST-ISSUE.md).
 Workspace setup remains a separate [two-review operation](workspace/REVIEWED-SETUP.md).
-Keep [complete terms, source and notices](../releases/canonical-init-summary-fs-v1/README.md)
+Keep [complete terms, source and notices](../releases/canonical-reference-fs-v1/README.md)
 with the installation. Wider capability and release acceptance remain separate.
