@@ -9,14 +9,12 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-Agent **0.2.0a10** human-evidence software is delivered at
-[`02866aeb17b99d6c374eba000e9997ef562400cf`](https://github.com/aware-network/aware/tree/02866aeb17b99d6c374eba000e9997ef562400cf).
-The [delivery pointer](releases/SELECTED.json) binds the complete envelope.
-[Current status and review provenance](releases/canonical-human-evidence-fs-v1/PUBLIC-STATUS.md)
-and [successor instruction pins](releases/canonical-human-evidence-fs-v1/PUBLIC-INSTRUCTIONS.json)
-distinguish delivered software from this alignment's review checkpoint.
-Review-status fields are provenance, not live remote state or operation authority.
-Do not overlay installations, activate tooling or migrate contributor commands.
+Agent **0.2.0a11** init-summary software is prepared and unselected in this
+private proposal. Instructions remain draft; integration, selection, freeze and
+publication require separate governance. The existing
+[delivery pointer](releases/SELECTED.json) still names the delivered a10
+predecessor. This layout does not claim public availability or update a client.
+Read [the init stream and review guide](protocols/INIT.md) before initialization.
 
 The activation-core P1 correction passed independent review; real
 validator/control-runtime integration, artifacts and private A/B activation
@@ -47,7 +45,7 @@ distinct. This filesystem composition starts no service.
 ## Inspect terms and install once
 
 Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Read
-[complete distribution terms and source](releases/canonical-human-evidence-fs-v1/README.md)
+[complete distribution terms and source](releases/canonical-init-summary-fs-v1/README.md)
 before installation. Keep the entire envelope: terms, sources, corresponding
 source, component evidence and raw audit. Six detached-wheel legal gaps remain
 unrepaired; wheel-only acquisition, stripped bundles and registry publication
@@ -74,6 +72,12 @@ the workflow's `aware_envelope_root` names it for the typed input example.
 Environment reuse refuses. No editable checkout or development source is needed.
 
 ## Initialize and admit an Issue
+
+Preview and apply below are separate decisions. Stop after preview and review
+its result before accepting creation; do not run the block unattended.
+Optional init summaries go to stdout and complete JSON goes to stderr in the
+same invocation. Default/explicit JSON remains on stdout. Keep both streams;
+never repeat mutation to obtain nicer output. See [init guidance](protocols/INIT.md).
 
 Use a genuine harness with exactly one nonblank `CODEX_THREAD_ID` or
 `CLAUDE_CODE_SESSION_ID`; do not borrow or invent identities. Set

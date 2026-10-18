@@ -1,16 +1,12 @@
 # Reviewed repository setup
 
-Agent 0.2.0a10 human-evidence software was delivered at
-[`02866aeb17b99d6c374eba000e9997ef562400cf`](https://github.com/aware-network/aware/tree/02866aeb17b99d6c374eba000e9997ef562400cf).
-[Status and review provenance](../../releases/canonical-human-evidence-fs-v1/PUBLIC-STATUS.md)
-and [successor instruction pins](../../releases/canonical-human-evidence-fs-v1/PUBLIC-INSTRUCTIONS.json)
-separate delivered software from instruction review and operational authority.
-It uses `aware workspace review` for one bounded A1 task: creating `aware.repo.toml`
-through the original Workspace, FileSystem and Issue owners. Start with
-[the entrance](../../README.md) and [first Issue](../issues/FIRST-ISSUE.md);
-[qualification bounds](../../releases/canonical-human-evidence-fs-v1/REVIEW-STATUS.md)
-identify the exact candidate limits. This is not package creation,
-application implementation, A2 or tree completion.
+Prepared, unselected Agent 0.2.0a11 uses `aware workspace review` for one bounded
+A1 task: creating `aware.repo.toml` through the original Workspace, FileSystem
+and Issue owners. Instructions remain draft. Start with [the entrance](../../README.md),
+[init guidance](../INIT.md) and [first Issue](../issues/FIRST-ISSUE.md).
+[Qualification bounds](../../releases/canonical-init-summary-fs-v1/REVIEW-STATUS.md)
+retain the exact candidate limits. This is not package creation, application
+implementation, A2/tree completion or unassisted onboarding acceptance.
 
 ## Inputs and configuration
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
@@ -41,7 +42,16 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
     intent = parser.add_mutually_exclusive_group()
     intent.add_argument("--dry-run", action="store_true")
     intent.add_argument("--apply", action="store_true")
-    parser.add_argument("--format", choices=("json", "summary"), default="json")
+    parser.add_argument(
+        "--format",
+        choices=("json", "summary"),
+        default="json",
+        help=(
+            "json (default): full original receipts on stdout. summary: human "
+            "explanation on stdout and full receipt JSON on stderr in this same "
+            "invocation; retain both streams, never rerun apply for evidence."
+        ),
+    )
 
 
 def _execution() -> str:
@@ -173,9 +183,7 @@ def initialization_payload(args: argparse.Namespace) -> tuple[dict[str, Any], in
             install_agent_contract=not args.no_agent_contract,
             dry_run=not args.apply,
         )
-        stage["rendered_input"] = bootstrap_evidence_payload(
-            rendered, summary=args.format == "summary"
-        )
+        stage["rendered_input"] = bootstrap_evidence_payload(rendered)
         stage["status"] = "input_validated"
         workspace = WorkspaceRepositoryPreparationClient.filesystem(
             repository_root=args.repository_root, execution_id=execution
@@ -233,7 +241,245 @@ def initialization_payload(args: argparse.Namespace) -> tuple[dict[str, Any], in
     return payload, 0
 
 
+def _display(value: Any) -> str:
+    """ASCII-escaped display only; never a changed SDK coordinate or decision."""
+    return json.dumps(value, ensure_ascii=True, sort_keys=True)
+
+
+def _init_summary(payload: dict[str, Any], exit_code: int) -> str:
+    """Explain original owner observations, never reinterpret provider authority."""
+    lines = [
+        "Init: " + _display(payload.get("status", "unknown/not returned")),
+        "Operation exit before reporting: " + str(exit_code),
+        "Repository: " + _display(payload.get("repository_root")),
+        "What happened:",
+    ]
+    for owner in ("workspace", "protocol"):
+        stage = payload.get(owner) or {}
+        lines.append(
+            owner.title()
+            + " stage: "
+            + _display(stage.get("status", "unknown/not returned"))
+        )
+        result = stage.get("result")
+        if result is not None:
+            lines.append(
+                owner.title()
+                + " original outcome: "
+                + _display(result.get("outcome", "unknown/not returned"))
+            )
+        if owner == "workspace":
+            request = (result or stage.get("error") or {}).get("request") or {}
+            lines.append(
+                "Repository creation intent: "
+                + _display(request.get("create_if_missing", "unknown/not returned"))
+                + "; dry run: "
+                + _display(request.get("dry_run", "unknown/not returned"))
+            )
+        if stage.get("status") == "prospective_only":
+            lines.append(
+                "Protocol inputs are prospective only, not an admitted Protocol plan or result. Apply requires fresh original admission after Workspace preparation."
+            )
+        for key in ("error", "unverified_error"):
+            error = stage.get(key)
+            if error is not None:
+                lines.append(
+                    owner.title()
+                    + " original failure: "
+                    + _display(
+                        error.get(
+                            "code", error.get("error_type", "unknown/not returned")
+                        )
+                    )
+                )
+                if "phase" in error:
+                    lines.append(
+                        owner.title() + " failure phase: " + _display(error["phase"])
+                    )
+    if payload.get("preflight_error") is not None:
+        error = payload["preflight_error"]
+        lines.append(
+            "Preflight failure: "
+            + _display(
+                error.get("code", error.get("error_type", "unknown/not returned"))
+            )
+        )
+        for diagnostic in error.get("diagnostics", [])[:4]:
+            lines.append("Preflight diagnostic: " + _display(diagnostic))
+    lines.append("What changed:")
+    lines.append(
+        "Aggregate observed effect: "
+        + _display(payload.get("effect", "unknown/not returned"))
+        + "; this describes this invocation, not repository history or rollback."
+    )
+    for owner in ("workspace", "protocol"):
+        stage = payload.get(owner) or {}
+        for key in ("result", "error", "cleanup_error"):
+            evidence = stage.get(key)
+            if evidence is None:
+                continue
+            prefix = owner.title() + " " + key
+            effects = evidence.get("effects", [])
+            if not effects:
+                lines.append(
+                    prefix
+                    + " reports no effect rows; absence is not proof of no historical effects."
+                )
+            for effect in effects[:8]:
+                lines.append(
+                    prefix
+                    + " effect: "
+                    + _display(effect.get("state", "unknown/not returned"))
+                    + " at "
+                    + _display(effect.get("path", "unknown/not returned"))
+                )
+            if len(effects) > 8:
+                lines.append(
+                    prefix
+                    + ": additional effects omitted from explanation; full rows remain in stderr JSON."
+                )
+            if evidence.get("reported_result") is not None:
+                lines.append(
+                    prefix
+                    + " contains an unvalidated provider report in full evidence; it is not promoted to a verified outcome."
+                )
+    protocol = payload.get("protocol") or {}
+    rendered = protocol.get("rendered_input") or {}
+    request = rendered.get("request") or {}
+    files = rendered.get("files", [])
+    if files:
+        lines.append(
+            "Requested Protocol files (inputs, not proof of publication): "
+            + ", ".join(_display(row.get("path")) for row in files[:8])
+        )
+        if len(files) > 8:
+            lines.append("Additional requested files remain in full evidence.")
+        lines.append(
+            "Issue records root: "
+            + _display(request.get("issue_root", "unknown/not returned"))
+        )
+        lines.append(
+            "Protocol input guard: "
+            + _display(rendered.get("input_sha256", "unknown/not returned"))
+            + " (observation, not write authority)."
+        )
+        if request.get("install_agent_contract") is False:
+            lines.append(
+                "Guidance files were explicitly omitted; do not assume AGENTS.md or the Issue protocol was provisioned."
+            )
+    lines.append("What remains uncertain:")
+    lines.append(
+        "Aggregate completion verified: "
+        + _display(payload.get("completion_verified", "unknown/not returned"))
+    )
+    for owner in ("workspace", "protocol"):
+        stage = payload.get(owner) or {}
+        for key in ("result", "error", "cleanup_error"):
+            evidence = stage.get(key)
+            if evidence is None:
+                continue
+            lines.append(
+                owner.title()
+                + " "
+                + key
+                + " cleanup: "
+                + _display(evidence.get("cleanup_state", "unknown/not returned"))
+                + "; ledger complete: "
+                + _display(evidence.get("ledger_complete", "unknown/not returned"))
+            )
+        for key in ("unverified_error", "cleanup_unverified"):
+            evidence = stage.get(key)
+            if evidence is not None:
+                lines.append(
+                    owner.title()
+                    + " "
+                    + key
+                    + ": "
+                    + _display(evidence.get("error_type", "unknown/not returned"))
+                    + "; original effect: "
+                    + _display(evidence.get("effect", "unknown/not returned"))
+                    + "; ledger complete: "
+                    + _display(evidence.get("ledger_complete", "unknown/not returned"))
+                )
+        if not any(
+            key in stage
+            for key in (
+                "result",
+                "error",
+                "cleanup_error",
+                "cleanup_unverified",
+                "unverified_error",
+            )
+        ):
+            lines.append(
+                owner.title()
+                + " operation/cleanup evidence: not returned; no completion inferred."
+            )
+    lines.append(
+        "Later cleanup does not upgrade an original unknown outcome. Retain both owners' evidence."
+    )
+    lines.append("What next (guidance, not authority):")
+    if payload.get("status") == "refused" or exit_code != 0:
+        lines.append(
+            "Stop and inspect the original failure, effects and cleanup before any further mutation. Do not retry apply, refresh guards, repair or overwrite automatically."
+        )
+    elif payload.get("status") == "planned":
+        lines.append(
+            "Review the selected root, creation intent, Issue root and requested files. Only an explicit --apply invokes owner admission; this preview grants none."
+        )
+    elif payload.get("completion_verified") is True:
+        lines.append(
+            "Issue-only initialization completed. A first Issue requires its own explicit task and admission; initialization creates no Issue or approval."
+        )
+    else:
+        lines.append(
+            "Inspect the full evidence before choosing further work; no completion or action authority is inferred."
+        )
+    lines.extend(
+        [
+            "Profile: "
+            + _display(payload.get("profile", "unknown/not returned"))
+            + "; SPEC, Goal and other families need separately governed configuration.",
+            "Initialization does not create a seed commit, stage work, add a remote or start a service.",
+            "Where is full evidence:",
+            "Full aware.agent.init.v1 JSON is emitted on stderr in this invocation, including both owner receipts and rendered inputs. Retain both streams; no durable evidence reference is issued by this explanation.",
+            "Do not repeat a mutating command with --format json to recover output. Default/json mode remains full JSON on stdout.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def _report_init_output(value: str, stream: Any) -> bool:
+    """Flush within reporting; retire a poisoned buffer before process shutdown."""
+    failed = False
+    try:
+        print(value, file=stream)
+    except (OSError, UnicodeError):
+        failed = True
+    try:
+        stream.flush()
+    except (OSError, UnicodeError):
+        failed = True
+        # TextIOWrapper.close also closes its buffer when flushing raises.
+        # Otherwise Python's final flush can replace our exit with 120.
+        try:
+            stream.close()
+        except (OSError, UnicodeError):
+            pass
+    return not failed
+
+
 def _handle_init(invocation: AwareCommandInvocation) -> int:
     payload, exit_code = initialization_payload(invocation.args)
-    print(json.dumps(payload, indent=2, sort_keys=True))
+    if invocation.args.format == "json":
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return exit_code
+    # Report once on each channel even when the other channel is unavailable.
+    # Neither reporting failure dispatches an owner again or repeats cleanup.
+    human_ok = _report_init_output(_init_summary(payload, exit_code), sys.stdout)
+    evidence_ok = _report_init_output(
+        json.dumps(payload, indent=2, sort_keys=True), sys.stderr
+    )
+    if not human_ok or not evidence_ok:
+        return 130 if exit_code == 130 else 3
     return exit_code

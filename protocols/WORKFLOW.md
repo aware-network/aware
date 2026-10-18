@@ -1,15 +1,12 @@
 # Aware filesystem workflow
 
-Human-evidence software was delivered at
-[`02866aeb17b99d6c374eba000e9997ef562400cf`](https://github.com/aware-network/aware/tree/02866aeb17b99d6c374eba000e9997ef562400cf).
-[Status and review provenance](../releases/canonical-human-evidence-fs-v1/PUBLIC-STATUS.md)
-and [successor instruction pins](../releases/canonical-human-evidence-fs-v1/PUBLIC-INSTRUCTIONS.json)
-describe the exact delivery and this review checkpoint, not renewed authority.
-Agent 0.2.0a10 composes the original Issue, Protocol, SPEC and reviewed Workspace
-owners in one 42-package installation. Workspace SDK/runtime/FS remain
-0.2.11/0.2.16/0.1.10, FileSystem 0.3.8 and Issue SDK 0.10.6.
-The delivered refusal predecessor remains unchanged. Delivery does not establish
-unassisted successor onboarding or broader carried capabilities.
+Prepared, unselected Agent 0.2.0a11 init-summary successor; instructions are draft.
+One 42-package installation composes the original Issue, Protocol, SPEC and
+reviewed Workspace owners. SDK/runtime/FS remain 0.2.11/0.2.16/0.1.10,
+FileSystem 0.3.8 and Issue SDK 0.10.6. Existing a10 selection and delivery remain
+unchanged. This private layout is not public availability or unassisted proof.
+Read [init summary streams and decisions](INIT.md); full receipts remain
+available in the same invocation without replay or renewed authority.
 
 The activation-core P1 correction passed independent review; real
 validator/control-runtime integration, artifacts and private A/B activation
@@ -67,6 +64,11 @@ preview and apply:
 "$AWARE" init --repo-root "$aware_repo_root" \
   --create-repository --format summary
 ```
+
+Init summary mode emits human output on stdout and full JSON on stderr in the
+same invocation. Stderr is not an error-only channel in this mode. Default and
+explicit JSON remain on stdout. Review both streams; never rerun mutation for
+receipts. [Detailed init guidance](INIT.md) keeps preview and apply separate.
 
 Preview is the default and has no effects. Review the Workspace preparation
 preview (`outcome=planned`) and prospective Protocol inputs separately

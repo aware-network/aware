@@ -72,10 +72,33 @@ requires both owners' results and completion. Git success followed by Protocol
 failure exits 2 and retains Git creation and partial/unknown Protocol effects.
 It never rolls back, automatically retries or restores spent authority.
 
-JSON retains exact requests, attempts, effects, diagnostics and cleanup for each
-owner. `--format summary` omits only rendered template bodies, keeping their
-paths, byte digests and modes and every result/error field. It is not a new
-approval or receipt authority. The initial profile is
+Default/`--format json` retains full JSON on stdout: exact requests, attempts,
+rendered inputs, effects, diagnostics and cleanup for each owner. Explicit
+`--format summary` instead prints human answers on stdout: what happened, what
+changed, remaining uncertainty, safe next steps and the full-evidence location.
+It emits the **complete JSON on stderr in that same invocation**, including
+rendered template bodies. This deliberately changes the earlier summary-only
+JSON format; machine-only callers should keep using `--format json`.
+
+Retain both streams from the original invocation. Neither a human explanation
+nor a stream is an automatically durable receipt store. Do not repeat apply
+with another format to recover evidence. This separation is not a claim of less
+total output, improved client comprehension or new approval authority.
+
+The summary distinguishes prospective Protocol inputs from admission, known
+Workspace creation from a subsequent Protocol failure, and original cleanup
+uncertainty from any later cleanup. Untrusted paths are visibly escaped without
+changing their SDK values. Summary reporting attempts each output channel once;
+an I/O or encoding failure returns 3 (preserving an already supplied 130), not
+permission to retry. Reporting explicitly flushes each channel and closes a
+failed buffered stream before shutdown, preventing a delayed pipe failure from
+replacing that exit with 120. The other channel is still attempted once; closing
+a failed output stream is not SDK cleanup or evidence of owner completion.
+Owner operations retain their existing 0/2 outcomes,
+including the initializer's existing caught-interruption behavior. JSON mode's
+transport remains unchanged.
+
+The initial profile is
 `aware.collaboration.fs_v1`, with only Issue authority; SPEC, Goal, Feed and
 Evidence remain unavailable until their separately governed configuration.
 Init creates no Issue, seed commit, index staging, remote, user configuration,

@@ -39,8 +39,11 @@ def invoke(root, capsys, *args):
     before = descriptors()
     code = main(["init", "--repo-root", str(root), *args])
     streams = capsys.readouterr()
-    assert not streams.err
     assert descriptors() == before
+    if "summary" in args:
+        assert "Where is full evidence:" in streams.out
+        return code, json.loads(streams.err)
+    assert not streams.err
     return code, json.loads(streams.out)
 
 
@@ -61,7 +64,8 @@ def test_absent_preview_is_prospective_not_an_admission(
     assert not payload["authorizes_retry"]
     assert not (root / ".git").exists() and root.exists() == exists
     files = payload["protocol"]["rendered_input"]["files"]
-    assert all(("content_utf8" in item) == (format_name == "json") for item in files)
+    # Human presentation keeps full rendered evidence in the same invocation.
+    assert all("content_utf8" in item for item in files)
     assert all(item["source_sha256"].startswith("sha256:") for item in files)
 
 
@@ -517,7 +521,7 @@ def test_successor_metadata_names_accepted_ports_and_floors():
         "project"
     ]
     deps = {r.name: r for r in map(Requirement, project["dependencies"])}
-    assert project["version"] == "0.2.0a10"
+    assert project["version"] == "0.2.0a11"
     assert deps["aware-workspace-sdk"].extras == {
         "preparation",
         "setup",
@@ -539,3 +543,384 @@ def test_successor_metadata_names_accepted_ports_and_floors():
     assert "0.3.5" in deps["aware-protocol-cli"].specifier
     assert "0.3.4" not in deps["aware-protocol-cli"].specifier
     assert "0.4.0" not in deps["aware-protocol-cli"].specifier
+
+
+HUMAN_INIT_ANSWERS = (
+    "What happened:",
+    "What changed:",
+    "What remains uncertain:",
+    "What next (guidance, not authority):",
+    "Where is full evidence:",
+)
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        "preview",
+        "apply",
+        "existing-preview",
+        "omitted-guidance",
+        "missing-intent",
+        "protocol-refusal",
+        "partial-interruption",
+        "workspace-release",
+        "protocol-release",
+    ],
+)
+def test_human_init_retains_original_outcomes_and_full_receipts(
+    tmp_path, capsys, monkeypatch, case
+):
+    from aware_agent_cli import initialization as module
+    from aware_file_system.retained_bootstrap import RetainedBootstrapCreation
+    from aware_protocol_sdk.bootstrap import (
+        ProtocolBootstrapClient,
+        ProtocolBootstrapPlan,
+    )
+    from aware_workspace_sdk.repository_preparation import RepositoryPreparationPlan
+
+    root = tmp_path / "customer"
+    original_payload = module.initialization_payload
+    original = {}
+    calls, observed, released = [], [], set()
+
+    def observe(args):
+        calls.append("payload")
+        result = original_payload(args)
+        observed.append(result)
+        return result
+
+    monkeypatch.setattr(module, "initialization_payload", observe)
+    if case == "existing-preview":
+        root.mkdir()
+        assert git(root, "init").returncode == 0
+        (root / "foreign.txt").write_bytes(b"preserved\n")
+    if case == "protocol-refusal":
+        original["plan"] = ProtocolBootstrapClient.plan_initialization
+
+        def competing(owner, request):
+            calls.append("competing-plan")
+            (root / "AGENTS.md").write_bytes(b"foreign winner\n")
+            return original["plan"](owner, request)
+
+        monkeypatch.setattr(ProtocolBootstrapClient, "plan_initialization", competing)
+    if case == "partial-interruption":
+        original["create"] = RetainedBootstrapCreation.create_next_file
+
+        def interrupted(handle):
+            calls.append("file")
+            original["create"](handle)
+            raise KeyboardInterrupt("after genuine original publication")
+
+        monkeypatch.setattr(RetainedBootstrapCreation, "create_next_file", interrupted)
+    if case.endswith("-release"):
+        plan_type = (
+            RepositoryPreparationPlan
+            if case == "workspace-release"
+            else ProtocolBootstrapPlan
+        )
+        original["release"] = plan_type.release
+
+        def release(plan):
+            # Inject once. The owner's fallback finalizer may revisit release;
+            # delegate that unchanged without retaining a plan reference/cycle.
+            if id(plan) in released:
+                return original["release"](plan)
+            released.add(id(plan))
+            calls.append("release")
+            original["release"](plan)
+            raise KeyboardInterrupt("original release observation unavailable")
+
+        monkeypatch.setattr(plan_type, "release", release)
+    flags = ["--create-repository", "--format", "summary"]
+    if case not in ("preview", "existing-preview"):
+        flags += ["--apply"]
+    if case == "missing-intent":
+        flags.remove("--create-repository")
+    if case == "omitted-guidance":
+        flags += ["--no-agent-contract"]
+    before = descriptors()
+    code = main(["init", "--repo-root", str(root), *flags])
+    output = capsys.readouterr()
+    assert len(observed) == calls.count("payload") == 1
+    payload, expected_code = observed[0]
+    assert code == expected_code and descriptors() == before
+    assert output.err == json.dumps(payload, indent=2, sort_keys=True) + "\n"
+    assert all(label in output.out for label in HUMAN_INIT_ANSWERS)
+    assert f"Operation exit before reporting: {expected_code}" in output.out
+    assert (
+        "stderr in this invocation" in output.out
+        and "Do not repeat a mutating command" in output.out
+    )
+    assert "content_utf8" not in output.out and "content_utf8" in output.err
+    if case == "preview":
+        assert code == 0 and payload["protocol"]["status"] == "prospective_only"
+        assert "not an admitted Protocol plan or result" in output.out
+        assert "Protocol original outcome:" not in output.out
+        assert "this preview grants none" in output.out and not root.exists()
+    elif case == "existing-preview":
+        assert 'Workspace original outcome: "existing"' in output.out
+        assert 'Protocol original outcome: "planned"' in output.out
+        assert (root / "foreign.txt").read_bytes() == b"preserved\n"
+        assert not (root / "aware.protocol.toml").exists()
+    elif case in ("apply", "omitted-guidance"):
+        assert code == 0 and (root / "aware.protocol.toml").is_file()
+        assert 'Workspace original outcome: "created"' in output.out
+        assert 'Protocol original outcome: "initialized"' in output.out
+        assert "Issue-only initialization completed" in output.out
+        assert (root / "AGENTS.md").exists() == (case == "apply")
+        if case == "omitted-guidance":
+            assert "Guidance files were explicitly omitted" in output.out
+    else:
+        assert code == 2 and "Stop and inspect" in output.out
+        if case == "missing-intent":
+            assert (
+                not root.exists() and 'Protocol stage: "input_validated"' in output.out
+            )
+        else:
+            assert 'Workspace original outcome: "created"' in output.out
+            if case.endswith("-release"):
+                assert calls.count("release") == 1
+                assert (
+                    "cleanup_unverified" in output.out
+                    and 'original effect: "unknown"' in output.out
+                )
+                assert (root / "aware.protocol.toml").exists() == (
+                    case == "protocol-release"
+                )
+            elif case == "partial-interruption":
+                assert (
+                    calls.count("file") == 1 and (root / "aware.protocol.toml").exists()
+                )
+                assert 'Protocol error cleanup: "unknown"' in output.out
+            else:
+                assert calls.count("competing-plan") == 1
+                assert not (root / "aware.protocol.toml").exists()
+                assert (root / "AGENTS.md").read_bytes() == b"foreign winner\n"
+
+
+@pytest.mark.parametrize("code", [0, 2, 130])
+@pytest.mark.parametrize("channel", ["stdout-pipe", "stdout-unicode", "stderr", "both"])
+def test_init_reporting_attempts_each_channel_once_without_redispatch(
+    monkeypatch, capsys, code, channel
+):
+    import argparse
+
+    from aware_agent_cli import initialization as module
+
+    payload = {
+        "status": "refused",
+        "repository_root": "/fixture",
+        "effect": "unknown",
+        "workspace": {"status": "not_started"},
+        "protocol": {"status": "not_started"},
+    }
+    printer = builtins.print
+    calls = []
+
+    def once(args):
+        calls.append("owner")
+        return payload, code
+
+    def output(*args, **kwargs):
+        stream = "stderr" if kwargs.get("file") is sys.stderr else "stdout"
+        calls.append(stream)
+        fails = channel == "both" or stream == channel.split("-")[0]
+        if fails:
+            if channel == "stdout-unicode":
+                raise UnicodeEncodeError("ascii", "é", 0, 1, "fixture")
+            raise BrokenPipeError("fixture output unavailable")
+        return printer(*args, **kwargs)
+
+    monkeypatch.setattr(module, "initialization_payload", once)
+    monkeypatch.setattr(builtins, "print", output)
+    invocation = argparse.Namespace(args=argparse.Namespace(format="summary"))
+    assert module._handle_init(invocation) == (130 if code == 130 else 3)
+    assert calls == ["owner", "stdout", "stderr"]
+    streams = capsys.readouterr()
+    if channel.startswith("stdout"):
+        assert streams.err == json.dumps(payload, indent=2, sort_keys=True) + "\n"
+    elif channel == "stderr":
+        assert "Full aware.agent.init.v1 JSON" in streams.out
+    else:
+        assert not streams.out and not streams.err
+
+
+@pytest.mark.parametrize("code", [0, 2, 130])
+def test_init_summary_does_not_change_json_transport(monkeypatch, capsys, code):
+    import argparse
+    import copy
+
+    from aware_agent_cli import initialization as module
+
+    payload = {
+        "original": {"unknown": None, "path": "foreign\u202e\nfile"},
+        "raw_receipts": [1, 2, 3],
+    }
+    before = copy.deepcopy(payload)
+    calls = []
+
+    def once(args):
+        calls.append(True)
+        return payload, code
+
+    monkeypatch.setattr(module, "initialization_payload", once)
+    assert (
+        module._handle_init(argparse.Namespace(args=argparse.Namespace(format="json")))
+        == code
+    )
+    output = capsys.readouterr()
+    assert output.out == json.dumps(payload, indent=2, sort_keys=True) + "\n"
+    assert not output.err and calls == [True] and payload == before
+
+
+@pytest.mark.parametrize("reported", [False, True])
+def test_init_summary_is_pure_escaped_and_leaves_unknowns_unknown(reported):
+    import copy
+
+    from aware_agent_cli.initialization import _init_summary
+
+    payload = {
+        "status": "refused",
+        "repository_root": "/foreign\u202e\nroot",
+        "effect": "unknown",
+        "workspace": {
+            "status": "refused",
+            "error": {
+                "code": "original-refusal",
+                "effects": [{"state": "unknown", "path": "a\u2066\nfile"}],
+                "reported_result": {"outcome": "created"} if reported else None,
+            },
+        },
+        "protocol": {"status": "input_validated"},
+    }
+    before = copy.deepcopy(payload)
+    output = _init_summary(payload, 2)
+    assert all(label in output for label in HUMAN_INIT_ANSWERS)
+    assert "\u202e" not in output and "\u2066" not in output
+    assert r"\u202e\nroot" in output and r"\u2066\nfile" in output
+    assert 'Workspace original outcome: "created"' not in output
+    assert "unknown/not returned" in output and "no completion inferred" in output
+    assert "Stop and inspect" in output and payload == before
+    assert ("not promoted to a verified outcome" in output) == reported
+
+
+def test_human_init_help_discloses_both_streams_without_importing_owners(capsys):
+    with pytest.raises(SystemExit) as error:
+        main(["init", "--help"])
+    assert error.value.code == 0
+    output = " ".join(capsys.readouterr().out.split())
+    assert "full receipt JSON on stderr" in output and "never rerun apply" in output
+
+
+def run_init_with_closed_pipe(tmp_path, script, channel):
+    """Real buffered process shutdown, not a mocked print/flush."""
+    reader, writer = os.pipe()
+    os.close(reader)
+    environment = dict(os.environ)
+    environment.pop("PYTHONUNBUFFERED", None)
+    try:
+        return subprocess.run(
+            [sys.executable, "-B", "-c", script],
+            cwd=tmp_path,
+            env=environment,
+            stdout=writer if channel in ("stdout", "both") else subprocess.PIPE,
+            stderr=writer if channel in ("stderr", "both") else subprocess.PIPE,
+            check=False,
+            timeout=30,
+        )
+    finally:
+        os.close(writer)
+
+
+@pytest.mark.parametrize("code", [0, 2, 130])
+@pytest.mark.parametrize("channel", ["stdout", "stderr", "both"])
+@pytest.mark.parametrize("buffering", ["default", "delayed"])
+def test_human_init_closed_pipe_preserves_process_exit_and_other_channel(
+    tmp_path, code, channel, buffering
+):
+    script = f"""
+import json
+import sys
+from pathlib import Path
+from aware_agent_cli import initialization as module
+from aware_agent_cli.main import main
+if {buffering!r} == 'delayed':
+    sys.stdout.reconfigure(line_buffering=False, write_through=False)
+    sys.stderr.reconfigure(line_buffering=False, write_through=False)
+calls = []
+payload = {{'contract': 'aware.agent.init.v1', 'status': 'refused',
+           'effect': 'unknown', 'repository_root': '/synthetic',
+           'workspace': {{'status': 'not_started'}},
+           'protocol': {{'status': 'not_started'}}}}
+def once(args):
+    calls.append('payload')
+    return payload, {code}
+module.initialization_payload = once
+result = main(['init', '--repo-root', '/synthetic', '--format', 'summary'])
+Path('trace.json').write_text(json.dumps({{'calls': calls, 'exit': result}}))
+raise SystemExit(result)
+"""
+    completed = run_init_with_closed_pipe(tmp_path, script, channel)
+    expected = 130 if code == 130 else 3
+    assert completed.returncode == expected
+    assert json.loads((tmp_path / "trace.json").read_bytes()) == {
+        "calls": ["payload"],
+        "exit": expected,
+    }
+    if channel == "stdout":
+        payload = json.loads(completed.stderr)
+        assert payload["effect"] == "unknown"
+        assert payload["contract"] == "aware.agent.init.v1"
+    elif channel == "stderr":
+        assert b"What remains uncertain:" in completed.stdout
+        assert b"Do not repeat a mutating command" in completed.stdout
+
+
+@pytest.mark.parametrize("channel", ["stdout", "stderr"])
+def test_human_init_genuine_preview_closed_pipe_keeps_owner_once_and_no_effects(
+    tmp_path, channel
+):
+    script = """
+import json
+from pathlib import Path
+from aware_agent_cli import initialization as module
+from aware_agent_cli.main import main
+from aware_workspace_sdk.repository_preparation import WorkspaceRepositoryPreparationClient
+from aware_protocol_sdk.bootstrap import ProtocolBootstrapClient
+counts = {'payload': 0, 'workspace': 0, 'protocol': 0}
+original_payload = module.initialization_payload
+original_workspace = WorkspaceRepositoryPreparationClient.prepare_repository
+original_protocol = ProtocolBootstrapClient.initialize_profile
+def payload(args):
+    counts['payload'] += 1
+    return original_payload(args)
+def workspace(self, *args, **kwargs):
+    counts['workspace'] += 1
+    return original_workspace(self, *args, **kwargs)
+def protocol(self, *args, **kwargs):
+    counts['protocol'] += 1
+    return original_protocol(self, *args, **kwargs)
+module.initialization_payload = payload
+WorkspaceRepositoryPreparationClient.prepare_repository = workspace
+ProtocolBootstrapClient.initialize_profile = protocol
+target = Path.cwd() / 'customer'
+result = main(['init', '--repo-root', str(target), '--create-repository',
+               '--format', 'summary'])
+Path('trace.json').write_text(json.dumps({'calls': counts, 'exit': result,
+                                        'target_exists': target.exists()}))
+raise SystemExit(result)
+"""
+    completed = run_init_with_closed_pipe(tmp_path, script, channel)
+    assert completed.returncode == 3
+    assert json.loads((tmp_path / "trace.json").read_bytes()) == {
+        "calls": {"payload": 1, "workspace": 1, "protocol": 0},
+        "exit": 3,
+        "target_exists": False,
+    }
+    if channel == "stdout":
+        payload = json.loads(completed.stderr)
+        assert payload["status"] == "planned" and payload["effect"] == "none"
+        assert payload["protocol"]["status"] == "prospective_only"
+    else:
+        assert b"not an admitted Protocol plan or result" in completed.stdout
