@@ -517,7 +517,7 @@ def test_successor_metadata_names_accepted_ports_and_floors():
         "project"
     ]
     deps = {r.name: r for r in map(Requirement, project["dependencies"])}
-    assert project["version"] == "0.2.0a9"
+    assert project["version"] == "0.2.0a10"
     assert deps["aware-workspace-sdk"].extras == {
         "preparation",
         "setup",

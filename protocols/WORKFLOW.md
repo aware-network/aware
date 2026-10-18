@@ -1,14 +1,11 @@
 # Aware filesystem workflow
 
-Refusal-evidence software was published at
-[`afa2d7116a296b5585ed7acac158eede2c447d5b`](https://github.com/aware-network/aware/blob/afa2d7116a296b5585ed7acac158eede2c447d5b/protocols/WORKFLOW.md).
-One 42-package installation composes original Issue, Protocol, SPEC and bounded
-Workspace review owners. Agent 0.2.0a9 uses Workspace SDK/runtime/FS
+Prepared, unselected Agent human-evidence successor; instructions remain draft.
+Agent 0.2.0a10 composes the original Issue, Protocol, SPEC and reviewed Workspace
+owners in one 42-package installation. Workspace SDK/runtime/FS remain
 0.2.11/0.2.16/0.1.10, FileSystem 0.3.8 and Issue SDK 0.10.6.
-The delivered predecessor remains unchanged. See
-[status and instruction review provenance](../releases/canonical-refusal-successor-fs-v1/PUBLIC-STATUS.md)
-for this review checkpoint, separate from delivered software. Delivery does not
-establish unassisted successor onboarding or an aggregate PASS.
+The delivered refusal predecessor and its selection remain unchanged. This
+private proposal is not public availability or unassisted onboarding proof.
 
 ## Install with the complete envelope
 
@@ -417,15 +414,20 @@ cleanup and uncertainty when handing the summary to another execution.
 
 ## Workspace A1 with two explicit reviews
 
-Use [the reviewed repository-manifest guide](workspace/REVIEWED-SETUP.md).
+Follow [the reviewed repository-manifest guide](workspace/REVIEWED-SETUP.md).
 Init supplies configuration, not Issue admission, scope approval or apply
-authority. Review complete physical scope, explicitly bind it, then separately
-review final files before explicit apply. Original SDK references and guards
-remain unchanged; missing inputs stop, stale requests never refresh or retry.
+authority. Accept complete physical scope explicitly, then separately review
+final files before explicit apply. Original SDK references and guards remain
+unchanged; missing inputs stop and stale requests never refresh or retry.
 
-Read the primary refusal separately from evidence retention and client cleanup.
-Clean stale Issue/authority refusals exit 2; genuine spent-reference incompleteness
-remains 3. Interruption remains 130. Original release unknown alone does not
-force a nonzero exit or become known after client cleanup. Preserve all effects.
-Carried capabilities do not admit A2, tree completion, services, objects,
-materialization or native performance. Read [the entrance](../README.md).
+Human output separates what happened, what changed, what remains uncertain,
+what next (guidance, not authority) and where full evidence is retained.
+Known applied Issue scope stays applied despite later capture failure; manifest
+apply is separate. show reads historical reviews only; evidence reads supported
+retained refusals/outcomes. Reading does not restore current-use authority.
+Original release unknown remains unknown after client cleanup. Clean stale
+refusals exit 2; genuine incompleteness remains 3; interruption remains 130.
+
+Carried code does not admit A2/tree completion, services, objects,
+materialization, Project/Goal workflows or broader native performance.
+Read [the entrance](../README.md) and retain complete source/notice carriage.

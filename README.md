@@ -9,13 +9,13 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-The refusal-evidence software was published at
-[`afa2d7116a296b5585ed7acac158eede2c447d5b`](https://github.com/aware-network/aware/tree/afa2d7116a296b5585ed7acac158eede2c447d5b).
-The [delivery pointer](releases/SELECTED.json) binds its exact whole envelope.
-[Status and review provenance](releases/canonical-refusal-successor-fs-v1/PUBLIC-STATUS.md)
-distinguish that delivered software from this instruction review checkpoint;
-neither selects work or grants operation authority. Do not overlay installations
-or migrate contributor commands.
+This is a **prepared, unselected Agent human-evidence successor** using Agent
+**0.2.0a10**. Instructions remain draft. The unchanged
+[delivery pointer](releases/SELECTED.json) still selects the
+[delivered refusal predecessor](releases/canonical-refusal-successor-fs-v1/README.md).
+This private proposal is not public availability. Integration, selection,
+instruction freeze and publication remain separate gates. Do not overlay
+installations or migrate contributor commands.
 
 ## Keep source-checkout and customer instructions separate
 
@@ -42,7 +42,7 @@ distinct. This filesystem composition starts no service.
 ## Inspect terms and install once
 
 Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Read
-[complete distribution terms and source](releases/canonical-refusal-successor-fs-v1/README.md)
+[complete distribution terms and source](releases/canonical-human-evidence-fs-v1/README.md)
 before installation. Keep the entire envelope: terms, sources, corresponding
 source, component evidence and raw audit. Six detached-wheel legal gaps remain
 unrepaired; wheel-only acquisition, stripped bundles and registry publication
@@ -129,13 +129,22 @@ reads full evidence or validated summaries without replay or renewed authority.
 
 ## Read the result honestly
 
-Reviewed Workspace summaries separate final files, complete effect scope,
-original admission/release and client cleanup. Original release uncertainty
+Reviewed Workspace summaries answer five questions: **What happened**,
+**What changed**, **What remains uncertain**, **What next (guidance, not authority)**
+and **Where is full evidence**. The original Issue scope mutation outcome is
+separate from retained evidence and later manifest apply. A known applied scope
+stays applied even if its capture fails; non-success is not rollback or permission
+to repeat scope. Summaries retain final files, complete effect scope, original
+admission/release and independent client cleanup. Original release uncertainty
 remains unknown after later client cleanup succeeds. Clean stale Issue/authority refusals exit 2 with original typed evidence.
 Spent-reference incompleteness remains 3; interruptions remain 130. Original
 release unknown alone does not force non-success. Incomplete current retention
 or output does not erase completed effects or authorize redispatch. Preserve the
-full evidence; use `show --json` or `evidence` when concise output is insufficient.
+full evidence. `show` accepts historical review records only; use `show --json`
+for their complete record. `evidence` reads supported retained refusals/outcomes
+using the same explicit roots and exact SDK reference. A reference container kind
+is not necessarily the schema of the captured command bytes. A missing reference
+must not be invented; incomplete retention can leave only earlier evidence.
 
 This successor has a bounded scripted installed proof, not unassisted onboarding
 or the historical 2,819-case aggregate. Carried code, help and scripts do not

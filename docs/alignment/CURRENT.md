@@ -1,17 +1,14 @@
 # Current collaboration alignment
 
-[One installed entrance](../../README.md) composes original SDK owners.
-Coherence is shared rules, bounded work and recoverable evidence, not speed or
-conflict-free swarms. Issue → optional SPEC → bounded work is the current cut.
-Readable guidance, tooling, configuration, admission and service startup differ.
+[One installed entrance](../../README.md) composes the original SDK owners.
+Coherence means shared rules, bounded work and recoverable evidence, not speed
+or conflict-free swarms. Issue, optional SPEC and bounded work is today's cut.
+Guidance, tooling, configuration, admission and service startup are distinct.
 This filesystem route starts no service; deltas are evidence, not inferred meaning.
 
-The refusal successor's software was published at
-[`afa2d7116a296b5585ed7acac158eede2c447d5b`](https://github.com/aware-network/aware/tree/afa2d7116a296b5585ed7acac158eede2c447d5b).
-[Status and review provenance](../../releases/canonical-refusal-successor-fs-v1/PUBLIC-STATUS.md)
-distinguish that delivery from this instruction review checkpoint. Both review
-decisions remain explicit. Primary refusal, retention and client cleanup stay
+The human-evidence successor is prepared and unselected; instructions are draft.
+Both review decisions remain explicit. Known effects, retention and cleanup stay
 separate; no retry or guard refresh follows. Contributor selection is unchanged.
-[Whole-envelope carriage](../../releases/canonical-refusal-successor-fs-v1/README.md) remains mandatory.
-Project/Goal elevation, A2/tree, Meta/Object, service and materialization joins
-are separately qualified. Frozen external U/V/R is not rewritten by this layout.
+[Whole-envelope carriage](../../releases/canonical-human-evidence-fs-v1/README.md) remains mandatory.
+Project/Goal, A2/tree, Meta/Object, services and materialization are separate.
+Frozen evaluations are not rewritten by this layout.

@@ -1,6 +1,6 @@
 # Neutral Agent CLI composition
 
-Source preview **0.2.0a8** supplies one `aware` entrance over the accepted family
+The source composition supplies one `aware` entrance over the accepted family
 registrars and Kernel's command runtime. It is a composition library with a CLI
 entrypoint, not a new Agent SDK, evaluator or authority provider.
 
@@ -236,11 +236,11 @@ root is distinct from package ownership; no executable is inferred or downloaded
 by Agent. The original operation preserves completed failures and uncertain
 post-effect evidence; inspect it before considering any new operation.
 
-Agent 0.2.0a7 requires Workspace SDK
-`[preparation,setup,setup_admission,setup_review]>=0.2.10,<0.3.0`, Runtime
-`[setup_admission,setup_review]>=0.2.15,<0.3.0` and Issue SDK
+The accepted Agent 0.2.0a9 baseline requires Workspace SDK
+`[preparation,setup,setup_admission,setup_review]>=0.2.11,<0.3.0`, Runtime
+`[setup_admission,setup_review]>=0.2.16,<0.3.0` and Issue SDK
 `[workspace_setup_admission]>=0.10.6,<0.11.0`. The supplier extras select
-Workspace FS adapter 0.1.9 and FileSystem >=0.3.8,<0.4.0. No Service extra is
+Workspace FS adapter 0.1.10 and FileSystem >=0.3.8,<0.4.0. No Service extra is
 added. Missing ports refuse without provider/environment fallback. This source
 cut does not qualify wheels, update shared locks or replace an installed client.
 
@@ -310,8 +310,10 @@ one original driver call and obtains genuine Issue admission. Staleness means
 stop and deliberately prepare/review again; no automatic refresh, retry,
 scope repair or partial-plan apply. Success does not commit or close the Issue.
 
-Default output is a concise presentation with the owner result, both path sets,
-evidence reference and client-cleanup status. Original Workspace release,
+Human output answers what happened, what changed, what remains uncertain,
+what is the next observation/explicit decision, and where full evidence lives.
+Guidance describes existing SDK requirements; it grants no action or retry.
+Both path sets and the exact evidence reference remain available. Original Workspace release,
 effect and durability qualifications are shown separately: later complete
 client cleanup does not turn an original `release=unknown` into confirmation.
 Human paths and request coordinates use quoted, escaped ASCII display; the
@@ -320,15 +322,37 @@ explicitly truncated; use `show --json` to inspect all reviewed inputs before de
 `--json` returns the separate Agent presentation envelope containing the original
 SDK projections and receipts; it does not change full command JSON v1.
 
-`review show --reference "$reference"` reads historical review data without
-granting current use. A different execution must obtain its own admission and
-fresh reviews after lawful transfer. `review evidence --reference "$reference"`
-returns the original UTF-8 capture bytes unchanged on stdout, with independent
-client cleanup on stderr. Both commands require the same explicit roots.
+`show` accepts a historical **review-record** reference only, without granting
+current use. A different execution must obtain its own admission and fresh
+reviews after lawful transfer. Refusals and outcomes use `evidence`, not `show`:
+
+```bash
+aware workspace review show \
+  --repository-root "$repository_root" --evidence-root "$evidence_root" \
+  --reference "$review_record_reference"
+
+aware workspace review evidence \
+  --repository-root "$repository_root" --evidence-root "$evidence_root" \
+  --reference "$exact_sdk_evidence_reference"
+```
+
+`evidence` returns original UTF-8 bytes unchanged on stdout, with independent
+client cleanup JSON on stderr. `record_contract` identifies the authenticated
+container; returned bytes may be its original captured command, not that
+container's schema. Both commands require the same explicit roots and exact
+SDK-issued reference. Wrong-kind `show` still preserves its actual failure,
+retention uncertainty and exit outcome; a reader hint does not clear them.
 No Agent file reader, record writer, private plan access or decoder is involved.
 
-If retention is incomplete after an effect, output falls back to full available
-evidence rather than presenting an unsupported concise success. Exit 0 is
+For incomplete retention/cleanup, the human explanation goes to stderr and
+**full available JSON remains on stdout in the same invocation**. This does
+not promise that the current failure/cleanup was durably captured: a returned
+reference may name earlier evidence, or no reference may have been returned.
+Do not repeat a mutating command with `--json` to recreate lost output.
+The streams are attempted independently once; failure of the explanation
+channel cannot suppress the attempted full output. `--json` remains the exact
+Agent envelope with no added explanation, and raw `evidence` output is unchanged.
+Exit 0 is
 completed action/read, 2 refusal, 3 incomplete retention/cleanup/output, and 130
 an interruption (with incomplete status when retention is incomplete).
 Successful effects and complete client cleanup do not erase incomplete retention.
@@ -343,6 +367,9 @@ denial, original reads, phase, reference, retention and independent cleanup.
 Human output separates these results. A fully retained denial with complete
 cleanup remains a refusal, exit 2; this is not a blanket remapping of exit 3.
 Spent physical sequences, uncertain capture and unknown cleanup stay incomplete.
+A generic physical refusal such as `sequence_request_baseline_changed` does not
+by itself prove a spent-reuse cause or rollback of earlier effects. Explain
+the original reason narrowly; do not infer a causal classification from prose.
 
 A `SetupRefusalRecord` reference is evidence only, not a review, decision or
 admission. Inspect it through `review evidence`; never submit it to scope/apply
@@ -358,3 +385,4 @@ or authority is created. Original full command JSON v1 stays unchanged.
 
 This source cut still needs independently accepted successor versions/artifacts
 and joined installed qualification; existing public installations are unchanged.
+It does not rebuild the immutable 0.2.0a9 artifacts under their existing identity.

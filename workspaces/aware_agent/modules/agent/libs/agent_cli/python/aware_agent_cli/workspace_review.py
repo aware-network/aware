@@ -33,7 +33,21 @@ def register_workspace_review_command(registry: AwareCommandRegistry) -> None:
 def _configure(parser: argparse.ArgumentParser) -> None:
     actions = parser.add_subparsers(dest="review_action", required=True)
     for name in ("prepare", "show", "scope", "apply", "evidence"):
-        action = actions.add_parser(name)
+        descriptions = {
+            "show": (
+                "Read a historical SetupReviewRecord only; no current-use authority. "
+                "For retained refusals, outcomes or other evidence kinds, use "
+                "aware workspace review evidence with the same explicit roots and exact reference."
+            ),
+            "evidence": (
+                "Read original retained evidence using its exact SDK reference, "
+                "including refusals and outcomes. Returned bytes may be the original "
+                "command capture, not the reference container's schema. Read-only; "
+                "does not renew admission or a decision."
+            ),
+        }
+        description = descriptions.get(name)
+        action = actions.add_parser(name, help=description, description=description)
         action.add_argument("--repository-root", required=True, type=Path)
         action.add_argument("--evidence-root", required=True, type=Path)
         action.add_argument("--json", action="store_true")
@@ -500,8 +514,93 @@ def _terminal_text(value: str) -> str:
     return json.dumps(value, ensure_ascii=True)
 
 
+def _completion_text(value: Any) -> str:
+    return (
+        "true"
+        if value is True
+        else "false"
+        if value is False
+        else "unknown/not returned"
+    )
+
+
+def _retention_summary(label: str, carrier: dict[str, Any]) -> str:
+    retention = (carrier.get("retention") or {}).get("value") or {}
+    return (
+        label
+        + ": "
+        + _terminal_text(retention.get("status") or "unknown")
+        + "; ledger complete: "
+        + _completion_text(retention.get("ledger_complete"))
+    )
+
+
+def _next_observation(payload: dict[str, Any]) -> str:
+    """Descriptive guidance from existing owner fields, never a next-action grant."""
+    failure = payload.get("error") or {}
+    if failure.get("code") == "original_review_record_required":
+        return (
+            "Use aware workspace review evidence for this record kind, with the "
+            "same explicit roots and exact SDK reference. This read does not "
+            "clear retention/cleanup uncertainty or authorize mutation."
+        )
+    if _incomplete_owner_evidence(payload) or payload.get("cleanup_error"):
+        return (
+            "Stop before further mutation; inspect this invocation's full values "
+            "and any verified earlier evidence. Do not repeat scope/apply or "
+            "refresh guards to recover output. No cleanup outcome is promised."
+        )
+    if payload.get("purpose") == "history":
+        return (
+            "Observe history only. Any current mutation needs its own valid "
+            "admission and fresh explicit reviews; history is not a decision."
+        )
+    if failure.get("refusal") is not None and failure.get("code") in (
+        "review_issue_changed",
+        "review_authority_sources_changed",
+    ):
+        return (
+            "Inspect the original refusal first. If you choose a new operation, "
+            "explicitly prepare and review again; do not repair or refresh an "
+            "old request automatically."
+        )
+    if failure:
+        return "Inspect the original failure evidence before any further mutation; its reason alone grants no retry or fresh-operation authority."
+    result = (payload.get("result") or {}).get("value") or {}
+    if payload.get("ready_for_decision"):
+        if result.get("decision_required") == "scope_review":
+            return (
+                "Review the proposed physical Issue scope. A scope request needs "
+                "--accept-reviewed-effect-scope and original SDK validation."
+            )
+        if result.get("decision_required") == "apply_review":
+            return (
+                "Review the second preview and final files. An apply request needs "
+                "--accept-reviewed-final-files and original SDK validation."
+            )
+    if result.get("product_status") == "apply_completed":
+        return (
+            "Observe the original outcome; do not repeat a completed apply to "
+            "recreate its receipt. Issue publication/closeout remain separate."
+        )
+    return "Inspect the original evidence before choosing another operation; no mutation is authorized by this explanation."
+
+
 def _summary(payload: dict[str, Any]) -> str:
     lines = [f"Workspace review {payload['action']}: {payload['status']}"]
+    failure = payload.get("error") or {}
+    scope = payload.get("scope_completion") or failure.get("scope_completion")
+    lines.append("What happened:")
+    lines.append(
+        "Agent stage: " + _terminal_text(payload.get("stage", "unknown/not returned"))
+    )
+    if failure:
+        lines.append(
+            "Primary failure: "
+            + _terminal_text(failure.get("code", failure.get("error_type", "unknown")))
+        )
+        if "phase" in failure:
+            lines.append("Owner phase: " + _terminal_text(failure["phase"]))
     if payload.get("purpose") == "history":
         lines.append("Historical review only; this read grants no current admission.")
     if "result" in payload:
@@ -512,32 +611,72 @@ def _summary(payload: dict[str, Any]) -> str:
                 f"Decision required: {result['decision_required']}",
             )
         )
-    if "scope_completion" in payload:
-        completion = payload["scope_completion"]
-        lines.append("Issue scope outcome: " + completion["status"])
-    if "error" in payload:
-        outcome = payload.get("outcome") or payload["error"].get("outcome")
+    if scope is not None:
+        lines.append(
+            "Issue scope completion status: " + _terminal_text(scope["status"])
+        )
+    if failure:
+        outcome = payload.get("outcome") or failure.get("outcome")
         if outcome is not None:
             lines.append(
-                "Original product outcome retained: " + outcome["product_status"]
+                "Original product outcome returned: " + outcome["product_status"]
             )
-    outcome = payload.get("outcome") or payload.get("error", {}).get("outcome")
-    original = None if outcome is None else outcome["original_evidence"]
-    if original is not None and original["workspace_result"] is not None:
+    outcome = payload.get("outcome") or failure.get("outcome")
+    original = None if outcome is None else outcome.get("original_evidence")
+    lines.append("What changed:")
+    if scope is not None:
+        original_scope = scope.get("original_outcome") or {}
+        lines.append(
+            "Original Issue scope mutation outcome: "
+            + _terminal_text(original_scope.get("outcome", "unknown/not returned"))
+        )
+        if payload["action"] == "scope":
+            lines.append(
+                "Manifest apply is a separate operation; this scope action does not invoke it."
+            )
+    workspace = None
+    if original is not None and original.get("workspace_result") is not None:
         workspace = original["workspace_result"]["value"]
         effects = sorted(
             {effect["value"]["effect_state"] for effect in workspace["effects"]}
         )
+        paths = sorted(
+            {effect["value"]["primary_path"] for effect in workspace["effects"]}
+        )
         lines.extend(
             (
-                "Original Workspace release: " + _terminal_text(workspace["release"]),
                 "Original physical effect states: "
                 + ", ".join(map(_terminal_text, effects)),
+                "Owner-observed effect paths: "
+                + ", ".join(map(_terminal_text, paths[:8])),
                 "Original Workspace durability: "
                 + _terminal_text(workspace["durability"]),
                 f"Original remaining effects: {len(workspace['remaining_effects'])}; scratch residue: {len(workspace['scratch_residue'])}",
-                "Later client cleanup does not change these original qualifications; inspect full evidence for details.",
             )
+        )
+        if len(paths) > 8:
+            lines.append(
+                "Additional effect paths omitted; full original evidence remains required."
+            )
+    elif failure.get("refusal") is not None:
+        refusal = failure["refusal"]["value"]
+        lines.append(
+            "Product dispatch for this refused action: "
+            + _terminal_text(refusal["product_dispatch"])
+            + ". This does not describe historical effects or evidence writes."
+        )
+    else:
+        lines.append(
+            "Workspace manifest-apply effect observations not returned here; absence is not proof of no other effects."
+            if scope is not None
+            else "Product-effect observations not returned here; absence is not proof of no effects."
+        )
+    if (failure.get("retention") or {}).get("value", {}).get(
+        "physical_refusal"
+    ) is not None:
+        lines.append(
+            "Original physical refusal evidence is present. Its code alone does "
+            "not prove spent-reuse causality or rollback of earlier effects."
         )
     if "review" in payload:
         record = payload["review"]["value"]
@@ -546,6 +685,7 @@ def _summary(payload: dict[str, Any]) -> str:
         architecture = request["architecture_request"]["value"]
         lines.extend(
             (
+                "Reviewed proposal/context, not a claim these paths were applied:",
                 f"Request: repository {_terminal_text(architecture['name'])}; license {_terminal_text(architecture['license_expression'])}",
                 f"Issue: {_terminal_text(target['issue_tag'])} at {_terminal_text(target['issue_path'])}",
                 f"Authority manifest: {_terminal_text(target['authority_manifest_locator'])}",
@@ -569,55 +709,78 @@ def _summary(payload: dict[str, Any]) -> str:
             lines.append(
                 "Not ready for a decision; inspect the retained diagnostics. Do not retry automatically."
             )
-    if "reference" in payload:
+    lines.append("What remains uncertain:")
+    if workspace is not None:
         lines.append(
-            (
-                "Owner reference (evidence only, not a review or admission): "
-                if payload.get("error", {}).get("refusal") is not None
-                else "Reference (exact SDK JSON, reuse unchanged): "
-            )
-            + json.dumps(payload["reference"], sort_keys=True, separators=(",", ":"))
+            "Original Workspace release: "
+            + _terminal_text(workspace.get("release", "unknown"))
         )
-    if "error" in payload:
-        failure = payload["error"]
         lines.append(
-            "Primary failure: "
-            + _terminal_text(failure.get("code", failure["error_type"]))
+            "Later client cleanup does not change these original qualifications; inspect full evidence for details."
         )
-        if "phase" in failure:
-            lines.append("Owner phase: " + _terminal_text(failure["phase"]))
-        if "retention" in failure:
-            retention = failure["retention"]["value"]
-            lines.append(
-                "Evidence retention: "
-                + _terminal_text(retention["status"])
-                + "; ledger complete: "
-                + str(retention["ledger_complete"]).lower()
-            )
-        if failure.get("refusal") is not None:
-            refusal = failure["refusal"]["value"]
-            lines.append(
-                "Product dispatch for this refused action: "
-                + _terminal_text(refusal["product_dispatch"])
-                + ". This does not describe historical effects or evidence writes."
-            )
+    else:
+        lines.append("Original Workspace release: unknown/not returned here.")
+    if outcome is not None:
+        lines.append(_retention_summary("Outcome evidence retention", outcome))
+    if scope is not None:
+        lines.append(_retention_summary("Issue scope evidence retention", scope))
+    if failure:
+        lines.append(_retention_summary("Evidence retention", failure))
         if failure.get("cleanup") is not None:
             lines.append(
                 "Original owner cleanup complete: "
-                + str(failure["cleanup"]["value"]["ledger_complete"]).lower()
+                + _completion_text(failure["cleanup"]["value"].get("ledger_complete"))
             )
         if "retention_error" in failure:
             lines.append(
                 "Independent retention error: "
                 + _terminal_text(failure["retention_error"]["error_type"])
             )
-    if "client_cleanup" in payload:
+    if payload.get("client_cleanup") is not None:
         lines.append(
             "Client cleanup complete: "
-            + str(payload["client_cleanup"]["value"]["ledger_complete"]).lower()
+            + _completion_text(
+                payload["client_cleanup"]["value"].get("ledger_complete")
+            )
+        )
+    else:
+        lines.append("Client cleanup complete: unknown/not returned.")
+    if payload.get("cleanup_error"):
+        cleanup_error = payload["cleanup_error"]
+        lines.append(
+            "Independent client cleanup failure: "
+            + _terminal_text(
+                cleanup_error.get("code", cleanup_error.get("error_type", "unknown"))
+            )
+        )
+    lines.append("What next (guidance, not authority): " + _next_observation(payload))
+    lines.append("Where is full evidence:")
+    reference = payload.get("reference")
+    if reference is not None:
+        kind = reference["value"].get("record_contract", "unknown")
+        retention = (failure.get("retention") or {}).get("value", {})
+        if failure and retention.get("status") in ("incomplete", "unknown"):
+            label = "Returned reference (may identify earlier evidence; current failure capture not confirmed): "
+        elif failure.get("refusal") is not None:
+            label = "Owner reference (evidence only, not a review or admission): "
+        else:
+            label = "Reference (exact SDK JSON, reuse unchanged): "
+        lines.append(
+            label + json.dumps(reference, sort_keys=True, separators=(",", ":"))
+        )
+        lines.append("Reference container kind: " + _terminal_text(kind))
+        lines.append(
+            "Full retained bytes: aware workspace review evidence --repository-root "
+            "<same explicit root> --evidence-root <same explicit evidence root> "
+            "--reference <exact SDK JSON>. The bytes may be an original command "
+            "capture, not the container schema; the reference is not mutation authority."
+        )
+    else:
+        lines.append(
+            "No SDK evidence reference was returned here. Do not invent one or redispatch to manufacture a receipt."
         )
     lines.append(
-        "No automatic retry or guard refresh. Full retained bytes: review evidence --reference <SDK JSON>."
+        "No automatic retry or guard refresh. show accepts historical review records only; evidence reads retained refusals/outcomes and other supported kinds."
     )
     return "\n".join(lines)
 
@@ -663,10 +826,33 @@ def _handle(invocation: AwareCommandInvocation) -> int:
                     and not failed_retention.get("ledger_complete")
                 )
             )
+            unavailable_capture = unavailable_capture or _incomplete_owner_evidence(
+                payload
+            )
+            if unavailable_capture and not invocation.args.json:
+                failed = False
+                # Each stream gets one independent attempt. A summary-channel
+                # failure must not suppress the available original full values.
+                try:
+                    print(
+                        f"Operation exit before reporting: {code}\n"
+                        + _summary(payload)
+                        + "\nFull available values for this invocation follow on stdout. "
+                        "An earlier reference need not contain this failure/cleanup; "
+                        "do not repeat the operation with --json to recover it.",
+                        file=sys.stderr,
+                    )
+                except (OSError, UnicodeError):
+                    failed = True
+                try:
+                    print(json.dumps(payload, sort_keys=True))
+                except (OSError, UnicodeError):
+                    failed = True
+                return 130 if code == 130 else 3 if failed else code
             print(
                 json.dumps(payload, sort_keys=True)
-                if invocation.args.json or unavailable_capture
-                else _summary(payload)
+                if invocation.args.json
+                else f"Operation exit before reporting: {code}\n" + _summary(payload)
             )
     except (OSError, UnicodeError):
         # Output failure cannot erase interruption or cause redispatch/cleanup.

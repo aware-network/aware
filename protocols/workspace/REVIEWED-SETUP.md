@@ -1,12 +1,12 @@
 # Reviewed repository setup
 
-The refusal successor's software was published at
-[`afa2d7116a296b5585ed7acac158eede2c447d5b`](https://github.com/aware-network/aware/blob/afa2d7116a296b5585ed7acac158eede2c447d5b/protocols/workspace/REVIEWED-SETUP.md).
+This is a prepared, unselected Agent 0.2.0a10 human-evidence successor.
+Instructions remain draft; this private proposal is not public availability.
 It uses `aware workspace review` for one bounded A1 task: creating `aware.repo.toml`
 through the original Workspace, FileSystem and Issue owners. Start with
 [the entrance](../../README.md) and [first Issue](../issues/FIRST-ISSUE.md);
-[status provenance](../../releases/canonical-refusal-successor-fs-v1/PUBLIC-STATUS.md)
-identifies this instruction review checkpoint. This is not package creation,
+[qualification bounds](../../releases/canonical-human-evidence-fs-v1/REVIEW-STATUS.md)
+identify the exact prepared candidate. This is not package creation,
 application implementation, A2 or tree completion.
 
 ## Inputs and configuration
@@ -127,10 +127,27 @@ requires an explicit preparation/review decision, never automatic refresh/retry.
 
 ## Inspect evidence without replay
 
-Use `show` for historical review and `show --json` for the complete SDK record.
-Use `evidence` with its exact returned reference to emit original UTF-8 capture
-bytes; independent client cleanup is reported separately. Historical reading
-does not restore current-use authority or repeat an operation.
+Human summaries answer **What happened**, **What changed**,
+**What remains uncertain**, **What next (guidance, not authority)** and
+**Where is full evidence**. Read each separately. The original Issue scope
+mutation outcome is not its retention status or a later manifest-apply result.
+A known applied scope stays applied when capture fails; a missing observation
+is not proof of no effects. Scope completion followed by failed retention or a
+second-preview failure never authorizes repeating scope.
+
+Use `show` only for historical review records and `show --json` for their
+complete SDK record. It is not a generic receipt reader. For supported retained
+refusals, outcomes and other evidence kinds use `evidence`, with the same explicit
+repository/evidence roots and exact returned reference. It emits original UTF-8
+capture bytes; independent client cleanup is reported separately. The reference
+container kind is not necessarily the schema of the captured bytes.
+Historical reading does not restore current-use authority or repeat an operation.
+
+If no SDK evidence reference is returned, keep available full JSON and original
+evidence; do not invent a reference or redispatch to manufacture a receipt.
+With incomplete retention a returned reference may name earlier evidence, not
+a complete capture of the current failure. Human explanation failure preserves
+full JSON when available and the original non-success/interruption exit.
 
 Keep both review references and all original effect/cleanup receipts. Original
 release uncertainty remains unknown even if later client cleanup completes.

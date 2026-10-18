@@ -1328,6 +1328,417 @@ def test_terminal_failure_preserves_interruption_without_repeating_owner_calls(
     assert not (root / "aware.repo.toml").exists()
 
 
+HUMAN_ANSWERS = (
+    "What happened:",
+    "What changed:",
+    "What remains uncertain:",
+    "What next (guidance, not authority):",
+    "Where is full evidence:",
+)
+
+
+@pytest.mark.parametrize("interrupt", [False, True])
+def test_scope_capture_failure_human_keeps_original_mutation(
+    repository, capsys, monkeypatch, interrupt
+):
+    from aware_agent_cli import workspace_review
+    from aware_issue_sdk.operation import IssueSdkOperationClient
+    from aware_workspace_fs_adapter.architecture_setup_review import (
+        FilesystemSetupReview,
+    )
+    from aware_workspace_runtime.architecture_setup_review import (
+        WorkspaceSetupReviewRuntime,
+    )
+
+    first = prepare(repository, capsys)
+    original_scope = IssueSdkOperationClient.bind_issue_scope_paths
+    original_capture = FilesystemSetupReview.write_capture
+    original_release = WorkspaceSetupReviewClient.release_client
+    original_payload = workspace_review.review_payload
+    calls, observed = [], []
+
+    def scope(owner, inputs, **kwargs):
+        calls.append("scope")
+        return original_scope(owner, inputs, **kwargs)
+
+    def capture(owner, raw, **kwargs):
+        if kwargs.get("kind") == "issue_result_v1":
+            calls.append("capture")
+            if interrupt:
+                raise KeyboardInterrupt("capture interrupted after Issue scope")
+            raise OSError("capture failed after Issue scope")
+        return original_capture(owner, raw, **kwargs)
+
+    def release(owner):
+        calls.append("release")
+        return original_release(owner)
+
+    def driver(*args, **kwargs):
+        calls.append("manifest_apply")
+        raise AssertionError("scope must not invoke manifest apply")
+
+    def observe(args):
+        result = original_payload(args)
+        observed.append(result)
+        return result
+
+    monkeypatch.setattr(IssueSdkOperationClient, "bind_issue_scope_paths", scope)
+    monkeypatch.setattr(FilesystemSetupReview, "write_capture", capture)
+    monkeypatch.setattr(WorkspaceSetupReviewClient, "release_client", release)
+    monkeypatch.setattr(WorkspaceSetupReviewRuntime, "_run_driver", driver)
+    monkeypatch.setattr(workspace_review, "review_payload", observe)
+    before = (repository[0] / ISSUE).read_bytes()
+    code = client.main(
+        [
+            "workspace",
+            "review",
+            "scope",
+            "--repository-root",
+            str(repository[0]),
+            "--evidence-root",
+            str(repository[1]),
+            "--reference",
+            reference(first),
+            "--client-intent-id",
+            "known-scope-capture-failure",
+            "--accept-reviewed-effect-scope",
+        ]
+    )
+    output = capsys.readouterr()
+    assert code == (130 if interrupt else 3)
+    assert calls == ["scope", "capture", "release"] and len(observed) == 1
+    payload = observed[0][0]
+    assert output.out == json.dumps(payload, sort_keys=True) + "\n"
+    completion = payload.get("scope_completion") or payload["error"]["scope_completion"]
+    assert completion["status"] == "incomplete"
+    assert completion["original_outcome"]["outcome"] == "applied"
+    changed = output.err.split("What changed:", 1)[1].split(
+        "What remains uncertain:", 1
+    )[0]
+    assert 'Original Issue scope mutation outcome: "applied"' in changed
+    assert "this scope action does not invoke it" in changed
+    assert "Product-effect observations not returned here" not in changed
+    assert 'Issue scope evidence retention: "incomplete"' in output.err
+    assert before != (repository[0] / ISSUE).read_bytes()
+    assert not (repository[0] / "aware.repo.toml").exists()
+
+
+@pytest.mark.parametrize("carrier", ["payload", "error"])
+@pytest.mark.parametrize("known", [False, True])
+def test_scope_summary_reads_both_carriers_without_upgrading_unknowns(carrier, known):
+    import copy
+
+    from aware_agent_cli.workspace_review import _summary
+
+    completion = {
+        "status": "incomplete",
+        "original_outcome": {"outcome": "applied"}
+        if known
+        else {"value": {"dispatch": "unknown"}},
+        "retention": {"value": {"status": "incomplete", "ledger_complete": False}},
+    }
+    payload = {
+        "action": "scope",
+        "status": "incomplete",
+        "stage": "scope_retention",
+        "error": {"error_type": "OSError"},
+    }
+    (payload if carrier == "payload" else payload["error"])["scope_completion"] = (
+        completion
+    )
+    before = copy.deepcopy(payload)
+    output = _summary(payload)
+    changed = output.split("What changed:", 1)[1].split("What remains uncertain:", 1)[0]
+    expected = '"applied"' if known else '"unknown/not returned"'
+    assert "Original Issue scope mutation outcome: " + expected in changed
+    assert "Client cleanup complete: unknown/not returned" in output
+    assert "Original Workspace release: unknown/not returned here" in output
+    assert (
+        'Issue scope evidence retention: "incomplete"; ledger complete: false' in output
+    )
+    assert 'mutation outcome: "applied"' not in output or known
+    assert payload == before
+
+
+@pytest.mark.parametrize(
+    "action,required",
+    [
+        (None, "historical SetupReviewRecord"),
+        ("show", "no current-use authority"),
+        ("evidence", "container's schema"),
+    ],
+)
+def test_reader_help_describes_kinds_without_new_commands(capsys, action, required):
+    argv = ["workspace", "review"] + ([] if action is None else [action]) + ["--help"]
+    with pytest.raises(SystemExit) as exit:
+        client.main(argv)
+    assert exit.value.code == 0
+    output = capsys.readouterr()
+    assert required in " ".join(output.out.split()) and not output.err
+    assert "evidence" in output.out or action == "evidence"
+
+
+@pytest.mark.parametrize("drift", ["issue", "manifest"])
+def test_clean_human_refusal_answers_five_questions_without_side_effects(
+    repository, capsys, monkeypatch, drift
+):
+    _, argv = stale_refusal_arguments(repository, capsys, monkeypatch, drift, "read")
+    before = (
+        (repository[0] / ISSUE).read_bytes(),
+        (repository[0] / "foreign.py").read_bytes(),
+    )
+    assert client.main(argv) == 2
+    output = capsys.readouterr()
+    assert all(label in output.out for label in HUMAN_ANSWERS) and not output.err
+    assert "Operation exit before reporting: 2" in output.out
+    assert "explicitly prepare and review again" in output.out
+    assert "aware workspace review evidence --repository-root" in output.out
+    assert "reference is not mutation authority" in output.out
+    assert before == (
+        (repository[0] / ISSUE).read_bytes(),
+        (repository[0] / "foreign.py").read_bytes(),
+    )
+
+
+@pytest.mark.parametrize("interrupt", [False, True])
+@pytest.mark.parametrize("json_mode", [False, True])
+def test_incomplete_human_explanation_preserves_exact_full_json_and_prefix(
+    repository, capsys, monkeypatch, interrupt, json_mode
+):
+    from aware_agent_cli import workspace_review
+    from aware_workspace_fs_adapter.architecture_setup_review import (
+        FilesystemSetupReview,
+    )
+
+    _, argv = stale_refusal_arguments(repository, capsys, monkeypatch, "issue", "read")
+    dispatch, release = (
+        workspace_review.review_payload,
+        WorkspaceSetupReviewClient.release_client,
+    )
+    seen, writes, cleanups = [], [], []
+
+    def write(*args, **kwargs):
+        writes.append(True)
+        if interrupt:
+            raise KeyboardInterrupt("capture interrupted")
+        raise OSError("capture unavailable")
+
+    def observe(args):
+        result = dispatch(args)
+        seen.append(result)
+        return result
+
+    def cleanup(owner):
+        result = release(owner)
+        cleanups.append(result)
+        return result
+
+    monkeypatch.setattr(FilesystemSetupReview, "write_metadata", write)
+    monkeypatch.setattr(workspace_review, "review_payload", observe)
+    monkeypatch.setattr(WorkspaceSetupReviewClient, "release_client", cleanup)
+    assert client.main(argv + (["--json"] if json_mode else [])) == (
+        130 if interrupt else 3
+    )
+    output = capsys.readouterr()
+    assert len(seen) == len(writes) == len(cleanups) == 1
+    payload = seen[0][0]
+    assert output.out == json.dumps(payload, sort_keys=True) + "\n"
+    assert payload["error"]["code"] == "review_issue_changed"
+    assert payload["status"] == "incomplete" and not payload["authorizes_retry"]
+    assert not payload["error"]["retention"]["value"]["ledger_complete"]
+    if json_mode:
+        assert not output.err  # No new metadata, framing or side channel in JSON mode.
+    else:
+        assert all(label in output.err for label in HUMAN_ANSWERS)
+        assert "current failure capture not confirmed" in output.err
+        assert (
+            "Full available values for this invocation follow on stdout" in output.err
+        )
+        assert "do not repeat the operation with --json" in output.err
+        assert "Stop before further mutation" in output.err
+        assert f"Operation exit before reporting: {seen[0][1]}" in output.err
+
+
+@pytest.mark.parametrize("interrupt", [False, True])
+@pytest.mark.parametrize("failed_channel", ["stderr-pipe", "stderr-unicode", "both"])
+def test_each_incomplete_output_channel_is_attempted_once_independently(
+    repository, capsys, monkeypatch, interrupt, failed_channel
+):
+    import builtins
+
+    from aware_agent_cli import workspace_review
+    from aware_workspace_fs_adapter.architecture_setup_review import (
+        FilesystemSetupReview,
+    )
+
+    _, argv = stale_refusal_arguments(repository, capsys, monkeypatch, "issue", "read")
+    original = workspace_review.review_payload
+    release = WorkspaceSetupReviewClient.release_client
+    printer = builtins.print
+    calls, seen = [], []
+
+    def capture_failure(*args, **kwargs):
+        calls.append("capture")
+        if interrupt:
+            raise KeyboardInterrupt("capture interrupted")
+        raise OSError("capture unavailable")
+
+    def observe(args):
+        calls.append("dispatch")
+        result = original(args)
+        seen.append(result)
+        return result
+
+    def cleanup(owner):
+        calls.append("release")
+        return release(owner)
+
+    def fail_channel(*args, **kwargs):
+        channel = "stderr" if kwargs.get("file") is sys.stderr else "stdout"
+        calls.append(channel)
+        if channel == "stderr" or failed_channel == "both":
+            if failed_channel == "stderr-unicode":
+                raise UnicodeEncodeError(
+                    "ascii", "é", 0, 1, "terminal encoding unavailable"
+                )
+            raise BrokenPipeError("terminal unavailable")
+        return printer(*args, **kwargs)
+
+    monkeypatch.setattr(FilesystemSetupReview, "write_metadata", capture_failure)
+    monkeypatch.setattr(workspace_review, "review_payload", observe)
+    monkeypatch.setattr(WorkspaceSetupReviewClient, "release_client", cleanup)
+    monkeypatch.setattr(builtins, "print", fail_channel)
+    assert client.main(argv) == (130 if interrupt else 3)
+    output = capsys.readouterr()
+    assert calls == ["dispatch", "capture", "release", "stderr", "stdout"]
+    assert len(seen) == 1 and not output.err
+    if failed_channel == "both":
+        assert not output.out
+    else:
+        assert output.out == json.dumps(seen[0][0], sort_keys=True) + "\n"
+
+
+def test_human_wrong_kind_hint_keeps_original_readers_and_raw_bytes(
+    repository, capsys, monkeypatch
+):
+    from aware_agent_cli import workspace_review
+
+    _, argv = stale_refusal_arguments(repository, capsys, monkeypatch, "issue", "read")
+    original = workspace_review.review_payload
+    seen = []
+
+    def observe(args):
+        result = original(args)
+        seen.append(result)
+        return result
+
+    monkeypatch.setattr(workspace_review, "review_payload", observe)
+    assert client.main(argv) == 2
+    capsys.readouterr()
+    ref = reference(seen[-1][0])
+    base = ["workspace", "review"]
+    roots = [
+        "--repository-root",
+        str(repository[0]),
+        "--evidence-root",
+        str(repository[1]),
+        "--reference",
+        ref,
+    ]
+    before = (
+        (repository[0] / ISSUE).read_bytes(),
+        (repository[0] / "foreign.py").read_bytes(),
+    )
+    assert client.main(base + ["show"] + roots) == 3
+    output = capsys.readouterr()
+    assert json.loads(output.out)["error"]["code"] == "original_review_record_required"
+    assert "Use aware workspace review evidence for this record kind" in output.err
+    assert "does not clear retention/cleanup uncertainty" in output.err
+    assert client.main(base + ["evidence"] + roots) == 0
+    output = capsys.readouterr()
+    assert output.out.encode() == seen[-1][2]
+    assert "What happened:" not in output.out and "What happened:" not in output.err
+    assert json.loads(output.err)["client_cleanup"]["value"]["ledger_complete"]
+    assert before == (
+        (repository[0] / ISSUE).read_bytes(),
+        (repository[0] / "foreign.py").read_bytes(),
+    )
+
+
+def test_spent_human_explanation_does_not_infer_causality_or_repair(repository, capsys):
+    _, second = scoped(repository, capsys)
+    code, applied = invoke(
+        repository,
+        capsys,
+        "apply",
+        "--reference",
+        reference(second),
+        "--client-intent-id",
+        "known-apply",
+        "--accept-reviewed-final-files",
+    )
+    assert code == 0 and applied["outcome"]["product_status"] == "apply_completed"
+    root = repository[0]
+    before = (root / "aware.repo.toml").read_bytes(), (root / ISSUE).read_bytes()
+    code = client.main(
+        [
+            "workspace",
+            "review",
+            "apply",
+            "--repository-root",
+            str(root),
+            "--evidence-root",
+            str(repository[1]),
+            "--reference",
+            reference(second),
+            "--client-intent-id",
+            "explicit-spent-use",
+            "--accept-reviewed-final-files",
+        ]
+    )
+    output = capsys.readouterr()
+    payload = json.loads(output.out)
+    assert code == 3 and all(label in output.err for label in HUMAN_ANSWERS)
+    assert payload["error"]["code"] == "sequence_request_baseline_changed"
+    assert payload["error"]["outcome"] is None and payload["error"]["reference"] is None
+    assert "does not prove spent-reuse causality" in output.err
+    assert "Stop before further mutation" in output.err
+    assert "No SDK evidence reference was returned" in output.err
+    assert "was already consumed" not in output.err
+    assert before == (
+        (root / "aware.repo.toml").read_bytes(),
+        (root / ISSUE).read_bytes(),
+    )
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        {},
+        {"error_type": "ValueError"},
+        {"error_type": "SetupReviewError", "code": "sequence_request_baseline_changed"},
+    ],
+)
+def test_partial_explanation_keeps_absent_fields_unknown_and_does_not_mutate(error):
+    import copy
+
+    from aware_agent_cli.workspace_review import _summary
+
+    payload = {
+        "action": "apply",
+        "status": "incomplete",
+        "stage": "preflight",
+        "error": error,
+    }
+    before = copy.deepcopy(payload)
+    output = _summary(payload)
+    assert all(label in output for label in HUMAN_ANSWERS)
+    assert "unknown/not returned" in output
+    assert "not_invoked" not in output and "complete: true" not in output
+    assert "Stop before further mutation" in output
+    assert payload == before
+
+
 def test_fresh_process_help_does_not_import_sdk_or_providers():
     program = """
 import sys, importlib.abc
