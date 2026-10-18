@@ -9,13 +9,13 @@ is the value, not a promise of faster agents or conflict-free swarms.
 
 Aware's direction: Don't watch your agents. Watch your goals. See [aware.run](https://aware.run).
 
-This is a **prepared, unselected Agent human-evidence successor** using Agent
-**0.2.0a10**. Instructions remain draft. The unchanged
-[delivery pointer](releases/SELECTED.json) still selects the
-[delivered refusal predecessor](releases/canonical-refusal-successor-fs-v1/README.md).
-This private proposal is not public availability. Integration, selection,
-instruction freeze and publication remain separate gates. Do not overlay
-installations or migrate contributor commands.
+The accepted Agent **0.2.0a10** human-evidence successor is selected locally;
+public delivery is not yet authorized. Instructions remain draft. Use this
+reviewed checkout, not unchanged public main. The
+[delivery pointer](releases/SELECTED.json) binds the complete envelope;
+[local selection](releases/canonical-human-evidence-fs-v1/LOCAL-SELECTION.md)
+records the boundaries. Instruction freeze and publication remain separate.
+Do not overlay installations, activate tooling or migrate contributor commands.
 
 ## Keep source-checkout and customer instructions separate
 

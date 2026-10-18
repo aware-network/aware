@@ -1,9 +1,10 @@
 # Human evidence whole distribution
 
-Prepared and unselected. Envelope `canonical-human-evidence-source-notice-review-v1.tar.gz` is SHA256 `55790f137bf751a3500accd0fe064fd16305b677808a0d4cf7ac4f5e6d216272`;
+Selected locally; public delivery is not yet authorized. Envelope `canonical-human-evidence-source-notice-review-v1.tar.gz` is SHA256 `55790f137bf751a3500accd0fe064fd16305b677808a0d4cf7ac4f5e6d216272`;
 accepted software is `edf602d26547e39c13de452f23179faa3c186eaf4e99d3701294cd32be9e3e35`. Use [the entrance](../../README.md) and
 the [original whole-envelope installer](../../protocols/install.py). Instructions
-remain draft; integration, selection, freeze and publication are separate.
+remain draft; instruction freeze, activation and publication remain separate.
+See [local selection](LOCAL-SELECTION.md). The activation-core correction remains outstanding.
 
 Read [LICENSE](LICENSE), [NOTICE](NOTICE),
 [third-party notices](source-history/THIRD_PARTY_NOTICES.md),
