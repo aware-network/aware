@@ -37,3 +37,13 @@ Public implementation: `befbf40ff1e3a8c5d110d08fc970bfcf0c51f791`, exactly eight
 Independent review should use the existing public checkout and retained candidate `/tmp/aware-human-evidence-candidate.SiCCJvl5`, not create another installation/build/archive. Run this maintainer test with `--noconftest --import-mode=importlib -p no:cacheprovider -o addopts=`. For the retained-read case, set `AWARE_HUMAN_INTEGRATION_CANDIDATE` to that candidate and `AWARE_HUMAN_INTEGRATION_REPLAY_ROOT` to a fresh private `0700` directory for small command captures. This remains retained verification, not fresh installation or customer replay.
 
 Both selection Issues remain In Progress pending independent bounded acceptance. Authored public acceptance boxes are unchanged criteria, not automatic test verdicts. No independent selection acceptance is claimed by this implementation author.
+
+## Independent selection acceptance
+
+The Human supplied bounded independent PASS for implementation `befbf40ff1e3`, handoff `b92394bfb4b8` and producer record `d2f9f06d02a4`, with no correction. `/tmp/aware-human-selection-review.JBR6zJJ9/selection.xml`, SHA-256 `e0118108328d52ece496111ac4cdab7bfa4d2b4bb58d3c3eed74e0c713af313e`, reports seven passes and zero failures, errors or skips. This is retained verification, not fresh installation or customer replay. Exact eight-path implementation and two-path handoff, artifact-derived pointer, software/source/notice and contributor conservation, original Issue guards and complete CAS/index receipts match. Checkout/index are clean.
+
+The original owner may close this bounded selection Issue using its actual acceptance publication receipt. Instruction freeze remains separate. No tests, installation, activation, GC changes or push were performed to record acceptance; whole-envelope carriage remains mandatory.
+
+## Current activation status for the next instruction cut
+
+The Human's accompanying status update confirms that the activation-core P1 correction has passed independent review. Earlier statements that the correction was outstanding describe the selection checkpoint and remain historical records. This does not qualify real validator/control-runtime integration, successor artifacts or private A/B activation proof; all remain unqualified. The delivery pointer's broader `activation_core_accepted=false` and `tooling_activation_performed=false` are unchanged. The separately governed instruction cut must use this current distinction rather than repeat a pending-P1 claim or imply activation readiness.
