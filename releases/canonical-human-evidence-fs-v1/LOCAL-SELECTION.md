@@ -29,3 +29,11 @@ The pointer retains `selection_review=pending`, `instruction_status=draft`, `pub
 Whole-envelope delivery remains mandatory. Six detached-wheel legal gaps, twelve relative-fixture findings and raw `clearance=not_granted` remain unchanged. Native/PSF accounts do not establish exact binary linkage or complete header/toolchain provenance. No detached-wheel, stripped-bundle or registry delivery, exhaustive clearance or legal warranty is admitted.
 
 Current cut remains Issue → optional SPEC → reviewed repository-manifest A1. A2/tree completion, Project/Goal elevation, Meta/Object, services and materialization remain separately qualified. Frozen U/V/R, GC holds and paused CPython product work are unchanged. Independent selection review precedes closure; instruction freeze and exact-range publication require separate governance. No activation, deployment or push occurs here.
+
+## Original implementation and independent handoff
+
+Public implementation: `befbf40ff1e3a8c5d110d08fc970bfcf0c51f791`, exactly eight paths. Original `public-implementation-plan.json` / `public-implementation-apply.json` match actual scope and committed Issue guard. Reference update is `cas_applied`, shared-index projection is `applied`, reconciliation pending is `false`; checkout/index are clean. `implementation-account.json` compares original scope/receipt targets, actual commit delta and exact Issue bytes.
+
+Independent review should use the existing public checkout and retained candidate `/tmp/aware-human-evidence-candidate.SiCCJvl5`, not create another installation/build/archive. Run this maintainer test with `--noconftest --import-mode=importlib -p no:cacheprovider -o addopts=`. For the retained-read case, set `AWARE_HUMAN_INTEGRATION_CANDIDATE` to that candidate and `AWARE_HUMAN_INTEGRATION_REPLAY_ROOT` to a fresh private `0700` directory for small command captures. This remains retained verification, not fresh installation or customer replay.
+
+Both selection Issues remain In Progress pending independent bounded acceptance. Authored public acceptance boxes are unchanged criteria, not automatic test verdicts. No independent selection acceptance is claimed by this implementation author.
