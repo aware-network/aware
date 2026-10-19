@@ -1,0 +1,42 @@
+{
+  "overlays": [
+    {
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/pyproject.toml",
+      "effective_sha256": "440d7f917ec390b0a4a0172d8d4a76b993c8bf10934695e4115c4da45371fa36",
+      "implementation_revision": "3e0cde56adacd830d29295177d5400dea80635e4",
+      "original_attached_path": "source-bindings/original-metadata/aware-workspace-runtime/pyproject.toml",
+      "original_sha256": "deadae9c24a6c84993c3bb9bace30e4787f65d4ca48a5e6eb1f3b6153b2696be",
+      "overlay_freeze_revision": "bc4a169b1ca75ee38fe497cd93389f4090214e31",
+      "overlay_input_path": "docs/reports/workspace-a14-artifacts-20261019-inputs.json",
+      "overlay_input_sha256": "e1168175faf69caab821a3399b83f022a250567118a0c9353ca96abe9d69c4b2",
+      "path": "workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/pyproject.toml",
+      "qualification": "Original complete implementation with an explicit metadata-only successor overlay, not raw Git bytes at the implementation revision."
+    },
+    {
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/pyproject.toml",
+      "effective_sha256": "936067f1f553efd468f08be6111b6189ea792df9c9eb178ebc7895bfe78a981f",
+      "implementation_revision": "3e0cde56adacd830d29295177d5400dea80635e4",
+      "original_attached_path": "source-bindings/original-metadata/aware-workspace-fs-adapter/pyproject.toml",
+      "original_sha256": "f66adcbaa1f9b5a02fe82166703a4c508e7c5de07aff9c49fd8931383214e142",
+      "overlay_freeze_revision": "bc4a169b1ca75ee38fe497cd93389f4090214e31",
+      "overlay_input_path": "docs/reports/workspace-a14-artifacts-20261019-inputs.json",
+      "overlay_input_sha256": "e1168175faf69caab821a3399b83f022a250567118a0c9353ca96abe9d69c4b2",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/pyproject.toml",
+      "qualification": "Original complete implementation with an explicit metadata-only successor overlay, not raw Git bytes at the implementation revision."
+    },
+    {
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/pyproject.toml",
+      "effective_sha256": "dff4a8ae2a3df93b55e2941b7522754ece1f04788629c5a1a4954fe33cfbe15d",
+      "implementation_revision": "3e0cde56adacd830d29295177d5400dea80635e4",
+      "original_attached_path": "source-bindings/original-metadata/aware-workspace-sdk/pyproject.toml",
+      "original_sha256": "6e8edc660d6097b73255df566365815bd817502d30baa2f2bcda15efc0ec5c23",
+      "overlay_freeze_revision": "bc4a169b1ca75ee38fe497cd93389f4090214e31",
+      "overlay_input_path": "docs/reports/workspace-a14-artifacts-20261019-inputs.json",
+      "overlay_input_sha256": "e1168175faf69caab821a3399b83f022a250567118a0c9353ca96abe9d69c4b2",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/pyproject.toml",
+      "qualification": "Original complete implementation with an explicit metadata-only successor overlay, not raw Git bytes at the implementation revision."
+    }
+  ],
+  "qualification": "Only public source/metadata coordinates. Full private build/tool inventory is not attached or claimed as authenticated compiler provenance.",
+  "schema": "aware.canonical.workspace-metadata-overlays.v1"
+}

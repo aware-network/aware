@@ -17,6 +17,61 @@ The same argument help is available through the standalone registrar and
 JSON and summary output. The CLI neither guesses a reference from a path nor
 implements another grammar or repairs authority.
 
+## Explicit observation stdin input
+
+The source registrar accepts `--issue-observation-from-stdin` on **only**
+`bind-scope`, `start-progress` and `publish-close`. Select it instead of the
+command's existing direct digest flag, never both. Redirect exactly one full
+`resolve-read-projection --format json` result through EOF; summaries, mutation
+results, filenames and handmade digest envelopes are not accepted. The CLI
+borrows stdin and never closes it, opens an input file or guesses another source.
+
+Keep the repository root explicitly absolute, and supply the Issue, actor,
+actor-evidence, intent and operation arguments explicitly. For example, after
+reviewing an exact saved observation and the proposed scope:
+
+```text
+aware issue bind-scope \
+  --repository-root /absolute/approved/repository \
+  --issue-ref fb/2026-10-11/approved-task \
+  --issue-observation-from-stdin \
+  --scope-path exact/implementation/path \
+  --actor-ref <genuine-provider-execution> \
+  --actor-evidence-ref <approved-evidence> \
+  --client-intent-id <scope-intent> \
+  < /absolute/approved-evidence/issue-observation.json
+```
+
+The original SDK codec validates the result, requiring `found`, matching Issue
+and actor, consistent source/revision and a repository-relative source path.
+Only `projection.source.digest` enters the original request. The input capture's
+SHA256 is a different coordinate. The source path is display data, not selection
+of a repository, scope or target. Detached results do not authenticate capture
+origin or repository provenance, even if identifiers/digests match. Actual owner
+checks still decide authorization, lifecycle, scope and currentness.
+
+A scope/lifecycle mutation changes Issue bytes: any following operation needs
+its own explicitly observed and reviewed input. There is no automatic sequence,
+guard refresh or retry. For a `publish-close` preview and later apply, redirect
+the **same saved bytes** and preserve every explicit request argument except
+`--dry-run`. Apply nevertheless plans afresh: no previewed HEAD or implementation
+byte freeze is introduced. Review intervening work before deciding to apply.
+
+Input capture is limited to 786432 raw bytes, reads at most 65536 bytes per call
+and detects at most one excess byte. Strict UTF-8, one integer-only JSON object,
+duplicate-key refusal and bounded depth/nodes/arrays/strings precede the original
+SDK schema validation. Interactive/unavailable input refuses. Local failures
+emit `aware.issue.observation-input-error.v1` JSON, without raw input or Markdown;
+exit 2 is input refusal, 130 interruption and 3 failed error reporting. An already
+selected interruption remains 130 even if reporting fails. On these three
+commands, no provider is acquired on input or typed-request validation failure.
+Successful owner outputs and the existing direct-guard mode are unchanged.
+
+This implementation is source-only. Package metadata still describes the
+retained 0.8.3 release; do not build changed bytes under that historical artifact
+identity. Successor allocation, finite dependencies, artifacts and joined
+installed/public qualification follow separate source acceptance.
+
 CLI 0.8.3 retains FS adapter `>=0.9.4,<0.10.0` so the help and owner diagnostics
 ship together. These source successors require a newly pinned installed
 candidate; they do not alter the currently published installation.

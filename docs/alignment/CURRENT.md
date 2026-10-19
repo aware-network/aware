@@ -37,3 +37,7 @@ The original local selection and freeze records remain historical checkpoints.
 Complete whole-envelope source/notice carriage remains required; detached wheels
 and stripped bundles remain unaccepted. The delivery pointer is not a package
 catalog or operation authority. This wording alignment is separate from the software publication.
+
+## Prepared Issue observation input
+
+CLI 0.8.4 is prepared and unselected. Same observation is not frozen preview bytes; apply plans afresh. Useful customer work remains the outcome, SPEC optional. Source effects, reviews, admission, publication and evidence remain separate. No new evaluation or productivity claim.

@@ -453,3 +453,7 @@ bind reviewed bytes, not a new admission or renewed current-use authority.
 The delivered [resource-summary guide](workspace/RESOURCE-RELEASES.md) explains
 returned release evidence without completing ledgers or renewing authority.
 Current a14 software is delivered at the exact revision above; both reviews, original guards and explicit apply stay.
+
+## Prepared Issue observation input
+
+[Issue observation input](issues/OBSERVATION-INPUT.md) is prepared and unselected. One explicit saved observation can carry the Issue digest; apply still plans afresh. Both review decisions remain separate.

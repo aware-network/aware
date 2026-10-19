@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import os
 import re
@@ -41,6 +42,11 @@ from aware_issue_sdk import (
 from aware_issue_sdk.repository_publication import IssueRepositoryPublicationRefusal
 
 from .composition import create_repository_client
+from .observation_input import (
+    ObservationInputError,
+    input_observation,
+    read_issue_guard,
+)
 from .summary import summarize_result, validate_presentation_input
 
 _ISSUE_OPERATION_REFS = {
@@ -127,13 +133,15 @@ def _configure_issue_command(parser: argparse.ArgumentParser, *, command: str) -
     elif command == "ensure-snapshot":
         _configure_ensure(parser)
     elif command in {"commit-workspace", "publish-close"}:
-        _configure_commit(parser)
+        _configure_commit(parser, observation=command == "publish-close")
         if command == "publish-close":
             parser.add_argument("--resolution", required=True)
             parser.add_argument("--verified-by", action="append", required=True)
             parser.add_argument("--client-intent-id", required=True)
     else:
-        _mutation_arguments(parser)
+        _mutation_arguments(
+            parser, observation=command in {"bind-scope", "start-progress"}
+        )
         if command == "set-owner":
             parser.add_argument("--new-owner-ref", required=True)
         elif command == "bind-scope":
@@ -189,11 +197,14 @@ def _configure_ensure(ensure: argparse.ArgumentParser) -> None:
     _actor_arguments(ensure)
 
 
-def _configure_commit(commit_workspace: argparse.ArgumentParser) -> None:
+def _configure_commit(
+    commit_workspace: argparse.ArgumentParser, *, observation=False
+) -> None:
     _target_arguments(commit_workspace)
-    commit_workspace.add_argument(
+    guard = _guard_source(commit_workspace) if observation else commit_workspace
+    guard.add_argument(
         "--expected-issue-source-sha256",
-        required=True,
+        required=not observation,
         help=(
             "Exact Issue Markdown bytes: projection.source.digest from "
             "resolve-read-projection --format json (sha256:<hex>). Not HEAD, "
@@ -242,11 +253,23 @@ def _actor_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--actor-evidence-ref", required=True)
 
 
-def _mutation_arguments(parser: argparse.ArgumentParser) -> None:
+def _guard_source(parser):
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument(
+        "--issue-observation-from-stdin",
+        action="count",
+        default=0,
+        help="Read one exact resolve-read-projection --format json result from redirected stdin; identifiers stay explicit. Detached input is not authority or a previewed HEAD/work-file freeze.",
+    )
+    return source
+
+
+def _mutation_arguments(parser: argparse.ArgumentParser, *, observation=False) -> None:
     _target_arguments(parser)
-    parser.add_argument(
+    guard = _guard_source(parser) if observation else parser
+    guard.add_argument(
         "--expected-source-sha256",
-        required=True,
+        required=not observation,
         help="Exact Issue Markdown bytes: projection.source.digest from resolve-read-projection --format json (sha256:<hex>); never silently refresh on refusal",
     )
     _actor_arguments(parser)
@@ -265,12 +288,55 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
 
 
+def _select_observation(args, command):
+    selected = getattr(args, "issue_observation_from_stdin", 0)
+    if not selected:
+        return args
+    if selected != 1:
+        raise ObservationInputError(
+            "issue_observation_input_conflict",
+            input_observation(),
+            ValueError("Exactly one stdin source occurrence required"),
+        )
+    if not os.path.isabs(args.repository_root):
+        raise ObservationInputError(
+            "issue_observation_input_repository_required",
+            input_observation(),
+            ValueError("Explicit absolute repository root required"),
+        )
+    digest, _ = read_issue_guard(
+        sys.stdin, issue_ref=args.issue_ref, actor_ref=args.actor_ref
+    )
+    selected_args = argparse.Namespace(**vars(args))
+    field = (
+        "expected_issue_source_sha256"
+        if command == "publish-close"
+        else "expected_source_sha256"
+    )
+    setattr(selected_args, field, digest)
+    return selected_args
+
+
 def _handle_issue(invocation: AwareCommandInvocation) -> int:
     args = invocation.args
     command = invocation.command.name
     if command == "present-receipt":
         return _present_receipt(args)
     try:
+        prepared = None
+        if command in {"bind-scope", "start-progress", "publish-close"}:
+            try:
+                args = _select_observation(args, command)
+            except ObservationInputError as error:
+                return _report_observation_error(error, args, command)
+            if command == "bind-scope":
+                prepared = IssueBindScopePathsRequest(
+                    **_mutation_payload(args), scope_paths=tuple(args.scope_path)
+                )
+            elif command == "start-progress":
+                prepared = IssueStartProgressRequest(**_mutation_payload(args))
+            else:
+                prepared = _publication_intents(args)
         provider = FilesystemIssueOperationProvider(
             repository_root=args.repository_root,
             protocol_source_ref=args.protocol_source,
@@ -286,7 +352,7 @@ def _handle_issue(invocation: AwareCommandInvocation) -> int:
             provider=provider, repository_client=repository_client
         )
         if command == "publish-close":
-            return _publish_close(args, client)
+            return _publish_close(args, client, prepared)
         if command == "resolve-read-projection":
             result = client.resolve_read_projection(
                 IssueReadProjectionResolveRequest(issue_ref=args.issue_ref)
@@ -310,9 +376,7 @@ def _handle_issue(invocation: AwareCommandInvocation) -> int:
                 )
             )
         elif command == "start-progress":
-            result = client.start_issue_progress(
-                IssueStartProgressRequest(**_mutation_payload(args))
-            )
+            result = client.start_issue_progress(prepared)
         elif command == "block":
             result = client.block_issue(IssueBlockRequest(**_mutation_payload(args)))
         elif command == "resume":
@@ -325,12 +389,7 @@ def _handle_issue(invocation: AwareCommandInvocation) -> int:
                 )
             )
         elif command == "bind-scope":
-            result = client.bind_issue_scope_paths(
-                IssueBindScopePathsRequest(
-                    **_mutation_payload(args),
-                    scope_paths=tuple(args.scope_path),
-                )
-            )
+            result = client.bind_issue_scope_paths(prepared)
         elif command == "append-update":
             result = client.append_issue_update(
                 IssueAppendUpdateRequest(
@@ -429,14 +488,57 @@ def _handle_issue(invocation: AwareCommandInvocation) -> int:
     return 0 if successful else 2
 
 
-def _publish_close(args, client):
-    """Explicit two-effect composition; never recover authority from a receipt.
+def _report_observation_error(error, args, command):
+    payload = {
+        "contract": "aware.issue.observation-input-error.v1",
+        "code": error.code,
+        "phase": "input",
+        "operation_ref": _ISSUE_OPERATION_REFS.get(
+            command, "issue_sdk.commit_workspace"
+        ),
+        "issue_ref": args.issue_ref,
+        "input_observation": error.observation,
+        "provider_invoked": False,
+        "effect": "none",
+        "authorizes_retry": False,
+    }
+    code = 130 if error.interruption else 2
+    output = sys.stdout
+    try:
+        print(
+            json.dumps(payload, sort_keys=True, ensure_ascii=True, allow_nan=False),
+            file=output,
+        )
+        output.flush()
+    except BaseException as output_error:  # noqa: BLE001 - retain failed reporting without retry or overriding an input interruption
+        error.output_cause = output_error
+        try:
+            _retire_observation_output(output)
+        except BaseException as retirement_error:  # noqa: BLE001 - retain cleanup uncertainty without replacing the reporting failure
+            error.output_retirement_cause = retirement_error
+        return 130 if error.interruption else 3
+    return code
 
-    Preconstruct both intents before the first effect. Close uses the caller's
-    original Issue CAS guard; it is never silently refreshed after publication.
-    """
-    from dataclasses import replace
 
+def _retire_observation_output(output):
+    """Disable shutdown flushing; close raw IO without resending buffered bytes."""
+    if sys.stdout is output:
+        sys.stdout = None
+    if sys.__stdout__ is output:
+        sys.__stdout__ = None
+    # Do not close/flush TextIOWrapper or BufferedWriter: either can resend the
+    # pending diagnostic. Retire only the original standard IO's raw endpoint.
+    # Custom borrowed streams are detached, not guessed at or closed by fileno.
+    if isinstance(output, io.TextIOWrapper):
+        buffer = output.buffer
+        if isinstance(buffer, io.BufferedWriter):
+            buffer.raw.close()
+        elif isinstance(buffer, io.FileIO):
+            buffer.close()
+
+
+def _publication_intents(args):
+    """Validate both original intents before any provider/client acquisition."""
     publication_request = IssueCommitWorkspaceRequest(
         issue_ref=args.issue_ref,
         expected_issue_source_sha256=args.expected_issue_source_sha256,
@@ -457,6 +559,14 @@ def _publish_close(args, client):
         verified_by=tuple(args.verified_by),
         publication_receipt_ref="git:" + "0" * 40,
     )
+    return publication_request, close_request
+
+
+def _publish_close(args, client, prepared):
+    """Same live two-effect composition and original Issue guard, never replay."""
+    from dataclasses import replace
+
+    publication_request, close_request = prepared
     publication = client.commit_workspace(publication_request)
     records = [publication.to_wire()]
     # This is consumer sequencing over explicit owner disposition, not an

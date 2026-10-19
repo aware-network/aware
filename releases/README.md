@@ -30,3 +30,7 @@ The original local selection and freeze records remain historical checkpoints.
 Complete whole-envelope source/notice carriage remains required; detached wheels
 and stripped bundles remain unaccepted. The delivery pointer is not a package
 catalog or operation authority. This wording alignment is separate from the software publication.
+
+## Prepared Issue CLI 0.8.4
+
+[canonical-issue084-fs-v1](canonical-issue084-fs-v1/README.md) is prepared and unselected. Instructions remain draft; predecessor selection stays unchanged. Whole-envelope carriage is required.

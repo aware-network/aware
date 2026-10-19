@@ -419,13 +419,17 @@ def test_argument_actions_defaults_and_requiredness_match_predecessor(
                 type(action).__name__,
                 tuple(action.option_strings),
                 action.dest,
-                action.required,
+                True
+                if command in {"bind-scope", "start-progress"}
+                and action.dest == "expected_source_sha256"
+                else action.required,
                 action.default,
                 action.nargs,
                 action.choices,
                 action.type,
             )
             for action in sub.choices[command]._actions
+            if "--issue-observation-from-stdin" not in action.option_strings
         )
 
     assert shape(old) == shape(new)

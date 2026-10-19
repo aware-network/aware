@@ -26,6 +26,15 @@ publication and closeout**. A generated manifest is setup, not completion of the
 customer's application. Project/Goal direction and language/Meta materialization
 are parallel future elevations, not prerequisites for this path.
 
+## Prepared Issue observation input
+
+Issue CLI **0.8.4** is prepared and unselected; these instructions remain draft.
+The proposed installer targets this successor, not the delivered a14 envelope.
+[Observation input](protocols/issues/OBSERVATION-INPUT.md) carries one explicit
+Issue snapshot into original scope, progress and publish-close commands.
+The same observation does not freeze previewed HEAD or source bytes.
+Customer implementation and optional SPEC branches remain unchanged.
+
 ## Delivered a14 resource summaries
 
 Agent **0.2.0a14** is publicly delivered at the exact revision above.

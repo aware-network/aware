@@ -1,15 +1,15 @@
 [project]
 name = "aware-issue-cli"
-version = "0.8.3"
+version = "0.8.4"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 description = "Thin command-line projection of canonical Aware Issue SDK operations."
 requires-python = ">=3.12"
 dependencies = [
   "aware-command-runtime>=0.1.1,<0.2.0",
-  "aware-issue-fs-adapter>=0.9.4,<0.10.0",
-  "aware-issue-sdk>=0.10.2,<0.11.0",
-  "aware-workspace-sdk[publication]>=0.2.0,<0.3.0",
+  "aware-issue-fs-adapter>=0.9.6,<0.10.0",
+  "aware-issue-sdk>=0.10.6,<0.11.0",
+  "aware-workspace-sdk[publication]>=0.2.13,<0.3.0",
 ]
 
 [project.scripts]

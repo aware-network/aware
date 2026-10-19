@@ -18,3 +18,5 @@ Retain publication, index, effects and cleanup evidence. Known publication must
 not be automatically retried. A new execution needs fresh admission, not a
 borrowed actor or serialized capability. Planned handoff is not crash recovery.
 See [repository publication](../repository/README.md) and [coherence](../COHERENCE.md).
+
+[Prepared observation input](OBSERVATION-INPUT.md) keeps explicit target and actor inputs, original SDK requests and fresh apply planning. Instructions are draft; no automatic guard refresh or retry.
