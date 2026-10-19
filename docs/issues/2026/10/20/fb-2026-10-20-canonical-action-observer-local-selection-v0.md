@@ -2,7 +2,7 @@
 
 - Slug: canonical-action-observer-local-selection-v0
 - Tag: fb/2026-10-20/canonical-action-observer-local-selection-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -23,8 +23,10 @@
 
 
 
+
 ## Problem
 1. Accepted observer integration is not locally selected; public main remains a distinct predecessor.
+
 
 
 
@@ -37,6 +39,7 @@
 
 
 
+
 ## Acceptance Checklist
 - [ ] Exact eight-path scope, seven original conservation and retained-read checks, actual receipts and guards, CAS/index without debt. No installation, freeze, activation, GC or push.
 
@@ -44,8 +47,17 @@
 
 
 
+
+## Verified-by
+- Human-delivered independent selection review: seven checks passed; clean checkout/index; software notices and governance unchanged.
+- git:b1658b7a7be347c1f43f8df2c47aa0be006271cc
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Frozen private proposal 159e95c6e29aa4c665b902d04f9b4a799744f6d379945d992bd4c8a899944a25 projected exactly. Seven selection checks passed in 4.73s; 16 retained read-only commands, 42 versions and 156 origins. Exact artifact-derived pointer; no installation, freeze, activation, GC or push. (outcome: Local implementation ready for original eight-path publication; independent selection review pending.) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Local selection applied at 673bd6194e91b58b82576acd7557ed304377409a with exact eight paths; CAS/index complete without debt. All seven tests passed. Original seven prepared postimages remain exact in that commit. Two-path handoff records this checkpoint only. (outcome: Submit bounded independent selection review; Issue stays In Progress. Instruction freeze, public delivery and customer trials remain separate.) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independent bounded selection PASS for producer ef91fd14c536, implementation 673bd6194e91 and handoff b1658b7a7be3. Seven checks independently replayed. Exact eight/two-path scopes, seven frozen postimages, 1934 unaffected files/Git modes, artifact pointer, Issue guards and CAS/index receipts verified. Local selection only; instruction freeze, public availability and publication authority remain separate. No new tests, installation, payload copies, customer replay, GC or push during closeout.
