@@ -29,3 +29,21 @@ fresh installation, customer evaluation, activation, GC change or push.
 Independent review precedes both owner closeouts. Publication requires explicit
 target/outgoing-range authorization and pinned acquisition proof; evaluation
 follows separately. Existing freezes, evaluations and GC holds stay protected.
+
+## Review checkpoint
+
+Public implementation `53754c8dd082e06e6b013ff6137bede72d34c38c` contains
+exactly fifteen admitted paths. Seven checks pass with twenty exact pins and
+unchanged operational blocks. Original dry-run/apply receipts match the committed
+Issue guard; reference CAS and index projection completed without debt.
+
+The retained installation verifies 42 package versions, clean dependencies,
+thirteen help entrances, missing-identity refusal and 155 original module hashes.
+The separate installed example round-trips 1,142 bytes exactly, renders six
+in-memory members and reports cleanup `closed`; only its input snapshot is written.
+
+Initial strict accounting caught an inspection-created predecessor bytecode cache.
+That exact cache and failed result are retained outside the public tree; the
+unchanged checks then passed. No product, assertion or instruction correction
+was needed. Both freeze Issues remain In Progress for independent review.
+This handoff grants no publication or activation authority.
