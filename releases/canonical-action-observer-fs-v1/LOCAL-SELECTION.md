@@ -28,3 +28,11 @@ consumer bridge remain unqualified by this selection. Nothing is activated.
 Independent selection review, instruction freeze and authorized publication
 remain separate. Retained reads do not establish fresh installation, customer
 evaluation or productivity improvement. Whole-envelope carriage is mandatory.
+
+## Applied local checkpoint
+
+Implementation `673bd6194e91b58b82576acd7557ed304377409a` changes exactly the eight
+admitted paths. All seven selection checks passed using the retained installation;
+no new installation or owner workflow was run. Original Issue guards and CAS/index
+receipts are retained by the producer. Independent selection review is pending.
+Instruction freeze and public delivery remain separate and unauthorized here.
