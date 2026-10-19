@@ -26,3 +26,20 @@ stable consumer bridge remain unqualified here. This selection activates nothing
 Independent selection review, instruction freeze and authorized publication
 remain separate. Retained reads do not establish fresh installation, customer
 evaluation or productivity improvement. Whole-envelope carriage is mandatory.
+
+## Review checkpoint
+
+Local implementation `2abdbe6a38876448b52489a4f91d8ecd3a47c31e` contains
+the exact eight-path scope. Seven accounting and retained-read checks passed;
+original observed Issue guards and actual commit scopes match. CAS and shared
+index projection completed without debt. All 1,859 unaffected baseline files
+and all baseline Git executable modes remain preserved.
+
+Retained checks cover 42 package versions, dependencies, thirteen help entrances,
+missing-identity refusal without effects and 156 original module-origin hashes.
+No new environment or customer workflow was run. The initial malformed Issue
+reference refusal remains retained; it caused no repository effect. A separate
+request used the already scoped canonical reference.
+
+Both selection Issues remain In Progress for independent review. Instruction
+freeze, remote publication and fresh customer evaluation remain separate.

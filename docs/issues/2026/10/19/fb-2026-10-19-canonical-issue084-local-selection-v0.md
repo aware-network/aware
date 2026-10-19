@@ -22,14 +22,17 @@
 
 
 
+
 ## Problem
 1. Accepted CLI0.8.4 integration is not locally selected.
 
 
 
 
+
 ## Goal
 1. Select exact artifact-derived whole-envelope delivery pointer and current local-only status without software/installer/authority changes.
+
 
 
 
@@ -42,7 +45,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Seven original accounting/retained-read checks pass. Exact8-path scope;1859unaffected baseline bytes and all Git executable modes preserved. Pointer derives accepted envelope/payload/composite source index; portable_protocols sole selector.42versions,13help,dependencies,missing-identity no-effect refusal and156original origins verify through retained installation. Initial open typo fb/2026/10/19 refused issue_ref_invalid with no effects; separately corrected canonical ref retained. Whole-envelope,six gaps,twelve findings,native limits remain. Same observation is not HEAD/source freeze. No new installation,customer replay,activation,GC change orpush; independent review before closeout. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Implementation2abdbe6a38876448b52489a4f91d8ecd3a47c31e applies exact8-path selection. Seven tests pass;1859unaffected baseline bytes/Git modes and complete source/notices preserved. LOCAL-SELECTION review checkpoint binds original receipt scopes/guards and retained-read limits. Independent bounded review next; both Issues In Progress. No new installation,customer replay,freeze,activation,GC change orpush. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
