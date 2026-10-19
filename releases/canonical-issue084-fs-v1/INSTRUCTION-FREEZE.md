@@ -49,3 +49,22 @@ entrances, missing-identity refusal without effects and 156 original module
 hashes. This is not a new installation or customer workflow replay. Both Issues
 remain In Progress for independent review. Publication and evaluation require
 separate authorization and version-bound acquisition.
+
+## Historical pin correction review
+
+The original freeze review held one P2 wording regression: two a14 predecessor
+sentences lost their supplying introductory revision. Correction
+`265420dd367c1cec7bf2150d4c5bf7ffb55da7c1` restores explicit historical pins in
+README and WORKFLOW and distinguishes that predecessor from this local successor.
+The original HOLD and successful technical evidence remain retained.
+
+Eight checks now pass, including a new regression that rejects both the original
+sections and missing section-local pins. All twenty-one pins match; only the
+README and WORKFLOW pin entries changed. The five-path correction includes the
+Issue, those two guides, the pin record and the test receiver. Software,
+operational blocks, source/notices and historical freeze records are unchanged.
+The preparation helper also retains explicit historical pins after replacing
+current introductions. No new installation, customer replay or GC change ran.
+
+Independent correction review remains required before closeout. Nothing here
+authorizes public delivery or upgrades the earlier evaluation evidence.
