@@ -31,3 +31,19 @@ Keep the [complete sources and notices](README.md); no detached-wheel or strippe
 Commands, installed software, sources/notices, historical freezes and contributor
 a6 governance remain unchanged. Retained-installation reads are not a fresh
 installation or customer replay. No activation, payload copy, GC change or push.
+
+## Local alignment review checkpoint
+
+Implementation `4a76a4c63a720a08daa89ef81e8b3126782871a6` changes exactly
+seventeen paths. Eight receiving checks pass, including twenty successor pins,
+missing-revision/stale-wording controls and sixteen retained read-only commands.
+All 1,816 unaffected baseline files and baseline executable modes are preserved.
+Initial receiving diagnostics remain retained: six checks passed and two failed
+before the exact status-suffix expectation and missing scratch input were corrected.
+Neither correction changes an operational command or installed software.
+
+Original scoped publication records a matching Issue-byte guard and completed
+reference CAS/shared-index projection, without reconciliation debt. Independent
+review precedes Issue closeout. This checkpoint is not live remote state or
+authorization to publish the additional alignment range; earlier evaluations and
+historical freezes remain unchanged.

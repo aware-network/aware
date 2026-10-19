@@ -31,14 +31,17 @@
 
 
 
+
 ## Problem
 1. Current guidance incorrectly describes delivered a14 as local/unavailable and first-use acquisition still targets a12.
 
 
 
 
+
 ## Goal
 1. Align current delivery wording and twenty exact successor pins without changing commands or historical records.
+
 
 
 
@@ -51,7 +54,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Eight receiving checks pass; all20 successor pins match. Exact17-path cut preserves 1816 unaffected baseline files and all baseline Git modes. Commands, software, original historical freezes/source/legal carriage and contributor a6 unchanged. Retained reads execute16 commands with42 versions/dependencies/13help/missing-identity refusal and155 original origin hashes; no new installation. Initial6pass/2failure result retained: exact status-only suffix correction and missing scratch mount corrected before installed execution. Both Issues remain InProgress pending independent review; no push or new evaluation. (outcome: verified) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Independent review requested for actual17-path implementation4a76a4c63a720a08daa89ef81e8b3126782871a6 and this bounded Issue/PUBLIC-STATUS handoff. Twenty successor pins and8 receiving checks pass; original Issue guard/CAS/index verified. Historical freeze, all commands/software/source/legal bytes and1816 unaffected files/modes unchanged. Fresh anonymous GitHub observation before work confirmed08a598fdeb8f; no additional push. Both Issues remain InProgress pending acceptance. (outcome: handoff) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
