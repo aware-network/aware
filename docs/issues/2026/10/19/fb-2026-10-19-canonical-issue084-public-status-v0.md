@@ -2,7 +2,7 @@
 
 - Slug: canonical-issue084-public-status-v0
 - Tag: fb/2026-10-19/canonical-issue084-public-status-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -35,6 +35,7 @@
 
 
 
+
 ## Problem
 1. Current guidance describes local freeze or predecessor despite accepted publication813ab2e82f7f.
 
@@ -43,8 +44,10 @@
 
 
 
+
 ## Goal
 1. Align current delivered revision and successor pins while preserving history software commands and complete carriage.
+
 
 
 
@@ -60,9 +63,18 @@
 
 
 
+
+## Verified-by
+- sha256:818b2fa066b5e3a99c0fabbabc9a2c934ffc9bbcaed3675c2d676990ceae7bef:/tmp/aware-issue084-status-review.Ivk7NegY/REVIEW.md
+- git:02b779888d2b5f6304be366d5c6cb9680e5d34ed
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Nine current status checks pass with21pins using retained read-only installation. Original6/3 receiving failures retained; helper export delegation and prose corrected without weakening predicates. All18postimages match deterministic committed-baseline view. Historical freezes software commands complete source/notices and GC holds unchanged. This local alignment needs independent review and separate publication authorization. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Local implementation97592f4387bb8e345eb5fb45ea802c833aa907b2 has exact19-path scope and completed CAS/index. Nine checks21pins; original failures retained; no independent acceptance or additional publication claimed. Handoff adds this update and PUBLIC-STATUS review checkpoint only. Independent review remains next; Issue stays In Progress. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Final prose inspection aligns CURRENT whole-envelope link to this release and current pointer description to independently observed delivery; historical predecessor pin remains. One README pin refreshed;21total preserved. Nine final checks pass. This forward four-path amendment preserves original implementation/handoff receipts and requires independent review; no extra publication authorization. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independent review PASS for producer b9bb2537e5ec and handoff e070efbc1ce1. Nine checks and21pins pass;19/2/4 scopes guards and CAS/index verified. Software commands sources/notices and historical pins unchanged. Bounded local alignment complete; extra publication remains unauthorized. No installation copies GC changes or evaluation.
