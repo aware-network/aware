@@ -1,9 +1,10 @@
 # Aware filesystem workflow
 
-Agent **0.2.0a14** software was published at `08a598fdeb8f960bf30fb8e85229e820286e67be`.
-Acquire that exact revision and retain its complete source/notice envelope.
-This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required.
+Issue CLI **0.8.4** instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not the delivered predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards
+remain; carrying an Issue observation does not freeze previewed source bytes.
 
 Historical freezes remain unchanged; installation does not admit customer work.
 Read [init summary streams and decisions](INIT.md); full receipts remain
@@ -454,6 +455,6 @@ The delivered [resource-summary guide](workspace/RESOURCE-RELEASES.md) explains
 returned release evidence without completing ledgers or renewing authority.
 Current a14 software is delivered at the exact revision above; both reviews, original guards and explicit apply stay.
 
-## Prepared Issue observation input
+## Locally frozen Issue observation input
 
-[Issue observation input](issues/OBSERVATION-INPUT.md) is prepared and unselected. One explicit saved observation can carry the Issue digest; apply still plans afresh. Both review decisions remain separate.
+[Issue observation input](issues/OBSERVATION-INPUT.md) is selected locally; public delivery is not yet authorized. One explicit saved observation can carry the Issue digest; apply still plans afresh. Both review decisions remain separate.

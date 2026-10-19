@@ -1,0 +1,114 @@
+{
+  "a2_admitted": false,
+  "activation_core_p1_reviewed": true,
+  "activation_included_in_this_delivery": false,
+  "baseline_revision": "3398791f531c0bbf0f2978fee7a0f52510de2826",
+  "bounded_positive_ab_proof_reviewed": true,
+  "canonical_profile": "portable_protocols",
+  "catalog_revision": "ec4717726c3c7c822fa4fcc5cb7390fce4127f43",
+  "detached_wheels_accepted": false,
+  "envelope_sha256": "d1326d1465a5bfbaf13293ce09e3b1a763e5ae98371f04f750fb4b81e76ebcee",
+  "failure_interruption_qualified": false,
+  "files": {
+    "README.md": {
+      "bytes": 8887,
+      "sha256": "0a4ec23120c8bf4e8e9328380ae68118ea07b8d4f9b25097a2e5ca851b4df691"
+    },
+    "protocols/COHERENCE.md": {
+      "bytes": 2584,
+      "sha256": "d643dd349141001b71d910ee326e081d3031dc05b070421e9a4fad3d17d1e925"
+    },
+    "protocols/EVIDENCE-MAP.json": {
+      "bytes": 6934,
+      "sha256": "526919899c486912c3d40d3a33344a47b9220d7729e58d1d97e6f16b2d915d2e"
+    },
+    "protocols/FIRST-USEFUL-TASK.md": {
+      "bytes": 12731,
+      "sha256": "dab623e9f0fc58dbf2a375d729c8f83d9a8952e4f8289b876b7330c710c94b6e"
+    },
+    "protocols/INIT.md": {
+      "bytes": 3844,
+      "sha256": "17ae68c19fbf76526cb967a14ff3fee1e2f8612cd9676fb266a2ddf682e578bc"
+    },
+    "protocols/INITIALIZATION.md": {
+      "bytes": 1295,
+      "sha256": "7514305b3f73da328c499fc1ea60aab0bba16fd9103f322154078f7e2bc434b3"
+    },
+    "protocols/README.md": {
+      "bytes": 983,
+      "sha256": "cc0f54f671ba665912098a9b16c15f1970f887a2cd43c87155e425ff3feedcb6"
+    },
+    "protocols/WORKFLOW.md": {
+      "bytes": 24653,
+      "sha256": "81b7d770efd5640112be0fdce7ea24be065adf5d154cf3dbcf09c76091e7d076"
+    },
+    "protocols/issues/FIRST-ISSUE.md": {
+      "bytes": 18207,
+      "sha256": "c9b1546327f9c61f401fd67501a9913c8288eba110bd65caa06927f1622032e0"
+    },
+    "protocols/issues/OBSERVATION-INPUT.md": {
+      "bytes": 2632,
+      "sha256": "f84ccd61ee082dc8700849db2ab88b2f4a0e0e752594c7cee7481a48116ef340"
+    },
+    "protocols/issues/README.md": {
+      "bytes": 1816,
+      "sha256": "926d68637857ac2b3800ee1a7cd100d57af04b13e454b3594641f538aa29197f"
+    },
+    "protocols/repository/README.md": {
+      "bytes": 1351,
+      "sha256": "ae476cb23bb59d4117a074f47654b2708137ef32707f758bc534967dc69785d5"
+    },
+    "protocols/specification/README.md": {
+      "bytes": 3887,
+      "sha256": "6aeaf6bc18a01e248d6d76056d32de19c94ff10e4be20d7d62c58f0279cc93de"
+    },
+    "protocols/tasks/JSON-CHECKER.md": {
+      "bytes": 2977,
+      "sha256": "d78ebce65c148761f9074f2627548c62e92258d62e72f2386ea15d1bab544e46"
+    },
+    "protocols/workspace/README.md": {
+      "bytes": 1322,
+      "sha256": "5778a95c175b98edc3a8491f8368257c0d1cfa430d24167d08e2af460c09acd6"
+    },
+    "protocols/workspace/REFERENCE-NAVIGATION.md": {
+      "bytes": 4658,
+      "sha256": "9485c63eb49709cef096b4bc23565777d7c617f17bde6960dfa73413f0bb07c4"
+    },
+    "protocols/workspace/RESOURCE-RELEASES.md": {
+      "bytes": 1537,
+      "sha256": "71f4374d6ef04312370dcd0881912dccc0fb3f39195b7203bc53fd36fc403ede"
+    },
+    "protocols/workspace/REVIEWED-SETUP.md": {
+      "bytes": 9355,
+      "sha256": "f852a123efdcf268d58d66545e8396ec00987ef82d14a0b6cf9ccce89113bf68"
+    },
+    "releases/README.md": {
+      "bytes": 2902,
+      "sha256": "b2e9d79d7c1238f73dba0cd0250a42e7d15e1e130e94b015e96e40387cf82c12"
+    },
+    "releases/canonical-issue084-fs-v1/README.md": {
+      "bytes": 2632,
+      "sha256": "562a36df9913de10cf32021fb05e9cfacae6a78544acf63073f40b1899942246"
+    },
+    "workspaces/aware_kernel/modules/specification/sdks/specification/python/cli/examples/prepare_draft_input.py": {
+      "bytes": 2081,
+      "sha256": "21e1bea900ae75e47be2ff889e87d514cba08ba9f325681dcc0ee3f1df68bcb5"
+    }
+  },
+  "independent_control_installation_reviewed": true,
+  "init_supplies_configuration_not_admission": true,
+  "package_selection_owner": "Workspace authored profile; this record is not a package catalog",
+  "payload_sha256": "f5e65fefa12ac6a778bf39e7efdffacf3a8a8b1fb261a6332a9656388ab94b5a",
+  "public_delivery_authorized": false,
+  "record_kind": "candidate_instruction_byte_pins",
+  "source_index_sha256": "6c532eb4ace4df423f0f0a666742900a2ebc65919475523d4ff175dcb2d6673d",
+  "source_is_composite": true,
+  "stable_consumer_bridge_qualified": false,
+  "status": "frozen_locally_review_pending",
+  "tooling_activation_performed": false,
+  "tree_completion_admitted": false,
+  "unassisted_onboarding_proven": false,
+  "whole_envelope_required": true,
+  "workspace_agent_mount_admitted": true,
+  "workspace_mount_profile": "bounded-reviewed-repository-manifest-a1"
+}

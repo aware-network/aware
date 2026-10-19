@@ -1,5 +1,11 @@
 # Issue coordination
 
+Issue CLI **0.8.4** instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not the delivered predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards
+remain; carrying an Issue observation does not freeze previewed source bytes.
+
 An Issue records an outcome, responsible execution, exact scope and durable
 progress evidence. Shared rules let another execution continue genuinely
 unfinished work. Scope is not a file reservation; preserve foreign work.
@@ -19,4 +25,4 @@ not be automatically retried. A new execution needs fresh admission, not a
 borrowed actor or serialized capability. Planned handoff is not crash recovery.
 See [repository publication](../repository/README.md) and [coherence](../COHERENCE.md).
 
-[Prepared observation input](OBSERVATION-INPUT.md) keeps explicit target and actor inputs, original SDK requests and fresh apply planning. Instructions are draft; no automatic guard refresh or retry.
+[Locally frozen observation input](OBSERVATION-INPUT.md) keeps explicit target and actor inputs, original SDK requests and fresh apply planning. Instructions are frozen locally pending independent review; no automatic guard refresh or retry.

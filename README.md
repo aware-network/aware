@@ -1,9 +1,10 @@
 # Aware
 
-Agent **0.2.0a14** software was published at `08a598fdeb8f960bf30fb8e85229e820286e67be`.
-Acquire that exact revision and retain its complete source/notice envelope.
-This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required.
+Issue CLI **0.8.4** instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not the delivered predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards
+remain; carrying an Issue observation does not freeze previewed source bytes.
 
 Coherent work between agents in your Git repository.
 
@@ -26,10 +27,10 @@ publication and closeout**. A generated manifest is setup, not completion of the
 customer's application. Project/Goal direction and language/Meta materialization
 are parallel future elevations, not prerequisites for this path.
 
-## Locally selected Issue observation input
+## Locally frozen Issue observation input
 
 Issue CLI **0.8.4** is selected locally; public delivery is not yet authorized.
-Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+Instructions are frozen locally pending independent review. Use this reviewed checkout, not unchanged public main.
 The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
 [local selection](releases/canonical-issue084-fs-v1/LOCAL-SELECTION.md) records its limits.
 [Observation input](protocols/issues/OBSERVATION-INPUT.md) carries one explicit

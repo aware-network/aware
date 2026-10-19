@@ -1,6 +1,12 @@
 # Explicit Issue observation input
 
-Draft for prepared, unselected Issue CLI **0.8.4**. Agent **0.2.0a14** and the
+Issue CLI **0.8.4** instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not the delivered predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards
+remain; carrying an Issue observation does not freeze previewed source bytes.
+
+Issue CLI **0.8.4** is locally selected; this guide is frozen pending independent review. Agent **0.2.0a14** and the
 other 41 wheels are unchanged. Follow [the first Issue](FIRST-ISSUE.md),
 [useful customer work](../FIRST-USEFUL-TASK.md) and [the workflow](../WORKFLOW.md).
 Existing digest-argument commands remain supported and unchanged.

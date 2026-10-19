@@ -1,9 +1,10 @@
 # Current collaboration alignment
 
-Agent **0.2.0a14** software was published at `08a598fdeb8f960bf30fb8e85229e820286e67be`.
-Acquire that exact revision and retain its complete source/notice envelope.
-This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required.
+Issue CLI **0.8.4** instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not the delivered predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards
+remain; carrying an Issue observation does not freeze previewed source bytes.
 
 [One installed entrance](../../README.md) composes the original SDK owners.
 Coherence means shared rules, bounded work and recoverable evidence, not speed
@@ -38,15 +39,15 @@ Complete whole-envelope source/notice carriage remains required; detached wheels
 and stripped bundles remain unaccepted. The delivery pointer is not a package
 catalog or operation authority. This wording alignment is separate from the software publication.
 
-## Prepared Issue observation input
+## Locally frozen Issue observation input
 
 CLI 0.8.4 is selected locally; public delivery is not yet authorized. Same observation is not frozen preview bytes; apply plans afresh. Useful customer work remains the outcome, SPEC optional. Source effects, reviews, admission, publication and evidence remain separate. No new evaluation or productivity claim.
 
 ## Local Issue CLI 0.8.4 selection
 
 Issue CLI **0.8.4** is selected locally; public delivery is not yet authorized.
-Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+Instructions are frozen locally pending independent review. Use this reviewed checkout, not unchanged public main.
 Complete whole-envelope source and notice carriage remains required. The delivery
 pointer is not a package catalog or operation authority. Same observation is not
 frozen preview bytes; apply plans afresh. No automatic refresh, approval or retry.
-Instruction freeze and publication remain separate.
+Independent instruction review and publication remain separate.
