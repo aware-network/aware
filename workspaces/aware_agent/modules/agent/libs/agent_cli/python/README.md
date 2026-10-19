@@ -539,3 +539,45 @@ customer retained records remain authoritative; a JSON copy grants no permission
 
 Unattended creation, self-serve decomposition, Goal approval, pursuit execution,
 RUN, public activation and release remain outside this candidate.
+
+## Separately admitted configuration continuation — source candidate
+
+After a proven terminal, unpublished original configuration failure, do not
+rerun fresh init against that retained root. The original Workspace owner now
+supports one separately admitted successor, keeping the complete failed parent.
+This CLI source cut composes that capability; it does not update a previously
+installed command or authorize a customer write.
+
+```text
+aware init --profile create-first --repository-root /absolute/customer --continue-configuration --format summary
+aware init --profile create-first --repository-root /absolute/customer --continue-configuration --apply --format summary
+```
+
+The first command only reads and previews. Apply displays its own fresh live
+plan, original failure, selected explicit Git attribution and unchanged manifest
+effect. It requires terminal confirmation `publish configuration successor` for
+that exact plan; `initialize create-first` is not accepted. No automatic retry,
+plan refresh, attribution setup, fresh repository/enrollment, new record roots
+or fallback occurs. Do not combine continuation with `--create-repository`,
+`--recover`, `--recover-successor`, `--no-agent-contract` or record-root options.
+Unattended apply remains unsupported. The owner—not the CLI—decides whether a
+predecessor can qualify; pending or uncertain history grants no continuation.
+
+After output loss, read the original successor result without repeating a write:
+
+```text
+aware init --profile create-first --repository-root /absolute/customer --recover-successor --format summary
+```
+
+This historical read never publishes, projects, repairs or restores permission.
+It cannot combine with apply/dry-run/continuation/new setup options. Pending or
+uncertain results remain uncertain; exit 0 means the original result was read,
+not that setup is current or complete. Ordinary `--recover` still reads only
+the original parent. Complete receipts remain in the same invocation's JSON;
+summary mode writes them on stderr. Retain both output streams.
+
+Successful continuation qualifies the same Protocol fs_v4 manifest, then the
+original Project and Proposed Goal/membership commands can follow. It creates
+no Project, Goal or Issue itself, and grants no eligibility or RUN authority.
+Independent source acceptance and pinned installed qualification must precede
+any fresh customer confirmation. No public release or activation is claimed.

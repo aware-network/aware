@@ -1103,29 +1103,7 @@ def _observe_confined_file_with_custody(
         primary = error
         failed_stage = ledger.stage
     finally:
-        try:
-            ledger.close_all()
-        except BaseException as error:  # noqa: BLE001 - cleanup-boundary interruption cannot erase read evidence
-            ledger.cleanup_failure(error, "cleanup_boundary_unknown")
-            try:
-                ledger.close_unspent()
-            except BaseException as continuation_error:  # noqa: BLE001 - retain unresolved original custody without replay
-                ledger.cleanup_failure(
-                    continuation_error, "cleanup_continuation_unknown"
-                )
-    try:
-        cleanup = ledger.snapshot()
-    except BaseException as error:  # noqa: BLE001 - snapshot failure must not mask the original read or reclose resources
-        ledger.cleanup_failure(error, "cleanup_snapshot_unknown")
-        try:
-            # Data-only projection of the same original ledger. Do not replay
-            # the failed snapshot entrance or any physical disposal.
-            cleanup = ledger.snapshot_value()
-        except BaseException as evidence_error:  # noqa: BLE001 - unavailable accounting is unknown, never zero
-            ledger.cleanup_failure(evidence_error, "cleanup_accounting_unknown")
-            cleanup = ConfinedFileReadCleanup(
-                "unknown", None, None, None, tuple(ledger.diagnostics)
-            )
+        cleanup = _settle_confined_read_ledger(ledger)
     if primary is None and cleanup.outcome == "unknown":
         primary = ledger.first_cleanup_error or RuntimeError("read_cleanup_unverified")
         failed_stage = "cleanup"
@@ -1168,6 +1146,203 @@ def _observe_confined_file_with_custody(
         )
         failure._original_read_ledger = ledger
         raise failure from error
+
+
+def _settle_confined_read_ledger(ledger: _ReadLedger) -> ConfinedFileReadCleanup:
+    """Settle the original read rights once, preserving uncertain accounting."""
+    try:
+        ledger.close_all()
+    except BaseException as error:  # noqa: BLE001 - cleanup-boundary interruption cannot erase read evidence
+        ledger.cleanup_failure(error, "cleanup_boundary_unknown")
+        try:
+            ledger.close_unspent()
+        except BaseException as continuation_error:  # noqa: BLE001 - retain unresolved original custody without replay
+            ledger.cleanup_failure(continuation_error, "cleanup_continuation_unknown")
+    try:
+        return ledger.snapshot()
+    except BaseException as error:  # noqa: BLE001 - snapshot failure must not mask the original read or reclose resources
+        ledger.cleanup_failure(error, "cleanup_snapshot_unknown")
+        try:
+            return ledger.snapshot_value()
+        except BaseException as evidence_error:  # noqa: BLE001 - unavailable accounting is unknown, never zero
+            ledger.cleanup_failure(evidence_error, "cleanup_accounting_unknown")
+            return ConfinedFileReadCleanup(
+                "unknown", None, None, None, tuple(ledger.diagnostics)
+            )
+
+
+@dataclass(frozen=True, slots=True)
+class _FilePostimageObservation:
+    leaf: str
+    identity: tuple[int, int]
+    size_bytes: int
+    content_digest: str
+    mode: int
+    read_calls: int
+    observation_grade: str = "observed_state"
+
+
+@dataclass(frozen=True, slots=True)
+class _FilePostimageVerification:
+    observation: _FilePostimageObservation
+    cleanup: ConfinedFileReadCleanup
+
+
+class _FilePostimageError(RuntimeError):
+    def __init__(self, code, *, stage, primary, observation, cleanup, ledger):
+        self.code = code
+        self.stage = stage
+        self.primary = primary
+        self.observation = observation
+        self.cleanup = cleanup
+        self._original_read_ledger = ledger
+        super().__init__(code)
+
+
+def _verify_confined_file_postimage(
+    *,
+    parent_descriptor: int,
+    leaf: str,
+    expected_identity: tuple[int, int],
+    size_bytes: int,
+    content_digest: str,
+    mode: int,
+    maximum_chunk_bytes: int = 65536,
+    maximum_read_calls: int = 4097,
+) -> _FilePostimageVerification:
+    """Private owner reread; input/output metadata never establishes custody."""
+    ledger = _ReadLedger()
+    observation = primary = None
+    failed_stage = "validation"
+    try:
+        if type(leaf) is not str or len(leaf) > 1024:
+            raise ValueError("postimage_leaf_invalid")
+        _saved_read_path(leaf)
+        if "/" in leaf:
+            raise ValueError("postimage_flat_leaf_required")
+        if type(parent_descriptor) is not int or parent_descriptor < 0:
+            raise ValueError("postimage_parent_invalid")
+        if (
+            type(expected_identity) is not tuple
+            or len(expected_identity) != 2
+            or any(type(v) is not int or not 0 <= v < 2**64 for v in expected_identity)
+        ):
+            raise ValueError("postimage_identity_invalid")
+        if type(mode) is not int or mode not in (
+            0o444,
+            0o555,
+            0o600,
+            0o644,
+            0o700,
+            0o755,
+        ):
+            raise ValueError("postimage_mode_invalid")
+        for value, minimum, maximum in (
+            (size_bytes, 0, 256 * 1024 * 1024),
+            (maximum_chunk_bytes, 1, 65536),
+            (maximum_read_calls, 1, 4097),
+        ):
+            if type(value) is not int or not minimum <= value <= maximum:
+                raise ValueError("postimage_limit_invalid")
+        if size_bytes > maximum_chunk_bytes * (maximum_read_calls - 1):
+            raise ValueError("postimage_read_capacity_insufficient")
+        if (
+            type(content_digest) is not str
+            or len(content_digest) != 71
+            or not content_digest.startswith("sha256:")
+            or any(c not in "0123456789abcdef" for c in content_digest[7:])
+            or size_bytes == 0
+            and content_digest != _content_digest(b"")
+        ):
+            raise ValueError("postimage_digest_invalid")
+        if not all(hasattr(os, n) for n in ("O_NOFOLLOW", "O_NONBLOCK")):
+            raise NotImplementedError("postimage_secure_open_unavailable")
+        uid = os.geteuid()
+        ledger.stage = "postimage_open"
+        descriptor = ledger.open(
+            leaf, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent_descriptor
+        )
+        ledger.stage = "postimage_stat_before"
+        before = os.fstat(descriptor)
+
+        def matches(info):
+            return (
+                stat.S_ISREG(info.st_mode)
+                and (info.st_dev, info.st_ino) == expected_identity
+                and info.st_nlink == 1
+                and info.st_uid == uid
+                and stat.S_IMODE(info.st_mode) == mode
+                and info.st_size == size_bytes
+            )
+
+        if not matches(before):
+            raise ValueError("postimage_metadata_mismatch")
+        consumed = calls = 0
+        digest = hashlib.sha256()
+        ledger.stage = "postimage_read"
+        while True:
+            if calls >= maximum_read_calls:
+                raise ValueError("postimage_read_count_exceeded")
+            calls += 1
+            chunk = os.read(
+                descriptor, min(maximum_chunk_bytes, size_bytes - consumed + 1)
+            )
+            if not chunk:
+                break
+            consumed += len(chunk)
+            if consumed > size_bytes:
+                raise ValueError("postimage_length_exceeded")
+            digest.update(chunk)
+        ledger.stage = "postimage_digest"
+        actual_digest = "sha256:" + digest.hexdigest()
+        if consumed != size_bytes or actual_digest != content_digest:
+            raise ValueError("postimage_bytes_mismatch")
+        ledger.stage = "postimage_stat_after"
+        after = os.fstat(descriptor)
+        if not matches(after) or not _same_stat(before, after) or os.geteuid() != uid:
+            raise ValueError("postimage_changed_during_read")
+        ledger.stage = "postimage_leaf_correspondence"
+        named = os.stat(leaf, dir_fd=parent_descriptor, follow_symlinks=False)
+        if not matches(named) or not _same_stat(after, named):
+            raise ValueError("postimage_leaf_changed")
+        ledger.stage = "postimage_result"
+        observation = _FilePostimageObservation(
+            leaf, expected_identity, consumed, actual_digest, mode, calls
+        )
+    except BaseException as error:  # noqa: BLE001 - preserve interrupted IO and original disposal
+        primary = error
+        failed_stage = ledger.stage
+    finally:
+        cleanup = _settle_confined_read_ledger(ledger)
+    if primary is None and cleanup.outcome != "closed":
+        primary = ledger.first_cleanup_error or RuntimeError(
+            "postimage_cleanup_unknown"
+        )
+        failed_stage = "cleanup"
+    if primary is not None:
+        raise _FilePostimageError(
+            "filesystem_postimage_cleanup_unverified"
+            if failed_stage == "cleanup"
+            else "filesystem_postimage_failed",
+            stage=failed_stage,
+            primary=primary,
+            observation=observation,
+            cleanup=cleanup,
+            ledger=ledger,
+        ) from primary
+    assert observation is not None
+    try:
+        return _FilePostimageVerification(observation, cleanup)
+    except BaseException as error:
+        # Completed read and original cleanup survive failed return construction.
+        raise _FilePostimageError(
+            "filesystem_postimage_return_invalid",
+            stage="result",
+            primary=error,
+            observation=observation,
+            cleanup=cleanup,
+            ledger=ledger,
+        ) from error
 
 
 def _confined_read_value_to_payload(value, *, _budget=None, _depth=0):
@@ -1380,6 +1555,86 @@ def _write_confined_bytes(_io, descriptor: int, content: bytes) -> None:
         view = view[written:]
 
 
+@dataclass(frozen=True, slots=True)
+class _BoundedWriteStream:
+    chunks: Any
+    size_bytes: int
+    content_digest: str
+    maximum_chunk_bytes: int
+    maximum_chunks: int
+
+
+def _write_confined_stream(_io, descriptor: int, stream: _BoundedWriteStream) -> None:
+    consumed = 0
+    digest = hashlib.sha256()
+    for ordinal, chunk in enumerate(stream.chunks):
+        if ordinal >= stream.maximum_chunks:
+            raise ValueError("temporary_stream_chunk_count_exceeded")
+        if type(chunk) is not bytes or not 0 < len(chunk) <= stream.maximum_chunk_bytes:
+            raise ValueError("temporary_stream_chunk_invalid")
+        if consumed + len(chunk) > stream.size_bytes:
+            raise ValueError("temporary_stream_length_exceeded")
+        _write_confined_bytes(_io, descriptor, chunk)
+        consumed += len(chunk)
+        digest.update(chunk)
+    if consumed != stream.size_bytes:
+        raise ValueError("temporary_stream_length_mismatch")
+    if "sha256:" + digest.hexdigest() != stream.content_digest:
+        raise ValueError("temporary_stream_digest_mismatch")
+
+
+def _write_temporary_stream_steps(
+    *,
+    parent_descriptor: int,
+    name: str,
+    chunks,
+    size_bytes: int,
+    content_digest: str,
+    mode: int,
+    maximum_chunk_bytes: int = 65536,
+    maximum_chunks: int = 4096,
+    _io: Any = os,
+    _path="",
+):
+    """Private original-owner primitive, not caller-provided custody or IO."""
+    _saved_read_path(name)
+    if "/" in name:
+        raise ValueError("temporary_stream_leaf_required")
+    if type(mode) is not int or mode not in (0o444, 0o555, 0o600, 0o644, 0o700, 0o755):
+        raise ValueError("temporary_stream_mode_invalid")
+    for value, minimum, maximum in (
+        (maximum_chunk_bytes, 1, 65536),
+        (maximum_chunks, 1, 4096),
+        (size_bytes, 0, 256 * 1024 * 1024),
+    ):
+        if type(value) is not int or not minimum <= value <= maximum:
+            raise ValueError("temporary_stream_limit_invalid")
+    if size_bytes > maximum_chunk_bytes * maximum_chunks:
+        raise ValueError("temporary_stream_capacity_insufficient")
+    if (
+        type(content_digest) is not str
+        or len(content_digest) != 71
+        or not content_digest.startswith("sha256:")
+        or any(c not in "0123456789abcdef" for c in content_digest[7:])
+        or size_bytes == 0
+        and content_digest != _content_digest(b"")
+    ):
+        raise ValueError("temporary_stream_digest_invalid")
+    stream = _BoundedWriteStream(
+        iter(chunks), size_bytes, content_digest, maximum_chunk_bytes, maximum_chunks
+    )
+    yield from _write_temporary_steps(
+        parent_descriptor=parent_descriptor,
+        name=name,
+        content=b"",
+        mode=mode,
+        preserve_mode=True,
+        _io=_io,
+        _path=_path,
+        _stream=stream,
+    )
+
+
 def _write_temporary_steps(
     *,
     parent_descriptor: int,
@@ -1389,21 +1644,22 @@ def _write_temporary_steps(
     preserve_mode: bool = False,
     _io: Any = os,
     _path="",
+    _stream: _BoundedWriteStream | None = None,
 ):
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW
     descriptor = yield _ConfinedWriterStep(
         "scratch_create",
         _path,
         _io.open,
-        (name, flags, mode),
+        (name, flags, mode if _stream is None else 0o600),
         {"dir_fd": parent_descriptor},
     )
     try:
         yield _ConfinedWriterStep(
             "scratch_write",
             _path,
-            _write_confined_bytes,
-            (_io, descriptor, content),
+            _write_confined_bytes if _stream is None else _write_confined_stream,
+            (_io, descriptor, content if _stream is None else _stream),
             {},
         )
         if preserve_mode:

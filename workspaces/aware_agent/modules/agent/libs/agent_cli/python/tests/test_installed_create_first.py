@@ -220,6 +220,8 @@ def test_installed_origins_entrypoint_and_isolation():
         "aware_workspace_sdk.repository_publication",
         "aware_workspace_fs_adapter",
         "aware_workspace_fs_adapter.git_identity",
+        "aware_workspace_fs_adapter.initial_configuration_successor",
+        "aware_workspace_sdk.initial_authoring.configuration_successor",
         "aware_protocol_fs_adapter",
     ):
         module = importlib.import_module(name)
@@ -230,7 +232,7 @@ def test_installed_origins_entrypoint_and_isolation():
         )
     distributions = list(importlib.metadata.distributions())
     assert "aware-workflow" not in {d.metadata["Name"] for d in distributions}
-    assert importlib.metadata.version("aware-agent-cli") == "0.2.0a13"
+    assert importlib.metadata.version("aware-agent-cli") == "0.2.0a15"
     assert importlib.metadata.version("aware-protocol-fs-adapter") == "0.6.6"
     entries = [e for d in distributions for e in d.entry_points if e.name == "aware"]
     assert len(entries) == 1 and entries[0].value == "aware_agent_cli.main:main"
@@ -587,3 +589,212 @@ def test_installed_recovery_cannot_select_new_write(root):
     code, output = run(*recovery_args(root), "--create-repository")
     assert code == 2 and not root.exists()
     assert records(output)[0]["reason"] == "recovery_rejects_new_setup_options"
+
+
+def failed_with_local_attribution(root, monkeypatch):
+    """Installed original failure plus explicitly selected test-only metadata."""
+    original = original_failed_fixture(root, monkeypatch)
+    git(root, "config", "--local", "user.name", "Installed successor diagnostic")
+    git(root, "config", "--local", "user.email", "successor@example.invalid")
+    return original
+
+
+def continuation_args(root):
+    return [
+        "init",
+        "--profile",
+        "create-first",
+        "--repository-root",
+        root,
+        "--continue-configuration",
+    ]
+
+
+def successor_recovery_args(root):
+    return [
+        "init",
+        "--profile",
+        "create-first",
+        "--repository-root",
+        root,
+        "--recover-successor",
+    ]
+
+
+def continue_configuration(root):
+    code, output = terminal(
+        [*continuation_args(root), "--apply", "--format", "summary"],
+        "publish configuration successor",
+    )
+    assert code == 0, output
+    preview, configured = records(output)
+    assert preview["status"] == "preview" and configured["status"] == "configured"
+    assert configured["successor_plan"] == preview["successor_plan"]
+    assert configured["completion_verified"] and not configured["authorizes_retry"]
+    assert (
+        configured["stages"]["configuration_publication"]["publication_state"]
+        == "published"
+    )
+    assert configured["stages"]["terminal_qualification"]["kind"] == "successor"
+    assert 'Original publication: "not_published"' in output
+    return configured
+
+
+def test_installed_successor_preview_never_reserves_or_writes(root, monkeypatch):
+    original = failed_with_local_attribution(root, monkeypatch)
+    before = snapshot(root)
+    code, output = run(*continuation_args(root), "--format", "summary")
+    assert code == 0, output
+    (value,) = records(output)
+    assert value["status"] == "preview"
+    assert (
+        value["successor_plan"]["request"]["predecessor"]["publication"][
+            "original_result"
+        ]
+        == original
+    )
+    assert snapshot(root) == before
+
+
+def test_installed_successor_then_project_goal_membership_and_cold_read(
+    root, monkeypatch
+):
+    original = failed_with_local_attribution(root, monkeypatch)
+    old = snapshot(root / ".git/aware-initial-authoring-v1/configuration")
+    configured = continue_configuration(root)
+    origin = configured["stages"]["terminal_qualification"]
+    assert origin["predecessor"]["publication"]["original_result"] == original
+    create_project(root)
+    goal = create_goal(root)
+    before = snapshot(root)
+    for family, name in (("goal", "release"), ("project", "home")):
+        code, output = run(family, "show", name, *location(root), "--format", "json")
+        assert code == 0, output
+        reading = records(output)[0]["result"]["reading"]
+        assert reading["planning_status"] == "not_yet_decomposed"
+        assert reading["goal"]["lifecycle_status"] == "proposed"
+        assert (
+            reading["goal_creation_publication"]["original_result"]
+            == goal["original_result"]
+        )
+        assert (
+            reading["membership_publication"]["original_result"]
+            == goal["attachment"]["original_result"]
+        )
+        assert snapshot(root) == before
+    code, output = run(*successor_recovery_args(root))
+    assert code == 0, output
+    (recovery,) = records(output)
+    assert recovery["status"] == "recovered" and not recovery["completion_verified"]
+    assert (
+        recovery["successor_selection"]["original_result"]
+        == configured["stages"]["configuration_publication"]
+    )
+    assert (
+        recovery["successor_selection"]["request"]["predecessor"]["publication"][
+            "original_result"
+        ]
+        == original
+    )
+    assert snapshot(root) == before
+    assert snapshot(root / ".git/aware-initial-authoring-v1/configuration") == old
+    assert git(root, "rev-list", "--count", "HEAD").strip() == b"4"
+    assert not (root / "docs/issues").exists()
+    assert b"Issue-Tag:" not in git(root, "log", "--format=%B")
+
+
+@pytest.mark.parametrize("phrase", ["initialize create-first", "yes"])
+def test_installed_successor_old_confirmation_refuses(root, monkeypatch, phrase):
+    failed_with_local_attribution(root, monkeypatch)
+    before = snapshot(root)
+    code, output = terminal([*continuation_args(root), "--apply"], phrase)
+    assert code == 2, output
+    assert records(output)[-1]["reason"] == "exact_successor_confirmation_not_given"
+    assert snapshot(root) == before
+
+
+def test_installed_successor_noninteractive_apply_refuses(root, monkeypatch):
+    failed_with_local_attribution(root, monkeypatch)
+    before = snapshot(root)
+    code, output = run(*continuation_args(root), "--apply")
+    assert code == 2, output
+    assert (
+        records(output)[0]["reason"]
+        == "noninteractive_apply_requires_original_durable_review_binding"
+    )
+    assert snapshot(root) == before
+
+
+def test_installed_successor_changed_source_during_consent_never_refreshes(
+    root, monkeypatch
+):
+    failed_with_local_attribution(root, monkeypatch)
+
+    def change():
+        git(root, "config", "--local", "user.name", "Changed during consent")
+
+    code, output = terminal(
+        [*continuation_args(root), "--apply"], "publish configuration successor", change
+    )
+    assert code == 3, output
+    result = records(output)[-1]
+    assert result["status"] == "uncertain" and not result["completion_verified"]
+    assert not result["authorizes_redispatch"]
+    assert not (root / ".git/refs/heads/main").exists()
+    assert not (root / "aware.protocol.toml").exists()
+    assert b"Changed during consent" in (root / ".git/config").read_bytes()
+
+
+def test_installed_successor_published_attempt_does_not_redispatch(root, monkeypatch):
+    failed_with_local_attribution(root, monkeypatch)
+    continue_configuration(root)
+    before = snapshot(root)
+    code, output = run(*continuation_args(root))
+    assert code == 2, output
+    assert records(output)[-1]["status"] == "refused"
+    assert snapshot(root) == before
+
+
+def test_installed_successor_lost_terminal_result_stays_uncertain(root, monkeypatch):
+    failed_with_local_attribution(root, monkeypatch)
+    continue_configuration(root)
+    # Explicit disposable-fixture retention loss, never supported customer repair.
+    (root / ".git/aware-initial-configuration-successor-v1/result.json").unlink()
+    before = snapshot(root)
+    code, output = run(*successor_recovery_args(root))
+    assert code == 3, output
+    result = records(output)[0]
+    assert result["status"] == "uncertain" and not result["authorizes_redispatch"]
+    assert snapshot(root) == before
+    code, output = run(*continuation_args(root))
+    assert code == 2, output
+    assert snapshot(root) == before
+
+
+def test_installed_successor_recovery_cannot_publish_or_project(root, monkeypatch):
+    failed_with_local_attribution(root, monkeypatch)
+    configured = continue_configuration(root)
+    before = snapshot(root)
+    for _ in range(2):
+        code, output = run(*successor_recovery_args(root), "--format", "summary")
+        assert code == 0, output
+        result = records(output)[0]
+        assert result["historical_only"] and not result["completion_verified"]
+        assert (
+            result["successor_selection"]["original_result"]
+            == configured["stages"]["configuration_publication"]
+        )
+        assert snapshot(root) == before
+    monkeypatch.setenv("CODEX_THREAD_ID", "foreign-successor-installed-reader")
+    code, output = run(*successor_recovery_args(root))
+    assert code == 2, output
+    assert records(output)[0]["status"] == "refused"
+    assert snapshot(root) == before
+
+
+@pytest.mark.parametrize(
+    "flag", ["--apply", "--continue-configuration", "--create-repository"]
+)
+def test_installed_successor_recovery_rejects_write_modes(root, flag):
+    code, _ = run(*successor_recovery_args(root), flag)
+    assert code == 2 and not root.exists()

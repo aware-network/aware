@@ -19,3 +19,5 @@ No A2/tree, Service, Object or materialization join is admitted.
 decisions and original guards. It does not automate Issue guard handling.
 
 [A14 resource summaries](RESOURCE-RELEASES.md) are included in the delivered a14 software. Both reviews and original Issue guards remain.
+
+[Prepared historical action observation](ACTION-OBSERVATION.md) validates original intent, not completion or current-use authority. Instructions are draft and unselected.

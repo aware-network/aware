@@ -33,8 +33,13 @@ def register_workspace_review_command(registry: AwareCommandRegistry) -> None:
 
 def _configure(parser: argparse.ArgumentParser) -> None:
     actions = parser.add_subparsers(dest="review_action", required=True)
-    for name in ("prepare", "show", "scope", "apply", "evidence"):
+    for name in ("prepare", "show", "scope", "apply", "evidence", "observe-admission"):
         descriptions = {
+            "observe-admission": (
+                "Read validated historical apply intent using explicit original review "
+                "and intent references. Does not establish prior completion, current "
+                "admission or retry authority; no mutation is dispatched."
+            ),
             "show": (
                 "Read a historical SetupReviewRecord only; no current-use authority. "
                 "For retained refusals, outcomes or other evidence kinds, use "
@@ -82,6 +87,12 @@ def _configure(parser: argparse.ArgumentParser) -> None:
             )
         if name in ("prepare", "scope", "apply"):
             action.add_argument("--client-intent-id", required=True)
+        if name == "observe-admission":
+            action.add_argument(
+                "--intent-reference",
+                required=True,
+                help="Exact original SDK-issued retained intent reference JSON. Never derive a filename or invent a reference.",
+            )
         if name == "scope":
             action.add_argument(
                 "--accept-reviewed-effect-scope", action="store_true", required=True
@@ -431,6 +442,24 @@ def review_payload(
             if reference is None
             else reference.target
         )
+        observation_request = None
+        if args.review_action == "observe-admission":
+            assert reference is not None
+            # Resolve and validate the genuine port/types before client acquisition.
+            # Existing commands do not import this successor-only interface.
+            from aware_workspace_sdk.architecture_setup_review_values import (
+                SetupActionAdmissionRequest,
+            )
+
+            intent = review_value_from_json(SetupEvidenceRef, args.intent_reference)
+            observation_request = SetupActionAdmissionRequest(
+                target, "apply", reference, intent
+            )
+            review_value_to_payload(observation_request)
+            if not callable(
+                getattr(WorkspaceSetupReviewClient, "observe_action_admission", None)
+            ):
+                raise RuntimeError("qualified_action_observer_port_unavailable")
         payload["stage"] = "client_acquisition"
         client = WorkspaceSetupReviewClient.filesystem(
             repository_root=args.repository_root,
@@ -456,6 +485,24 @@ def review_payload(
                     args.include_issue_lifecycle,
                 )
             )
+        elif args.review_action == "observe-admission":
+            assert observation_request is not None
+            payload["stage"] = "historical_admission_observation"
+            observation = client.observe_action_admission(observation_request)
+            payload["purpose"] = "history"
+            payload["action_observation"] = {}
+            try:
+                _action_observation_payload(observation, payload["action_observation"])
+            except BaseException as error:  # noqa: BLE001 -- preserve observed prefix and independent cleanup
+                payload["error"] = _error_payload(error)
+                payload["error"]["presentation_errors"] = {
+                    "action_observation": _exception_metadata(error)
+                }
+                payload["status"] = "incomplete"
+                code = 130 if not isinstance(error, Exception) else 3
+            else:
+                payload["status"] = "completed"
+                code = 0
         elif args.review_action == "evidence":
             assert reference is not None
             payload["stage"] = "evidence_read"
@@ -543,6 +590,101 @@ def review_payload(
 def _terminal_text(value: str) -> str:
     """Quoted ASCII display only; never alter the original SDK value."""
     return json.dumps(value, ensure_ascii=True)
+
+
+def _action_observation_payload(
+    value: Any, result: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    """Agent presentation only: preserve member codecs, never encode a grant."""
+    from aware_file_system.private_directory import private_directory_value_to_payload
+    from aware_workspace_sdk.architecture_setup_review_codec import (
+        review_value_to_payload,
+    )
+    from aware_workspace_sdk.architecture_setup_review_values import (
+        SetupActionAdmissionObservation,
+    )
+
+    if type(value) is not SetupActionAdmissionObservation:
+        raise TypeError("original_action_admission_observation_required")
+    if result is None:
+        result = {}
+    result.update(
+        {
+            "presentation_contract": "aware.agent.action-admission-observation.v1",
+            "portable_admission": False,
+            "action": value.action,
+            "observation": value.observation,
+            "product_dispatch_this_observation": value.product_dispatch_this_observation,
+            "historical_driver_outcome": value.historical_driver_outcome,
+            "authorizes_retry": value.authorizes_retry,
+        }
+    )
+    for name in (
+        "target",
+        "review_ref",
+        "intent_ref",
+        "inputs_ref",
+        "review",
+        "intent",
+        "inputs",
+    ):
+        result[name] = review_value_to_payload(getattr(value, name))
+    result["private_observation"] = private_directory_value_to_payload(
+        value.private_observation
+    )
+    result["reads"] = []
+    for row in value.reads:
+        result["reads"].append(private_directory_value_to_payload(row))
+    return result
+
+
+def _action_observation_summary(payload: dict[str, Any]) -> str:
+    observation = payload.get("action_observation") or {}
+    target = (observation.get("target") or {}).get("value") or {}
+    cleanup = (payload.get("client_cleanup") or {}).get("value") or {}
+    directory = (cleanup.get("directory") or {}).get("value") or {}
+    ledger = (directory.get("observation") or {}).get("value") or {}
+    return "\n".join(
+        (
+            "Workspace historical action observation: " + payload["status"],
+            "Owner-validated observation: "
+            + _terminal_text(observation.get("observation", "unknown/not returned")),
+            "Historical driver outcome: "
+            + _terminal_text(
+                observation.get("historical_driver_outcome", "unknown/not returned")
+            ),
+            "Product dispatch by this observation: "
+            + _terminal_text(
+                observation.get(
+                    "product_dispatch_this_observation", "unknown/not returned"
+                )
+            ),
+            "This does not establish whether the historical driver ran or completed.",
+            "Issue: "
+            + _terminal_text(target.get("issue_tag", "unknown/not returned"))
+            + " at "
+            + _terminal_text(target.get("issue_path", "unknown/not returned")),
+            "Historical execution: "
+            + _terminal_text(
+                (observation.get("intent") or {})
+                .get("value", {})
+                .get("execution_ref", "unknown/not returned")
+            ),
+            "Original Workspace release: unknown/not established by this observation.",
+            "Observer directory release: "
+            + _terminal_text(directory.get("release", "unknown/not returned")),
+            "Observer directory ledger complete: "
+            + _completion_text(ledger.get("ledger_complete")),
+            "Observer client cleanup complete: "
+            + _completion_text(cleanup.get("ledger_complete")),
+            "Later observer cleanup does not complete historical retention or resolve prior release uncertainty.",
+            "Authorizes retry: "
+            + _completion_text(observation.get("authorizes_retry")),
+            "No current-use admission, approval, live continuation or mutation authority is returned.",
+            "Do not repeat apply, refresh guards, scan records or invent references to obtain another result.",
+            "Use --json for the original member-coded references, records, reads and independent cleanup. This presentation is not a portable SDK grant.",
+        )
+    )
 
 
 def _completion_text(value: Any) -> str:
@@ -647,6 +789,12 @@ def _next_observation(payload: dict[str, Any]) -> str:
 
 
 def _summary(payload: dict[str, Any], *, focus: str | None = None) -> str:
+    if (
+        payload.get("action_observation") is not None
+        and not payload.get("error")
+        and not payload.get("cleanup_error")
+    ):
+        return _action_observation_summary(payload)
     lines = [f"Workspace review {payload['action']}: {payload['status']}"]
     if focus is not None:
         lines.append(
@@ -870,6 +1018,8 @@ def _summary(payload: dict[str, Any], *, focus: str | None = None) -> str:
     lines.append(
         "No automatic retry or guard refresh. show accepts historical review records only; evidence reads retained refusals/outcomes and other supported kinds."
     )
+    if payload.get("action") == "observe-admission":
+        lines.append(_action_observation_summary(payload))
     return "\n".join(lines)
 
 

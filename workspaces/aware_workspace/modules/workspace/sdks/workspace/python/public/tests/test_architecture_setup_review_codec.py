@@ -26,6 +26,10 @@ ROOT = next(
     p for p in Path(__file__).resolve().parents if (p / "aware.repo.toml").exists()
 )
 PACKET = ROOT / "docs/reports/workspace-reviewed-refusal-artifact-inputs-20261017.json"
+TYPE_PACKET = (
+    ROOT
+    / "docs/reports/workspace-a1-reviewed-workflow-interface-inputs-20261016-r2.json"
+)
 TYPES = {cls.__name__: cls for cls in v.REVIEW_FIELD_TYPES}
 WIRE_TYPES = [cls for cls, wire in v.REVIEW_SCHEMA_IDS.items() if wire is not None]
 VIEW_TYPES = [cls for cls, wire in v.REVIEW_SCHEMA_IDS.items() if wire is None]
@@ -254,11 +258,36 @@ def value(cls):
             record_contract=v.REVIEW_SCHEMA_IDS[v.SetupReviewRecord],
         )
         data["phase"] = "read_review"
+    if cls is v.SetupActionAdmissionRequest:
+        for name, record_type in (
+            ("review_ref", v.SetupReviewRecord),
+            ("intent_ref", v.SetupDispatchIntent),
+        ):
+            data[name] = dataclasses.replace(
+                data[name],
+                target=data["target"],
+                record_contract=v.REVIEW_SCHEMA_IDS[record_type],
+            )
     return cls(**data)
 
 
 @pytest.mark.parametrize("cls", list(v.REVIEW_FIELD_TYPES))
 def test_original_contract_fields_and_wire_identifiers(cls):
+    if cls in (v.SetupActionAdmissionRequest, v.SetupActionAdmissionObservation):
+        packet = json.loads(
+            (
+                ROOT
+                / "docs/reports/workspace-action-observer-implementation-inputs-20261019.json"
+            ).read_text()
+        )["additive_types"][cls.__name__]
+        assert [f.name for f in dataclasses.fields(cls)] == [
+            row[0] for row in packet["fields"]
+        ]
+        assert tuple(v.REVIEW_FIELD_TYPES[cls]) == tuple(
+            tuple(row) for row in packet["fields"]
+        )
+        assert v.REVIEW_SCHEMA_IDS[cls] == packet["wire_id"]
+        return
     if cls is v.SetupRefusalRecord:
         assert (
             v.REVIEW_SCHEMA_IDS[cls]
@@ -280,7 +309,7 @@ def test_original_contract_fields_and_wire_identifiers(cls):
             "authorizes_retry",
         ]
         return
-    packet = json.loads(PACKET.read_text())["types"][cls.__name__]
+    packet = json.loads(TYPE_PACKET.read_text())["types"][cls.__name__]
     expected = [(r["name"], r["type"]) for r in packet["fields"]]
     if cls is v.SetupReviewFailure:
         expected += [

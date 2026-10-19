@@ -1,6 +1,6 @@
 [project]
 name = "aware-file-system"
-version = "0.3.8"
+version = "0.3.9"
 description = "Neutral filesystem observation, retained mutation and package publication mechanisms for Aware tooling."
 readme = "README.md"
 requires-python = ">=3.12"

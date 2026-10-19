@@ -362,12 +362,12 @@ def test_source_metadata_requires_actual_setup_ports_without_service_extra():
         (Path(__file__).parents[1] / "pyproject.toml").read_text()
     )["project"]
     requirements = {r.name: r for r in map(Requirement, metadata["dependencies"])}
-    assert metadata["version"] == "0.2.0a14"
+    assert metadata["version"] == "0.2.0a15"
     sdk = requirements["aware-workspace-sdk"]
     runtime = requirements["aware-workspace-runtime"]
     assert sdk.extras == {"preparation", "setup", "setup_admission", "setup_review"}
-    assert "0.2.11" in sdk.specifier and "0.2.10" not in sdk.specifier
-    assert "0.2.16" in runtime.specifier and "0.2.15" not in runtime.specifier
+    assert "0.2.14" in sdk.specifier and "0.2.13" not in sdk.specifier
+    assert "0.2.19" in runtime.specifier and "0.2.18" not in runtime.specifier
     assert "0.3.0" not in sdk.specifier and "0.3.0" not in runtime.specifier
     assert runtime.extras == {"setup_admission", "setup_review"}
     issue = requirements["aware-issue-sdk"]

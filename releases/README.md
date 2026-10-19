@@ -44,3 +44,7 @@ Complete whole-envelope source and notice carriage remains required. The deliver
 pointer is not a package catalog or operation authority. Same observation is not
 frozen preview bytes; apply plans afresh. No automatic refresh, approval or retry.
 This wording alignment requires independent review and separate publication authorization.
+
+## Prepared historical action observer
+
+[canonical-action-observer-fs-v1](canonical-action-observer-fs-v1/README.md) is prepared and unselected. Instructions remain draft; integration, selection, freeze and publication are separate. Whole-envelope carriage remains required.

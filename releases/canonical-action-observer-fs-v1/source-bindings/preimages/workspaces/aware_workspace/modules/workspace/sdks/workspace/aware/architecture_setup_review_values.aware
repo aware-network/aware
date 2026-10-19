@@ -1,0 +1,268 @@
+// Authored detached review records. Bounds and constant false remain enforced by
+// the original strict owner codecs. No data value issues live authority.
+
+enum SetupReviewReviewPurpose {
+    history
+    current_use
+}
+
+enum SetupReviewScopeChoice {
+    accept_reviewed_effect_scope
+}
+
+enum SetupReviewFinalChoice {
+    accept_reviewed_final_files
+}
+
+enum SetupReviewDispatchAction {
+    scope
+    apply
+}
+
+enum SetupReviewDispatchKnowledge {
+    not_observed
+    attempted
+    unknown
+}
+
+enum SetupReviewCaptureKind {
+    command_v1
+    issue_result_v1
+    issue_failure_v1
+}
+
+enum SetupReviewScopeOutcomeKind {
+    result
+    failure
+    unknown
+}
+
+enum SetupReviewScopeCompletionStatus {
+    continuation_ready
+    refused
+    incomplete
+}
+
+enum SetupReviewRetentionStatus {
+    not_attempted
+    captured
+    published
+    incomplete
+    unknown
+}
+
+enum SetupReviewProductStatus {
+    not_invoked
+    preview_completed
+    apply_completed
+    refused
+    incomplete
+}
+
+enum SetupReviewDecisionRequired {
+    scope_review
+    apply_review
+    none
+}
+
+enum SetupReviewPrivacyProfile {
+    effective_user_private_namespace_v1
+}
+
+// aware.workspace.setup-review.setup-target.v1
+class SetupTarget : inline_value {
+    repository_root String
+    issue_tag String
+    issue_path String
+    authority_manifest_locator String
+}
+
+// aware.workspace.setup-review.setup-review-request.v1
+class SetupReviewRequest : inline_value {
+    target SetupTarget
+    architecture_request ArchitectureSetupRequest
+    execution_ref String
+    client_intent_id String
+    actor_ref String? required
+    actor_evidence_ref String? required
+    include_issue_lifecycle Bool
+}
+
+// aware.workspace.setup-review.setup-evidence-ref.v1
+class SetupEvidenceRef : inline_value {
+    evidence_root String
+    root_identity DirectoryIdentity
+    locator String
+    record_contract String
+    record_sha256 String
+    record_bytes Int
+    attempt_ref String
+    target SetupTarget
+}
+
+// aware.workspace.setup-review.setup-chunk-descriptor.v1
+class SetupChunkDescriptor : inline_value {
+    ordinal Int
+    locator String
+    byte_count Int
+    sha256 String
+}
+
+// aware.workspace.setup-review.setup-capture-descriptor.v1
+class SetupCaptureDescriptor : inline_value {
+    kind SetupReviewCaptureKind
+    byte_count Int
+    sha256 String
+    chunks SetupChunkDescriptor[]
+}
+
+// aware.workspace.setup-review.setup-review-record.v1
+class SetupReviewRecord : inline_value {
+    request SetupReviewRequest
+    capture SetupCaptureDescriptor
+    issue_read aware_issue_sdk.IssueReadProjectionResolveResult
+    review_guards WorkspaceSetupA1ReviewGuards
+    existing_scope String[]
+    physical_scope String[]
+    final_files String[]
+    correspondence_sha256 String
+    scope_outcome_ref SetupEvidenceRef? required
+    ready_for_decision Bool
+    diagnostics String[]
+}
+
+// aware.workspace.setup-review.setup-scope-decision.v1
+class SetupScopeDecision : inline_value {
+    review SetupEvidenceRef
+    scope_choice SetupReviewScopeChoice
+    execution_ref String
+    client_intent_id String
+}
+
+// aware.workspace.setup-review.setup-apply-decision.v1
+class SetupApplyDecision : inline_value {
+    review SetupEvidenceRef
+    final_files_choice SetupReviewFinalChoice
+    execution_ref String
+    client_intent_id String
+}
+
+// aware.workspace.setup-review.setup-scope-input-record.v1
+class SetupScopeInputRecord : inline_value {
+    decision SetupScopeDecision
+    scope_paths String[]
+    request aware_issue_sdk.IssueBindScopePathsRequest
+}
+
+// aware.workspace.setup-review.setup-apply-input-record.v1
+class SetupApplyInputRecord : inline_value {
+    decision SetupApplyDecision
+    final_files String[]
+    review_guards WorkspaceSetupA1ReviewGuards
+    request WorkspaceSetupA1CommandRequest
+}
+
+// aware.workspace.setup-review.setup-dispatch-intent.v1
+class SetupDispatchIntent : inline_value {
+    action SetupReviewDispatchAction
+    review SetupEvidenceRef
+    inputs_ref SetupEvidenceRef
+    execution_ref String
+    client_intent_id String
+    action_key String
+    authorizes_retry Bool
+}
+
+// aware.workspace.setup-review.setup-unknown-scope-outcome.v1
+class SetupUnknownScopeOutcome : inline_value {
+    dispatch SetupReviewDispatchKnowledge
+    cause_type String
+    interruption Bool
+    diagnostics String[]
+}
+
+// aware.workspace.setup-review.setup-scope-outcome-record.v1
+class SetupScopeOutcomeRecord : inline_value {
+    scope_inputs_ref SetupEvidenceRef
+    intent_ref SetupEvidenceRef
+    outcome_kind SetupReviewScopeOutcomeKind
+    capture SetupCaptureDescriptor? required
+    unknown SetupUnknownScopeOutcome? required
+    authorizes_retry Bool
+}
+
+// aware.workspace.setup-review.retention-evidence.v1
+class RetentionEvidence : inline_value {
+    status SetupReviewRetentionStatus
+    intent_ref SetupEvidenceRef? required
+    capture SetupCaptureDescriptor? required
+    sequence_observations aware_file_system.PrivateSequenceObservation[]
+    sequence_cleanup aware_file_system.PrivateSequenceCleanup[]
+    directory_cleanup aware_file_system.PrivateDirectoryCleanup? required
+    ledger_complete Bool
+    diagnostics String[]
+    physical_refusal aware_file_system.PrivateDirectoryRefusalEvidence? required
+}
+
+// aware.workspace.setup-review.setup-outcome-record.v1
+class SetupOutcomeRecord : inline_value {
+    inputs_ref SetupEvidenceRef
+    intent_ref SetupEvidenceRef
+    product_status SetupReviewProductStatus
+    capture SetupCaptureDescriptor
+    retention_prefix RetentionEvidence
+    authorizes_retry Bool
+}
+
+// aware.workspace.setup-review.setup-concise-result.v1
+class SetupConciseResult : inline_value {
+    product_status SetupReviewProductStatus
+    reference SetupEvidenceRef? required
+    decision_required SetupReviewDecisionRequired
+    retention_status SetupReviewRetentionStatus
+    ledger_complete Bool
+    diagnostics String[]
+    authorizes_retry Bool
+}
+
+// aware.workspace.setup-review.setup-review-client-cleanup.v1
+class SetupReviewClientCleanup : inline_value {
+    workspace WorkspaceSetupClientCleanup? required
+    issue aware_issue_sdk.IssueWorkspaceSetupClientCleanup? required
+    directory aware_file_system.PrivateDirectoryCleanup? required
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+// aware.workspace.setup-review.directory-identity.v1
+class DirectoryIdentity : inline_value {
+    device Int
+    inode Int
+}
+
+// Additive refusal contract; all earlier v1 records remain unchanged.
+enum SetupReviewRefusalReason {
+    review_issue_changed
+    review_authority_sources_changed
+}
+
+enum SetupReviewRefusalDispatch {
+    not_invoked
+}
+
+// aware.workspace.setup-review.setup-refusal-record.v1
+class SetupRefusalRecord : inline_value {
+    review_ref SetupEvidenceRef
+    request SetupReviewRequest
+    code SetupReviewRefusalReason
+    phase String
+    observed_issue aware_issue_sdk.IssueReadProjectionResolveResult
+    observed_sources aware_issue_sdk.IssueWorkspaceSetupSourcesObservation? required
+    issue_cleanup aware_issue_sdk.IssueWorkspaceSetupClientCleanup? required
+    reads aware_file_system.PrivateFileReadResult[]
+    scope_decision SetupScopeDecision? required
+    apply_decision SetupApplyDecision? required
+    inputs_ref SetupEvidenceRef? required
+    product_dispatch SetupReviewRefusalDispatch
+    authorizes_retry Bool
+}

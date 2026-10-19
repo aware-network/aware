@@ -27,6 +27,14 @@ publication and closeout**. A generated manifest is setup, not completion of the
 customer's application. Project/Goal direction and language/Meta materialization
 are parallel future elevations, not prerequisites for this path.
 
+## Prepared historical action observation
+
+Agent **0.2.0a15** is prepared and unselected; instructions remain draft.
+[Historical action observation](protocols/workspace/ACTION-OBSERVATION.md)
+validates original retained intent without proving completion or authorizing
+retry. The proposed installer targets this successor, not the delivered a14
+software. Useful work, optional SPEC and both explicit review decisions stay.
+
 ## Delivered Issue observation input
 
 Issue CLI **0.8.4** was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.

@@ -14,6 +14,8 @@ from .architecture_setup_review_values import (
     ReviewedSetupApplyInputs,
     ReviewedSetupScopeInputs,
     ReviewPurpose,
+    SetupActionAdmissionObservation,
+    SetupActionAdmissionRequest,
     SetupApplyDecision,
     SetupCommandOutcome,
     SetupConciseResult,
@@ -153,6 +155,12 @@ class WorkspaceSetupReviewClient:
         self, reference: SetupEvidenceRef, *, expected_target: SetupTarget
     ) -> SetupEvidenceRead:
         return self._runtime.read_evidence(reference, expected_target=expected_target)
+
+    def observe_action_admission(
+        self, request: SetupActionAdmissionRequest
+    ) -> SetupActionAdmissionObservation:
+        """Validate supplied historical intent; never dispatch or renew admission."""
+        return self._runtime.observe_action_admission(request)
 
     def release_client(self) -> SetupReviewClientCleanup:
         return self._runtime.release_client()

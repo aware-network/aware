@@ -1272,6 +1272,68 @@ class WorkspaceSetupReviewRuntime:
             )
             return self._outcome
 
+    def observe_action_admission(self, request):
+        """Read exact historical records and join them without any admission write."""
+        with self._action("observe_action_admission"):
+            if type(request) is not v.SetupActionAdmissionRequest:
+                _refuse("original_action_admission_request_required")
+            review_value_to_payload(request)
+            self._check_target(request.target)
+            review = self._read_review(
+                request.review_ref, expected_target=request.target, purpose="history"
+            )
+            intent, _ = self._load(request.intent_ref, expected_target=request.target)
+            if (
+                type(intent) is not v.SetupDispatchIntent
+                or intent.action != request.action
+                or intent.review != request.review_ref
+                or intent.action_key
+                != review_action_key(request.action, request.review_ref.record_sha256)
+                or intent.execution_ref != review.record.request.execution_ref
+                or request.intent_ref.attempt_ref
+                != review_attempt_key(intent.execution_ref, intent.client_intent_id)
+            ):
+                _refuse("action_observation_intent_mismatch")
+            if intent.inputs_ref.record_contract != v.REVIEW_SCHEMA_IDS[
+                v.SetupApplyInputRecord
+            ] or intent.inputs_ref.attempt_ref != review_attempt_key(
+                intent.execution_ref, intent.client_intent_id
+            ):
+                _refuse("action_observation_inputs_reference_mismatch")
+            inputs, _ = self._load(intent.inputs_ref, expected_target=request.target)
+            if (
+                type(inputs) is not v.SetupApplyInputRecord
+                or inputs.decision.execution_ref != intent.execution_ref
+                or inputs.decision.client_intent_id != intent.client_intent_id
+                or inputs
+                != apply_input_record(
+                    review.record, request.review_ref, inputs.decision
+                )
+            ):
+                _refuse("action_observation_inputs_mismatch")
+            # The original reader validates every read/cleanup prefix. Recheck
+            # the root before returning; this does not lock history or make it
+            # a current review. Later client cleanup remains a separate result.
+            observed = self.store.current()
+            if not observed.ledger_complete:
+                _refuse("action_observation_private_ledger_incomplete")
+            return v.SetupActionAdmissionObservation(
+                request.target,
+                request.action,
+                request.review_ref,
+                request.intent_ref,
+                intent.inputs_ref,
+                review.record,
+                intent,
+                inputs,
+                "validated_retained_intent",
+                "not_invoked",
+                "not_established",
+                observed,
+                tuple(self.store.reads),
+                False,
+            )
+
     def read_evidence(self, reference, *, expected_target):
         with self._action("read_evidence"):
             value, raw = self._load(reference, expected_target=expected_target)

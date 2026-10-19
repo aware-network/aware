@@ -1,30 +1,30 @@
 [project]
 name = "aware-workspace-sdk"
-version = "0.2.13"
+version = "0.2.14"
 description = "Neutral Workspace SDK with explicitly selected original authority providers."
 license = "Apache-2.0"
 authors = [{ name = "AWARE Team" }]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "aware-workspace-runtime>=0.2.18,<0.3.0",
+  "aware-workspace-runtime>=0.2.19,<0.3.0",
 ]
 
 [project.optional-dependencies]
 setup_review = [
-  "aware-workspace-runtime[setup_review]>=0.2.18,<0.3.0",
+  "aware-workspace-runtime[setup_review]>=0.2.19,<0.3.0",
   "aware-workspace-fs-adapter>=0.1.11,<0.2.0",
   "aware-issue-sdk[workspace_setup_admission]>=0.10.6,<0.11.0",
 ]
 setup_admission = [
-  "aware-workspace-runtime[setup_admission]>=0.2.18,<0.3.0",
+  "aware-workspace-runtime[setup_admission]>=0.2.19,<0.3.0",
   "aware-workspace-fs-adapter>=0.1.11,<0.2.0",
   "aware-issue-sdk[workspace_setup_admission]>=0.10.5,<0.11.0",
 ]
 setup = ["aware-workspace-fs-adapter>=0.1.11,<0.2.0"]
 filesystem_delta_capture = ["aware-workspace-fs-adapter>=0.1.11,<0.2.0"]
 source_projection = [
-  "aware-workspace-runtime[source_projection]>=0.2.18,<0.3.0",
+  "aware-workspace-runtime[source_projection]>=0.2.19,<0.3.0",
   "aware-workspace-fs-adapter>=0.1.11,<0.2.0",
   "aware-issue-sdk>=0.10.3,<0.11.0",
 ]
@@ -32,7 +32,7 @@ preparation = ["aware-workspace-fs-adapter>=0.1.11,<0.2.0"]
 filesystem = ["aware-workspace-fs-adapter>=0.1.11,<0.2.0"]
 filesystem_delta_retention = ["aware-workspace-fs-adapter>=0.1.11,<0.2.0"]
 publication = [
-  "aware-workspace-runtime[publication]>=0.2.18,<0.3.0",
+  "aware-workspace-runtime[publication]>=0.2.19,<0.3.0",
   "aware-workspace-fs-adapter>=0.1.11,<0.2.0",
   "aware-issue-sdk>=0.10.2,<0.11.0",
 ]

@@ -1399,9 +1399,48 @@ def test_all_predecessor_native_executable_ast_is_unchanged(module, added):
         if not isinstance(node, ast.FunctionDef) or node.name not in added
     ]
     if module is n:
-        # The admitted IO successor changes only the original read ledger and
-        # reader; conserve every other predecessor top-level declaration.
-        joined = {"_ReadLedger", "_observe_confined_file_with_custody", "_read_current"}
+        # Preserve the original whole-body writer AST under its unchanged
+        # default. Only the three explicit stream-selection expressions and
+        # added default keyword are projected; arbitrary edits still fail.
+        writer = next(
+            node
+            for node in current.body
+            if getattr(node, "name", None) == "_write_temporary_steps"
+        )
+        assert writer.args.kwonlyargs[-1].arg == "_stream"
+        assert ast.dump(writer.args.kw_defaults[-1]) == "Constant(value=None)"
+        writer.args.kwonlyargs.pop()
+        writer.args.kw_defaults.pop()
+
+        class OriginalWholeBody(ast.NodeTransformer):
+            count = 0
+
+            def visit_IfExp(self, node):
+                if ast.dump(node.test) == ast.dump(
+                    ast.parse("_stream is None", mode="eval").body
+                ):
+                    self.count += 1
+                    return self.visit(node.body)
+                return self.generic_visit(node)
+
+        projection = OriginalWholeBody()
+        projection.visit(writer)
+        assert projection.count == 3
+        # Existing read successors and precisely named stream additions only;
+        # the projected original writer remains in the full AST comparison.
+        joined = {
+            "_ReadLedger",
+            "_observe_confined_file_with_custody",
+            "_read_current",
+            "_BoundedWriteStream",
+            "_write_confined_stream",
+            "_write_temporary_stream_steps",
+            "_settle_confined_read_ledger",
+            "_FilePostimageObservation",
+            "_FilePostimageVerification",
+            "_FilePostimageError",
+            "_verify_confined_file_postimage",
+        }
         original.body = [
             node for node in original.body if getattr(node, "name", None) not in joined
         ]

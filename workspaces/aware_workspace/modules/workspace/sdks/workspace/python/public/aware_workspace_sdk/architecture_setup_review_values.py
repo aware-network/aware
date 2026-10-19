@@ -72,6 +72,9 @@ DecisionRequired = Literal["scope_review", "apply_review", "none"]
 PrivacyProfile = Literal["effective_user_private_namespace_v1"]
 RefusalReason = Literal["review_issue_changed", "review_authority_sources_changed"]
 RefusalDispatch = Literal["not_invoked"]
+ActionAdmissionAction = Literal["apply"]
+ActionAdmissionFact = Literal["validated_retained_intent"]
+HistoricalDriverOutcome = Literal["not_established"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -312,6 +315,36 @@ class SetupRefusalRecord:
 
 
 @dataclass(frozen=True, slots=True)
+class SetupActionAdmissionRequest:
+    """Exact historical references; this request grants no new admission."""
+
+    target: SetupTarget
+    action: ActionAdmissionAction
+    review_ref: SetupEvidenceRef
+    intent_ref: SetupEvidenceRef
+
+
+@dataclass(frozen=True, slots=True)
+class SetupActionAdmissionObservation:
+    """Read-only original joins, never a completion result or live input."""
+
+    target: SetupTarget
+    action: ActionAdmissionAction
+    review_ref: SetupEvidenceRef
+    intent_ref: SetupEvidenceRef
+    inputs_ref: SetupEvidenceRef
+    review: SetupReviewRecord
+    intent: SetupDispatchIntent
+    inputs: SetupApplyInputRecord
+    observation: ActionAdmissionFact
+    product_dispatch_this_observation: RefusalDispatch
+    historical_driver_outcome: HistoricalDriverOutcome
+    private_observation: PrivateDirectoryObservation
+    reads: tuple[PrivateFileReadResult, ...]
+    authorizes_retry: Literal[False]
+
+
+@dataclass(frozen=True, slots=True)
 class SetupReviewFailure:
     code: str
     phase: str
@@ -385,6 +418,8 @@ REVIEW_SCHEMA_IDS = MappingProxyType(
         SetupReviewFailure: None,
         SetupReviewClientCleanup: "aware.workspace.setup-review.setup-review-client-cleanup.v1",
         DirectoryIdentity: "aware.workspace.setup-review.directory-identity.v1",
+        SetupActionAdmissionRequest: "aware.workspace.setup-review.action-admission-request.v1",
+        SetupActionAdmissionObservation: None,
     }
 )
 
@@ -595,11 +630,36 @@ REVIEW_FIELD_TYPES = MappingProxyType(
             ("diagnostics", "Array[Diagnostic,16]"),
         ),
         DirectoryIdentity: (("device", "U64"), ("inode", "U64")),
+        SetupActionAdmissionRequest: (
+            ("target", "SetupTarget"),
+            ("action", "ActionAdmissionAction"),
+            ("review_ref", "SetupEvidenceRef"),
+            ("intent_ref", "SetupEvidenceRef"),
+        ),
+        SetupActionAdmissionObservation: (
+            ("target", "SetupTarget"),
+            ("action", "ActionAdmissionAction"),
+            ("review_ref", "SetupEvidenceRef"),
+            ("intent_ref", "SetupEvidenceRef"),
+            ("inputs_ref", "SetupEvidenceRef"),
+            ("review", "SetupReviewRecord"),
+            ("intent", "SetupDispatchIntent"),
+            ("inputs", "SetupApplyInputRecord"),
+            ("observation", "ActionAdmissionFact"),
+            ("product_dispatch_this_observation", "RefusalDispatch"),
+            ("historical_driver_outcome", "HistoricalDriverOutcome"),
+            ("private_observation", "PrivateDirectoryObservation"),
+            ("reads", "Array[PrivateFileReadResult,40]"),
+            ("authorizes_retry", "False"),
+        ),
     }
 )
 
 REVIEW_ENUMS = MappingProxyType(
     {
+        "ActionAdmissionAction": ("apply",),
+        "ActionAdmissionFact": ("validated_retained_intent",),
+        "HistoricalDriverOutcome": ("not_established",),
         "ReviewPurpose": ("history", "current_use"),
         "ScopeChoice": ("accept_reviewed_effect_scope",),
         "FinalChoice": ("accept_reviewed_final_files",),

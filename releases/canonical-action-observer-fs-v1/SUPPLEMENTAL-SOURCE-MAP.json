@@ -1,0 +1,42 @@
+{
+  "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_ports.aware": {
+    "mode": "0o644",
+    "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_ports.aware",
+    "selector_member": false,
+    "sha256": "4570b9b7c2c85be4fcdd7cde273729c5dda60b8184851489e4d591a3890340c2",
+    "source_overlay": {
+      "after_sha256": "4570b9b7c2c85be4fcdd7cde273729c5dda60b8184851489e4d591a3890340c2",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_ports.aware",
+      "before_exists": true,
+      "before_sha256": "7be2f6658a08807c0d22453865edce87fc93e78bf861102b8144192f0ef9296b",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_ports.aware",
+      "metadata_input_path": null,
+      "metadata_overlay_revision": null,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_ports.aware",
+      "postimage_qualification": "Exact committed source postimage",
+      "postimage_revision": "ff3b7b9119b3fc7090cfe7fca6c41d9b8c1ce6b0",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    }
+  },
+  "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_values.aware": {
+    "mode": "0o644",
+    "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_values.aware",
+    "selector_member": false,
+    "sha256": "2f8a286337cc43f8199f91009c83322226c3919d9c39f5c7c36f1fdff4245f5b",
+    "source_overlay": {
+      "after_sha256": "2f8a286337cc43f8199f91009c83322226c3919d9c39f5c7c36f1fdff4245f5b",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_values.aware",
+      "before_exists": true,
+      "before_sha256": "6556447f1a5a2e19e826c9685a87200f355692329cdd1ec41f1de7c4c245b214",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_values.aware",
+      "metadata_input_path": null,
+      "metadata_overlay_revision": null,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_values.aware",
+      "postimage_qualification": "Exact committed source postimage",
+      "postimage_revision": "ff3b7b9119b3fc7090cfe7fca6c41d9b8c1ce6b0",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    }
+  }
+}

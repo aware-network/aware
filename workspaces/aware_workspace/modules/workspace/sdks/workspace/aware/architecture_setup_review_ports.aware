@@ -1,0 +1,35 @@
+// The original Python provider owns these nonserializable clients and views.
+// These are descriptive signatures, not generated operations or live handles.
+// SetupReviewRead, ReviewedSetupScopeInputs, ReviewedSetupApplyInputs,
+// SetupScopeContinuation, SetupScopeCompletion, SetupCommandOutcome,
+// SetupEvidenceRead and SetupReviewFailure deliberately have no wire identity.
+// Do not synthesize them from detached records or replace the provider ports.
+//
+// WorkspaceSetupReviewClient.filesystem(repository_root, evidence_root,
+//     execution_id, authority_manifest_locator) -> WorkspaceSetupReviewClient
+// preview_review(request, scope_continuation=None) -> SetupReviewRead
+// read_review(reference, expected_target, purpose) -> SetupReviewRead
+// record_review_decision(reference, decision)
+//     -> ReviewedSetupScopeInputs | ReviewedSetupApplyInputs
+// record_scope_outcome(scope_inputs, outcome) -> SetupScopeCompletion
+// apply_reviewed(inputs, client_intent_id) -> SetupCommandOutcome
+// read_evidence(reference, expected_target) -> SetupEvidenceRead
+// observe_action_admission(request: SetupActionAdmissionRequest)
+//     -> SetupActionAdmissionObservation (nonwire, original read results only)
+// release_client() -> SetupReviewClientCleanup
+//
+// ScopeOutcome is the original IssueMutationResult | IssueMutationError |
+// SetupUnknownScopeOutcome. The nonwire completion retains the exact original
+// return; its stored counterpart is SetupScopeOutcomeRecord and exact chunks.
+// No alternate Json, nullable-success surrogate, copied physical schema or
+// reconstructed admission is used to represent that union.
+//
+// SetupActionAdmissionObservation has no wire identity and cannot become a
+// live apply input. Its exact Python view fields are target, action, review_ref,
+// intent_ref, inputs_ref, review, intent, inputs, observation,
+// product_dispatch_this_observation, historical_driver_outcome,
+// private_observation, reads and authorizes_retry. Constants are respectively
+// validated_retained_intent, not_invoked, not_established and false. Actual
+// cleanup remains the separate original release_client result. This operation
+// observes exact supplied historical references; it never discovers a record,
+// refreshes currentness, writes intent or establishes driver completion.

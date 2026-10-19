@@ -13,13 +13,31 @@ import json
 import sys
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from aware_command_runtime import AwareCommandInvocation, AwareCommandRegistry
 
 
 class _ReportingIncomplete(RuntimeError):
     """Owner result is retained, but the original output channel failed."""
+
+
+def _configuration_evidence(value: Any) -> Any:
+    """Encode original owner results recursively, without interpreting them."""
+    from aware_workspace_sdk.repository_publication import (
+        WorkspaceRepositoryCommitResult,
+        repository_publication_value_to_payload,
+    )
+
+    if isinstance(value, WorkspaceRepositoryCommitResult):
+        return repository_publication_value_to_payload(value)
+    if type(value) is dict:
+        return {key: _configuration_evidence(item) for key, item in value.items()}
+    if type(value) in (tuple, list):
+        return [_configuration_evidence(item) for item in value]
+    if value is None or type(value) in (str, bool, int):
+        return value
+    raise TypeError("unrecognized_original_configuration_evidence")
 
 
 def _emit(
@@ -40,20 +58,50 @@ def _emit(
             _ = send(wire, sys.stderr)
     else:
         status = payload["status"]
-        if payload.get("operation") == "recover":
+        if payload.get("operation") in {"recover", "recover_successor"}:
             summary = (
                 f"Create-first recovery: {status}. Repository: {payload['repository_root']}\n"
                 "Historical original-owner evidence only. No new publication, projection, retry or permission.\n"
                 "Recovery success is not setup completion."
             )
-            selected = payload.get("original_selection") or {}
-            recovered = selected.get("recovery") or {}
+            selected = (
+                payload.get("original_selection")
+                or payload.get("successor_selection")
+                or {}
+            )
+            recovered = selected.get("recovery") or selected
             original = recovered.get("original_result") or {}
             summary += "\nOriginal publication: " + json.dumps(
                 original.get("publication_state", "unavailable")
             )
             summary += "\nOriginal cleanup: " + json.dumps(
                 original.get("cleanup_state", "unavailable")
+            )
+        elif payload.get("operation") == "continue_configuration":
+            plan = payload.get("successor_plan") or {}
+            request = plan.get("request") or {}
+            source = request.get("source") or {}
+            predecessor = request.get("predecessor") or {}
+            publication = predecessor.get("publication") or {}
+            summary = (
+                f"Configuration continuation: {status}. Repository: {payload['repository_root']}\n"
+                "Explicit effect: separately publish and project the SAME Protocol manifest through the original owner.\n"
+                "The failed parent remains historical. No new repository, enrollment, Project, Goal or Issue; no RUN authority.\n"
+                f"Fresh plan: {request.get('request_ref', 'unavailable')}\n"
+                "Original publication: "
+                + json.dumps(
+                    publication.get("original_result", {}).get(
+                        "publication_state", "unavailable"
+                    )
+                )
+                + "\nSelected Git attribution: "
+                + json.dumps(
+                    {
+                        "author": source.get("author"),
+                        "committer": source.get("committer"),
+                    },
+                    sort_keys=True,
+                )
             )
         else:
             summary = (
@@ -79,11 +127,13 @@ def _emit(
         raise _ReportingIncomplete("initializer_output_incomplete")
 
 
-def _recover_initial_setup(args, *, execution, report) -> int:
+def _recover_initial_setup(args, *, execution, report, successor=False) -> int:
     """Original-owner historical read; no preparation, Protocol plan or writer."""
     payload = {
-        "contract": "aware.agent.create-first-init-recovery.v1",
-        "operation": "recover",
+        "contract": "aware.agent.create-first-successor-recovery.v1"
+        if successor
+        else "aware.agent.create-first-init-recovery.v1",
+        "operation": "recover_successor" if successor else "recover",
         "repository_root": args.repository_root,
         "status": "refused",
         "completion_verified": False,
@@ -98,6 +148,7 @@ def _recover_initial_setup(args, *, execution, report) -> int:
             or args.goal_root is not None
             or args.project_root is not None
             or args.issue_root != "docs/issues"
+            or getattr(args, "continue_configuration", False)
         ):
             raise ValueError("recovery_rejects_new_setup_options")
         from aware_workspace_sdk.repository_publication import (
@@ -110,7 +161,11 @@ def _recover_initial_setup(args, *, execution, report) -> int:
         original = WorkspaceRepositoryPublicationClient.filesystem(
             repository_root=args.repository_root
         )
-        selected = original.observe_initial_authoring_request("configuration")
+        selected: Any = (
+            original.observe_initial_configuration_successor()
+            if successor
+            else original.observe_initial_authoring_request("configuration")
+        )
 
         def wire(value):
             if isinstance(value, WorkspaceRepositoryCommitResult):
@@ -123,14 +178,20 @@ def _recover_initial_setup(args, *, execution, report) -> int:
                 return value
             raise TypeError("unrecognized_original_recovery_evidence")
 
-        selection = {
-            **selected,
-            "request": selected["request"].to_wire()
-            if selected["request"] is not None
-            else None,
-        }
-        payload["original_selection"] = wire(selection)
-        recovered = selected.get("recovery") or {}
+        selection = (
+            selected
+            if successor
+            else {
+                **selected,
+                "request": selected["request"].to_wire()
+                if selected["request"] is not None
+                else None,
+            }
+        )
+        payload["successor_selection" if successor else "original_selection"] = wire(
+            selection
+        )
+        recovered = selected if successor else selected.get("recovery") or {}
         payload["status"] = (
             "recovered" if recovered.get("disposition") == "recorded" else "uncertain"
         )
@@ -148,6 +209,151 @@ def _recover_initial_setup(args, *, execution, report) -> int:
         return 130 if isinstance(error, KeyboardInterrupt) else 2
 
 
+def _continue_configuration(args, *, execution, report) -> int:
+    """Thin composition of the original successor; no new issuer or writer."""
+    payload: dict[str, Any] = {
+        "contract": "aware.agent.create-first-configuration-continuation.v1",
+        "operation": "continue_configuration",
+        "repository_root": args.repository_root,
+        "profile": "aware.collaboration.fs_v4",
+        "status": "refused",
+        "completion_verified": False,
+        "authorizes_retry": False,
+        "authorizes_redispatch": False,
+        "assurance": "cooperative_same_execution_local_policy",
+        "stages": {},
+    }
+    attempted = False
+    stage = "preflight"
+    try:
+        if (
+            args.create_repository
+            or args.no_agent_contract
+            or args.recover
+            or getattr(args, "recover_successor", False)
+            or args.goal_root is not None
+            or args.project_root is not None
+            or args.issue_root != "docs/issues"
+        ):
+            raise ValueError("configuration_continuation_rejects_new_setup_options")
+        if args.apply and not (sys.stdin.isatty() and sys.stdout.isatty()):
+            raise ValueError(
+                "noninteractive_apply_requires_original_durable_review_binding"
+            )
+        from aware_protocol_fs_adapter.project_resolver import (
+            admit_project_resolver,
+            require_project_resolver,
+        )
+        from aware_workspace_sdk.initial_authoring.configuration_successor import (
+            ConfigurationSuccessorPlan,
+        )
+        from aware_workspace_sdk.repository_publication import (
+            WorkspaceRepositoryPublicationClient,
+            repository_publication_value_to_payload,
+        )
+
+        execution_id = execution()
+        payload["execution_id"] = execution_id
+        workspace = WorkspaceRepositoryPublicationClient.filesystem(
+            repository_root=args.repository_root
+        )
+        plan = cast(
+            ConfigurationSuccessorPlan,
+            workspace.prepare_initial_configuration_successor(),
+        )
+        frozen = cast(dict[str, Any], plan.to_wire())
+        if (
+            frozen["request"]["predecessor"]["enrollment"]["execution_id"]
+            != execution_id
+        ):
+            raise ValueError("configuration_successor_execution_mismatch")
+        payload.update(status="preview", successor_plan=frozen)
+        _emit(payload, format=args.format, report=report)
+        if not args.apply:
+            return 0
+        print(
+            "Type 'publish configuration successor' to confirm this exact plan: ",
+            file=sys.stderr,
+            end="",
+            flush=True,
+        )
+        response = sys.stdin.readline().rstrip("\r\n")
+        # Preserve JSON-line framing even on a terminal configured without echo.
+        print(file=sys.stderr, flush=True)
+        if response != "publish configuration successor":
+            raise ValueError("exact_successor_confirmation_not_given")
+        if plan.to_wire() != frozen:
+            raise ValueError("configuration_successor_plan_changed_after_confirmation")
+        stage = "successor_admission"
+        attempted = True
+        admission = workspace.admit_initial_configuration_successor(plan)
+        stage = "configuration_publication"
+        publication = workspace.publish_initial_configuration_successor(admission)
+        publication_wire = repository_publication_value_to_payload(publication)
+        payload["stages"][stage] = publication_wire
+        if publication.publication_state != "published":
+            raise ValueError("configuration_successor_publication_not_verified")
+        stage = "configuration_projection"
+        projection = workspace.project_initial_configuration_successor()
+        payload["stages"][stage] = _configuration_evidence(projection)
+        if (
+            projection["projection_state"] != "installed"
+            or projection["original_result"] != publication
+        ):
+            raise ValueError("configuration_successor_projection_not_verified")
+        stage = "protocol_admission"
+        selected = admit_project_resolver(
+            repository_root=Path(args.repository_root),
+            manifest_path=Path(args.repository_root) / "aware.protocol.toml",
+        )
+        capability = require_project_resolver(selected.capability)
+        if (
+            capability.protocol_profile != "aware.collaboration.fs_v4"
+            or capability.manifest_sha256
+            != frozen["request"]["configuration"]["source_sha256"]
+        ):
+            raise ValueError("configuration_successor_protocol_binding_mismatch")
+        payload["stages"][stage] = {
+            "profile": capability.protocol_profile,
+            "manifest_sha256": capability.manifest_sha256,
+            "capability": "issued_live_not_transportable",
+        }
+        stage = "terminal_qualification"
+        terminal = workspace.observe_initial_configuration_origin(current=True)
+        payload["stages"][stage] = terminal
+        if (
+            terminal["kind"] != "successor"
+            or terminal["effective"]["request"] != frozen["request"]
+            or terminal["predecessor"] != frozen["request"]["predecessor"]
+            or terminal["effective"]["publication"]["original_result"]
+            != publication_wire
+        ):
+            raise ValueError("terminal_successor_configuration_unavailable")
+        payload.update(status="configured", completion_verified=True)
+        _emit(payload, format=args.format, report=report)
+        return 0
+    except _ReportingIncomplete:
+        return 3
+    except (Exception, KeyboardInterrupt) as error:  # noqa: BLE001 -- preserve partial owner effects, never retry
+        payload.update(
+            status="uncertain" if attempted else "refused",
+            completion_verified=False,
+            reason=str(error) or type(error).__name__,
+            failed_stage=stage,
+        )
+        evidence = getattr(error, "evidence", None)
+        if evidence is not None:
+            try:
+                payload["error_evidence"] = _configuration_evidence(evidence)
+            except (TypeError, ValueError):
+                payload["error_evidence_unavailable"] = True
+        try:
+            _emit(payload, format=args.format, report=report)
+        except (OSError, ValueError, _ReportingIncomplete):
+            return 3
+        return 130 if isinstance(error, KeyboardInterrupt) else (3 if attempted else 2)
+
+
 def handle_create_first_init(
     invocation: AwareCommandInvocation,
     *,
@@ -155,6 +361,12 @@ def handle_create_first_init(
     report: Callable[[str, Any], bool],
 ) -> int:
     args = invocation.args
+    if getattr(args, "continue_configuration", False):
+        return _continue_configuration(args, execution=execution, report=report)
+    if getattr(args, "recover_successor", False):
+        return _recover_initial_setup(
+            args, execution=execution, report=report, successor=True
+        )
     if getattr(args, "recover", False):
         return _recover_initial_setup(args, execution=execution, report=report)
     payload: dict[str, Any] = {

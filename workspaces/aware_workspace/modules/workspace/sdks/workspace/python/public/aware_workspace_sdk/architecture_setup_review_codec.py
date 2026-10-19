@@ -278,6 +278,18 @@ def _invariants(cls, data, decode):
             else item["value"]
         )
 
+    if cls is v.SetupActionAdmissionRequest:
+        review = fields(data["review_ref"], v.SetupEvidenceRef)
+        intent = fields(data["intent_ref"], v.SetupEvidenceRef)
+        if (
+            review["record_contract"] != _WIRES[v.SetupReviewRecord]
+            or intent["record_contract"] != _WIRES[v.SetupDispatchIntent]
+            or review["target"] != data["target"]
+            or intent["target"] != data["target"]
+            or review["evidence_root"] != intent["evidence_root"]
+            or review["root_identity"] != intent["root_identity"]
+        ):
+            _refuse("action_observation_reference_context_mismatch")
     if cls is v.SetupCaptureDescriptor:
         rows = [fields(x, v.SetupChunkDescriptor) for x in data["chunks"]]
         if (

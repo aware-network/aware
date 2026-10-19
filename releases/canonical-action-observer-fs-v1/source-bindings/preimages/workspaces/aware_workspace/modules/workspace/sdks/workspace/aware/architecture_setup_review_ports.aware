@@ -1,0 +1,23 @@
+// The original Python provider owns these nonserializable clients and views.
+// These are descriptive signatures, not generated operations or live handles.
+// SetupReviewRead, ReviewedSetupScopeInputs, ReviewedSetupApplyInputs,
+// SetupScopeContinuation, SetupScopeCompletion, SetupCommandOutcome,
+// SetupEvidenceRead and SetupReviewFailure deliberately have no wire identity.
+// Do not synthesize them from detached records or replace the provider ports.
+//
+// WorkspaceSetupReviewClient.filesystem(repository_root, evidence_root,
+//     execution_id, authority_manifest_locator) -> WorkspaceSetupReviewClient
+// preview_review(request, scope_continuation=None) -> SetupReviewRead
+// read_review(reference, expected_target, purpose) -> SetupReviewRead
+// record_review_decision(reference, decision)
+//     -> ReviewedSetupScopeInputs | ReviewedSetupApplyInputs
+// record_scope_outcome(scope_inputs, outcome) -> SetupScopeCompletion
+// apply_reviewed(inputs, client_intent_id) -> SetupCommandOutcome
+// read_evidence(reference, expected_target) -> SetupEvidenceRead
+// release_client() -> SetupReviewClientCleanup
+//
+// ScopeOutcome is the original IssueMutationResult | IssueMutationError |
+// SetupUnknownScopeOutcome. The nonwire completion retains the exact original
+// return; its stored counterpart is SetupScopeOutcomeRecord and exact chunks.
+// No alternate Json, nullable-success surrogate, copied physical schema or
+// reconstructed admission is used to represent that union.

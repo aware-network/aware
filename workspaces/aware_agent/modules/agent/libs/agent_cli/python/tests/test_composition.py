@@ -217,7 +217,7 @@ def test_original_public_handler_identities_are_mounted(family):
 
 def _assert_owned_metadata(project):
     assert project["project"]["name"] == "aware-agent-cli"
-    assert project["project"]["version"] == "0.2.0a14"
+    assert project["project"]["version"] == "0.2.0a15"
     assert project["project"]["optional-dependencies"] == {
         "goal": ["aware-goal-native-cli>=0.1.2,<0.2.0"],
     }
@@ -253,8 +253,8 @@ def _assert_owned_metadata(project):
         "aware-command-runtime>=0.1.1,<0.2.0",
         "aware-issue-cli>=0.8.0,<0.9.0",
         "aware-protocol-cli[bootstrap,specification-setup]>=0.3.5,<0.4.0",
-        "aware-workspace-sdk[preparation,setup,setup_admission,setup_review]>=0.2.11,<0.3.0",
-        "aware-workspace-runtime[setup_admission,setup_review]>=0.2.16,<0.3.0",
+        "aware-workspace-sdk[preparation,setup,setup_admission,setup_review]>=0.2.14,<0.3.0",
+        "aware-workspace-runtime[setup_admission,setup_review]>=0.2.19,<0.3.0",
         "aware-specification-cli[governed]>=0.4.3,<0.5.0",
         "aware-issue-sdk[workspace_setup_admission]>=0.10.6,<0.11.0",
         "aware-issue-fs-adapter>=0.9.6,<0.10.0",
@@ -358,8 +358,8 @@ def test_owned_metadata_rejects_stale_or_widened_candidate_contract(change):
                 "[workspace_setup_admission]",
                 "",
             ),
-            "sdk-floor": ("aware-workspace-sdk", ">=0.2.11", ">=0.2.10"),
-            "runtime-floor": ("aware-workspace-runtime", ">=0.2.16", ">=0.2.15"),
+            "sdk-floor": ("aware-workspace-sdk", ">=0.2.14", ">=0.2.13"),
+            "runtime-floor": ("aware-workspace-runtime", ">=0.2.19", ">=0.2.18"),
             "issue-floor": ("aware-issue-sdk", ">=0.10.6", ">=0.10.5"),
             "sdk-ceiling": ("aware-workspace-sdk", "<0.3.0", "<0.4.0"),
             "marker": (
@@ -369,7 +369,7 @@ def test_owned_metadata_rejects_stale_or_widened_candidate_contract(change):
             ),
             "direct-url": (
                 "aware-workspace-sdk",
-                "[preparation,setup,setup_admission,setup_review]>=0.2.11,<0.3.0",
+                "[preparation,setup,setup_admission,setup_review]>=0.2.14,<0.3.0",
                 " @ file:///unqualified-test-only.whl",
             ),
         }[change]

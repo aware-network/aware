@@ -405,3 +405,31 @@ guard refresh or treating the refusal record as an executable review.
 
 This source behavior requires separately qualified successor artifacts. It is
 not added to previously frozen wheels or advertised as installed availability.
+
+## Prior apply-intent observation (source candidate)
+
+`WorkspaceSetupReviewClient.observe_action_admission` accepts an original
+`SetupActionAdmissionRequest(target, "apply", review_ref, intent_ref)`. Supply
+the exact original intent reference, for example the actual prior outcome's
+`retention.intent_ref`; do not calculate a replacement or discover “latest”.
+The owner reads and joins the original review, retained intent and apply inputs
+through the existing bounded readers. A distinct observer execution can read
+history; it does not adopt the historical execution or refresh its authority.
+
+The frozen nonwire `SetupActionAdmissionObservation` reports only
+`validated_retained_intent`, `product_dispatch_this_observation="not_invoked"`,
+`historical_driver_outcome="not_established"` and `authorizes_retry=False`, with
+the original records and actual read observations. It does not establish driver
+completion, original native CREATE provenance beyond the existing trusted local
+reference boundary, or permission to apply again. Actual `release_client()`
+cleanup remains separate. The view has no serialization or live-input entrance.
+
+Missing/corrupt/mismatched history or incomplete read cleanup preserves the
+original typed failure and uncertainty; an interruption retains its original
+identity. No authoritative `not_admitted` result, record scan, evidence write,
+CREATE fallback or automatic retry is supplied. Original `apply_reviewed` and
+all collision/once-only rules remain unchanged.
+
+This is an authored source candidate for SDK 0.2.12 / Runtime 0.2.17. Existing
+0.2.11 / 0.2.16 artifacts do not contain this port. Metadata, artifacts, qualified
+authored lowering and installed availability remain separate qualifications.

@@ -102,6 +102,51 @@ effects, unknown outcomes and residual scratch evidence; do not automatically
 retry, delete published bytes or treat a fresh observation as renewed write
 authority. Lower-owner physical evidence is not authenticated actor evidence.
 
+## Local cooperating-writer source custody
+
+The opt-in `aware_file_system.cooperative_source` module (0.3.9) supplies
+physical source custody, not Object, Subject, branch or Actor authority.
+Its explicit profile is `aware.filesystem.local-cooperating-source.v1` on
+local POSIX filesystems with working `flock` semantics. It does not establish
+remote-filesystem support or protect against arbitrary OS writes, hostile
+Python reflection, control-file deletion or a writer that ignores the protocol.
+
+`initialize_source_authority(root)` explicitly creates the root's private
+`.aware-source-authority.v1` lock/epoch file. Participating writer setup may
+also create it. These are physical setup effects, not read effects or semantic
+allocation. `capture_source_read(root, paths)` never initializes it and refuses
+an uninitialized root. Canonical, explicit regular-file paths are opened with
+descriptor-relative no-follow traversal; symlinks and multiply linked leaves
+refuse. Bounds are 1,024 paths, 256 KiB per file and 8 MiB total.
+
+The original `RetainedSourceRead` exposes immutable captured `sources`,
+`require_current()`, `release()` and `reserve_publication()`. A capture retains
+descriptors, not a writer lock across application fulfillment. Its short,
+nonblocking publication reservation rereads every captured input and holds an
+actual shared OS lock against participating writers. Use the reservation only
+for a synchronous final validation/publication interval: yielding an asyncio
+task retires the read permanently and releases the reservation. Tokens cannot
+be copied, serialized or used by another task/thread/process. Unknown cleanup
+remains unknown on retry; only owned descriptors are released.
+
+The public reservation context checks its actual entering process, thread and
+Task before exit. A foreign exit refuses without consuming the context or
+releasing the owner's lock; the owner retains its cleanup rights. Contexts are
+single-use and noncopyable. Owner-process teardown explicitly unlocks its
+open-file description before close, so a live forked child's inherited copy
+cannot prolong the lock. A child cannot use that context or unlock the parent's
+active reservation. Other reads retain their own independent reservations.
+
+Every participating source effect must run synchronously inside
+`cooperative_source_write(root)`, which holds the exclusive lock and durably
+spends the root epoch before yielding. Even failed/no-effect attempts invalidate
+older reads conservatively. Never reset, replace or delete the control file
+to renew a read. Change-and-restore cannot revive one. Raw OS writes are not
+excluded; physical/content rereads detect observed differences, not all possible
+uncooperative intervening history. A consumer must qualify its complete source
+inventory, authorizations and all relevant writer participation separately.
+This module does not infer domain completeness from the explicit path list.
+
 ## Scope and license
 
 This dependency does not supply Service/API authority, ontology materialization,

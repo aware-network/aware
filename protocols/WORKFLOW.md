@@ -468,3 +468,7 @@ Both reviews, original guards and explicit apply stay.
 compatible configuration reuse and preserving existing guidance and foreign work.
 They qualify a scripted installed workflow, not generic migration or
 unassisted customer adoption. Project and Goal are not prerequisites.
+
+## Prepared historical action observation
+
+[Observe retained intent](workspace/ACTION-OBSERVATION.md) using the original review and intent references. Prepared/unselected instructions are draft. Observation is not completion, current admission or retry authority. Both explicit reviews remain separate.

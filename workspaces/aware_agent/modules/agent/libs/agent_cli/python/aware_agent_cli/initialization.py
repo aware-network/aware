@@ -50,6 +50,11 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
         "--project-root", help="Create-first only; default belongs to Protocol."
     )
     parser.add_argument("--no-agent-contract", action="store_true")
+    parser.add_argument(
+        "--continue-configuration",
+        action="store_true",
+        help="Create-first only: preview a separately admitted configuration successor; --apply requires fresh terminal confirmation.",
+    )
     intent = parser.add_mutually_exclusive_group()
     intent.add_argument("--dry-run", action="store_true")
     intent.add_argument("--apply", action="store_true")
@@ -57,6 +62,11 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
         "--recover",
         action="store_true",
         help="Create-first only: read the original retained configuration result; never retry or repair.",
+    )
+    intent.add_argument(
+        "--recover-successor",
+        action="store_true",
+        help="Create-first only: read the retained configuration successor result; never retry or project.",
     )
     parser.add_argument(
         "--format",
@@ -492,6 +502,19 @@ def _handle_init(invocation: AwareCommandInvocation) -> int:
         return handle_create_first_init(
             invocation, execution=_execution, report=_report_init_output
         )
+    if getattr(invocation.args, "continue_configuration", False) or getattr(
+        invocation.args, "recover_successor", False
+    ):
+        print(
+            json.dumps(
+                {
+                    "error": "configuration_continuation_requires_create_first",
+                    "effect": "none",
+                }
+            ),
+            file=sys.stderr,
+        )
+        return 2
     if getattr(invocation.args, "recover", False):
         print(
             json.dumps({"error": "recovery_requires_create_first", "effect": "none"}),
