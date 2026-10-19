@@ -2,7 +2,7 @@
 
 - Slug: public-a12-navigation-guidance-integration
 - Tag: fb/2026-10-19/public-a12-navigation-guidance-integration
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P2
 - Goal: TBD
@@ -19,6 +19,7 @@
 - `releases/canonical-reference-fs-v1/test_navigation_guidance_integration.py`
 
 
+
 ## Problem
 1. Current useful-task availability paragraph contradicts delivered a12 navigation.
 
@@ -26,8 +27,10 @@
 
 
 
+
 ## Goal
 1. Integrate three independently accepted guidance postimages and two compact receiving records without software change.
+
 
 
 
@@ -41,7 +44,16 @@
 
 
 
+
+## Verified-by
+- Independent review /tmp/aware-a12-guidance-integration-review.ks9r0OyO/checks.xml sha256:512064475e98781518e86af9d42d1800b905ee57db41d212a5195d53503f45ed;37 controls+6 receiving checks passed.
+- git:1f1082657f85bdd0d62b709c0f31ad3bfd8e77f0
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Local implementation 1f1082657f85bdd0d62b709c0f31ad3bfd8e77f0 changes exactly six admitted paths: three accepted guidance postimages, this Issue and two receiving records. Original CAS/index complete without debt; 35 controls and six receiving cases pass. Initial actual-path scope mismatch and private-mode receiving assertion remain disclosed in parent report. Manual Issue guards, both review decisions, sources/notices, historical freezes and software unchanged. Independent integration review remains pending before closeout; no push, client replay, installation, activation or GC effect. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independent bounded integration PASS: exact six-path implementation 1f1082657f85, Issue-only handoff 2c6754604ede, three accepted postimages and nineteen current pins. Original CAS/index complete. Producer tag mismatch remains procedural qualification; forward corrections and initial failures retained. No broader feedback/V2 acceptance or publication authority.
