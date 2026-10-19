@@ -33,4 +33,13 @@ catalog or operation authority. This wording alignment is separate from the soft
 
 ## Prepared Issue CLI 0.8.4
 
-[canonical-issue084-fs-v1](canonical-issue084-fs-v1/README.md) is prepared and unselected. Instructions remain draft; predecessor selection stays unchanged. Whole-envelope carriage is required.
+[canonical-issue084-fs-v1](canonical-issue084-fs-v1/README.md) is selected locally; public delivery is not yet authorized. Instructions remain draft; predecessor records stay unchanged. Whole-envelope carriage is required.
+
+## Local Issue CLI 0.8.4 selection
+
+Issue CLI **0.8.4** is selected locally; public delivery is not yet authorized.
+Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+Complete whole-envelope source and notice carriage remains required. The delivery
+pointer is not a package catalog or operation authority. Same observation is not
+frozen preview bytes; apply plans afresh. No automatic refresh, approval or retry.
+Instruction freeze and publication remain separate.

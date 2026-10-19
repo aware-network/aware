@@ -40,4 +40,13 @@ catalog or operation authority. This wording alignment is separate from the soft
 
 ## Prepared Issue observation input
 
-CLI 0.8.4 is prepared and unselected. Same observation is not frozen preview bytes; apply plans afresh. Useful customer work remains the outcome, SPEC optional. Source effects, reviews, admission, publication and evidence remain separate. No new evaluation or productivity claim.
+CLI 0.8.4 is selected locally; public delivery is not yet authorized. Same observation is not frozen preview bytes; apply plans afresh. Useful customer work remains the outcome, SPEC optional. Source effects, reviews, admission, publication and evidence remain separate. No new evaluation or productivity claim.
+
+## Local Issue CLI 0.8.4 selection
+
+Issue CLI **0.8.4** is selected locally; public delivery is not yet authorized.
+Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+Complete whole-envelope source and notice carriage remains required. The delivery
+pointer is not a package catalog or operation authority. Same observation is not
+frozen preview bytes; apply plans afresh. No automatic refresh, approval or retry.
+Instruction freeze and publication remain separate.

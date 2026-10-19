@@ -26,14 +26,18 @@ publication and closeout**. A generated manifest is setup, not completion of the
 customer's application. Project/Goal direction and language/Meta materialization
 are parallel future elevations, not prerequisites for this path.
 
-## Prepared Issue observation input
+## Locally selected Issue observation input
 
-Issue CLI **0.8.4** is prepared and unselected; these instructions remain draft.
-The proposed installer targets this successor, not the delivered a14 envelope.
+Issue CLI **0.8.4** is selected locally; public delivery is not yet authorized.
+Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
+[local selection](releases/canonical-issue084-fs-v1/LOCAL-SELECTION.md) records its limits.
 [Observation input](protocols/issues/OBSERVATION-INPUT.md) carries one explicit
 Issue snapshot into original scope, progress and publish-close commands.
-The same observation does not freeze previewed HEAD or source bytes.
-Customer implementation and optional SPEC branches remain unchanged.
+The same observation does not freeze previewed HEAD or source bytes; apply plans
+afresh. Customer implementation and optional SPEC branches, both review decisions
+and contributor commands remain unchanged. Instruction freeze and publication
+remain separate; no automatic guard refresh, approval or retry.
 
 ## Delivered a14 resource summaries
 
