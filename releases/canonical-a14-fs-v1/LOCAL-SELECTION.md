@@ -23,3 +23,15 @@ continuation remain unqualified; this selection activates nothing.
 Independent review, instruction freeze and explicit target/range publication
 remain separate. Retained installation reads are not a fresh environment,
 customer evaluation, productivity improvement or another installed matrix.
+
+## Review checkpoint
+
+Local selection implementation `46d3d231cd7b0d2ab941c99a89142b7fb9e32020`
+contains exactly the eight admitted paths. Seven checks passed, including
+sixteen read-only retained-installation commands. All 1,817 unaffected baseline
+files and executable modes remain preserved. Original dry-run/apply receipts
+match the committed Issue guard; CAS/index completed without debt.
+
+This handoff records evidence only. Both selection Issues remain In Progress
+for independent review. Instructions remain draft; public delivery is not yet
+authorized. No software, installer, source, notice, GC or activation changes.
