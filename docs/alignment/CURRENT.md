@@ -54,4 +54,14 @@ This wording alignment requires independent review and separate publication auth
 
 ## Prepared historical action observer
 
-Agent a15 is prepared/unselected. Historical intent is not completion, current admission or retry authority. Original Issue-first useful work, optional SPEC, both explicit reviews, contributor governance and frozen evaluations remain unchanged. No service or higher-workflow activation follows.
+Agent a15 is selected locally; public delivery is not yet authorized. Historical intent is not completion, current admission or retry authority. Original Issue-first useful work, optional SPEC, both explicit reviews, contributor governance and frozen evaluations remain unchanged. No service or higher-workflow activation follows.
+
+## Local historical action observation selection
+
+Agent **0.2.0a15** is selected locally; public delivery is not yet authorized.
+Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+Complete whole-envelope source and notice carriage remains required. The delivery
+pointer is not a package catalog or operation authority. Historical intent does
+not prove completion, current admission or retry authority. Preserve original
+uncertainty and both review decisions. Instruction freeze and publication remain
+separate; no automatic refresh, approval or retry.

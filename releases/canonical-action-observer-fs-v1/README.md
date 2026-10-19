@@ -1,6 +1,6 @@
 # Historical action observer whole distribution
 
-Prepared and unselected; instructions remain draft. Exact envelope `canonical-action-observer-source-notice-review-v1.tar.gz`
+Selected locally; public delivery is not yet authorized. Instructions remain draft. Exact envelope `canonical-action-observer-source-notice-review-v1.tar.gz`
 has SHA256 `a21ef71179c055fa87e4ffde7ede35b87246deceb4a4d1039c6b7fa17e23292f` and software `a2e468dfdcdd8c6b9a6d8187f3eded2db2465c3ddf15ee44309beb1cf9c97533`.
 Use [the entrance](../../README.md), [useful work](../../protocols/FIRST-USEFUL-TASK.md),
 [historical action observation](../../protocols/workspace/ACTION-OBSERVATION.md)
@@ -23,3 +23,13 @@ or registry route is accepted. Native/PSF evidence is not full authenticated
 header/toolchain provenance or exact linkage proof. Source READMEs remain history.
 Integration, selection, instruction freeze, publication and customer trials are
 separately governed; this proposal is not public availability.
+
+## Local historical action observation selection
+
+Agent **0.2.0a15** is selected locally; public delivery is not yet authorized.
+Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+Complete whole-envelope source and notice carriage remains required. The delivery
+pointer is not a package catalog or operation authority. Historical intent does
+not prove completion, current admission or retry authority. Preserve original
+uncertainty and both review decisions. Instruction freeze and publication remain
+separate; no automatic refresh, approval or retry.

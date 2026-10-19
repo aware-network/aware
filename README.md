@@ -27,13 +27,16 @@ publication and closeout**. A generated manifest is setup, not completion of the
 customer's application. Project/Goal direction and language/Meta materialization
 are parallel future elevations, not prerequisites for this path.
 
-## Prepared historical action observation
+## Locally selected historical action observation
 
-Agent **0.2.0a15** is prepared and unselected; instructions remain draft.
+Agent **0.2.0a15** is selected locally; public delivery is not yet authorized.
+Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
+[local selection](releases/canonical-action-observer-fs-v1/LOCAL-SELECTION.md) records its limits.
 [Historical action observation](protocols/workspace/ACTION-OBSERVATION.md)
-validates original retained intent without proving completion or authorizing
-retry. The proposed installer targets this successor, not the delivered a14
-software. Useful work, optional SPEC and both explicit review decisions stay.
+validates original intent, not completion, current admission or retry authority.
+Useful work, optional SPEC and both explicit review decisions stay unchanged.
+Instruction freeze and publication are separate; no automatic refresh or retry.
 
 ## Delivered Issue observation input
 

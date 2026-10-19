@@ -47,4 +47,14 @@ This wording alignment requires independent review and separate publication auth
 
 ## Prepared historical action observer
 
-[canonical-action-observer-fs-v1](canonical-action-observer-fs-v1/README.md) is prepared and unselected. Instructions remain draft; integration, selection, freeze and publication are separate. Whole-envelope carriage remains required.
+[canonical-action-observer-fs-v1](canonical-action-observer-fs-v1/README.md) is selected locally; public delivery is not yet authorized. Instructions remain draft; instruction freeze and publication are separate. Whole-envelope carriage remains required.
+
+## Local historical action observation selection
+
+Agent **0.2.0a15** is selected locally; public delivery is not yet authorized.
+Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+Complete whole-envelope source and notice carriage remains required. The delivery
+pointer is not a package catalog or operation authority. Historical intent does
+not prove completion, current admission or retry authority. Preserve original
+uncertainty and both review decisions. Instruction freeze and publication remain
+separate; no automatic refresh, approval or retry.
