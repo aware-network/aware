@@ -1,15 +1,16 @@
 # Aware filesystem workflow
 
-Agent 0.2.0a12 software was published at `f372cf75aaa228f059ab12e4095cec598e998541`.
-This status alignment changes wording and pins, not software or operation authority.
+Agent **0.2.0a14** instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not the delivered a12 predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards remain.
+
 Historical freezes remain unchanged; installation does not admit customer work.
 Read [init summary streams and decisions](INIT.md); full receipts remain
 available in the same invocation without replay or renewed authority.
 
-The activation-core P1 correction, independent control installation and
-bounded positive A/B proof passed review. Failure/interruption qualification
-and the stable consumer bridge remain held. None is included or activated
-by this delivery.
+Parallel activation is outside this delivery. No activation qualification or
+inclusion follows from this instruction freeze.
 
 ## Install with the complete envelope
 
@@ -447,8 +448,8 @@ The a12 [stdin and focused-history guide](workspace/REFERENCE-NAVIGATION.md)
 retains two explicit decisions and manual Issue guards. Its instruction pins
 bind reviewed bytes, not a new admission or renewed current-use authority.
 
-## Prepared a14 summaries
+## Locally frozen a14 summaries
 
-The unselected [resource-summary guide](workspace/RESOURCE-RELEASES.md) explains
+The locally frozen [resource-summary guide](workspace/RESOURCE-RELEASES.md) explains
 returned release evidence without completing ledgers or renewing authority.
-Instructions remain draft; both reviews, original guards and explicit apply stay.
+Instructions are frozen locally pending independent review; both reviews, original guards and explicit apply stay.

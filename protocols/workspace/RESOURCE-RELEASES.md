@@ -1,6 +1,11 @@
 # Resource releases and incomplete evidence
 
-Draft for prepared, unselected Agent **0.2.0a14**. Use the
+Agent **0.2.0a14** instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not the delivered a12 predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards remain.
+
+Use the
 [two-review guide](REVIEWED-SETUP.md), [reference navigation](REFERENCE-NAVIGATION.md)
 and [workflow](../WORKFLOW.md). Keep both explicit decisions and manual Issue guards.
 

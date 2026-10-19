@@ -1,5 +1,10 @@
 # Aware
 
+Agent **0.2.0a14** instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not the delivered a12 predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards remain.
+
 Coherent work between agents in your Git repository.
 
 Aware helps an agent make a bounded change and leave evidence another execution
@@ -24,14 +29,14 @@ are parallel future elevations, not prerequisites for this path.
 ## Locally selected a14 resource summaries
 
 Agent **0.2.0a14** is selected locally; public delivery is not yet authorized.
-Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+Instructions are frozen locally pending independent review. Use this reviewed checkout, not unchanged public main.
 The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
 [local selection](releases/canonical-a14-fs-v1/LOCAL-SELECTION.md) records its limits.
 [Resource summaries](protocols/workspace/RESOURCE-RELEASES.md) distinguish reported
 closes from ledger completeness and historical unknowns. Optional Goal and positive
 create-first remain unqualified; useful work, optional SPEC, both explicit reviews
 and manual Issue guards remain. Do not overlay installations or change contributor
-commands. Instruction freeze and publication are separate.
+commands. Independent instruction review and publication remain separate.
 
 ## Delivered reference navigation
 

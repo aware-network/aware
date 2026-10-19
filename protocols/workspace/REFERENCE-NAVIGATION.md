@@ -1,7 +1,10 @@
 # Workspace reference navigation
 
-Agent **0.2.0a12** software was published at `f372cf75aaa228f059ab12e4095cec598e998541`.
-This status alignment changes wording and pins, not software or operation authority.
+Agent **0.2.0a14** instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not the delivered a12 predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards remain.
+
 Use the [workflow](../WORKFLOW.md) and
 keep both explicit decisions. Contributor governance and Issue guards remain separate.
 

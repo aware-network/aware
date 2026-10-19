@@ -1,17 +1,18 @@
 # Init summary streams and explicit decisions
 
-Agent 0.2.0a12 software was published at `f372cf75aaa228f059ab12e4095cec598e998541`.
-This status alignment changes wording and pins, not software or operation authority.
+Agent **0.2.0a14** instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not the delivered a12 predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards remain.
+
 Historical freezes remain unchanged.
 Use the one [whole-envelope installation](../README.md) and your genuine harness
 identity. Keep the [public contributor checkout](../AGENTS.md) separate from
 the explicitly selected customer target. No service, Issue admission or
 Workspace apply authority follows from installing or configuring tooling.
 
-The activation-core P1 correction, independent control installation and
-bounded positive A/B proof passed review. Failure/interruption qualification
-and the stable consumer bridge remain held. None is included or activated
-by this delivery.
+Parallel activation is outside this delivery. No activation qualification or
+inclusion follows from this instruction freeze.
 
 ## Read init summaries and preserve full receipts
 

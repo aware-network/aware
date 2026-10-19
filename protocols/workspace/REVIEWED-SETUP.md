@@ -1,12 +1,15 @@
 # Reviewed repository setup
 
-Agent 0.2.0a12 software was published at `f372cf75aaa228f059ab12e4095cec598e998541`.
-This status alignment changes wording and pins, not software or operation authority.
+Agent **0.2.0a14** instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not the delivered a12 predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards remain.
+
 Use `aware workspace review` for one bounded
 A1 task: creating `aware.repo.toml` through the original Workspace, FileSystem
 and Issue owners. Start with [the entrance](../../README.md),
 [init guidance](../INIT.md) and [first Issue](../issues/FIRST-ISSUE.md).
-[Qualification bounds](../../releases/canonical-reference-fs-v1/REVIEW-STATUS.md)
+[Qualification bounds](../../releases/canonical-a14-fs-v1/REVIEW-STATUS.md)
 retain the exact candidate limits. This is not package creation, application
 implementation, A2/tree completion or unassisted onboarding acceptance.
 
@@ -169,6 +172,6 @@ multi-agent coherence, crash recovery or application correctness acceptance.
 
 The a12 [reference-navigation guide](REFERENCE-NAVIGATION.md) adds explicit captured-result stdin and historical focus. It grants no authority, approval or Issue-guard automation.
 
-## Prepared a14 release evidence
+## Locally frozen a14 release evidence
 
-The unselected [resource-summary guide](RESOURCE-RELEASES.md) separates returned closes from ledger completeness and historical unknowns. No JSON, exit or authority changes follow.
+The locally frozen [resource-summary guide](RESOURCE-RELEASES.md) separates returned closes from ledger completeness and historical unknowns. No JSON, exit or authority changes follow.
