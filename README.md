@@ -21,15 +21,17 @@ publication and closeout**. A generated manifest is setup, not completion of the
 customer's application. Project/Goal direction and language/Meta materialization
 are parallel future elevations, not prerequisites for this path.
 
-## Prepared a14 resource summaries
+## Locally selected a14 resource summaries
 
-Agent **0.2.0a14** is prepared and unselected; this guidance remains draft.
-The proposed installer targets a14, not the delivered a12 selection.
-[Resource summaries](protocols/workspace/RESOURCE-RELEASES.md) distinguish
-reported resource closes from incomplete ledgers and historical unknowns.
-The [qualification bounds](releases/canonical-a14-fs-v1/REVIEW-STATUS.md) keep optional Goal and
-positive create-first execution unqualified. Existing useful customer work,
-optional SPEC, both reviews and manual Issue guards remain the current rail.
+Agent **0.2.0a14** is selected locally; public delivery is not yet authorized.
+Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
+[local selection](releases/canonical-a14-fs-v1/LOCAL-SELECTION.md) records its limits.
+[Resource summaries](protocols/workspace/RESOURCE-RELEASES.md) distinguish reported
+closes from ledger completeness and historical unknowns. Optional Goal and positive
+create-first remain unqualified; useful work, optional SPEC, both explicit reviews
+and manual Issue guards remain. Do not overlay installations or change contributor
+commands. Instruction freeze and publication are separate.
 
 ## Delivered reference navigation
 

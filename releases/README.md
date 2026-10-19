@@ -18,4 +18,12 @@ None grants operational authority or qualifies parallel capabilities.
 
 ## Prepared a14 distribution
 
-[canonical-a14-fs-v1](canonical-a14-fs-v1/README.md) is prepared and unselected. Instructions remain draft. Existing selection and predecessor records are unchanged; complete whole-envelope carriage is required.
+[canonical-a14-fs-v1](canonical-a14-fs-v1/README.md) is selected locally; public delivery is not yet authorized. Instructions remain draft. Existing selection and predecessor records are unchanged; complete whole-envelope carriage is required.
+
+## Local a14 selection
+
+Agent **0.2.0a14** is selected locally; public delivery is not yet authorized.
+Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+Complete whole-envelope source/notice carriage remains required; detached wheels
+and stripped bundles remain unaccepted. The delivery pointer is not a package
+catalog or operation authority. Instruction freeze and publication remain separate.

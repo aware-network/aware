@@ -27,4 +27,12 @@ Review provenance grants no operation authority; whole-envelope carriage is mand
 
 ## Prepared a14 distribution
 
-Resource closes are distinct from ledger completeness and historical unknowns. A14 remains unselected; optional Goal and positive create-first are unqualified. Existing Issue-first useful-work instructions, contributor governance and frozen evaluations remain unchanged.
+Resource closes are distinct from ledger completeness and historical unknowns. A14 is selected locally; public delivery is not yet authorized; optional Goal and positive create-first are unqualified. Existing Issue-first useful-work instructions, contributor governance and frozen evaluations remain unchanged.
+
+## Local a14 selection
+
+Agent **0.2.0a14** is selected locally; public delivery is not yet authorized.
+Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+Complete whole-envelope source/notice carriage remains required; detached wheels
+and stripped bundles remain unaccepted. The delivery pointer is not a package
+catalog or operation authority. Instruction freeze and publication remain separate.
