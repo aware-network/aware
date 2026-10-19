@@ -56,14 +56,17 @@
 
 
 
+
 ## Problem
 1. Accepted Issue CLI 0.8.4 layout is not integrated against freshly observed public54252d539ded; no baseline movement is present.
 
 
 
 
+
 ## Goal
 1. Project the reviewed 38-path delta preserving complete carriage, metadata overlays/preimages, useful-task branches, contributor governance and predecessor selection.
+
 
 
 
@@ -76,7 +79,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - 30 original/receiving controls and8 integration checks pass; exact1860accepted bodies/modes,38layout changes+4records. Retained42package versions,13help entrances,dependencies,missing-identity no-effect refusal and156original origins verify. Initial7pass/one missing-private-capture-root failure retained; no consumer command had launched. Corrected setup changes no tests/software. Whole-envelope required; six gaps,twelve findings,native limitations and historical unknowns retained. No selection,freeze,new installation,customer replay,GC action orpush. Independent review before closeout. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Implementation c1a4c74636fa62c868e9093abc34352b765930af applied exact42paths,original guard,CAS/index without debt.30controls+8integration checks pass; all1860layout postimages/modes and complete carriage preserved. LOCAL-INTEGRATION review checkpoint names original receipts and retained-read limits. Both Issues In Progress pending independent review; no closeout,selection,freeze,remote publication,new installation,GC change orcustomer replay. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

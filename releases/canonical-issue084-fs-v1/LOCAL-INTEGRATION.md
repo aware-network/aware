@@ -32,3 +32,20 @@ activation and the stable consumer bridge remain unqualified here.
 Independent integration review is required before closeout. Whole-envelope
 carriage and all GC holds remain intact. No selection, instruction freeze,
 remote publication or customer-evaluation acceptance follows from this cut.
+
+## Review checkpoint
+
+Local implementation `c1a4c74636fa62c868e9093abc34352b765930af` contains
+the exact 42-path scope. Thirty original and receiving controls plus eight
+integration checks passed. Original dry-run and apply used the same Issue guard;
+reference CAS and shared-index projection completed without debt. All 1,860
+accepted layout bodies and executable modes remain preserved.
+
+Retained verification covers 42 package versions, dependency checks, thirteen
+help entrances, the missing-identity refusal without effects and 156 original
+module-origin hashes. This is not a fresh installation or customer workflow run.
+The initial missing capture-directory failure remains retained; no consumer
+command had launched, and correction changed no tests or software.
+
+Both integration Issues remain In Progress for independent review. Their
+closeouts, selection and instruction freeze require separate governed actions.
