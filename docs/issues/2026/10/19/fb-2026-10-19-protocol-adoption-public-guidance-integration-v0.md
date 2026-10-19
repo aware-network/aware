@@ -2,7 +2,7 @@
 
 - Slug: protocol-adoption-public-guidance-integration-v0
 - Tag: fb/2026-10-19/protocol-adoption-public-guidance-integration-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -23,8 +23,12 @@
 
 
 
+
+
 ## Problem
 1. Accepted existing-repository instructions are not discoverable in public guidance.
+
+
 
 
 
@@ -37,6 +41,8 @@
 
 
 
+
+
 ## Acceptance Checklist
 - [ ] Exact eight-path scope,22pins,unchanged shell blocks and unaffected bytes/modes; original guards and complete CAS/index receipts.
 
@@ -44,8 +50,19 @@
 
 
 
+
+
+## Verified-by
+- Human-relayed independent PASS for656d01ff7cce/90a766ec675f parentd05a5d110783:10+3checks,22pins,1871unaffectedfiles/modes,42packages,pipcheck,13help;no separate reviewer receipt coordinate supplied.
+- git:656d01ff7cce3b0cfa6c504925814c0e7b807a48
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - 10read-only integration controls passed;exactguide9445596fc4f7,22pins,3navigation additions,1871unaffectedfiles/modes conserved. Existing ownerjourneys retained,notreplayed. Software/selection/notices/contributor unchanged. Localintegration only,no publication/customertrial/GC/push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Implementation656d01ff7cce exactly8paths;10controls pass before/after,3acceptedreadonlyinstruction checks pass;15retained reads verify42versions,pipcheck,13help. Initial raw-metadata-name comparison failure retained; normalization corrects receiving only. No owner replay/newinstallation. Independent review next;Issue remainsInProgress,no push/customertrial. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Human relayed independent PASS for656d01ff7cce/90a766ec675f parentd05a5d110783:10integration+3instructionchecks,22pins,exactguide+7postimages,8pathimplementation/2pathhandoff,originalIssue/CAS/indexreceipts;1871unaffectedfiles/modes;42retainedversions,pipcheck,13help. Localguidanceonly,notpublicdelivery/customeradoption. No newinstall/ownerreplay/GC/push. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Bounded local existing-repository guidance integration accepted;software,notices,selection andgovernance unchanged. Publicdelivery andrealcustomertrials remain separately authorized.
