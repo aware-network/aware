@@ -2,7 +2,7 @@
 
 - Slug: canonical-action-observer-public-integration-v0
 - Tag: fb/2026-10-20/canonical-action-observer-public-integration-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -103,6 +103,7 @@
 
 
 
+
 ## Problem
 1. Accepted observer layout is not integrated against freshly observed publicdbdc57d05230; no baseline movement is present.
 
@@ -110,8 +111,10 @@
 
 
 
+
 ## Goal
 1. Project the reviewed 84-path delta preserving complete carriage, twelve overlays/preimages, supplemental authored declarations, useful/adoption branches, contributor governance and predecessor selection.
+
 
 
 
@@ -126,8 +129,17 @@
 
 
 
+
+## Verified-by
+- Human-relayed independent review of7711393cebc8:30 guards and8 integration checks pass; six quarantined generated cache hashes verify and all failed runs preserved. No tests rerun for closeout.
+- git:c1c97718acf31d7cb1413da30038348ba86cacd4
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - 30 pre-effect guards and eight integration checks pass. All1935 accepted postimages/Git modes and exact88-path scope verify; complete envelope/source/notice carriage, twelve overlays and two supplemental declarations preserved. Retained installation only: 42 packages, dependency check,13 help entrances, missing-identity effect-none refusal and156 original module hashes. Three initial exact-tree checks failed due six generated Python caches from the first reviewer run; exact caches quarantined and failures retained, final unchanged eight-case replay passes with bytecode writes disabled. No product/test assertion changes, reprojection, new installation, customer replay, selection, GC disposal or push. Instructions draft/unselected; independent review required before closeout. (outcome: Bounded integration verification passed with retained reviewer-cache qualifications.) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Original implementation git:833e1a1fa11ccde9ecdce5e1ce78660c41f99bba applies exact88 paths; CAS/index applied without debt. Complete1935 accepted postimages/Git modes, whole envelope, overlay/preimage/supplemental mappings, predecessor selection and contributor governance preserved. Final8 integration checks and30 guards pass; initial cache-related review failures and six quarantined generated cache files retained. Two-path Issue/note handoff follows with fresh observed guard. Independent review before closeout; no selection, freeze, new installation, customer replay, GC disposal or push. (outcome: Bounded local integration applied; independent review pending.) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independent bounded local integration accepted for implementation833e1a1fa11c and handoffc1c97718acf3. All1935 postimages/Git modes, exact88/two-path deltas, Issue guards and successful CAS/index agree. Whole-envelope carriage and all qualifications retained; instructions draft/unselected. Selection/freeze/publication separately governed.
