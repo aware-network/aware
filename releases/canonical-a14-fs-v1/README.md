@@ -1,11 +1,11 @@
 # A14 whole distribution
 
-Agent **0.2.0a14** instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not the delivered a12 predecessor's acquisition path.
-Instruction pins grant no operation authority. Both reviews and original guards remain.
+Agent **0.2.0a14** software was published at `08a598fdeb8f960bf30fb8e85229e820286e67be`.
+Acquire that exact revision and retain its complete source/notice envelope.
+This alignment changes current wording and pins, not software or operation authority.
+Both reviews and original guards remain required.
 
-Selected locally; public delivery is not yet authorized. Instructions are frozen locally pending independent review. Envelope `canonical-a14-source-notice-review-v1.tar.gz` is
+Published at the exact a14 revision above. Envelope `canonical-a14-source-notice-review-v1.tar.gz` is
 SHA256 `050ed63545dd1d63c795285609e15dbdaa054c28788c9e5993e8a1871f356ea6`; software is `4d1bf3b5ab43e904d463ba307840cf681889339d7197b089083add866d692c58`. Start with the
 [entrance](../../README.md), [useful task](../../protocols/FIRST-USEFUL-TASK.md)
 and [original whole-envelope installer](../../protocols/install.py).
@@ -28,10 +28,10 @@ complete authenticated toolchain/header provenance or exact linkage proof.
 Source READMEs are history, not customer instructions. Integration, selection,
 instruction freeze, publication and evaluation remain separate.
 
-## Local a14 selection
+## A14 delivery and historical selection
 
-Agent **0.2.0a14** is selected locally; public delivery is not yet authorized.
-Instructions are frozen locally pending independent review. Use this reviewed checkout, not unchanged public main.
+Agent **0.2.0a14** is publicly delivered at the exact revision above.
+The original local selection and freeze records remain historical checkpoints.
 Complete whole-envelope source/notice carriage remains required; detached wheels
 and stripped bundles remain unaccepted. The delivery pointer is not a package
-catalog or operation authority. Instruction freeze and publication remain separate.
+catalog or operation authority. This wording alignment is separate from the software publication.

@@ -1,9 +1,9 @@
 # Current collaboration alignment
 
-Agent **0.2.0a14** instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not the delivered a12 predecessor's acquisition path.
-Instruction pins grant no operation authority. Both reviews and original guards remain.
+Agent **0.2.0a14** software was published at `08a598fdeb8f960bf30fb8e85229e820286e67be`.
+Acquire that exact revision and retain its complete source/notice envelope.
+This alignment changes current wording and pins, not software or operation authority.
+Both reviews and original guards remain required.
 
 [One installed entrance](../../README.md) composes the original SDK owners.
 Coherence means shared rules, bounded work and recoverable evidence, not speed
@@ -26,14 +26,14 @@ Stdin/focus does not automate Issue guards, select work or
 activate a service. Useful-task instructions and frozen evaluations are preserved.
 Review provenance grants no operation authority; whole-envelope carriage is mandatory.
 
-## Locally frozen a14 distribution
+## Delivered a14 distribution
 
-Resource closes are distinct from ledger completeness and historical unknowns. A14 is selected locally; public delivery is not yet authorized; optional Goal and positive create-first are unqualified. Existing Issue-first useful-work instructions, contributor governance and frozen evaluations remain unchanged.
+Resource closes are distinct from ledger completeness and historical unknowns. A14 is delivered at the exact revision above; optional Goal and positive create-first are unqualified. Existing Issue-first useful-work instructions, contributor governance and frozen evaluations remain unchanged.
 
-## Local a14 selection
+## A14 delivery and historical selection
 
-Agent **0.2.0a14** is selected locally; public delivery is not yet authorized.
-Instructions are frozen locally pending independent review. Use this reviewed checkout, not unchanged public main.
+Agent **0.2.0a14** is publicly delivered at the exact revision above.
+The original local selection and freeze records remain historical checkpoints.
 Complete whole-envelope source/notice carriage remains required; detached wheels
 and stripped bundles remain unaccepted. The delivery pointer is not a package
-catalog or operation authority. Instruction freeze and publication remain separate.
+catalog or operation authority. This wording alignment is separate from the software publication.

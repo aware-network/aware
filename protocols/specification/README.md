@@ -1,9 +1,12 @@
 # Specification drafts
 
-Agent 0.2.0a12 software was published at `f372cf75aaa228f059ab12e4095cec598e998541`.
-This status alignment changes wording and pins, not software or operation authority.
-[Current instruction pins](../../releases/canonical-reference-fs-v1/PUBLIC-INSTRUCTIONS.json)
-and [delivery provenance](../../releases/canonical-reference-fs-v1/PUBLIC-STATUS.md)
+Agent **0.2.0a14** software was published at `08a598fdeb8f960bf30fb8e85229e820286e67be`.
+Acquire that exact revision and retain its complete source/notice envelope.
+This alignment changes current wording and pins, not software or operation authority.
+Both reviews and original guards remain required.
+
+[Current instruction pins](../../releases/canonical-a14-fs-v1/PUBLIC-INSTRUCTIONS.json)
+and [delivery provenance](../../releases/canonical-a14-fs-v1/PUBLIC-STATUS.md)
 are separate from unchanged historical records below.
 
 Specifications make intended behavior and constraints explicit for cooperating

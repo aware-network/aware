@@ -1,9 +1,9 @@
 # Reviewed repository setup
 
-Agent **0.2.0a14** instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not the delivered a12 predecessor's acquisition path.
-Instruction pins grant no operation authority. Both reviews and original guards remain.
+Agent **0.2.0a14** software was published at `08a598fdeb8f960bf30fb8e85229e820286e67be`.
+Acquire that exact revision and retain its complete source/notice envelope.
+This alignment changes current wording and pins, not software or operation authority.
+Both reviews and original guards remain required.
 
 Use `aware workspace review` for one bounded
 A1 task: creating `aware.repo.toml` through the original Workspace, FileSystem
@@ -172,6 +172,6 @@ multi-agent coherence, crash recovery or application correctness acceptance.
 
 The a12 [reference-navigation guide](REFERENCE-NAVIGATION.md) adds explicit captured-result stdin and historical focus. It grants no authority, approval or Issue-guard automation.
 
-## Locally frozen a14 release evidence
+## Delivered a14 release evidence
 
-The locally frozen [resource-summary guide](RESOURCE-RELEASES.md) separates returned closes from ledger completeness and historical unknowns. No JSON, exit or authority changes follow.
+The delivered [resource-summary guide](RESOURCE-RELEASES.md) separates returned closes from ledger completeness and historical unknowns. No JSON, exit or authority changes follow.
