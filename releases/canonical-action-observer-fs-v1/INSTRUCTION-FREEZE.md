@@ -32,3 +32,13 @@ No new installation, payload copies, customer trial or GC changes.
 Independent review precedes both Issue closeouts. Publication requires explicit
 target/outgoing-range authorization and pinned acquisition proof; fresh customer
 trials follow separately. Frozen evaluations and GC holds remain protected.
+
+## Applied local checkpoint
+
+Implementation `15aafdce02611ccb930598a6f6a64d1cfbadf05d` changes exactly nineteen
+admitted paths. Eight receiving checks and all twenty-three pins pass. The pure
+installed example round-trips 1,142 bytes and renders six in-memory members with
+cleanup `closed`; no documents or authority were created. Initial mount failure
+is retained; the corrected isolated proof required no software change.
+Original Issue guards and completed CAS/index receipts remain with the producer.
+Independent instruction-freeze review is pending. No remote delivery is authorized.
