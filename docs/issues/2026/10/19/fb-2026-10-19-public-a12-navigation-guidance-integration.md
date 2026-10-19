@@ -18,14 +18,17 @@
 - `releases/canonical-reference-fs-v1/PUBLIC-INSTRUCTIONS.json`
 - `releases/canonical-reference-fs-v1/test_navigation_guidance_integration.py`
 
+
 ## Problem
 1. Current useful-task availability paragraph contradicts delivered a12 navigation.
 
 
 
 
+
 ## Goal
 1. Integrate three independently accepted guidance postimages and two compact receiving records without software change.
+
 
 
 
@@ -37,6 +40,8 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Local implementation 1f1082657f85bdd0d62b709c0f31ad3bfd8e77f0 changes exactly six admitted paths: three accepted guidance postimages, this Issue and two receiving records. Original CAS/index complete without debt; 35 controls and six receiving cases pass. Initial actual-path scope mismatch and private-mode receiving assertion remain disclosed in parent report. Manual Issue guards, both review decisions, sources/notices, historical freezes and software unchanged. Independent integration review remains pending before closeout; no push, client replay, installation, activation or GC effect. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
