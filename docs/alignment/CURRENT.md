@@ -16,7 +16,7 @@ Historical freezes remain unchanged.
 Start with [a useful task](../../protocols/FIRST-USEFUL-TASK.md).
 Both review decisions remain explicit. Known effects, retention and cleanup stay
 separate; no retry or guard refresh follows. Contributor selection is unchanged.
-[Whole-envelope carriage](../../releases/canonical-a14-fs-v1/README.md) remains mandatory.
+[Whole-envelope carriage](../../releases/canonical-issue084-fs-v1/README.md) remains mandatory.
 Project/Goal, A2/tree, Meta/Object, services and materialization are separate.
 Frozen evaluations remain unchanged. Parallel activation is outside this delivery. No activation qualification or
 inclusion follows from this instruction freeze.
@@ -43,7 +43,7 @@ catalog or operation authority. This wording alignment is separate from the soft
 
 CLI 0.8.4 was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`. Same observation is not frozen preview bytes; apply plans afresh. Useful customer work remains the outcome, SPEC optional. Source effects, reviews, admission, publication and evidence remain separate. No new evaluation or productivity claim.
 
-## Issue CLI delivery and historical selection 0.8.4 selection
+## Delivered Issue CLI 0.8.4 and historical selection
 
 Issue CLI **0.8.4** was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
 The original local selection and freeze records remain historical checkpoints.

@@ -48,7 +48,7 @@ That historical delivery is distinct from the Issue CLI 0.8.4 successor publishe
 The original local selection and freeze records remain historical checkpoints.
 The [predecessor selection record](releases/canonical-a14-fs-v1/LOCAL-SELECTION.md)
 records that historical distribution. The [current delivery pointer](releases/SELECTED.json)
-selects the local successor; it does not establish public availability.
+identifies the delivered successor; the publication observation above, not the pointer, establishes that delivery.
 [Resource summaries](protocols/workspace/RESOURCE-RELEASES.md) distinguish reported
 closes from ledger completeness and historical unknowns. Optional Goal and positive
 create-first remain unqualified; useful work, optional SPEC, both explicit reviews
