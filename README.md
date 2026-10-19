@@ -1,10 +1,10 @@
 # Aware
 
-Issue CLI **0.8.4** instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not the delivered predecessor's acquisition path.
-Instruction pins grant no operation authority. Both reviews and original guards
-remain; carrying an Issue observation does not freeze previewed source bytes.
+Issue CLI **0.8.4**, with Agent **0.2.0a14**, was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
+Acquire that exact revision and retain its complete source/notice envelope.
+This alignment changes current wording and pins, not software or operation authority.
+Both reviews and original guards remain required. Additional publication of this
+wording alignment requires independent review and separate authorization.
 
 Coherent work between agents in your Git repository.
 
@@ -27,24 +27,24 @@ publication and closeout**. A generated manifest is setup, not completion of the
 customer's application. Project/Goal direction and language/Meta materialization
 are parallel future elevations, not prerequisites for this path.
 
-## Locally frozen Issue observation input
+## Delivered Issue observation input
 
-Issue CLI **0.8.4** is selected locally; public delivery is not yet authorized.
-Instructions are frozen locally pending independent review. Use this reviewed checkout, not unchanged public main.
+Issue CLI **0.8.4** was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
+The original local selection and freeze records remain historical checkpoints.
 The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
 [local selection](releases/canonical-issue084-fs-v1/LOCAL-SELECTION.md) records its limits.
 [Observation input](protocols/issues/OBSERVATION-INPUT.md) carries one explicit
 Issue snapshot into original scope, progress and publish-close commands.
 The same observation does not freeze previewed HEAD or source bytes; apply plans
 afresh. Customer implementation and optional SPEC branches, both review decisions
-and contributor commands remain unchanged. Instruction freeze and publication
+and contributor commands remain unchanged. Independent alignment review and publication
 remain separate; no automatic guard refresh, approval or retry.
 
 ## Historical a14 predecessor resource summaries
 
 The Agent **0.2.0a14** predecessor distribution was published at
 [`08a598fdeb8f960bf30fb8e85229e820286e67be`](https://github.com/aware-network/aware/tree/08a598fdeb8f960bf30fb8e85229e820286e67be).
-That historical delivery is distinct from the locally frozen Issue CLI 0.8.4 successor.
+That historical delivery is distinct from the Issue CLI 0.8.4 successor published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
 The original local selection and freeze records remain historical checkpoints.
 The [predecessor selection record](releases/canonical-a14-fs-v1/LOCAL-SELECTION.md)
 records that historical distribution. The [current delivery pointer](releases/SELECTED.json)
@@ -70,14 +70,14 @@ grant authority; do not overlay installations or migrate contributor commands.
 
 Agent **0.2.0a11**, with its 42-package closure, was published at
 [`faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`](https://github.com/aware-network/aware/tree/faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89).
-That predecessor remains available as history. For current a14, acquire the exact
-`08a598fdeb8f960bf30fb8e85229e820286e67be` revision and use its whole-envelope
+That predecessor remains available as history. For current CLI 0.8.4, acquire the exact
+`813ab2e82f7ff0fa24403c6889bf82e2c8b121fb` revision and use its whole-envelope
 installer; do not mix predecessor commands with successor guidance.
 Verify exact payload/envelope provenance before reusing any installation;
 a matching version label alone is insufficient. No operation authority follows.
 
 Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Inspect
-[complete terms and sources](releases/canonical-a14-fs-v1/README.md)
+[complete terms and sources](releases/canonical-issue084-fs-v1/README.md)
 and keep the whole envelope. Six detached-wheel legal gaps remain unresolved;
 wheel-only delivery, stripped bundles and registry publication are unaccepted.
 From this reviewed checkout root, use the original installer once:
@@ -147,8 +147,8 @@ later client cleanup. Historical references do not restore live authority.
 Exact-reference stdin/focus navigation is included in the delivered a12 candidate;
 historical inspection does not restore current-use authority or automate Issue guards.
 
-[Current instruction pins](releases/canonical-a14-fs-v1/PUBLIC-INSTRUCTIONS.json)
-and [delivery/status provenance](releases/canonical-a14-fs-v1/PUBLIC-STATUS.md)
+[Current instruction pins](releases/canonical-issue084-fs-v1/PUBLIC-INSTRUCTIONS.json)
+and [delivery/status provenance](releases/canonical-issue084-fs-v1/PUBLIC-STATUS.md)
 are distinct from the unchanged [historical freeze](releases/canonical-reference-fs-v1/INSTRUCTION-FREEZE.md).
 `portable_protocols` remains the sole package
 selector; the delivery pointer is not operation authority.

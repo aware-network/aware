@@ -1,11 +1,12 @@
 # Complete a first useful task with Aware
 
-Agent **0.2.0a14** software was published at `08a598fdeb8f960bf30fb8e85229e820286e67be`.
+Issue CLI **0.8.4**, with Agent **0.2.0a14**, was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
 Acquire that exact revision and retain its complete source/notice envelope.
 This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required.
+Both reviews and original guards remain required. Additional publication of this
+wording alignment requires independent review and separate authorization.
 
-Consumer guidance for the delivered a14 software.
+Consumer guidance for delivered Issue CLI 0.8.4 with Agent 0.2.0a14.
 Earlier trial evidence remains version-bound; this is not a new evaluation or
 authorization for a customer run.
 
@@ -48,7 +49,7 @@ about a missing target, material ambiguity or additional effect. Read the target
 instructions before mutation. Do not infer a task, scope or authority from a
 transcript, cached selection or the fact that a command is available.
 
-Earlier evaluated guidance `379cd5dcbe26c256be82c760b73fc100fdfc0fc6` ran against Agent a11 at `faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`. These remain distinct guidance/software coordinates, not a new evaluation of a14. Read [current supported use](../releases/canonical-a14-fs-v1/PUBLIC-STATUS.md) for exact evidence and limits; historical checkpoints are not live availability.
+Earlier evaluated guidance `379cd5dcbe26c256be82c760b73fc100fdfc0fc6` ran against Agent a11 at `faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`. These remain distinct guidance/software coordinates, not a new evaluation of CLI 0.8.4. Read [current supported use](../releases/canonical-issue084-fs-v1/PUBLIC-STATUS.md) for exact evidence and limits; historical checkpoints are not live availability.
 
 ## Follow one installed consumer rail
 
@@ -66,7 +67,7 @@ it. Use the original installed command, not imports from a development checkout.
 
 Pinned product pages retain historical checkpoint wording. Read the current
 [starting instructions](../README.md) and
-[status](../releases/canonical-a14-fs-v1/PUBLIC-STATUS.md).
+[status](../releases/canonical-issue084-fs-v1/PUBLIC-STATUS.md).
 Historical freezes are not rewritten or renewed admissions.
 
 The public source checkout's contributor `AGENTS.md` and a6 command selection
@@ -79,7 +80,7 @@ into a customer repository or replace an existing selected command implicitly.
 1. Read the [coherence rules](https://github.com/aware-network/aware/blob/08a598fdeb8f960bf30fb8e85229e820286e67be/protocols/COHERENCE.md).
    Use exactly one genuine supported harness identity. Declared actors and
    receipts do not authenticate every action or provide filesystem isolation.
-2. Follow [initialization](https://github.com/aware-network/aware/blob/08a598fdeb8f960bf30fb8e85229e820286e67be/protocols/INIT.md).
+2. Follow [initialization](https://github.com/aware-network/aware/blob/813ab2e82f7ff0fa24403c6889bf82e2c8b121fb/protocols/INIT.md).
    Inspect preview, then separately choose apply. Capture both original streams:
    summary mode keeps full JSON on stderr in the same invocation. Init supplies
    configuration, not Issue admission, scope approval or apply authority. It
@@ -153,7 +154,7 @@ visibility was disclosed; these are not isolated swarm or crash-recovery proofs.
 
 These observations support bounded coordination and clearer immediate decisions.
 They do not measure faster work, reduced Human intervention, broad onboarding,
-customer application correctness or full coherence. A later coordinator-selected useful-work U reported code and local closeout; its [current evidence and limits](../releases/canonical-a14-fs-v1/PUBLIC-STATUS.md) are separate from that earlier U/V/R. The next task trial should be genuinely customer-selected and compatibility-reviewed for an existing repository.
+customer application correctness or full coherence. A later coordinator-selected useful-work U reported code and local closeout; its [current evidence and limits](../releases/canonical-issue084-fs-v1/PUBLIC-STATUS.md) are separate from that earlier U/V/R. The next task trial should be genuinely customer-selected and compatibility-reviewed for an existing repository.
 
 For that run, report the exact customer outcome; test commands/results and actual
 interpreter; source scope and preservation; publication/closeout state; blockers,

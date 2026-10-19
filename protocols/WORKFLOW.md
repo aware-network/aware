@@ -1,10 +1,10 @@
 # Aware filesystem workflow
 
-Issue CLI **0.8.4** instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not the delivered predecessor's acquisition path.
-Instruction pins grant no operation authority. Both reviews and original guards
-remain; carrying an Issue observation does not freeze previewed source bytes.
+Issue CLI **0.8.4**, with Agent **0.2.0a14**, was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
+Acquire that exact revision and retain its complete source/notice envelope.
+This alignment changes current wording and pins, not software or operation authority.
+Both reviews and original guards remain required. Additional publication of this
+wording alignment requires independent review and separate authorization.
 
 Historical freezes remain unchanged; installation does not admit customer work.
 Read [init summary streams and decisions](INIT.md); full receipts remain
@@ -455,9 +455,9 @@ The predecessor's [resource-summary guide](workspace/RESOURCE-RELEASES.md) expla
 returned release evidence without completing ledgers or renewing authority.
 The a14 predecessor was published at
 [`08a598fdeb8f960bf30fb8e85229e820286e67be`](https://github.com/aware-network/aware/tree/08a598fdeb8f960bf30fb8e85229e820286e67be).
-This is a historical software pin, not the locally frozen Issue CLI 0.8.4 successor.
+This is a historical software pin, not the Issue CLI 0.8.4 successor published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
 Both reviews, original guards and explicit apply stay.
 
-## Locally frozen Issue observation input
+## Delivered Issue observation input
 
-[Issue observation input](issues/OBSERVATION-INPUT.md) is selected locally; public delivery is not yet authorized. One explicit saved observation can carry the Issue digest; apply still plans afresh. Both review decisions remain separate.
+[Issue observation input](issues/OBSERVATION-INPUT.md) was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`. One explicit saved observation can carry the Issue digest; apply still plans afresh. Both review decisions remain separate.

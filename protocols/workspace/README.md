@@ -1,10 +1,10 @@
 # Reviewed Workspace A1
 
-Issue CLI **0.8.4** instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not the delivered predecessor's acquisition path.
-Instruction pins grant no operation authority. Both reviews and original guards
-remain; carrying an Issue observation does not freeze previewed source bytes.
+Issue CLI **0.8.4**, with Agent **0.2.0a14**, was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
+Acquire that exact revision and retain its complete source/notice envelope.
+This alignment changes current wording and pins, not software or operation authority.
+Both reviews and original guards remain required. Additional publication of this
+wording alignment requires independent review and separate authorization.
 
 Use the [two-review repository-manifest guide](REVIEWED-SETUP.md) through the
 original installed SDK owners. Init supplies configuration, not admission or

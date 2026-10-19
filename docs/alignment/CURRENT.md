@@ -1,10 +1,10 @@
 # Current collaboration alignment
 
-Issue CLI **0.8.4** instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not the delivered predecessor's acquisition path.
-Instruction pins grant no operation authority. Both reviews and original guards
-remain; carrying an Issue observation does not freeze previewed source bytes.
+Issue CLI **0.8.4**, with Agent **0.2.0a14**, was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
+Acquire that exact revision and retain its complete source/notice envelope.
+This alignment changes current wording and pins, not software or operation authority.
+Both reviews and original guards remain required. Additional publication of this
+wording alignment requires independent review and separate authorization.
 
 [One installed entrance](../../README.md) composes the original SDK owners.
 Coherence means shared rules, bounded work and recoverable evidence, not speed
@@ -39,15 +39,15 @@ Complete whole-envelope source/notice carriage remains required; detached wheels
 and stripped bundles remain unaccepted. The delivery pointer is not a package
 catalog or operation authority. This wording alignment is separate from the software publication.
 
-## Locally frozen Issue observation input
+## Delivered Issue observation input
 
-CLI 0.8.4 is selected locally; public delivery is not yet authorized. Same observation is not frozen preview bytes; apply plans afresh. Useful customer work remains the outcome, SPEC optional. Source effects, reviews, admission, publication and evidence remain separate. No new evaluation or productivity claim.
+CLI 0.8.4 was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`. Same observation is not frozen preview bytes; apply plans afresh. Useful customer work remains the outcome, SPEC optional. Source effects, reviews, admission, publication and evidence remain separate. No new evaluation or productivity claim.
 
-## Local Issue CLI 0.8.4 selection
+## Issue CLI delivery and historical selection 0.8.4 selection
 
-Issue CLI **0.8.4** is selected locally; public delivery is not yet authorized.
-Instructions are frozen locally pending independent review. Use this reviewed checkout, not unchanged public main.
+Issue CLI **0.8.4** was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
+The original local selection and freeze records remain historical checkpoints.
 Complete whole-envelope source and notice carriage remains required. The delivery
 pointer is not a package catalog or operation authority. Same observation is not
 frozen preview bytes; apply plans afresh. No automatic refresh, approval or retry.
-Independent instruction review and publication remain separate.
+This wording alignment requires independent review and separate publication authorization.

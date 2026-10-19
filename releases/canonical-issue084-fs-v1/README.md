@@ -1,12 +1,12 @@
 # Issue CLI 0.8.4 whole distribution
 
-Issue CLI **0.8.4** instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not the delivered predecessor's acquisition path.
-Instruction pins grant no operation authority. Both reviews and original guards
-remain; carrying an Issue observation does not freeze previewed source bytes.
+Issue CLI **0.8.4**, with Agent **0.2.0a14**, was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
+Acquire that exact revision and retain its complete source/notice envelope.
+This alignment changes current wording and pins, not software or operation authority.
+Both reviews and original guards remain required. Additional publication of this
+wording alignment requires independent review and separate authorization.
 
-Selected locally; public delivery is not yet authorized. Instructions are frozen locally pending independent review. Envelope `canonical-issue084-source-notice-review-v1.tar.gz` is
+Published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`. Envelope `canonical-issue084-source-notice-review-v1.tar.gz` is
 SHA256 `d1326d1465a5bfbaf13293ce09e3b1a763e5ae98371f04f750fb4b81e76ebcee`; accepted software is `f5e65fefa12ac6a778bf39e7efdffacf3a8a8b1fb261a6332a9656388ab94b5a`.
 Use [the entrance](../../README.md), [useful work](../../protocols/FIRST-USEFUL-TASK.md)
 and [the original whole-envelope installer](../../protocols/install.py).
@@ -29,11 +29,11 @@ header/toolchain provenance or exact binary linkage. Historical source READMEs
 are not customer guidance. Integration, selection, freeze, publication and
 customer evaluation remain separate.
 
-## Local Issue CLI 0.8.4 selection
+## Issue CLI delivery and historical selection 0.8.4 selection
 
-Issue CLI **0.8.4** is selected locally; public delivery is not yet authorized.
-Instructions are frozen locally pending independent review. Use this reviewed checkout, not unchanged public main.
+Issue CLI **0.8.4** was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
+The original local selection and freeze records remain historical checkpoints.
 Complete whole-envelope source and notice carriage remains required. The delivery
 pointer is not a package catalog or operation authority. Same observation is not
 frozen preview bytes; apply plans afresh. No automatic refresh, approval or retry.
-Independent instruction review and publication remain separate.
+This wording alignment requires independent review and separate publication authorization.
