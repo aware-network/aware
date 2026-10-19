@@ -115,14 +115,17 @@
 
 
 
+
 ## Problem
 1. Accepted a14 layout is not integrated against freshly observed public23d5b8ea; no baseline movement is present.
 
 
 
 
+
 ## Goal
 1. Project the reviewed 97-path delta preserving whole-envelope carriage, explicit metadata overlays/preimages, useful-task branches, contributor governance and predecessor selection.
+
 
 
 
@@ -135,7 +138,9 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Thirty original/receiving controls and eight public integration checks passed. All1818 accepted postimages/Git modes and exact97-path layout+four integration records verified. Complete envelope/source/notices and three metadata overlays/preimages remain; predecessor selection/contributor a6/operational blocks unchanged. Retained consumer read-only16commands verify42 versions,dependencies,13help entrances,missing identity refusal without effects and155 original module hashes. No new install, owner workflow replay, selection,freeze,activation,GC or push. Independent review before closeout; whole-envelope delivery and capability limits remain mandatory. (outcome: qualified_pending_independent_review) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Local implementation67fe9d1dbfeb contains exact101-path admitted delta. Original dry-run/apply share original Issue guardabd3bbe3... and actual target paths; CAS/index completed without debt. Thirty controls and eight integration tests pass. Retained16read-only commands verify42versions/dependencies/13help/missing identity refusal and155 original module hashes. Current handoff updates only this Issue and LOCAL-INTEGRATION.md; no re-projection or owner workflow replay. Request independent review; keep both Issues InProgress. No selection,freeze,new install,activation,GC or push; whole-envelope and capability limits unchanged. (outcome: handoff_pending_independent_review) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
