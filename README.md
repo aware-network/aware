@@ -158,3 +158,10 @@ contributions there, not customer work. Do not copy that bootstrap or replace an
 existing repository's selected command. Read [coherence](protocols/COHERENCE.md)
 before effects. A2/tree completion, objects, materialization, services and
 activation are not admitted by this release.
+
+## Adopting an existing repository
+
+[Candidate adoption instructions](protocols/EXISTING-REPOSITORY.md) explain custom record roots,
+compatible configuration reuse and preserving existing guidance and foreign work.
+They qualify a scripted installed workflow, not generic migration or
+unassisted customer adoption. Project and Goal are not prerequisites.

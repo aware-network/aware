@@ -461,3 +461,10 @@ Both reviews, original guards and explicit apply stay.
 ## Delivered Issue observation input
 
 [Issue observation input](issues/OBSERVATION-INPUT.md) was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`. One explicit saved observation can carry the Issue digest; apply still plans afresh. Both review decisions remain separate.
+
+## Adopting an existing repository
+
+[Candidate adoption instructions](EXISTING-REPOSITORY.md) explain custom record roots,
+compatible configuration reuse and preserving existing guidance and foreign work.
+They qualify a scripted installed workflow, not generic migration or
+unassisted customer adoption. Project and Goal are not prerequisites.

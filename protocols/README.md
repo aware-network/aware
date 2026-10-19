@@ -15,3 +15,10 @@ Root contributor AGENTS retains its own selected CLI; customer init does not
 migrate it or authorize service startup.
 
 Start with [a useful customer task](FIRST-USEFUL-TASK.md); setup alone is not the customer outcome.
+
+## Adopting an existing repository
+
+[Candidate adoption instructions](EXISTING-REPOSITORY.md) explain custom record roots,
+compatible configuration reuse and preserving existing guidance and foreign work.
+They qualify a scripted installed workflow, not generic migration or
+unassisted customer adoption. Project and Goal are not prerequisites.
