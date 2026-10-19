@@ -29,3 +29,23 @@ remain. No stripped or wheel-only delivery, new installation or GC changes.
 Independent review precedes both Issue closeouts. Publication requires explicit
 target/outgoing-range authorization and pinned acquisition proof; fresh client
 evaluation follows separately. Frozen evaluations and GC holds stay protected.
+
+## Review checkpoint
+
+Local implementation `2273e260a7908bb2cbe9d51c1e3211a608343fd4` contains
+the exact seventeen-path freeze. Seven original receiving checks pass; all
+twenty-one instruction and example pins match, including negative controls.
+Original observed Issue guards and publication scopes match the actual commit;
+reference CAS and shared-index projection completed without debt.
+
+The separate installed example round-trips 1,142 bytes, purely renders six
+members and reports cleanup `closed`. Only the original input snapshot was
+written; no rendered documents or authority were created. Initial mount setup
+failed before Python; corrected tmpfs mount targets passed with the same probe
+and example. Both captures remain retained.
+
+Retained read-only checks verify 42 versions, dependencies, thirteen help
+entrances, missing-identity refusal without effects and 156 original module
+hashes. This is not a new installation or customer workflow replay. Both Issues
+remain In Progress for independent review. Publication and evaluation require
+separate authorization and version-bound acquisition.
