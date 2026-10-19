@@ -1,10 +1,10 @@
 # Aware filesystem workflow
 
-Issue CLI **0.8.4**, with Agent **0.2.0a14**, was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
-Acquire that exact revision and retain its complete source/notice envelope.
-This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required. Additional publication of this
-wording alignment requires independent review and separate authorization.
+Agent **0.2.0a15**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not a delivered predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards
+remain; historical intent is not completion, current admission or retry authority.
 
 Historical freezes remain unchanged; installation does not admit customer work.
 Read [init summary streams and decisions](INIT.md); full receipts remain
@@ -458,7 +458,7 @@ The a14 predecessor was published at
 This is a historical software pin, not the Issue CLI 0.8.4 successor published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
 Both reviews, original guards and explicit apply stay.
 
-## Delivered Issue observation input
+## Historical predecessor Issue observation input
 
 [Issue observation input](issues/OBSERVATION-INPUT.md) was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`. One explicit saved observation can carry the Issue digest; apply still plans afresh. Both review decisions remain separate.
 
@@ -469,6 +469,6 @@ compatible configuration reuse and preserving existing guidance and foreign work
 They qualify a scripted installed workflow, not generic migration or
 unassisted customer adoption. Project and Goal are not prerequisites.
 
-## Prepared historical action observation
+## Locally frozen historical action observation
 
-[Observe retained intent](workspace/ACTION-OBSERVATION.md) using the original review and intent references. Prepared/unselected instructions are draft. Observation is not completion, current admission or retry authority. Both explicit reviews remain separate.
+[Observe retained intent](workspace/ACTION-OBSERVATION.md) using the original review and intent references. Instructions are frozen locally pending independent review. Observation is not completion, current admission or retry authority. Both explicit reviews remain separate.

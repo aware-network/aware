@@ -1,6 +1,12 @@
 # Observe original retained action intent
 
-Draft for prepared, unselected Agent **0.2.0a15**, Workspace SDK **0.2.14** /
+Agent **0.2.0a15**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not a delivered predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards
+remain; historical intent is not completion, current admission or retry authority.
+
+Locally selected Agent **0.2.0a15**, Workspace SDK **0.2.14** /
 Runtime **0.2.19**, FS adapter **0.1.11** and FileSystem **0.3.9**.
 Issue CLI **0.8.4** remains unchanged. Start with [useful customer work](../FIRST-USEFUL-TASK.md)
 and the [two-review setup guide](REVIEWED-SETUP.md). This read does not replace

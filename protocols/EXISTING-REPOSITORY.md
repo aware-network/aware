@@ -1,9 +1,16 @@
 # Candidate instructions for adopting an existing repository
 
+Agent **0.2.0a15**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not a delivered predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards
+remain; historical intent is not completion, current admission or retry authority.
+
 Keep your repository layout and existing agent guidance. Aware binds Issue
 records through `aware.protocol.toml`; `docs/issues` is a default, not a required
-folder. Use the shipped Issue CLI 0.8.4 and Agent 0.2.0a14 at
-`b3c19b5d03229a795e8539c94f7c1cfdcc3d90d5`, with its complete source and notices.
+folder. This locally selected Agent 0.2.0a15 candidate retains Issue CLI 0.8.4.
+Use this reviewed checkout's complete source/notice envelope, not the predecessor
+installation at `b3c19b5d03229a795e8539c94f7c1cfdcc3d90d5`.
 These instructions are a review candidate, not a published or unassisted
 customer-adoption acceptance. The installed proof uses disposable repositories.
 

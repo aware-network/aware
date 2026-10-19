@@ -1,10 +1,10 @@
 # Aware
 
-Issue CLI **0.8.4**, with Agent **0.2.0a14**, was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
-Acquire that exact revision and retain its complete source/notice envelope.
-This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required. Additional publication of this
-wording alignment requires independent review and separate authorization.
+Agent **0.2.0a15**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not a delivered predecessor's acquisition path.
+Instruction pins grant no operation authority. Both reviews and original guards
+remain; historical intent is not completion, current admission or retry authority.
 
 Coherent work between agents in your Git repository.
 
@@ -27,23 +27,23 @@ publication and closeout**. A generated manifest is setup, not completion of the
 customer's application. Project/Goal direction and language/Meta materialization
 are parallel future elevations, not prerequisites for this path.
 
-## Locally selected historical action observation
+## Locally frozen historical action observation
 
 Agent **0.2.0a15** is selected locally; public delivery is not yet authorized.
-Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+Instructions are frozen locally pending independent review. Use this reviewed checkout, not unchanged public main.
 The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
 [local selection](releases/canonical-action-observer-fs-v1/LOCAL-SELECTION.md) records its limits.
 [Historical action observation](protocols/workspace/ACTION-OBSERVATION.md)
 validates original intent, not completion, current admission or retry authority.
 Useful work, optional SPEC and both explicit review decisions stay unchanged.
-Instruction freeze and publication are separate; no automatic refresh or retry.
+Independent instruction review and publication are separate; no automatic refresh or retry.
 
-## Delivered Issue observation input
+## Historical Issue observation input
 
 Issue CLI **0.8.4** was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
 The original local selection and freeze records remain historical checkpoints.
-The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
-[local selection](releases/canonical-issue084-fs-v1/LOCAL-SELECTION.md) records its limits.
+The [predecessor selection](releases/canonical-issue084-fs-v1/LOCAL-SELECTION.md)
+records that historical delivery; the current pointer selects the local a15 successor.
 [Observation input](protocols/issues/OBSERVATION-INPUT.md) carries one explicit
 Issue snapshot into original scope, progress and publish-close commands.
 The same observation does not freeze previewed HEAD or source bytes; apply plans
@@ -59,7 +59,7 @@ That historical delivery is distinct from the Issue CLI 0.8.4 successor publishe
 The original local selection and freeze records remain historical checkpoints.
 The [predecessor selection record](releases/canonical-a14-fs-v1/LOCAL-SELECTION.md)
 records that historical distribution. The [current delivery pointer](releases/SELECTED.json)
-identifies the delivered successor; the publication observation above, not the pointer, establishes that delivery.
+selects the local a15 successor, not public availability. The explicit predecessor publication pins remain historical evidence.
 [Resource summaries](protocols/workspace/RESOURCE-RELEASES.md) distinguish reported
 closes from ledger completeness and historical unknowns. Optional Goal and positive
 create-first remain unqualified; useful work, optional SPEC, both explicit reviews
@@ -77,18 +77,20 @@ the limits. Existing useful-task and implementation/draft branches are unchanged
 Workspace stdin/focus does not automate Issue guards. Review provenance does not
 grant authority; do not overlay installations or migrate contributor commands.
 
-## Acquire and install the exact delivered revision
+## Install the reviewed local successor
 
 Agent **0.2.0a11**, with its 42-package closure, was published at
 [`faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`](https://github.com/aware-network/aware/tree/faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89).
-That predecessor remains available as history. For current CLI 0.8.4, acquire the exact
-`813ab2e82f7ff0fa24403c6889bf82e2c8b121fb` revision and use its whole-envelope
-installer; do not mix predecessor commands with successor guidance.
+That predecessor and the CLI 0.8.4/Agent a14 distribution at
+`813ab2e82f7ff0fa24403c6889bf82e2c8b121fb` remain available as history.
+For this locally selected Agent a15 candidate use the reviewed checkout and its
+whole-envelope installer. It is not yet publicly delivered; do not mix
+predecessor commands or acquisition paths with successor guidance.
 Verify exact payload/envelope provenance before reusing any installation;
 a matching version label alone is insufficient. No operation authority follows.
 
 Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Inspect
-[complete terms and sources](releases/canonical-issue084-fs-v1/README.md)
+[complete terms and sources](releases/canonical-action-observer-fs-v1/README.md)
 and keep the whole envelope. Six detached-wheel legal gaps remain unresolved;
 wheel-only delivery, stripped bundles and registry publication are unaccepted.
 From this reviewed checkout root, use the original installer once:
