@@ -40,12 +40,15 @@ afresh. Customer implementation and optional SPEC branches, both review decision
 and contributor commands remain unchanged. Instruction freeze and publication
 remain separate; no automatic guard refresh, approval or retry.
 
-## Delivered a14 resource summaries
+## Historical a14 predecessor resource summaries
 
-Agent **0.2.0a14** is publicly delivered at the exact revision above.
+The Agent **0.2.0a14** predecessor distribution was published at
+[`08a598fdeb8f960bf30fb8e85229e820286e67be`](https://github.com/aware-network/aware/tree/08a598fdeb8f960bf30fb8e85229e820286e67be).
+That historical delivery is distinct from the locally frozen Issue CLI 0.8.4 successor.
 The original local selection and freeze records remain historical checkpoints.
-The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
-[local selection](releases/canonical-a14-fs-v1/LOCAL-SELECTION.md) records its limits.
+The [predecessor selection record](releases/canonical-a14-fs-v1/LOCAL-SELECTION.md)
+records that historical distribution. The [current delivery pointer](releases/SELECTED.json)
+selects the local successor; it does not establish public availability.
 [Resource summaries](protocols/workspace/RESOURCE-RELEASES.md) distinguish reported
 closes from ledger completeness and historical unknowns. Optional Goal and positive
 create-first remain unqualified; useful work, optional SPEC, both explicit reviews

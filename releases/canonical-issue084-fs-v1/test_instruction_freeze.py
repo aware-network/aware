@@ -89,6 +89,45 @@ owner.owner.derive_instruction_record = derive_instruction_record
 
 
 class Instructions(owner.Instructions):
+    def test_historical_a14_pin_survives_current_status_replacement(self):
+        historical_pin = "08a598fdeb8f960bf30fb8e85229e820286e67be"
+
+        def assert_historical_section(body, heading):
+            self.assertEqual(body.count(heading), 1)
+            section = body.split(heading, 1)[1].split("\n## ", 1)[0]
+            self.assertIn(historical_pin, section)
+            self.assertIn("predecessor", section.lower())
+            self.assertNotIn("exact revision above", section)
+            self.assertNotIn("Current a14", section)
+
+        for path, heading, old_heading in (
+            (
+                "README.md",
+                "## Historical a14 predecessor resource summaries",
+                "## Delivered a14 resource summaries",
+            ),
+            (
+                "protocols/WORKFLOW.md",
+                "## Historical a14 predecessor summaries",
+                "## Delivered a14 summaries",
+            ),
+        ):
+            body = (ROOT / path).read_text()
+            assert_historical_section(body, heading)
+            # Other historical occurrences elsewhere must not hide a missing
+            # pin in this section after the current introduction is replaced.
+            prefix, section = body.split(heading, 1)
+            with self.assertRaises(AssertionError):
+                assert_historical_section(
+                    prefix + heading + section.replace(historical_pin, ""), heading
+                )
+            before = owner.owner.git("show", BASELINE + ":" + path).decode()
+            old_section = before.split(old_heading, 1)[1].split("\n## ", 1)[0]
+            self.assertIn("exact revision above", old_section)
+            self.assertNotIn(historical_pin, old_section)
+            with self.assertRaises(AssertionError):
+                assert_historical_section(heading + old_section, heading)
+
     test_exact_pins_and_original_negative_controls = owner.bind(
         owner.Instructions.test_exact_pins_and_original_negative_controls, {20: 21}
     )

@@ -449,11 +449,14 @@ The a12 [stdin and focused-history guide](workspace/REFERENCE-NAVIGATION.md)
 retains two explicit decisions and manual Issue guards. Its instruction pins
 bind reviewed bytes, not a new admission or renewed current-use authority.
 
-## Delivered a14 summaries
+## Historical a14 predecessor summaries
 
-The delivered [resource-summary guide](workspace/RESOURCE-RELEASES.md) explains
+The predecessor's [resource-summary guide](workspace/RESOURCE-RELEASES.md) explains
 returned release evidence without completing ledgers or renewing authority.
-Current a14 software is delivered at the exact revision above; both reviews, original guards and explicit apply stay.
+The a14 predecessor was published at
+[`08a598fdeb8f960bf30fb8e85229e820286e67be`](https://github.com/aware-network/aware/tree/08a598fdeb8f960bf30fb8e85229e820286e67be).
+This is a historical software pin, not the locally frozen Issue CLI 0.8.4 successor.
+Both reviews, original guards and explicit apply stay.
 
 ## Locally frozen Issue observation input
 

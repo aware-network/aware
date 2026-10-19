@@ -11,8 +11,8 @@
   "failure_interruption_qualified": false,
   "files": {
     "README.md": {
-      "bytes": 8887,
-      "sha256": "0a4ec23120c8bf4e8e9328380ae68118ea07b8d4f9b25097a2e5ca851b4df691"
+      "bytes": 9201,
+      "sha256": "b6c9fbb3749851388b7ec069822c44f986847bdef8e22817f716756a870510aa"
     },
     "protocols/COHERENCE.md": {
       "bytes": 2584,
@@ -39,8 +39,8 @@
       "sha256": "cc0f54f671ba665912098a9b16c15f1970f887a2cd43c87155e425ff3feedcb6"
     },
     "protocols/WORKFLOW.md": {
-      "bytes": 24653,
-      "sha256": "81b7d770efd5640112be0fdce7ea24be065adf5d154cf3dbcf09c76091e7d076"
+      "bytes": 24861,
+      "sha256": "ee0f9d88d8a0848df7d2ac3cf6e06b00d9a7eb01bfd25bbb51d616aea4999ceb"
     },
     "protocols/issues/FIRST-ISSUE.md": {
       "bytes": 18207,
