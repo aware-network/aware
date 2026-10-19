@@ -66,7 +66,7 @@ semantic_contract_provider_keys=["demo"]
 
 
 @asynccontextmanager
-async def fixture(tmp_path, mutate=None):
+async def fixture(tmp_path, mutate=None, *, retention_limits=None):
     root = tmp_path / "repository"
     root.mkdir()
     (root / "aware.repo.toml").write_text(
@@ -107,7 +107,8 @@ async def fixture(tmp_path, mutate=None):
     )
     await session.start(background=False)
     store = retained(
-        repository_binding_ref=binding.binding_key, state_root=tmp_path / "state"
+        repository_binding_ref=binding.binding_key, state_root=tmp_path / "state",
+        **(retention_limits or {}),
     )
     lifetime = WorkspaceCommandLifetimeRuntime()
     parent = lifetime._retain_direct_invocation_parent()

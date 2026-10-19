@@ -13,3 +13,5 @@ No A2/tree, Service, Object or materialization join is admitted.
 
 [A12 reference navigation](REFERENCE-NAVIGATION.md) preserves both explicit
 decisions and original guards. It does not automate Issue guard handling.
+
+[Prepared a14 resource summaries](RESOURCE-RELEASES.md) are draft and unselected. Both reviews and original Issue guards remain.

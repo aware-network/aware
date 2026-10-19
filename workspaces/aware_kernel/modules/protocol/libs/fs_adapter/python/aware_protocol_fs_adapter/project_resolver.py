@@ -1,4 +1,4 @@
-"""Process-local fs_v3 Project location capability, not Project source authority.
+"""Process-local fs_v3/fs_v4 Project location capability, not source authority.
 
 Issuance retains the genuine Goal capability from the same on-disk manifest
 admission. Project owns committed content, identity, discovery and currentness.
@@ -16,6 +16,7 @@ from aware_protocol_runtime import ProtocolContractError
 
 from .goal_templates import canonical_relative_path
 from .manifest import (
+    COLLABORATION_PLANNING_FS_PROFILE,
     COLLABORATION_PROJECT_FS_PROFILE,
     FilesystemProtocolAdmissionResult,
     resolve_repository_path_at_use,
@@ -25,6 +26,7 @@ from .native_goal_resolver import (
     NativeGoalResolverError,
     admit_native_goal_resolver,
     require_native_goal_resolver,
+    require_planning_goal_resolver,
 )
 from .project_templates import match_project_path
 
@@ -92,6 +94,10 @@ class ProjectResolverCapability:
         return _retained(self).goal_capability.protocol_digest
 
     @property
+    def protocol_profile(self) -> str:
+        return _retained(self).goal_capability.protocol_profile
+
+    @property
     def project_root(self) -> str:
         return _retained(self).project_root
 
@@ -108,7 +114,10 @@ class ProjectResolverCapability:
     def revalidate(self) -> None:
         retained = _retained(self)
         try:
-            _ = require_native_goal_resolver(retained.goal_capability)
+            if retained.goal_capability.protocol_profile == COLLABORATION_PLANNING_FS_PROFILE:
+                _ = require_planning_goal_resolver(retained.goal_capability)
+            else:
+                _ = require_native_goal_resolver(retained.goal_capability)
         except NativeGoalResolverError as error:
             raise ProjectResolverError(
                 "project_admission_changed", diagnostics=error.diagnostics
@@ -176,7 +185,7 @@ class ProjectResolverAdmission:
 
 
 def admit_project_resolver(*, repository_root: Path, manifest_path: Path) -> ProjectResolverAdmission:
-    """Issue only from fresh fs_v3 on-disk admission, not caller-built values."""
+    """Issue only from fresh fs_v3/fs_v4 on-disk admission, not caller values."""
     try:
         selected = admit_native_goal_resolver(
             repository_root=repository_root, manifest_path=manifest_path
@@ -190,7 +199,9 @@ def admit_project_resolver(*, repository_root: Path, manifest_path: Path) -> Pro
     profile = selected.admission.filesystem_profile
     if selected.capability is None or profile is None:
         return ProjectResolverAdmission(selected.admission, None)
-    if profile.protocol_manifest.protocol.profile != COLLABORATION_PROJECT_FS_PROFILE:
+    if profile.protocol_manifest.protocol.profile not in {
+        COLLABORATION_PROJECT_FS_PROFILE, COLLABORATION_PLANNING_FS_PROFILE,
+    }:
         raise ProjectResolverError("project_profile_required")
     bindings = tuple(item for item in profile.record_bindings if item.record_key == "project")
     if len(bindings) != 1:

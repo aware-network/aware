@@ -2275,7 +2275,14 @@ def _publish_staged_transaction(
     command_log: list[tuple[str, ...]],
     resident_provider: _ResidentRepositoryCommitProvider | None = None,
     resident_evidence: ResidentCommitAdmissionEvidence | None = None,
+    expected_tree_oid: str | None = None,
 ) -> None:
+    if expected_tree_oid is not None and (
+        type(expected_tree_oid) is not str
+        or re.fullmatch(r"(?:[0-9a-f]{40}|[0-9a-f]{64})", expected_tree_oid) is None
+        or not transaction.enabled
+    ):
+        raise ValueError("repository_transaction_admitted_tree_invalid")
     if not transaction.enabled:
         commit_args: tuple[str, ...] = ("git", "commit")
         if allow_empty:
@@ -2298,6 +2305,8 @@ def _publish_staged_transaction(
     tree_hash = tree_result.stdout.strip()
     if not tree_hash:
         raise ValueError("repository_transaction_tree_missing")
+    if expected_tree_oid is not None and tree_hash != expected_tree_oid:
+        raise ValueError("repository_transaction_admitted_tree_mismatch")
     commit_args: tuple[str, ...] = ("git", "commit-tree", tree_hash)
     if transaction.expected_head is not None:
         commit_args = (*commit_args, "-p", transaction.expected_head)

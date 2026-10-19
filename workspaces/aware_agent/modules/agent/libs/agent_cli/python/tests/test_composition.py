@@ -58,12 +58,14 @@ else:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert "goal,issue,protocol,spec,workspace" in result.stdout
+    assert "goal,project,issue,protocol,spec,workspace" in result.stdout
     assert "does not establish Issue enforcement" in result.stdout
     assert result.stderr == ""
 
 
-@pytest.mark.parametrize("family", ["goal", "issue", "protocol", "spec", "workspace"])
+@pytest.mark.parametrize(
+    "family", ["goal", "project", "issue", "protocol", "spec", "workspace"]
+)
 def test_leaf_identity_argv_context_and_owner_return_are_preserved(family, monkeypatch):
     calls = []
     context = {"not_authority": object()}
@@ -94,7 +96,9 @@ def test_leaf_identity_argv_context_and_owner_return_are_preserved(family, monke
     assert calls[1].context is None
 
 
-@pytest.mark.parametrize("family", ["goal", "issue", "protocol", "spec", "workspace"])
+@pytest.mark.parametrize(
+    "family", ["goal", "project", "issue", "protocol", "spec", "workspace"]
+)
 @pytest.mark.parametrize("failure", ["import", "export", "not_callable"])
 def test_missing_supplier_refuses_before_dispatch(family, failure, monkeypatch, capsys):
     def unavailable(name):
@@ -103,7 +107,8 @@ def test_missing_supplier_refuses_before_dispatch(family, failure, monkeypatch, 
         if failure == "export":
             return SimpleNamespace()
         names = [
-            "register_goal_commands",
+            "register_create_first_goal_commands",
+            "register_project_commands",
             "register_issue_commands",
             "register_admit_command",
             "register_setup_specification_command",
@@ -143,7 +148,9 @@ def test_missing_draft_port_does_not_dispatch_partially_registered_spec(
     assert json.loads(capsys.readouterr().err)["operation_invoked"] is False
 
 
-@pytest.mark.parametrize("family", ["goal", "issue", "protocol", "spec", "workspace"])
+@pytest.mark.parametrize(
+    "family", ["goal", "project", "issue", "protocol", "spec", "workspace"]
+)
 def test_handler_failures_and_interruptions_are_not_reinterpreted(family, monkeypatch):
     def registrar(registry, selected):
         registry.register_command(name="probe", help="Unit probe", handle=handle)
@@ -210,9 +217,9 @@ def test_original_public_handler_identities_are_mounted(family):
 
 def _assert_owned_metadata(project):
     assert project["project"]["name"] == "aware-agent-cli"
-    assert project["project"]["version"] == "0.2.0a12"
+    assert project["project"]["version"] == "0.2.0a14"
     assert project["project"]["optional-dependencies"] == {
-        "goal": ["aware-goal-native-cli>=0.1.1,<0.2.0"],
+        "goal": ["aware-goal-native-cli>=0.1.2,<0.2.0"],
     }
     assert project["project"]["scripts"] == {"aware": "aware_agent_cli.main:main"}
     dependencies = [Requirement(raw) for raw in project["project"]["dependencies"]]
@@ -252,7 +259,7 @@ def _assert_owned_metadata(project):
         "aware-issue-sdk[workspace_setup_admission]>=0.10.6,<0.11.0",
         "aware-issue-fs-adapter>=0.9.6,<0.10.0",
         "aware-protocol-sdk>=0.3.2,<0.4.0",
-        "aware-protocol-fs-adapter>=0.6.5,<0.7.0",
+        "aware-protocol-fs-adapter>=0.6.6,<0.7.0",
         "aware-protocol-runtime>=0.1.1,<0.2.0",
         "aware-specification-sdk>=0.3.3,<0.4.0",
         "aware-specification-fs-sdk-adapter[governed]>=0.4.3,<0.5.0",
@@ -268,6 +275,47 @@ def _assert_owned_metadata(project):
 def test_owned_metadata_is_finite_neutral_and_explicit():
     project = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())
     _assert_owned_metadata(project)
+
+
+def test_create_first_dependency_floors_accept_real_suppliers_and_reject_old_apis():
+    from aware_goal_native_cli.customer_commands import (
+        register_create_first_goal_commands,
+        register_project_commands,
+    )
+    from aware_protocol_fs_adapter.project_bootstrap import (
+        prepare_planning_project_configuration,
+    )
+
+    root = Path(__file__).resolve().parents[8]
+    own = tomllib.loads((Path(__file__).parents[1] / "pyproject.toml").read_text())[
+        "project"
+    ]
+    protocol = tomllib.loads(
+        (
+            root
+            / "workspaces/aware_kernel/modules/protocol/libs/fs_adapter/python/pyproject.toml"
+        ).read_text()
+    )["project"]
+    goal = tomllib.loads(
+        (
+            root
+            / "workspaces/aware_coordination/modules/workflow/sdks/goal/python/native_cli/pyproject.toml"
+        ).read_text()
+    )["project"]
+    protocol_requirement = next(
+        Requirement(raw)
+        for raw in own["dependencies"]
+        if Requirement(raw).name == "aware-protocol-fs-adapter"
+    )
+    goal_requirement = Requirement(own["optional-dependencies"]["goal"][0])
+    assert protocol["version"] in protocol_requirement.specifier
+    assert "0.6.5" not in protocol_requirement.specifier
+    assert goal["version"] in goal_requirement.specifier
+    assert "0.1.1" not in goal_requirement.specifier
+    assert callable(prepare_planning_project_configuration)
+    assert callable(register_project_commands) and callable(
+        register_create_first_goal_commands
+    )
 
 
 @pytest.mark.parametrize(

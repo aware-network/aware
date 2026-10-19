@@ -34,7 +34,7 @@ It does not copy a6's `contract`, repository-create or template helpers. The
 successor `init` delegates to the accepted Workspace and Protocol SDKs rather
 than retaining a standalone Repository implementation.
 
-## Initializer source command
+## Issue-first initializer source command (default)
 
 Earlier installed candidates qualify initialization independently. This source
 successor requires a newly pinned candidate; source changes do not update an
@@ -116,9 +116,9 @@ is not execution identity, Issue admission or authorization. The composition
 does not refresh guards or retry a failed publication. Family diagnostics and
 unknown/applied effect evidence remain unchanged.
 
-## Optional Goal read family
+## Optional Project/Goal family
 
-The source-only `goal` extra selects Goal's original native CLI registrar:
+The source-only `goal` extra selects Goal's original create-first registrars:
 `aware-agent-cli[goal]`. Base dependencies and the `portable_protocols` release
 selection do not acquire Goal implicitly. Bundle must qualify a successor
 installation before consumer adoption; help availability is not installed
@@ -130,7 +130,9 @@ eligibility also requires `--lane-key` and `--phase-key`. See the Goal-owned
 [command journey](../../../../../../aware_coordination/modules/workflow/sdks/goal/python/native_cli/README.md).
 They start from an already qualified committed native Goal and committed native
 Protocol configuration, not Issue-only initialization. Neither command prepares,
-upgrades or repairs configuration. Goal creation/import remains separate.
+upgrades or repairs configuration. These Phase reads never create/import Goals;
+the explicit create-first profile below separately creates Proposed planning
+intent. General import and execution remain unsupported.
 
 Goal's owner-qualified reading retains committed associated Issue inputs.
 Discovery and eligibility are composed once at an exact repository epoch;
@@ -473,3 +475,67 @@ review. Do not build these changed sources under the accepted a11 identity or
 overlay current consumers. Frozen evaluations and inherited qualifications stay
 unchanged.
 It does not rebuild the immutable 0.2.0a9 artifacts under their existing identity.
+# Explicit create-first source candidate (0.2.0a13)
+
+The existing Issue-first default remains unchanged. A separately qualified
+installation with the `goal` extra can instead opt into cooperative, local-policy
+initial authoring. This source mounting is not a public release or unassisted
+customer qualification.
+
+```text
+aware init --profile create-first --repository-root /absolute/empty/customer --create-repository
+aware init --profile create-first --repository-root /absolute/empty/customer --create-repository --apply --format summary
+aware project create home --title Home --repository-root /absolute/empty/customer --protocol-manifest aware.protocol.toml --apply
+aware project show home --repository-root /absolute/empty/customer --protocol-manifest aware.protocol.toml
+aware goal create release --project home --title "First release" --intent "Make a useful release" --date YYYY-MM-DD --repository-root /absolute/empty/customer --protocol-manifest aware.protocol.toml --apply
+aware goal show release --repository-root /absolute/empty/customer --protocol-manifest aware.protocol.toml
+```
+
+Preview is read-only. Each apply displays its original live plan and requires
+interactive confirmation; noninteractive apply refuses. Create-first init commits
+and projects exactly one Protocol fs_v4 manifest, with Protocol-owned default
+record roots. `--issue-root`, `--goal-root` and `--project-root` select explicit
+alternatives. Unlike Issue-first init, this opt-in includes an initial commit.
+It does not install AGENTS.md, set Git identity, add a remote, or create a Project,
+Goal or Issue. Customer Git author/committer configuration must already be usable;
+missing configuration is an owner refusal, not permission to set it here.
+
+The next **source-only correction** observes effective Git author and committer
+through Workspace before preview, at the prospective customer's own Git path.
+It does not borrow a parent repository's local identity. Missing metadata
+refuses before creation; metadata changed during confirmation refuses without
+refresh. The observation is readiness, not frozen commit authorship or actor
+authority; later Git/configuration failures still retain original outcomes.
+No identity is selected or written, and global configuration is never repaired.
+
+The same source correction adds an original-owner historical read:
+
+```text
+aware init --profile create-first --repository-root /absolute/customer --recover --format summary
+```
+
+Do not combine recovery with `--apply`, `--create-repository` or new setup roots.
+It returns the original retained request and complete publication result,
+including failure. Exit 0 means the historical read succeeded, **not** that
+setup is complete/current. Missing result remains uncertain; foreign execution,
+busy/damaged retention and absent originals refuse. Recovery neither projects
+files nor issues retry/redispatch permission. A failed initialized root is not
+an absent root and must not be fed back into fresh `init`. A successor write
+admission remains separate. These commands are not added to the frozen accepted
+installation by editing source; installed qualification must follow separately.
+
+Project creation is empty. Goal creation publishes Proposed undecomposed intent,
+then separately publishes Project membership, retaining both receipts. It starts
+no work. A planning Goal is **not yet decomposed**, not eligible by empty-set
+satisfaction. Existing Phase-path `goal show` and `goal eligibility` remain
+original-owner reads. Read commands never prepare or repair configuration.
+
+Initial setup does not adopt existing repositories, create another initial
+Project/Goal, or resume an interrupted setup by reissuing authority. Failure after
+an owner starts returns uncertainty and all returned receipts. Preserve original
+streams; do not repeat mutation for nicer output or to assume rollback. Summary
+mode keeps complete original receipt JSON on stderr. Original-owner recovery and
+customer retained records remain authoritative; a JSON copy grants no permission.
+
+Unattended creation, self-serve decomposition, Goal approval, pursuit execution,
+RUN, public activation and release remain outside this candidate.

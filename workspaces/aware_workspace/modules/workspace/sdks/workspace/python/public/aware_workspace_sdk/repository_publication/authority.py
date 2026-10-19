@@ -194,6 +194,17 @@ class WorkspaceRepositoryPublicationClient:
             raise TypeError("Exact WorkspaceRepositoryCommitRequest required")
         return self._provider.plan_repository_commit(request)
 
+    @staticmethod
+    def observe_filesystem_initial_git_identity(*, repository_root):
+        """Explicit concrete readiness observation, never write/actor authority.
+
+        Does not select or configure author metadata. Git interpretation stays
+        with the original filesystem provider, not the neutral SDK/runtime.
+        """
+        from aware_workspace_fs_adapter.git_identity import observe_initial_git_identity
+
+        return observe_initial_git_identity(repository_root=repository_root)
+
     def enroll_initial_authoring(self, preparation_client):
         """Explicit local-policy enrollment from this original fresh-root creator.
 
@@ -212,6 +223,14 @@ class WorkspaceRepositoryPublicationClient:
         )
 
         return restore_original_enrollment(self._provider)
+
+    def observe_initial_authoring_request(self, kind):
+        """Original retained request/result selection, never restored permission."""
+        from aware_workspace_runtime.initial_authoring_selection import (
+            observe_initial_authoring_request,
+        )
+
+        return observe_initial_authoring_request(self._provider, kind)
 
     def plan_initial_configuration(self, enrollment, protocol_plan, *, idempotency_key):
         from aware_workspace_runtime.initial_authoring import plan_initial_configuration
@@ -242,6 +261,217 @@ class WorkspaceRepositoryPublicationClient:
         return recover_initial_configuration(
             self._provider, protocol_plan, idempotency_key
         )
+
+    def project_initial_configuration(self, protocol_plan, *, idempotency_key):
+        """Project only the retained original publication; never republish it.
+
+        A partial projection remains uncertain and cannot be retried by adopting
+        matching bytes. Protocol admission is a separate, subsequent operation.
+        """
+        from aware_workspace_runtime.initial_authoring import (
+            project_initial_configuration,
+        )
+
+        return project_initial_configuration(
+            self._provider, protocol_plan, idempotency_key
+        )
+
+    def observe_initial_configuration_projection(
+        self, protocol_plan, *, idempotency_key
+    ):
+        from aware_workspace_runtime.initial_authoring import (
+            project_initial_configuration,
+        )
+
+        return project_initial_configuration(
+            self._provider, protocol_plan, idempotency_key, read_only=True
+        )
+
+    def plan_initial_project(self, source, *, idempotency_key):
+        from aware_workspace_runtime.initial_authoring import plan_initial_project
+
+        return plan_initial_project(self._provider, source, idempotency_key)
+
+    def plan_initial_goal(self, source):
+        from aware_workspace_runtime.initial_goal_publication import plan_initial_goal
+
+        return plan_initial_goal(self._provider, source)
+
+    def admit_initial_goal(self, plan):
+        from aware_workspace_runtime.initial_goal_publication import admit_initial_goal
+
+        return admit_initial_goal(self._provider, plan)
+
+    def publish_initial_goal(self, admission):
+        from aware_workspace_runtime.initial_goal_publication import (
+            publish_initial_goal,
+        )
+
+        return publish_initial_goal(self._provider, admission)
+
+    def recover_initial_goal(self, request):
+        from aware_workspace_runtime.initial_goal_publication import (
+            recover_initial_goal,
+        )
+
+        return recover_initial_goal(self._provider, request)
+
+    def project_initial_goal(self, request):
+        from aware_workspace_runtime.initial_goal_publication import (
+            recover_initial_goal,
+        )
+
+        return recover_initial_goal(self._provider, request, project=True)
+
+    def observe_initial_goal_projection(self, request):
+        from aware_workspace_runtime.initial_goal_publication import (
+            recover_initial_goal,
+        )
+
+        return recover_initial_goal(
+            self._provider, request, project=True, read_only=True
+        )
+
+    def observe_initial_goal_source(
+        self, project_request, *, resolver_capability, target_path
+    ):
+        """Read-only original-source context, never a creation admission."""
+        from aware_workspace_runtime.initial_goal_source import (
+            observe_initial_goal_source,
+        )
+
+        return observe_initial_goal_source(
+            self._provider, project_request, resolver_capability, target_path
+        )
+
+    def authorize_initial_goal_intent(
+        self, context, *, intent_payload, idempotency_key
+    ):
+        """Explicit intent permission, not exact-postimage/CAS work admission."""
+        from aware_workspace_runtime.initial_goal_intent import (
+            authorize_initial_goal_intent,
+        )
+
+        return authorize_initial_goal_intent(
+            self._provider, context, intent_payload, idempotency_key
+        )
+
+    def observe_initial_goal_intent(self, context, *, intent_payload, idempotency_key):
+        """Reread original issuance; never restore or extend live permission."""
+        from aware_workspace_runtime.initial_goal_intent import (
+            observe_initial_goal_intent,
+        )
+
+        return observe_initial_goal_intent(
+            self._provider, context, intent_payload, idempotency_key
+        )
+
+    def prepare_initial_project_source(
+        self,
+        descriptor,
+        *,
+        resolver_capability,
+        protocol_plan,
+        configuration_idempotency_key,
+    ):
+        """Qualify an exact byte effect; Project independently owns its meaning."""
+        from aware_workspace_runtime.initial_authoring import (
+            prepare_initial_project_source,
+        )
+
+        return prepare_initial_project_source(
+            self._provider,
+            self,
+            descriptor,
+            resolver_capability,
+            protocol_plan,
+            configuration_idempotency_key,
+        )
+
+    def admit_initial_project(self, plan):
+        from aware_workspace_runtime.initial_authoring import (
+            admit_initial_configuration,
+        )
+
+        return admit_initial_configuration(self._provider, plan, _project=True)
+
+    def publish_initial_project(self, admission):
+        from aware_workspace_runtime.initial_authoring import (
+            publish_initial_configuration,
+        )
+
+        return publish_initial_configuration(self._provider, admission, _project=True)
+
+    def recover_initial_project(self, request):
+        from aware_workspace_runtime.initial_authoring import recover_initial_project
+
+        return recover_initial_project(self._provider, request)
+
+    def project_initial_project(self, request):
+        from aware_workspace_runtime.initial_authoring import recover_initial_project
+
+        return recover_initial_project(self._provider, request, project=True)
+
+    def observe_initial_project_projection(self, request):
+        from aware_workspace_runtime.initial_authoring import recover_initial_project
+
+        return recover_initial_project(
+            self._provider, request, project=True, read_only=True
+        )
+
+    def plan_initial_membership(self, source, *, idempotency_key):
+        """Plan exact initial member bytes; no admission or publication effect."""
+        from aware_workspace_runtime.initial_membership import plan_initial_membership
+
+        return plan_initial_membership(
+            self._provider, source, idempotency_key=idempotency_key
+        )
+
+    def admit_initial_membership(self, plan):
+        """Durably admit one exact effect; dispatch remains explicit."""
+        from aware_workspace_runtime.initial_membership import admit_initial_membership
+
+        return admit_initial_membership(self._provider, plan)
+
+    def publish_initial_membership(self, admission):
+        """Publish the admitted Project replacement; never install it."""
+        from aware_workspace_runtime.initial_membership import (
+            publish_initial_membership,
+        )
+
+        return publish_initial_membership(self._provider, admission)
+
+    def recover_initial_membership(self, request):
+        """Read original receipts; never restore permission or redispatch."""
+        from aware_workspace_runtime.initial_membership import (
+            recover_initial_membership,
+        )
+
+        return recover_initial_membership(self._provider, request)
+
+    def project_initial_membership(self, request):
+        from aware_workspace_runtime.initial_membership import (
+            recover_initial_membership,
+        )
+
+        return recover_initial_membership(self._provider, request, project=True)
+
+    def observe_initial_membership_projection(self, request):
+        from aware_workspace_runtime.initial_membership import (
+            recover_initial_membership,
+        )
+
+        return recover_initial_membership(
+            self._provider, request, project=True, read_only=True
+        )
+
+    def observe_initial_membership_admission(self, request):
+        """Observe original retention; never restore a live admission."""
+        from aware_workspace_runtime.initial_membership import (
+            observe_initial_membership_admission,
+        )
+
+        return observe_initial_membership_admission(self._provider, request)
 
     def plan_repository_index_reconciliation(self, request):
         from .ports import WorkspaceRepositoryIndexReconcileRequest

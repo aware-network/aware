@@ -76,11 +76,13 @@ def body(role, contract, payload):
     return SemanticBody(SemanticValueCoordinate(role, contract, "fixture:" + role + ":" + digest.value, digest, len(payload)), payload)
 
 
-def supplier_factory(calls, *, consumer=False, dependency_role="semantic_dependencies"):
+def supplier_factory(calls, *, consumer=False, dependency_role="semantic_dependencies", supplier_product=None):
     key = ROOT_KEY if consumer else SUPPLIER_KEY
     template = _code_binding("example", key)
     declaration = replace(template.profile_declaration.providers[0], output_roles=(), allows_typed_empty=True)
     source_input = template.profile_declaration.inputs[0]
+    target_product = supplier_product or CodeSemanticRequiredResultProduct.create(
+        role=declaration.result_role.role, contract=declaration.result_role.contract)
     profile_inputs, steps = template.profile_declaration.inputs, template.profile_declaration.steps
     if consumer:
         dependency = SemanticDependencyProductInputCodec.contract
@@ -98,7 +100,8 @@ def supplier_factory(calls, *, consumer=False, dependency_role="semantic_depende
     values = {field.name: getattr(template, field.name) for field in fields(template) if field.name != "binding_digest"}
     values.update(package_families=("example",), package_roles=("example",),
         profile_declaration=profile, provider_execution_bindings=(binding,),
-        dependency_planner_implementation=SemanticImplementationCoordinate(key + ".planner", ContentDigest.of_bytes(key.encode())),
+        dependency_planner_implementation=SemanticImplementationCoordinate(key + ".planner", ContentDigest.of_bytes(
+            key.encode() if supplier_product is None else canonical_json_bytes(target_product.to_wire()))),
         dependency_planner_configuration=binding.configuration,
         result_product_contracts=tuple(sorted((CodeSemanticRequiredResultProduct.create(role=role.role, contract=role.contract)
             for role in (declaration.result_role, declaration.effect_role)), key=lambda item: item.role)))
@@ -159,10 +162,10 @@ def supplier_factory(calls, *, consumer=False, dependency_role="semantic_depende
             demands = tuple(SemanticDependencyDemand.create(
                 consumer_semantic_role=role, authored_dependency_kind=item.dependency_kind,
                 authored_dependency_ref=item.dependency_ref, target_constraints=item.target_constraints,
-                required_result_role="result", result_product_contract=declaration.result_role.contract,
+                required_result_role=target_product.role, result_product_contract=target_product.contract,
                 target_intent=CodeSemanticMaterializationIntent.create(operation_kind="materialize",
                     requested_semantic_root_refs=item.targets[0].semantic_root_refs,
-                    requested_terminal_output_roles=("result",), semantic_configuration_coordinate=None), cardinality="required",
+                    requested_terminal_output_roles=(target_product.role,), semantic_configuration_coordinate=None), cardinality="required",
             ) for item in planning_input.dependencies for role in ("first", "second")
                 if consumer and usage[package.package_ref, planning_input.source_identity_digest.value])
             return SemanticDependencyDemandSet.create(package=package, intent=intent,

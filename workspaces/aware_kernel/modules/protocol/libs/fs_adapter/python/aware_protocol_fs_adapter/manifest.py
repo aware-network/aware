@@ -36,7 +36,9 @@ COLLABORATION_PROTOCOL_NAME = "aware.collaboration"
 COLLABORATION_FS_PROFILE = "aware.collaboration.fs_v1"
 COLLABORATION_NATIVE_FS_PROFILE = "aware.collaboration.fs_v2"
 COLLABORATION_PROJECT_FS_PROFILE = "aware.collaboration.fs_v3"
+COLLABORATION_PLANNING_FS_PROFILE = "aware.collaboration.fs_v4"
 NATIVE_GOAL_RECORD_PROFILE = "aware.goal.phase.markdown.v1"
+PLANNING_GOAL_RECORD_PROFILE = "aware.goal.native.markdown.v2"
 PROJECT_RECORD_PROFILE = "aware.project.context.toml.v1"
 SUPPORTED_RECORD_PROFILES: Mapping[str, str] = {
     "goal": "aware.goal.markdown.v1",
@@ -56,6 +58,9 @@ SUPPORTED_PROJECT_RECORD_PROFILES: Mapping[str, str] = MappingProxyType(
         **SUPPORTED_NATIVE_RECORD_PROFILES,
         "project": PROJECT_RECORD_PROFILE,
     }
+)
+SUPPORTED_PLANNING_RECORD_PROFILES: Mapping[str, str] = MappingProxyType(
+    {**SUPPORTED_PROJECT_RECORD_PROFILES, "goal": PLANNING_GOAL_RECORD_PROFILE}
 )
 
 
@@ -329,6 +334,7 @@ def validate_protocol_manifest_content(
         (COLLABORATION_FS_PROFILE, 1),
         (COLLABORATION_NATIVE_FS_PROFILE, 2),
         (COLLABORATION_PROJECT_FS_PROFILE, 3),
+        (COLLABORATION_PLANNING_FS_PROFILE, 4),
     }:
         return _admission_failure(
             source_digest=source_digest,
@@ -345,13 +351,19 @@ def validate_protocol_manifest_content(
         )
 
     records = cast(dict[str, dict[str, object]], parsed["records"])
-    project = protocol["profile"] == COLLABORATION_PROJECT_FS_PROFILE
+    planning = protocol["profile"] == COLLABORATION_PLANNING_FS_PROFILE
+    project = protocol["profile"] in {
+        COLLABORATION_PROJECT_FS_PROFILE, COLLABORATION_PLANNING_FS_PROFILE,
+    }
     native = protocol["profile"] in {
         COLLABORATION_NATIVE_FS_PROFILE,
         COLLABORATION_PROJECT_FS_PROFILE,
+        COLLABORATION_PLANNING_FS_PROFILE,
     }
     supported = (
-        SUPPORTED_PROJECT_RECORD_PROFILES
+        SUPPORTED_PLANNING_RECORD_PROFILES
+        if planning
+        else SUPPORTED_PROJECT_RECORD_PROFILES
         if project
         else SUPPORTED_NATIVE_RECORD_PROFILES
         if native
@@ -367,7 +379,7 @@ def validate_protocol_manifest_content(
         return _admission_failure(
             source_digest=source_digest,
             outcome=ProtocolAdmissionOutcomeKind.MALFORMED_V1,
-            diagnostics=("project_record_required_for_fs_v3",),
+            diagnostics=("project_record_required_for_fs_v4" if planning else "project_record_required_for_fs_v3",),
         )
     profile_errors = tuple(
         f"record_profile_mismatch:{record_key}:{record['profile']}"

@@ -11,6 +11,7 @@ import hashlib
 import json
 import re
 from dataclasses import asdict, dataclass
+from typing import Any
 
 PROFILE = "repository_initial_authoring_v1"
 SCHEMA = "aware.workspace.initial-authoring-enrollment.v1"
@@ -246,4 +247,203 @@ def configuration_request(enrollment, config, idempotency_key):
     }
     return InitialConfigurationRequest.from_wire(
         {**body, "request_ref": initial_reference("workspace-initial-request", body)}
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class InitialProjectRequest:
+    """Exact first-Project byte effect, not a Project semantic verdict.
+
+    The Project owner independently validates its intention/initial-state plan.
+    Workspace binds these opaque bytes to its own concrete authoring scope;
+    neither decoding nor a writer receipt grants domain or execution authority.
+    """
+
+    source_json: str
+    idempotency_key: str
+    request_ref: str
+
+    def __post_init__(self):
+        self.to_wire()
+
+    def to_wire(self) -> dict[str, Any]:
+        if any(
+            type(value) is not str
+            for value in (self.source_json, self.idempotency_key, self.request_ref)
+        ):
+            raise ValueError("initial_project_request_types_invalid")
+        source = json.loads(self.source_json)
+        if (
+            type(source) is not dict
+            or set(source)
+            != {
+                "schema_id",
+                "repository_root",
+                "execution_id",
+                "configuration_request",
+                "configuration_publication_ref",
+                "configuration_projection_ref",
+                "expected_head",
+                "manifest_sha256",
+                "target_path",
+                "parent_preimages",
+                "project_plan",
+                "source_ref",
+            }
+            or _canonical(source).decode("utf-8") != self.source_json
+            or len(self.source_json.encode("utf-8")) > 524288
+        ):
+            raise ValueError("initial_project_source_shape_invalid")
+        config = InitialConfigurationRequest.from_wire(source["configuration_request"])
+        configuration = config.to_wire()["configuration"]
+        if type(configuration) is not dict:
+            raise ValueError("initial_project_configuration_invalid")
+        plan = source["project_plan"]
+        if type(plan) is not dict or set(plan) != {
+            "schema_id",
+            "request",
+            "content_utf8",
+            "content_sha256",
+            "plan_ref",
+        }:
+            raise ValueError("initial_project_plan_shape_invalid")
+        content = plan["content_utf8"]
+        path = source["target_path"]
+        if (
+            source["schema_id"] != "aware.project.initial-source.v1"
+            or source["repository_root"] != configuration["repository_root"]
+            or source["execution_id"] != config.execution_id
+            or type(path) is not str
+            or len(path) > 2048
+            or any(part in {"", ".", "..", ".git"} for part in path.split("/"))
+            or "\\" in path
+            or any(ord(c) < 32 for c in path)
+            or type(content) is not str
+            or not 0 < len(content.encode("utf-8")) <= 262144
+            or plan["content_sha256"]
+            != "sha256:" + hashlib.sha256(content.encode("utf-8")).hexdigest()
+            or re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9._:-]{0,127}", self.idempotency_key)
+            is None
+        ):
+            raise ValueError("initial_project_request_invalid")
+        parents = source["parent_preimages"]
+        prefixes = [
+            "/".join(path.split("/")[:i]) for i in range(1, len(path.split("/")))
+        ]
+        if (
+            type(parents) is not list
+            or len(parents) > 64
+            or len(parents) != len(prefixes)
+        ):
+            raise ValueError("initial_project_parent_inventory_invalid")
+        absent = False
+        for prefix, item in zip(prefixes, parents, strict=True):
+            if type(item) is not dict or item.get("path") != prefix:
+                raise ValueError("initial_project_parent_inventory_invalid")
+            if item.get("state") == "absent":
+                if set(item) != {"path", "state"}:
+                    raise ValueError("initial_project_parent_inventory_invalid")
+                absent = True
+            elif item.get("state") == "directory":
+                if (
+                    absent
+                    or set(item) != {"path", "state", "identity", "mode"}
+                    or type(item["identity"]) is not list
+                    or len(item["identity"]) != 2
+                    or any(type(v) is not int or v < 0 for v in item["identity"])
+                    or type(item["mode"]) is not int
+                    or not 0 <= item["mode"] <= 0o7777
+                ):
+                    raise ValueError("initial_project_parent_inventory_invalid")
+            else:
+                raise ValueError("initial_project_parent_inventory_invalid")
+        for key, domain in (
+            ("configuration_publication_ref", "workspace-initial-publication"),
+            (
+                "configuration_projection_ref",
+                "workspace-initial-configuration-projection",
+            ),
+            ("manifest_sha256", ""),
+        ):
+            if (
+                type(source[key]) is not str
+                or re.fullmatch(
+                    (domain + ":" if domain else "") + r"sha256:[0-9a-f]{64}",
+                    source[key],
+                )
+                is None
+            ):
+                raise ValueError("initial_project_source_reference_invalid")
+        if (
+            type(source["expected_head"]) is not str
+            or re.fullmatch(r"(?:[0-9a-f]{40}|[0-9a-f]{64})", source["expected_head"])
+            is None
+        ):
+            raise ValueError("initial_project_source_epoch_invalid")
+        if source["source_ref"] != initial_reference(
+            "project-initial-source",
+            {k: v for k, v in source.items() if k != "source_ref"},
+        ):
+            raise ValueError("initial_project_source_reference_invalid")
+        body = {
+            "schema_id": "aware.workspace.initial-project-request.v1",
+            "profile": PROFILE,
+            "operation_key": "publish_initial_project_context",
+            "source": source,
+            "idempotency_key": self.idempotency_key,
+        }
+        if self.request_ref != initial_reference(
+            "workspace-initial-project-request", body
+        ):
+            raise ValueError("initial_project_request_reference_invalid")
+        return {**body, "request_ref": self.request_ref}
+
+    @property
+    def source(self) -> dict[str, Any]:
+        return self.to_wire()["source"]
+
+    @property
+    def enrollment_ref(self):
+        return InitialConfigurationRequest.from_wire(
+            self.source["configuration_request"]
+        ).enrollment_ref
+
+    @property
+    def execution_id(self):
+        return self.source["execution_id"]
+
+    @classmethod
+    def from_wire(cls, value):
+        if type(value) is not dict or set(value) != {
+            "schema_id",
+            "profile",
+            "operation_key",
+            "source",
+            "idempotency_key",
+            "request_ref",
+        }:
+            raise ValueError("initial_project_request_fields_invalid")
+        result = cls(
+            _canonical(value["source"]).decode("utf-8"),
+            value["idempotency_key"],
+            value["request_ref"],
+        )
+        if _canonical(result.to_wire()) != _canonical(value):
+            raise ValueError("initial_project_request_constants_invalid")
+        return result
+
+
+def project_request(source, idempotency_key):
+    body = {
+        "schema_id": "aware.workspace.initial-project-request.v1",
+        "profile": PROFILE,
+        "operation_key": "publish_initial_project_context",
+        "source": source,
+        "idempotency_key": idempotency_key,
+    }
+    return InitialProjectRequest.from_wire(
+        {
+            **body,
+            "request_ref": initial_reference("workspace-initial-project-request", body),
+        }
     )

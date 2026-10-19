@@ -32,6 +32,9 @@ class _Candidate:
     postimages: tuple
     reconciliation: object = None
     preimages: object = None
+    initial_profile: str | None = None
+    parent_preimages: object = None
+    initial_source_json: bytes | None = None
 
 
 class _Transaction:
@@ -135,6 +138,109 @@ class FilesystemRepositoryCandidatePort:
         from .initial_authoring import require_configuration_source
 
         return require_configuration_source(plan)
+
+    def require_initial_project_source(self, source, *, current=False):
+        from aware_workspace_runtime.initial_authoring import (
+            require_initial_project_source,
+        )
+
+        return require_initial_project_source(self, source, current=current)
+
+    def qualify_initial_project_source(self, descriptor, capability, *, current=False):
+        from .initial_authoring import qualify_project_source
+
+        return qualify_project_source(self, descriptor, capability, current=current)
+
+    def observe_initial_project_preimage(self, target):
+        from .initial_authoring import project_preimage
+
+        return project_preimage(self, target)
+
+    def observe_initial_goal_source(self, project_request, capability, target_path):
+        from .initial_goal_source import observe
+
+        return observe(self, project_request, capability, target_path)
+
+    def authorize_initial_goal_intent(self, claim):
+        from .initial_goal_intent import authorize
+
+        return authorize(self, claim)
+
+    def observe_initial_goal_intent(self, context, payload, key):
+        from .initial_goal_intent import observe
+
+        return observe(self, context, payload, key)
+
+    def reserve_initial_project(self, claim):
+        from .initial_authoring import reserve_project
+
+        return reserve_project(self, claim)
+
+    def initial_project_attempt(self, request):
+        from .initial_authoring import project_attempt
+
+        return project_attempt(self, request)
+
+    def reserve_initial_goal(self, claim):
+        from .initial_authoring import reserve_configuration
+
+        return reserve_configuration(self, claim, _goal=True)
+
+    def initial_goal_attempt(self, request):
+        from .initial_authoring import configuration_attempt
+
+        return configuration_attempt(self, request, _goal=True)
+
+    def verify_initial_goal_origin(self, request):
+        from .initial_goal_publication import verify_origin
+
+        return verify_origin(self, request)
+
+    def initial_goal_attempt_manager(self, directory, record, parent_directory):
+        from .initial_goal_publication import GoalAttempt
+
+        return GoalAttempt(self, directory, record, parent_directory)
+
+    def reserve_initial_membership(self, claim):
+        from .initial_authoring import reserve_configuration
+
+        return reserve_configuration(self, claim, _membership=True)
+
+    def observe_initial_authoring_request(self, kind, *, execution_id):
+        from .initial_authoring_selection import observe_initial_authoring_request
+
+        return observe_initial_authoring_request(self, kind, execution_id=execution_id)
+
+    def initial_membership_preimage(self, source):
+        from .initial_membership import preimage
+
+        return preimage(source)
+
+    def initial_membership_attempt(self, request):
+        from .initial_authoring import configuration_attempt
+
+        return configuration_attempt(self, request, _membership=True)
+
+    def verify_initial_membership_origin(self, request, *, current=False):
+        from .initial_membership import verify_origin
+
+        return verify_origin(self, request, current=current)
+
+    def initial_membership_attempt_manager(self, directory, record, parent_directory):
+        from .initial_membership import MembershipAttempt
+
+        return MembershipAttempt(self, directory, record, parent_directory)
+
+    def _membership_stage_read(self, index, runner, command_log, arguments):
+        from . import git_writer as writer
+
+        return writer._run_git(
+            runner=runner,
+            repo_root=self._root,
+            args=("git", *arguments),
+            command_log=command_log,
+            environment=index.git_environment(),
+        ).stdout
 
     def observe_publication_receipt(self, request):
         """Bounded read-only Git facts, without locks, cleanup or recovery."""
@@ -349,17 +455,47 @@ class FilesystemRepositoryCandidatePort:
             or request.target_paths != ("aware.protocol.toml",)
         ):
             raise ValueError("initial_configuration_candidate_invalid")
+        return self._capture_initial_creation(request, content, configuration=True)
+
+    def capture_initial_project(self, request, source):
+        from .initial_authoring import project_preimage
+
+        content = source["project_plan"]["content_utf8"].encode("utf-8")
+        if (
+            type(content) is not bytes
+            or not 0 < len(content) <= 262144
+            or len(request.target_paths) != 1
+        ):
+            raise ValueError("initial_project_candidate_invalid")
+        if (
+            project_preimage(self, request.target_paths[0])
+            != source["parent_preimages"]
+        ):
+            raise ValueError("initial_project_parents_changed")
+        initial = self._capture_initial_creation(request, content, configuration=False)
+        captured = replace(
+            initial, parent_preimages=json.loads(json.dumps(source["parent_preimages"]))
+        )
+        self._captures.pop(id(initial), None)
+        self._captures[id(captured)] = captured
+        return captured
+
+    def _capture_initial_creation(self, request, content, *, configuration):
         initial = self.capture_candidate(request)
         try:
             if (
-                initial.expected_head is not None
+                (
+                    initial.expected_head is not None
+                    if configuration
+                    else initial.expected_head is None
+                )
                 or initial.publication_reference != "refs/heads/main"
                 or initial.postimages
-                != ({"path": "aware.protocol.toml", "state": "absent"},)
+                != ({"path": request.target_paths[0], "state": "absent"},)
             ):
                 raise ValueError("initial_configuration_preimage_not_absent")
             postimage = {
-                "path": "aware.protocol.toml",
+                "path": request.target_paths[0],
                 "state": "file",
                 "sha256": _digest(content),
                 "size": len(content),
@@ -387,6 +523,77 @@ class FilesystemRepositoryCandidatePort:
                 postimages=(postimage,),
                 postimages_digest=digest,
                 preimages=initial.postimages,
+                initial_profile="initial_configuration"
+                if configuration
+                else "initial_project",
+            )
+            self._captures[id(captured)] = captured
+            return captured
+        finally:
+            self._captures.pop(id(initial), None)
+
+    def capture_initial_goal(self, request, source):
+        from .initial_authoring import project_preimage
+
+        content = source["content_utf8"].encode("utf-8")
+        if (
+            not 0 < len(content) <= 131072
+            or request.target_paths != (source["target_path"],)
+            or project_preimage(self, source["target_path"])
+            != source["parent_preimages"]
+        ):
+            raise ValueError("initial_goal_candidate_invalid")
+        initial = self._capture_initial_creation(request, content, configuration=False)
+        captured = replace(
+            initial,
+            initial_profile="initial_goal",
+            parent_preimages=json.loads(json.dumps(source["parent_preimages"])),
+        )
+        self._captures.pop(id(initial), None)
+        self._captures[id(captured)] = captured
+        return captured
+
+    def capture_initial_membership(self, request, source):
+        from .initial_membership import preimage, validate_source
+
+        validate_source(source)
+        initial = self.capture_candidate(request)
+        try:
+            if (
+                initial.publication_reference != "refs/heads/main"
+                or initial.expected_head != source["expected_head"]
+                or request.target_paths != (source["target_path"],)
+                or initial.postimages != (preimage(source),)
+            ):
+                raise ValueError("initial_membership_capture_preimage_mismatch")
+            content = source["content_utf8"].encode()
+            postimage = {
+                "path": source["target_path"],
+                "state": "file",
+                "sha256": _digest(content),
+                "size": len(content),
+                "mode": 0o100644,
+                "body": content,
+            }
+            digest = _digest(
+                json.dumps(
+                    {
+                        "profile": "workspace-postimages-v1",
+                        "paths": [{k: v for k, v in postimage.items() if k != "body"}],
+                    },
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode()
+            )
+            captured = replace(
+                initial,
+                postimages=(postimage,),
+                postimages_digest=digest,
+                preimages=initial.postimages,
+                initial_profile="initial_membership",
+                initial_source_json=json.dumps(
+                    source, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+                ).encode(),
             )
             self._captures[id(captured)] = captured
             return captured
@@ -466,9 +673,32 @@ class FilesystemRepositoryCandidatePort:
                 else capture.postimages
             ):
                 raise ValueError("workspace_publication_postimages_stale")
-            if capture.preimages is not None and (
-                self._git("ls-files", "--stage", "--", "aware.protocol.toml")
-                or self._git("for-each-ref", "--count=1", "--format=%(refname)")
+            if capture.initial_profile in {"initial_project", "initial_goal"}:
+                from .initial_authoring import project_preimage
+
+                if (
+                    project_preimage(self, capture.request.target_paths[0])
+                    != capture.parent_preimages
+                ):
+                    raise ValueError("initial_project_parents_changed")
+            if capture.initial_profile == "initial_membership":
+                from .initial_membership import verify_capture
+
+                verify_capture(self, capture)
+            if (
+                capture.preimages is not None
+                and capture.initial_profile != "initial_membership"
+                and (
+                    self._git(
+                        "ls-files", "--stage", "--", *capture.request.target_paths
+                    )
+                    or (
+                        capture.initial_profile == "initial_configuration"
+                        and self._git(
+                            "for-each-ref", "--count=1", "--format=%(refname)"
+                        )
+                    )
+                )
             ):
                 raise ValueError("initial_configuration_foreign_source_effect")
             if capture.reconciliation is not None:
@@ -510,10 +740,20 @@ class FilesystemRepositoryCandidatePort:
         runner = writer._SubprocessGitRunner()
         command_log = []
         try:
+            membership_snapshot = None
+            if authorization.profile == "initial_membership":
+                from .initial_membership import staging_snapshot
+
+                membership_snapshot = staging_snapshot(state.capture, binding)
             index = state.index = writer._prepare_repository_index_transaction(
                 repo_root=self._root, runner=runner, report=report
             )
-            if authorization.profile == "initial_configuration":
+            if authorization.profile in {
+                "initial_configuration",
+                "initial_project",
+                "initial_goal",
+                "initial_membership",
+            }:
                 index.repository_admission_ref = authorization.receipt_ref
             # The new operation must not silently dispose or recover another
             # attempt's journal/index before or after its own admission spend.
@@ -532,8 +772,14 @@ class FilesystemRepositoryCandidatePort:
                 raise ValueError("workspace_publication_head_stale:" + capture_ref)
             # Stage the captured binary postimages, never git-add a later
             # worktree version. The one original writer publishes this index.
-            for item in state.capture.postimages:
+            for item in (
+                membership_snapshot
+                if membership_snapshot is not None
+                else state.capture.postimages
+            ):
                 path = item["path"]
+                if type(path) is not str:
+                    raise ValueError("workspace_publication_postimage_path_invalid")
                 if item["state"] == "absent":
                     writer._run_git(
                         runner=runner,
@@ -543,10 +789,13 @@ class FilesystemRepositoryCandidatePort:
                         environment=index.git_environment(),
                     )
                     continue
+                body, mode = item["body"], item["mode"]
+                if type(body) is not bytes or type(mode) is not int:
+                    raise ValueError("workspace_publication_postimage_type_invalid")
                 with writer.tempfile.NamedTemporaryFile(
                     mode="wb", delete=False
                 ) as handle:
-                    handle.write(item["body"])
+                    handle.write(body)
                     raw_path = Path(handle.name)
                 try:
                     blob = writer._run_git(
@@ -565,7 +814,7 @@ class FilesystemRepositoryCandidatePort:
                         "update-index",
                         "--add",
                         "--cacheinfo",
-                        f"{item['mode']:o},{blob},{path}",
+                        f"{mode:o},{blob},{path}",
                     ),
                     command_log=command_log,
                     environment=index.git_environment(),
@@ -586,9 +835,19 @@ class FilesystemRepositoryCandidatePort:
                 raise ValueError("workspace_publication_no_changes")
             index.record_staged_paths(staged)
             report.staged_paths = list(staged)
-            if authorization.profile == "initial_configuration":
-                if authorization.request_ref is None or binding.target_paths != (
-                    "aware.protocol.toml",
+            if authorization.profile in {
+                "initial_configuration",
+                "initial_project",
+                "initial_goal",
+                "initial_membership",
+            }:
+                if (
+                    authorization.request_ref is None
+                    or state.capture.initial_profile != authorization.profile
+                    or (
+                        authorization.profile == "initial_configuration"
+                        and binding.target_paths != ("aware.protocol.toml",)
+                    )
                 ):
                     raise ValueError("initial_configuration_authorization_invalid")
                 report.commit_message = (
@@ -628,6 +887,14 @@ class FilesystemRepositoryCandidatePort:
                 report.issue_tag = authorization.issue_ref
             else:
                 raise ValueError("workspace_publication_authority_profile_invalid")
+            publication_options = {}
+            if membership_snapshot is not None:
+                from .initial_membership import verify_capture, verify_staged_index
+
+                verify_capture(self, state.capture)
+                publication_options["expected_tree_oid"] = verify_staged_index(
+                    self, index, runner, command_log, membership_snapshot, binding
+                )
             writer._publish_staged_transaction(
                 runner=runner,
                 repo_root=self._root,
@@ -636,6 +903,7 @@ class FilesystemRepositoryCandidatePort:
                 allow_empty=False,
                 transaction=index,
                 command_log=command_log,
+                **publication_options,
             )
             report.status = "ok"
         except BaseException as error:  # noqa: BLE001 - retain effects after interrupted writer

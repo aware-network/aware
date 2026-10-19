@@ -168,3 +168,7 @@ multi-agent coherence, crash recovery or application correctness acceptance.
 ## Prepared reference navigation
 
 The a12 [reference-navigation guide](REFERENCE-NAVIGATION.md) adds explicit captured-result stdin and historical focus. It grants no authority, approval or Issue-guard automation.
+
+## Prepared a14 release evidence
+
+The unselected [resource-summary guide](RESOURCE-RELEASES.md) separates returned closes from ledger completeness and historical unknowns. No JSON, exit or authority changes follow.

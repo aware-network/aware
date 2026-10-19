@@ -34,6 +34,9 @@ from aware_code_semantic_contract_runtime import (
 from aware_code_semantic_contract_runtime import (
     retained_declaration_scope_validation as _declaration_validation,
 )
+from aware_code_semantic_contract_runtime import (
+    semantic_input_expectation_integrity as _input_integrity,
+)
 from aware_code_semantic_contract_runtime.contracts import (
     ContentDigest,
     ContractViolation,
@@ -103,6 +106,7 @@ from aware_code_semantic_contract_runtime.semantic_input_producer import (
     SemanticInputSourceContract,
     SemanticInputSourceCoordinate,
     read_registered_semantic_input_source_selection,
+    registered_semantic_input_result_checkpoint,
     validate_registered_semantic_input_result,
 )
 from aware_code_semantic_contract_runtime.source_origin import (
@@ -473,6 +477,7 @@ def _bind_original_declaration_coordinate_entrances():
     validate = _declaration_validation.validate_retained_declaration_scope_coordinate
     detached = _declaration_validation.validate_detached_declaration_scope_coordinate
     copy_value = _declaration_validation.copy_retained_declaration_scope
+    binding_copy = _declaration_validation.copy_selected_source_binding
     binding_capture = _declaration_validation.capture_selected_source_binding_coordinate
     binding_validate = _declaration_validation.validate_selected_source_binding_coordinate
     coordinate_type = _declaration_validation.RetainedDeclarationScopeCoordinate
@@ -488,7 +493,7 @@ def _bind_original_declaration_coordinate_entrances():
              cell.cell_contents for cell in function.__closure__
          ),
          () if function.__kwdefaults__ is None else tuple(function.__kwdefaults__.items()))
-        for function in (capture, validate, detached, binding_capture, binding_validate, copy_value)
+        for function in (capture, validate, detached, binding_capture, binding_validate, copy_value, binding_copy)
     )
 
     def origins():
@@ -512,6 +517,7 @@ def _bind_original_declaration_coordinate_entrances():
             or namespace.get("validate_retained_declaration_scope_coordinate") is not validate
             or namespace.get("validate_detached_declaration_scope_coordinate") is not detached
             or namespace.get("copy_retained_declaration_scope") is not copy_value
+            or namespace.get("copy_selected_source_binding") is not binding_copy
             or namespace.get("capture_selected_source_binding_coordinate") is not binding_capture
             or namespace.get("validate_selected_source_binding_coordinate") is not binding_validate
             or capture.__code__ is not capture_code or validate.__code__ is not validate_code
@@ -598,7 +604,19 @@ def _bind_original_declaration_coordinate_entrances():
         finally:
             del self, origin, value, result
 
-    return issue, check, binding_issue, binding_check, copy_declaration
+    def copy_binding(self, value):
+        result = None
+        try:
+            origins()
+            result = binding_copy(value)
+            origins()
+            return result
+        except ContractViolation as error:
+            raise SourceObservationUnavailable("selected_source_binding_changed") from error
+        finally:
+            del self, value, result
+
+    return issue, check, binding_issue, binding_check, copy_declaration, copy_binding
 
 
 def _bind_source_origin_checks(kind):
@@ -717,12 +735,41 @@ def _build_declaration_scope_runtime():
     provider_context_verifier = _require_provider_context
     provider_context_code = provider_context_verifier.__code__
     context_namespace = globals()
+    input_namespace = vars(_input_integrity)
+    input_origins = tuple((name, function, function.__code__, function.__defaults__,
+                          function.__kwdefaults__, function.__closure__,
+                          tuple(cell.cell_contents for cell in function.__closure__ or ()))
+                         for name, function in (("capture_semantic_input_expectation",
+                                                _input_integrity.capture_semantic_input_expectation),
+                                               ("validate_semantic_input_expectation_coordinate",
+                                                _input_integrity.validate_semantic_input_expectation_coordinate)))
+    native_input_function: Any = type(input_origins[0][1])
+    native_input_cell = type(cast(Any, input_origins[0][5])[0])
+    checkpoint_function = registered_semantic_input_result_checkpoint
+    checkpoint_cells = checkpoint_function.__closure__
+    checkpoint_port = (
+        checkpoint_function, checkpoint_function.__globals__, checkpoint_function.__code__,
+        checkpoint_function.__defaults__, checkpoint_function.__kwdefaults__,
+        tuple((checkpoint_function.__kwdefaults__ or {}).items()), checkpoint_cells,
+        tuple(cell.cell_contents for cell in checkpoint_cells or ()),
+    )
+    native_context_factory = native_input_function(
+        contextmanager.__code__, contextmanager.__globals__, contextmanager.__name__,
+        contextmanager.__defaults__, contextmanager.__closure__,
+    )
 
     def require_provider_context(*args, **kwargs):
         if (context_namespace.get("_require_provider_context") is not provider_context_verifier
                 or provider_context_verifier.__code__ is not provider_context_code):
             raise ContractViolation("original Code provider-context verifier changed")
         return provider_context_verifier(*args, **kwargs)
+
+    # Pure binding commitments live only for their exact synchronous window.
+    # Keep them outside mutable window/issuer records. No source authority.
+    source_window_bindings: dict[int, tuple[
+        object, _SemanticSourceValidationWindow, CodeSelectedPackageSourceBinding,
+        _declaration_validation.RetainedSelectedSourceBindingCoordinate, str,
+    ]] = {}
 
     class WorkspaceDeclarationScopeRuntime:
         """Borrow the original observer and parent exclusion, owning only new handles."""
@@ -734,7 +781,58 @@ def _build_declaration_scope_runtime():
          _check_original_declaration_coordinate,
          _capture_original_binding_coordinate,
          _check_original_binding_coordinate,
-         _copy_original_declaration_scope) = _bind_original_declaration_coordinate_entrances()
+         _copy_original_declaration_scope,
+         _copy_original_source_binding) = _bind_original_declaration_coordinate_entrances()
+
+        def _capture_original_input_coordinate(self, value):
+            try:
+                for name, function, code, defaults, keywords, cells, contents in input_origins:
+                    if (input_namespace.get(name) is not function or function.__code__ is not code
+                        or function.__defaults__ is not defaults or function.__kwdefaults__ is not keywords
+                        or function.__closure__ is not cells
+                        or any(cell.cell_contents is not original
+                               for cell, original in zip(cells or (), contents, strict=True))):
+                        raise SourceObservationUnavailable("original_input_comparison_changed")
+                _, _, code, defaults, _, _, contents = input_origins[0]
+                original = native_input_function(code, {"__builtins__": {}},
+                    argdefs=defaults, closure=tuple(native_input_cell(value) for value in contents))
+                result = original(value)
+                for name, function, code, defaults, keywords, cells, contents in input_origins:
+                    if (input_namespace.get(name) is not function or function.__code__ is not code
+                        or function.__defaults__ is not defaults or function.__kwdefaults__ is not keywords
+                        or function.__closure__ is not cells
+                        or any(cell.cell_contents is not original
+                               for cell, original in zip(cells or (), contents, strict=True))):
+                        raise SourceObservationUnavailable("original_input_comparison_changed")
+                return result
+            finally:
+                result = None
+                del self, value
+
+        def _check_original_input_coordinate(self, coordinate, value):
+            try:
+                for name, function, code, defaults, keywords, cells, contents in input_origins:
+                    if (input_namespace.get(name) is not function or function.__code__ is not code
+                        or function.__defaults__ is not defaults or function.__kwdefaults__ is not keywords
+                        or function.__closure__ is not cells
+                        or any(cell.cell_contents is not original
+                               for cell, original in zip(cells or (), contents, strict=True))):
+                        raise SourceObservationUnavailable("original_input_comparison_changed")
+                _, _, code, defaults, _, _, contents = input_origins[1]
+                original = native_input_function(code, {"__builtins__": {}},
+                    argdefs=defaults, closure=tuple(native_input_cell(value) for value in contents))
+                result = original(coordinate, value)
+                for name, function, code, defaults, keywords, cells, contents in input_origins:
+                    if (input_namespace.get(name) is not function or function.__code__ is not code
+                        or function.__defaults__ is not defaults or function.__kwdefaults__ is not keywords
+                        or function.__closure__ is not cells
+                        or any(cell.cell_contents is not original
+                               for cell, original in zip(cells or (), contents, strict=True))):
+                        raise SourceObservationUnavailable("original_input_comparison_changed")
+                return result
+            finally:
+                result = None
+                del self, coordinate, value
 
         def __init__(self, *, observation_runtime: WorkspaceSourceObservationRuntime):
             if type(observation_runtime) is not WorkspaceSourceObservationRuntime:
@@ -756,6 +854,7 @@ def _build_declaration_scope_runtime():
             self._pre_request_inputs: dict[
                 tuple[str, str, str, str], _PreRequestInputRecord
             ] = {}
+            self._pre_request_origins: dict[int, tuple] = {}
             self._retired_pre_request_inputs: set[
                 tuple[str, str, str, str]
             ] = set()
@@ -1463,13 +1562,29 @@ def _build_declaration_scope_runtime():
                     if semantic_window.thread_id != threading.get_ident():
                         raise SourceObservationUnavailable("semantic_source_window_thread_changed")
                     if handle is semantic_window.selected:
-                        if (record is not semantic_window.record
+                        witness = source_window_bindings.get(id(semantic_window))
+                        if (witness is None or witness[0] is not self
+                            or witness[1] is not semantic_window
+                            or witness[2] is not semantic_window.binding
+                            or record is not semantic_window.record
                             or type(record.expectation) is not CodeSelectedPackageSourceExpectation
                             or type(record.digest) is not ContentDigest
                             or record.expectation != semantic_window.binding.expectation
-                            or record.digest != semantic_window.binding.binding_digest):
+                            or record.digest.value != witness[4]):
                             raise SourceObservationUnavailable("selected_source_replaced")
-                        return copy.deepcopy(semantic_window.binding)
+                        _original_group_method(self, "_check_original_binding_coordinate",
+                            witness[3], witness[2], detached=None)
+                        detached = _original_group_method(self, "_copy_original_source_binding", witness[2])
+                        _original_group_method(self, "_check_original_binding_coordinate",
+                            witness[3], witness[2], detached=detached)
+                        if (self._semantic_source_window is not semantic_window
+                            or source_window_bindings.get(id(semantic_window)) is not witness
+                            or self._selected_record(handle) is not record
+                            or record.expectation != witness[2].expectation
+                            or type(record.digest) is not ContentDigest
+                            or record.digest.value != witness[4]):
+                            raise SourceObservationUnavailable("selected_source_replaced")
+                        return detached
                 window = self._dependency_source_window
                 if window is not None and window.thread_id == threading.get_ident():
                     retained = window.bindings.get(handle)
@@ -1481,7 +1596,7 @@ def _build_declaration_scope_runtime():
                             or record.digest != binding.binding_digest
                         ):
                             raise SourceObservationUnavailable("selected_source_replaced")
-                        return copy.deepcopy(binding)
+                        return _original_group_method(self, "_copy_original_source_binding", binding)
                 self._call("revalidate_selected_package", record.observation)
                 binding = self._binding(record.declaration_record, record.observation)
                 if (
@@ -1694,6 +1809,9 @@ def _build_declaration_scope_runtime():
                             threading.get_ident(), selected, source, closure, binding,
                         )
                         owns_window = True
+                        source_window_bindings[id(current)] = (
+                            self, current, binding, coordinate, source.digest.value,
+                        )
                         self._semantic_source_window = current
                 try:
                     yield
@@ -1720,8 +1838,10 @@ def _build_declaration_scope_runtime():
                 _clear_group_failure_frames(error)
                 raise
             finally:
-                if owns_window and self._semantic_source_window is current:
-                    self._semantic_source_window = None
+                if owns_window:
+                    source_window_bindings.pop(id(current), None)
+                    if self._semantic_source_window is current:
+                        self._semantic_source_window = None
                 del self, declaration, selected, record, source, origin
                 del binding, closure, coordinate, fresh, current
 
@@ -2112,43 +2232,82 @@ def _build_declaration_scope_runtime():
                     raise SourceObservationUnavailable("pre_request_input_replayed")
                 if self._selected_record(selected) is not record:
                     raise SourceObservationUnavailable("pre_request_source_changed")
+                coordinate = _original_group_method(self, "_capture_original_input_coordinate", expected)
                 self._pre_request_inputs[key] = retained
                 self._retired_pre_request_inputs.add(key)
+                # Independently retained immutable issuance evidence, not a
+                # mutable digest stored alongside the mutable expected value.
+                self._pre_request_origins[id(retained)] = (
+                    retained, expected, selected, record, expected.input_digest.value,
+                    threading.get_ident(), context_receipts, selection_origin, grouped_origin, coordinate, False,
+                )
             try:
                 _original_group_method(self, "validate_semantic_input_source", selected, expected=expected)
+                _original_group_method(self, "_check_original_input_coordinate", coordinate, expected)
+                with self._lock:
+                    original = self._pre_request_origins[id(retained)]
+                    self._pre_request_origins[id(retained)] = (*original[:10], True)
                 yield expected
                 _original_group_method(self, "validate_semantic_input_source", selected, expected=expected)
             finally:
                 retained.live = False
                 retained.selection_origin = None
                 retained.grouped_origin = None
-                closing_contexts = tuple(row[2] for row in retained.context_receipts)
+                closing_contexts = tuple(row[2] for row in context_receipts)
                 retained.context_receipts = ()
                 try:
                     _CLOSE_PRODUCT_CONTEXTS(closing_contexts)
                 finally:
                     with self._exclusion.mutation(retiring=True), self._lock:
                         self._pre_request_inputs.pop(key, None)
+                        self._pre_request_origins.pop(id(retained), None)
 
         def _pre_request_record(
             self, selected: object, expected: SemanticInputProductionExpectation,
         ) -> _PreRequestInputRecord:
-            record = self._selected_record(cast(WorkspaceSelectedPackageSource, selected))
-            if type(expected) is not SemanticInputProductionExpectation:
-                raise SourceObservationUnavailable("original_pre_request_input_required")
-            retained = next((item for item in self._pre_request_inputs.values()
-                             if item.expected is expected), None)
-            if (
-                retained is None or not retained.live
-                or retained.thread_id != threading.get_ident()
-                or retained.selected is not selected
-                or retained.selected_record is not record
-                or retained.expected is not expected
-                or expected.source_identity is not selected
-                or expected.operation_identity is not self._exclusion._parent
-            ):
-                raise SourceObservationUnavailable("original_pre_request_input_required")
-            return retained
+            family = record = retained = origin = None
+            try:
+                # Failure belongs only to this exact original input/source pair.
+                # A foreign source borrowing an expectation cannot revoke it.
+                family = next((item[0] for item in self._pre_request_origins.values()
+                               if type(item) is tuple and len(item) == 11
+                               and item[1] is expected and item[2] is selected), None)
+                record = self._selected_record(cast(WorkspaceSelectedPackageSource, selected))
+                if type(expected) is not SemanticInputProductionExpectation:
+                    raise SourceObservationUnavailable("original_pre_request_input_required")
+                retained = next((item for item in self._pre_request_inputs.values()
+                                 if item.expected is expected), None)
+                if (
+                    retained is None or not retained.live
+                    or retained.thread_id != threading.get_ident()
+                    or retained.selected is not selected
+                    or retained.selected_record is not record
+                    or retained.expected is not expected
+                    or expected.source_identity is not selected
+                    or expected.operation_identity is not self._exclusion._parent
+                ):
+                    raise SourceObservationUnavailable("original_pre_request_input_required")
+                origin = self._pre_request_origins.get(id(retained))
+                if (type(origin) is not tuple or len(origin) != 11
+                    or origin[0] is not retained or origin[1] is not expected
+                    or origin[2] is not selected or origin[3] is not record
+                    or type(origin[4]) is not str or type(retained.input_digest) is not str
+                    or retained.input_digest != origin[4]
+                    or type(origin[5]) is not int or retained.thread_id != origin[5]
+                    or retained.context_receipts is not origin[6]
+                    or retained.selection_origin is not origin[7]
+                    or retained.grouped_origin is not origin[8]):
+                    raise SourceObservationUnavailable("original_pre_request_commitment_changed")
+                _original_group_method(self, "_check_original_input_coordinate", origin[9], expected)
+                return retained
+            except BaseException:
+                if type(family) is _PreRequestInputRecord:
+                    family.live = False
+                    family.selection_origin = None
+                    family.grouped_origin = None
+                raise
+            finally:
+                del self, selected, expected, family, record, retained, origin
 
         def _selected_input_coordinates(
             self, selected: WorkspaceSelectedPackageSource, origin: _SelectedInputOrigin,
@@ -2166,12 +2325,33 @@ def _build_declaration_scope_runtime():
                 origin.host, origin.registration, source_admission=selected,
                 expected=origin.expected, result=origin.result,
             )
-            with self._lock:
+            with _original_group_method(
+                self, "_original_semantic_source_window", selected, origin.expected,
+            ), self._lock:
                 retained = self._pre_request_record(selected, origin.expected)
-                values = self._source_projection_values(selected)
-                if (selection.package != values[0].package
-                    or selection.source_identity_digest != values[0].source_identity_digest):
-                    raise SourceObservationUnavailable("selected_input_identity_differs")
+                # Code has just authenticated this exact original selection and
+                # expectation. Recheck live source/declaration evidence without
+                # rebuilding a context and every dependency target to discard it.
+                declaration_origin = self._checked_declaration_origin(retained.selected_record.declaration_record)
+                try:
+                    binding = self.read_selected_package_source(selected)
+                    closure = self.read_declaration_scope(retained.selected_record.declaration)
+                    _original_group_method(self, "_check_declaration_projection_result", declaration_origin, closure)
+                    if self._checked_declaration_origin(retained.selected_record.declaration_record) is not declaration_origin:
+                        raise SourceObservationUnavailable("declaration_projection_changed")
+                    manifest = self._call("read_selected_package", retained.selected_record.observation,
+                        relative_path=binding.expectation.manifest_relative_path)
+                    if ContentDigest.of_bytes(manifest) != binding.expectation.manifest_content_digest:
+                        raise SourceObservationUnavailable("selected_manifest_differs")
+                    self.validate_selected_package_source(selected,
+                        expectation=retained.selected_record.expectation,
+                        binding_digest=retained.selected_record.digest)
+                    if (selection.package != retained.expected.package_identity.package
+                        or selection.package.manifest_digest != binding.expectation.manifest_content_digest
+                        or selection.source_identity_digest != binding.candidates.source_identity_digest):
+                        raise SourceObservationUnavailable("selected_input_identity_differs")
+                finally:
+                    del declaration_origin
                 contracts = {item.role: item.contract for item in origin.source_contracts}
                 if {item.role for item in selection.sources} != set(contracts) or any(
                     contracts[item.role] != item.contract for item in selection.sources
@@ -2196,6 +2376,14 @@ def _build_declaration_scope_runtime():
                     selected, expectation=retained.selected_record.expectation,
                     binding_digest=retained.selected_record.digest,
                 )
+            # Window teardown performs fresh source checks. Recheck the
+            # original input and returned selection after that final boundary.
+            with self._lock:
+                if self._pre_request_record(selected, origin.expected) is not retained:
+                    raise SourceObservationUnavailable("original_pre_request_input_required")
+                if (selection.package != retained.expected.package_identity.package
+                    or selection.source_identity_digest != retained.selected_record.expectation.source_identity_digest):
+                    raise SourceObservationUnavailable("selected_input_identity_differs")
                 return selection, tuple(coordinates)
 
         def _selection_context_values(
@@ -2795,8 +2983,11 @@ def _build_declaration_scope_runtime():
             if os.getpid() != self._pid:
                 raise SourceObservationUnavailable("declaration_process_changed")
             with self._lock:
-                original = next((item for item in self._pre_request_inputs.values()
-                                 if item.expected is expected), None)
+                # Find failure custody from independently retained issuance,
+                # before consulting the replaceable input-record index.
+                original = next((origin[0] for origin in self._pre_request_origins.values()
+                                 if type(origin) is tuple and len(origin) == 11
+                                 and origin[1] is expected), None)
             grouped_values = None
             try:
                 # Borrowing an expectation does not admit a foreign source handle.
@@ -2828,6 +3019,7 @@ def _build_declaration_scope_runtime():
                             self, "_validate_semantic_input_source", source_admission,
                             expected=expected, grouped_values=grouped_values,
                         )
+                _original_group_method(self, "_pre_request_record", source_admission, expected)
             except BaseException as error:
                 if original is not None:
                     original.live = False
@@ -2930,6 +3122,9 @@ def _build_declaration_scope_runtime():
                             closure, binding,
                         )
                         owns_window = True
+                        source_window_bindings[id(current)] = (
+                            self, current, binding, binding_coordinate, source_record.digest.value,
+                        )
                         self._semantic_source_window = current
                 if not owns_window:
                     yield
@@ -2959,8 +3154,10 @@ def _build_declaration_scope_runtime():
                 _clear_group_failure_frames(error)
                 raise
             finally:
-                if owns_window and self._semantic_source_window is current:
-                    self._semantic_source_window = None
+                if owns_window:
+                    source_window_bindings.pop(id(current), None)
+                    if self._semantic_source_window is current:
+                        self._semantic_source_window = None
                 del self, selected, expected, retained, current, binding, closure
                 del source_record, declaration_origin, binding_coordinate, fresh_binding
 
@@ -3006,21 +3203,51 @@ def _build_declaration_scope_runtime():
                                  if item.expected is expected), None)
                 try:
                     retained = self._pre_request_record(source_admission, expected)
-                    reproduced = SemanticInputProductionExpectation.create(
-                        use_ref=expected.use_ref, operation_ref=expected.operation_ref,
-                        stage=expected.stage, package_identity=expected.package_identity,
-                        operation_identity=expected.operation_identity,
-                        source_identity=expected.source_identity,
-                        source_coordinates=expected.source_coordinates,
-                        context_bodies=expected.context_bodies,
+                    input_origin = self._pre_request_origins[id(retained)]
+                    original_projection = grouped_values is None and input_origin[10] is True
+                    if not original_projection:
+                        reproduced = SemanticInputProductionExpectation.create(
+                            use_ref=expected.use_ref, operation_ref=expected.operation_ref,
+                            stage=expected.stage, package_identity=expected.package_identity,
+                            operation_identity=expected.operation_identity,
+                            source_identity=expected.source_identity,
+                            source_coordinates=expected.source_coordinates,
+                            context_bodies=expected.context_bodies,
+                        )
+                        if (reproduced.input_digest.value != retained.input_digest
+                            or expected.input_digest.value != retained.input_digest):
+                            raise SourceObservationUnavailable("pre_request_input_changed")
+                    values = None
+                    declaration_origin = self._checked_declaration_origin(
+                        retained.selected_record.declaration_record,
                     )
-                    if (reproduced.input_digest.value != retained.input_digest
-                        or expected.input_digest.value != retained.input_digest):
-                        raise SourceObservationUnavailable("pre_request_input_changed")
-                    values = self._source_projection_values(retained.selected)
-                    context = values[0]
-                    if expected.package_identity.package != context.package:
-                        raise SourceObservationUnavailable("pre_request_package_differs")
+                    if not original_projection:
+                        values = self._source_projection_values(retained.selected)
+                        if expected.package_identity.package != values[0].package:
+                            raise SourceObservationUnavailable("pre_request_package_differs")
+                    else:
+                        # Source/manifest checks still bracket this original
+                        # synchronous window. The issuer's complete issued input
+                        # commitment above authenticates its pure context bytes.
+                        # Check both declaration commitments at each callback.
+                        window = self._semantic_source_window
+                        if (type(window) is not _SemanticSourceValidationWindow
+                            or window.selected is not retained.selected
+                            or window.record is not retained.selected_record):
+                            raise SourceObservationUnavailable("semantic_source_window_origin_changed")
+                        _original_group_method(self, "_check_declaration_projection_result",
+                                               declaration_origin, window.closure)
+                        binding = self.read_selected_package_source(retained.selected)
+                        manifest = self._call(
+                            "read_selected_package", retained.selected_record.observation,
+                            relative_path=binding.expectation.manifest_relative_path,
+                        )
+                        if ContentDigest.of_bytes(manifest) != binding.expectation.manifest_content_digest:
+                            raise SourceObservationUnavailable("selected_manifest_differs")
+                        self.validate_selected_package_source(
+                            retained.selected, expectation=retained.selected_record.expectation,
+                            binding_digest=retained.selected_record.digest,
+                        )
                     evidence = cast(WorkspaceObservedSelectedPackageEvidence, self._call(
                         "selected_package_evidence", retained.selected_record.observation,
                     ))
@@ -3046,23 +3273,48 @@ def _build_declaration_scope_runtime():
                             if body is not original_body:
                                 raise SourceObservationUnavailable("pre_request_provider_context_changed")
                             continue
-                        if body.canonical_body != self._pre_request_context_bytes(
-                            context=values[0], inventory=values[1], binding=values[3],
-                            contract=body.coordinate.contract,
-                            selection=selection, source_origin=source_origin,
-                            grouped_body=grouped_body, declaration_body=declaration_body,
-                        ):
+                        if values is None:
+                            if body.coordinate.contract in (
+                                PACKAGE_CONTEXT_INPUT_REF, DECLARATION_TARGET_INVENTORY_REF,
+                                SEMANTIC_CANDIDATE_LISTING_REF,
+                            ):
+                                # These exact bytes were produced by this issuer
+                                # before admission, under the retained original
+                                # declaration/source. No new interpretation.
+                                continue
+                            if body.coordinate.contract == SOURCE_SELECTION_REF and selection is not None:
+                                current = encode_source_selection(selection)
+                            elif body.coordinate.contract == SOURCE_ORIGIN_REF and source_origin is not None:
+                                current = encode_source_origin(source_origin)
+                            else:
+                                raise SourceObservationUnavailable("original_pre_request_context_unavailable")
+                        else:
+                            current = self._pre_request_context_bytes(
+                                context=values[0], inventory=values[1], binding=values[3],
+                                contract=body.coordinate.contract,
+                                selection=selection, source_origin=source_origin,
+                                grouped_body=grouped_body, declaration_body=declaration_body,
+                            )
+                        if body.canonical_body != current:
                             raise SourceObservationUnavailable("pre_request_context_differs")
                     self.validate_selected_package_source(
                         retained.selected, expectation=retained.selected_record.expectation,
                         binding_digest=retained.selected_record.digest,
                     )
+                    _original_group_method(self, "_pre_request_record", source_admission, expected)
+                    if values is None:
+                        # values is None only in the branch that establishes window.
+                        _original_group_method(self, "_check_declaration_projection_result",
+                                               declaration_origin, window.closure)  # pyright: ignore[reportPossiblyUnboundVariable]
                 except BaseException:
                     if retained is not None:
                         retained.live = False
                         retained.selection_origin = None
                         retained.grouped_origin = None
-                        _CLOSE_PRODUCT_CONTEXTS(tuple(row[2] for row in retained.context_receipts))
+                        original_input = self._pre_request_origins.get(id(retained))
+                        receipts = (original_input[6] if type(original_input) is tuple
+                                    and len(original_input) == 11 and original_input[0] is retained else ())
+                        _CLOSE_PRODUCT_CONTEXTS(tuple(row[2] for row in receipts))
                         retained.context_receipts = ()
                     raise
 
@@ -3571,6 +3823,94 @@ def _build_declaration_scope_runtime():
                     kind=WorkspaceDeclarationInventoryAdmission,
                 )
 
+        def _dependency_inventory_checkpoint(self, operation, inventory, expected):
+            """Prepare one pure resolver interval; no supplier bodies or dispatch.
+
+            Caller comparisons are authenticated before opening the checkpoint.
+            Legacy inputs and inputs without a retained selection keep their
+            existing path. The Code port owns original result validation.
+            """
+            retained: Any = None
+            scope: Any = None
+            original_input = None
+            try:
+                if type(expected) is not RetainedDependencyResolutionExpectation:
+                    raise SourceObservationUnavailable("exact_resolution_expectation_required")
+                if type(expected.source_planning) is not RetainedProductPlanningExpectation:
+                    return None
+                self._check_origin()
+                record = self._semantic.get(inventory)
+                if (type(record) is not _SemanticRecord
+                    or self._semantic_contexts.get(inventory) is not operation
+                    or record.selected is not expected.source_planning.source_input.source_identity
+                    or self._dependency_validator is None):
+                    raise SourceObservationUnavailable("original_product_inventory_required")
+                validator, descriptor, method = self._dependency_validator
+                if inspect.getattr_static(validator, "validate_retained_dependency_operation") is not descriptor:
+                    raise SourceObservationUnavailable("dependency_validator_substituted")
+                if method(operation, expected=expected) is not None:
+                    raise SourceObservationUnavailable("dependency_validator_result_invalid")
+                if inspect.getattr_static(validator, "validate_retained_dependency_operation") is not descriptor:
+                    raise SourceObservationUnavailable("dependency_validator_substituted")
+                original_input = self._original_product_dependency_source_input(expected.source_planning)
+                retained = self._pre_request_record(record.selected, original_input)
+                origin = retained.selection_origin
+                if origin is None:
+                    return None
+
+                def check_port():
+                    function, namespace, code, defaults, keywords, items, cells, contents = checkpoint_port
+                    if (context_namespace.get("registered_semantic_input_result_checkpoint") is not function
+                        or namespace.get("registered_semantic_input_result_checkpoint") is not function
+                        or function.__code__ is not code or function.__defaults__ is not defaults
+                        or function.__kwdefaults__ is not keywords
+                        or (len(keywords or {}) != len(items) or any(key is not original_key or value is not original_value for (key, value), (original_key, original_value) in zip((keywords or {}).items(), items, strict=True)))
+                        or function.__closure__ is not cells
+                        or any(cell.cell_contents is not value
+                               for cell, value in zip(cells or (), contents, strict=True))):
+                        raise SourceObservationUnavailable("original_input_checkpoint_changed")
+
+                check_port()
+                _, namespace, code, defaults, _, items, cells, contents = checkpoint_port
+                frozen = native_input_function(code, namespace, argdefs=defaults,
+                    closure=None if cells is None else tuple(native_input_cell(value) for value in contents))
+                frozen.__kwdefaults__ = dict(items) or None
+                scope = native_context_factory(frozen)(
+                    origin.host, origin.registration, source_admission=record.selected,
+                    expected=origin.expected, result=origin.result,
+                    expectations=(origin.expected, original_input),
+                )
+                check_port()
+
+                def guard():
+                    nonlocal retained, scope
+                    try:
+                        check_port()
+                        with scope:
+                            yield
+                            check_port()
+                        check_port()
+                    except BaseException as error:
+                        retained.live = False
+                        retained.selection_origin = None
+                        retained.grouped_origin = None
+                        _clear_group_failure_frames(error)
+                        raise
+                    finally:
+                        retained = scope = None
+
+                return native_context_factory(guard)()
+            except BaseException as error:
+                if retained is not None:
+                    retained.live = False
+                    retained.selection_origin = None
+                    retained.grouped_origin = None
+                retained = scope = None
+                _clear_group_failure_frames(error)
+                raise
+            finally:
+                del self, operation, inventory, expected, original_input
+
         def issue_dependency_resolution(self, operation, *, inventory_admission, expected):
             with self._lock:
                 if self._dependency_resolution is None:
@@ -3760,6 +4100,7 @@ def _build_declaration_scope_runtime():
                         closing_contexts.extend(row[2] for row in record.context_receipts)
                         record.context_receipts = ()
                     self._pre_request_inputs.clear()
+                    self._pre_request_origins.clear()
                     self._retired_pre_request_inputs.clear()
                     self._semantic.clear()
                     self._semantic_contexts.clear()
@@ -3775,6 +4116,9 @@ def _build_declaration_scope_runtime():
         (name, inspect.getattr_static(WorkspaceDeclarationScopeRuntime, name))
         for name in (
             "_check_origin",
+            "_dependency_inventory_checkpoint",
+            "_capture_original_input_coordinate",
+            "_check_original_input_coordinate",
             "_grouped_selected_values",
             "_check_group_source_contracts",
             "_selected_input_values",
@@ -3809,6 +4153,7 @@ def _build_declaration_scope_runtime():
             "_capture_original_declaration_coordinate",
             "_check_original_declaration_coordinate",
             "_copy_original_declaration_scope",
+            "_copy_original_source_binding",
             "_capture_original_binding_coordinate",
             "_check_original_binding_coordinate",
             "_declaration_record",

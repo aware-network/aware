@@ -1,6 +1,6 @@
 [project]
 name = "aware-protocol-fs-adapter"
-version = "0.6.5"
+version = "0.6.6"
 description = "Strict filesystem adapter for aware.protocol.toml manifests."
 readme = "README.md"
 license = "Apache-2.0"

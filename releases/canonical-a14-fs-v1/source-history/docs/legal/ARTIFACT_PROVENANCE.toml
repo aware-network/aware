@@ -1,0 +1,17 @@
+schema = "aware.repository.artifact_provenance.v1"
+
+[[artifacts]]
+path = "workspaces/aware_kernel/languages/dart/grammar/tree_sitter/tree_sitter_dart/tree-sitter-dart.wasm"
+kind = "webassembly"
+owner_workspace = "aware_kernel"
+source_url = "https://github.com/UserNobody14/tree-sitter-dart"
+source_version = "1.0.0"
+source_license_spdx_expression = "MIT"
+source_package_manifest = "workspaces/aware_kernel/languages/dart/grammar/tree_sitter/package.json"
+source_package_manifest_sha256 = "c81f0ad335a0dccc6b47ee97ca2f260b5d22e047c7d397a46dfedce69e23b6f2"
+generated_parser_sha256 = "4f891789146d9793ad1e25025f51aed39e96e1d57fd3398792549c26b4c99ef6"
+generator = "tree-sitter-cli@0.22.6"
+build_container = "emscripten/emsdk@sha256:0d9172d4b153a9a1067db4c753f8ec1bcb1542bfe1ca61a3c2d9115080b1963f"
+build_command = "tree-sitter generate && tree-sitter build --wasm --output tree_sitter_dart/tree-sitter-dart.wasm ."
+sha256 = "35b3f9d4eef91b4695a07aece002d6d8b2ad0c2aa3b85cad32910165853a9fdf"
+reproducibility = "verified_two_consecutive_builds"

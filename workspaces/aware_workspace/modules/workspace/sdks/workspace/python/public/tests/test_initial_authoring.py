@@ -511,6 +511,488 @@ def _author(monkeypatch):
         monkeypatch.setenv(name, value)
 
 
+def _published_configuration(fresh, monkeypatch):
+    _author(monkeypatch)
+    enrollment, protocol = _configuration(fresh)
+    client = fresh[2]
+    plan = client.plan_initial_configuration(
+        enrollment, protocol, idempotency_key="project-configuration"
+    )
+    original = client.publish_initial_configuration(
+        client.admit_initial_configuration(plan)
+    )
+    assert original.publication_state == "published"
+    return protocol, original
+
+
+def test_configuration_guarded_projection_and_genuine_protocol_admission(
+    fresh, monkeypatch
+):
+    from aware_protocol_fs_adapter.project_resolver import (
+        admit_project_resolver,
+        require_project_resolver,
+    )
+
+    root, _, client, _ = fresh
+    protocol, original = _published_configuration(fresh, monkeypatch)
+    projected = client.project_initial_configuration(
+        protocol, idempotency_key="project-configuration"
+    )
+    assert projected["projection_state"] == "installed", projected
+    assert projected["original_result"] == original
+    assert projected["projection"]["effect"]["durability_confirmed"] is True
+    assert (
+        client.project_initial_configuration(
+            protocol, idempotency_key="project-configuration"
+        )
+        == projected
+    )
+    restored = WorkspaceRepositoryPublicationClient.filesystem(
+        repository_root=str(root)
+    )
+    assert (
+        restored.project_initial_configuration(
+            protocol, idempotency_key="project-configuration"
+        )
+        == projected
+    )
+    admission = admit_project_resolver(
+        repository_root=root, manifest_path=root / "aware.protocol.toml"
+    )
+    assert admission.capability is not None
+    capability = require_project_resolver(admission.capability)
+    assert capability.project_root == "customer/projects"
+    assert capability.goal_capability.repository_root == root
+    assert set(root.iterdir()) == {root / ".git", root / "aware.protocol.toml"}
+    assert (
+        subprocess.run(
+            ["git", "-C", str(root), "status", "--porcelain"],
+            capture_output=True,
+            check=True,
+        ).stdout
+        == b""
+    )
+    assert (
+        subprocess.run(
+            ["git", "-C", str(root), "rev-list", "--count", "HEAD"],
+            capture_output=True,
+            check=True,
+        ).stdout.strip()
+        == b"1"
+    )
+
+
+@pytest.mark.parametrize("kind", ["matching", "foreign", "symlink", "hardlink"])
+def test_projection_does_not_adopt_or_replace_preexisting_target(
+    fresh, monkeypatch, kind
+):
+    from aware_protocol_fs_adapter.project_bootstrap import (
+        require_project_configuration,
+    )
+
+    root, _, client, _ = fresh
+    protocol, original = _published_configuration(fresh, monkeypatch)
+    target = root / "aware.protocol.toml"
+    outside = root.parent / "outside"
+    outside.write_bytes(b"outside-preserved")
+    if kind == "symlink":
+        target.symlink_to(outside)
+    elif kind == "hardlink":
+        os.link(outside, target)
+    else:
+        target.write_bytes(
+            require_project_configuration(protocol).content
+            if kind == "matching"
+            else b"foreign"
+        )
+    before = target.lstat()
+    response = client.project_initial_configuration(
+        protocol, idempotency_key="project-configuration"
+    )
+    assert response["projection_state"] == "uncertain"
+    assert response["original_result"] == original
+    assert "foreign_target" in response["diagnostics"][0]
+    assert target.lstat() == before
+    assert outside.read_bytes() == b"outside-preserved"
+    assert not (
+        root / ".git/aware-initial-authoring-v1/configuration/projection-start.json"
+    ).exists()
+
+
+@pytest.mark.parametrize("fault", ["index", "head"])
+def test_projection_requires_exact_current_publication_and_index(
+    fresh, monkeypatch, fault
+):
+    root, _, client, _ = fresh
+    protocol, original = _published_configuration(fresh, monkeypatch)
+    if fault == "index":
+        (root / ".git/index").write_bytes(b"foreign-index")
+    else:
+        subprocess.run(
+            ["git", "-C", str(root), "symbolic-ref", "HEAD", "refs/heads/foreign"],
+            check=True,
+        )
+    response = client.project_initial_configuration(
+        protocol, idempotency_key="project-configuration"
+    )
+    assert response["projection_state"] == "uncertain"
+    assert response["original_result"] == original
+    assert not (root / "aware.protocol.toml").exists()
+    assert not (
+        root / ".git/aware-initial-authoring-v1/configuration/projection-start.json"
+    ).exists()
+
+
+@pytest.mark.parametrize("point", ["intent", "physical", "result"])
+def test_projection_interruption_never_authorizes_new_attempt(
+    fresh, monkeypatch, point
+):
+    import aware_workspace_fs_adapter.initial_authoring as owner
+    from aware_file_system.retained_bootstrap import RetainedBootstrapCreation
+
+    root, _, client, _ = fresh
+    protocol, original = _published_configuration(fresh, monkeypatch)
+    write = owner._write_record
+    create = RetainedBootstrapCreation.create_next_file
+
+    def fail_write(directory, name, value):
+        if name == (
+            "projection-start.json" if point == "intent" else "projection-result.json"
+        ):
+            write(directory, name, value)
+            raise OSError("interrupted projection durability")
+        return write(directory, name, value)
+
+    def fail_create(handle):
+        create(handle)
+        raise OSError("interrupted after physical publication")
+
+    with monkeypatch.context() as patch:
+        if point == "physical":
+            patch.setattr(RetainedBootstrapCreation, "create_next_file", fail_create)
+        else:
+            patch.setattr(owner, "_write_record", fail_write)
+        response = client.project_initial_configuration(
+            protocol, idempotency_key="project-configuration"
+        )
+    assert response["projection_state"] == "uncertain"
+    assert response["original_result"] == original
+    if point == "physical":
+        assert response["projection_effects"][0]["state"] == "applied"
+    with monkeypatch.context() as patch:
+        patch.setattr(
+            RetainedBootstrapCreation,
+            "create_next_file",
+            lambda *args: pytest.fail("must not repeat physical creation"),
+        )
+        restored = WorkspaceRepositoryPublicationClient.filesystem(
+            repository_root=str(root)
+        )
+        again = restored.project_initial_configuration(
+            protocol, idempotency_key="project-configuration"
+        )
+    assert again["projection_state"] == (
+        "installed" if point == "result" else "uncertain"
+    )
+    assert again["original_result"] == original
+    assert (root / "aware.protocol.toml").exists() == (point != "intent")
+
+
+@pytest.mark.parametrize(
+    "kind", ["bytes", "replacement", "symlink", "hardlink", "mode"]
+)
+def test_projection_restart_rejects_changed_original_file(fresh, monkeypatch, kind):
+    root, _, client, _ = fresh
+    protocol, original = _published_configuration(fresh, monkeypatch)
+    result = client.project_initial_configuration(
+        protocol, idempotency_key="project-configuration"
+    )
+    assert result["projection_state"] == "installed"
+    target = root / "aware.protocol.toml"
+    content = target.read_bytes()
+    if kind == "bytes":
+        target.write_bytes(b"other")
+    elif kind == "mode":
+        target.chmod(0o600)
+    elif kind == "hardlink":
+        os.link(target, root / "alias")
+    else:
+        replacement = root / "replacement"
+        if kind == "symlink":
+            replacement.symlink_to(root / "outside")
+        else:
+            replacement.write_bytes(content)
+        replacement.replace(target)
+    restored = WorkspaceRepositoryPublicationClient.filesystem(
+        repository_root=str(root)
+    )
+    response = restored.project_initial_configuration(
+        protocol, idempotency_key="project-configuration"
+    )
+    assert response["projection_state"] == "uncertain"
+    assert response["original_result"] == original
+
+
+def test_configuration_projection_genuine_restart(fresh, monkeypatch):
+    root, _, client, _ = fresh
+    protocol, original = _published_configuration(fresh, monkeypatch)
+    result = client.project_initial_configuration(
+        protocol, idempotency_key="project-configuration"
+    )
+    body = """
+import json, sys
+from aware_workspace_sdk.repository_publication import WorkspaceRepositoryPublicationClient
+from aware_protocol_fs_adapter.project_bootstrap import prepare_project_configuration
+client = WorkspaceRepositoryPublicationClient.filesystem(repository_root=sys.argv[1])
+plan = prepare_project_configuration(repository_root=sys.argv[1], issue_root='customer/issues', goal_root='customer/goals', project_root='customer/projects')
+result = client.project_initial_configuration(plan, idempotency_key='project-configuration')
+print(json.dumps({'state': result['projection_state'], 'projection': result['projection'], 'commit':result['original_result'].commit_hash}))
+"""
+    completed = subprocess.run(
+        [sys.executable, "-B", "-c", body, str(root)],
+        env={**os.environ, "PYTHONPATH": os.pathsep.join(sys.path)},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert json.loads(completed.stdout) == {
+        "state": "installed",
+        "projection": result["projection"],
+        "commit": original.commit_hash,
+    }
+
+
+def test_projection_intent_persistence_failure_prevents_file_creation(
+    fresh, monkeypatch
+):
+    import aware_workspace_fs_adapter.initial_authoring as owner
+
+    root, _, client, _ = fresh
+    protocol, original = _published_configuration(fresh, monkeypatch)
+    write = owner._write_record
+
+    def fail(directory, name, value):
+        if name == "projection-start.json":
+            raise OSError("no durable intent")
+        return write(directory, name, value)
+
+    monkeypatch.setattr(owner, "_write_record", fail)
+    response = client.project_initial_configuration(
+        protocol, idempotency_key="project-configuration"
+    )
+    assert response["projection_state"] == "uncertain"
+    assert response["original_result"] == original
+    assert not (root / "aware.protocol.toml").exists()
+
+
+@pytest.mark.parametrize("point", ["intent", "physical", "result"])
+def test_configuration_projection_hard_exit_recovery(fresh, monkeypatch, point):
+    root, _, _, _ = fresh
+    protocol, original = _published_configuration(fresh, monkeypatch)
+    body = """
+import os, sys
+from aware_workspace_sdk.repository_publication import WorkspaceRepositoryPublicationClient
+from aware_protocol_fs_adapter.project_bootstrap import prepare_project_configuration
+from aware_file_system.retained_bootstrap import RetainedBootstrapCreation
+import aware_workspace_fs_adapter.initial_authoring as owner
+root, point = sys.argv[1:]
+write = owner._write_record
+def stop_write(directory, name, value):
+    write(directory, name, value)
+    if (point == 'intent' and name == 'projection-start.json') or (point == 'result' and name == 'projection-result.json'):
+        os._exit(82)
+owner._write_record = stop_write
+create = RetainedBootstrapCreation.create_next_file
+def stop_create(handle):
+    create(handle)
+    os._exit(82)
+if point == 'physical':
+    RetainedBootstrapCreation.create_next_file = stop_create
+client = WorkspaceRepositoryPublicationClient.filesystem(repository_root=root)
+protocol = prepare_project_configuration(repository_root=root, issue_root='customer/issues', goal_root='customer/goals', project_root='customer/projects')
+client.project_initial_configuration(protocol, idempotency_key='project-configuration')
+raise AssertionError('fault did not run')
+"""
+    completed = subprocess.run(
+        [sys.executable, "-B", "-c", body, str(root), point],
+        env={**os.environ, "PYTHONPATH": os.pathsep.join(sys.path)},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == 82, completed.stderr
+    from aware_file_system.retained_bootstrap import RetainedBootstrapCreation
+
+    monkeypatch.setattr(
+        RetainedBootstrapCreation,
+        "create_next_file",
+        lambda *args: pytest.fail("restart must not recreate"),
+    )
+    restored = WorkspaceRepositoryPublicationClient.filesystem(
+        repository_root=str(root)
+    )
+    response = restored.project_initial_configuration(
+        protocol, idempotency_key="project-configuration"
+    )
+    assert response["projection_state"] == (
+        "installed" if point == "result" else "uncertain"
+    )
+    assert response["original_result"] == original
+    assert response["authorizes_redispatch"] is False
+    assert (root / "aware.protocol.toml").exists() == (point != "intent")
+
+
+@pytest.mark.parametrize(
+    "mutation", ["intent", "effect", "boolean", "reference", "unknown"]
+)
+def test_projection_retained_redigested_substitutions_refuse(
+    fresh, monkeypatch, mutation
+):
+    from aware_workspace_sdk.initial_authoring.values import initial_reference
+
+    root, _, client, _ = fresh
+    protocol, original = _published_configuration(fresh, monkeypatch)
+    client.project_initial_configuration(
+        protocol, idempotency_key="project-configuration"
+    )
+    path = root / ".git/aware-initial-authoring-v1/configuration/projection-result.json"
+    record = json.loads(path.read_bytes())
+    if mutation == "intent":
+        record["intent"]["request_ref"] = "workspace-initial-request:sha256:" + "a" * 64
+    elif mutation == "effect":
+        record["effect"]["durability_confirmed"] = False
+    elif mutation == "boolean":
+        record["file"]["stat"][3] = True
+    elif mutation == "unknown":
+        record["extra"] = "not allowed"
+    record["projection_ref"] = initial_reference(
+        "workspace-initial-configuration-projection",
+        {key: value for key, value in record.items() if key != "projection_ref"},
+    )
+    if mutation == "reference":
+        record["projection_ref"] = (
+            "workspace-initial-configuration-projection:sha256:" + "b" * 64
+        )
+    path.write_text(json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n")
+    response = client.project_initial_configuration(
+        protocol, idempotency_key="project-configuration"
+    )
+    assert response["projection_state"] == "uncertain"
+    assert response["original_result"] == original
+
+
+def test_projection_terminal_head_change_during_index_check_refuses(fresh, monkeypatch):
+    root, _, client, _ = fresh
+    protocol, original = _published_configuration(fresh, monkeypatch)
+    port = client._provider._physical
+    git = port._git
+
+    def advance(*args, **kwargs):
+        value = git(*args, **kwargs)
+        if args[:2] == ("ls-files", "--stage"):
+            subprocess.run(
+                ["git", "-C", str(root), "symbolic-ref", "HEAD", "refs/heads/foreign"],
+                check=True,
+            )
+        return value
+
+    monkeypatch.setattr(port, "_git", advance)
+    response = client.project_initial_configuration(
+        protocol, idempotency_key="project-configuration"
+    )
+    assert response["projection_state"] == "uncertain"
+    assert response["original_result"] == original
+    assert not (root / "aware.protocol.toml").exists()
+
+
+def test_projection_preserves_unrelated_customer_work_and_index(fresh, monkeypatch):
+    root, _, client, _ = fresh
+    protocol, _ = _published_configuration(fresh, monkeypatch)
+    (root / "foreign.txt").write_bytes(b"customer work")
+    # Disposable customer repository, not governance of the aware-dev checkout.
+    subprocess.run(["git", "-C", str(root), "add", "--", "foreign.txt"], check=True)
+    before = (root / ".git/index").read_bytes()
+    response = client.project_initial_configuration(
+        protocol, idempotency_key="project-configuration"
+    )
+    assert response["projection_state"] == "installed"
+    assert (root / ".git/index").read_bytes() == before
+    assert (root / "foreign.txt").read_bytes() == b"customer work"
+
+
+def test_projection_busy_attempt_refuses_before_effect(fresh, monkeypatch):
+    root, _, client, _ = fresh
+    protocol, _ = _published_configuration(fresh, monkeypatch)
+    from aware_workspace_sdk.initial_authoring.values import configuration_request
+
+    port = client._provider._physical
+    evidence = port.observe_initial_authoring_enrollment(_attempt=True)
+    config = port.require_initial_configuration_source(protocol)
+    request = configuration_request(evidence, config, "project-configuration")
+    other = WorkspaceRepositoryPublicationClient.filesystem(repository_root=str(root))
+    with (
+        port.initial_configuration_attempt(request),
+        pytest.raises(ValueError, match="attempt_busy"),
+    ):
+        other.project_initial_configuration(
+            protocol, idempotency_key="project-configuration"
+        )
+    assert not (root / "aware.protocol.toml").exists()
+
+
+@pytest.mark.parametrize("substitution", ["key", "execution", "producer"])
+def test_projection_requires_original_execution_request_and_producer(
+    fresh, monkeypatch, substitution
+):
+    from aware_protocol_fs_adapter.project_bootstrap import (
+        require_project_configuration,
+    )
+
+    root, _, client, _ = fresh
+    protocol, _ = _published_configuration(fresh, monkeypatch)
+    key = "project-configuration"
+    if substitution == "key":
+        key = "foreign-attempt"
+    elif substitution == "execution":
+        monkeypatch.setenv("CODEX_THREAD_ID", "foreign-execution")
+        client = WorkspaceRepositoryPublicationClient.filesystem(
+            repository_root=str(root)
+        )
+    else:
+        protocol = require_project_configuration(protocol)
+    with pytest.raises((ValueError, TypeError)):
+        client.project_initial_configuration(protocol, idempotency_key=key)
+    assert not (root / "aware.protocol.toml").exists()
+    assert not (
+        root / ".git/aware-initial-authoring-v1/configuration/projection-start.json"
+    ).exists()
+
+
+def test_protocol_capability_revalidation_is_not_replaced_by_projection_receipt(
+    fresh, monkeypatch
+):
+    from aware_protocol_fs_adapter.project_resolver import (
+        admit_project_resolver,
+        require_project_resolver,
+    )
+
+    root, _, client, _ = fresh
+    protocol, _ = _published_configuration(fresh, monkeypatch)
+    projected = client.project_initial_configuration(
+        protocol, idempotency_key="project-configuration"
+    )
+    admitted = admit_project_resolver(
+        repository_root=root, manifest_path=root / "aware.protocol.toml"
+    )
+    assert admitted.capability is not None
+    with pytest.raises(ValueError):
+        require_project_resolver(projected["projection"])
+    (root / "aware.protocol.toml").write_bytes(b"changed configuration")
+    with pytest.raises(ValueError):
+        require_project_resolver(admitted.capability)
+
+
 def test_original_configuration_cas_has_no_customer_issue_and_exact_retry(
     fresh, monkeypatch
 ):

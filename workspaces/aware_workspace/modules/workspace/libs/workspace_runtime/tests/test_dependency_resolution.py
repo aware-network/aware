@@ -61,6 +61,7 @@ def test_resolution_cardinality(mode):
     if mode == "ambiguous":
         packages += (replace(context.package, package_ref="package:second"),)
     handles = {p.package_ref: object() for p in packages}
+    target_calls = []
 
     class Issuer:
         _contexts = {inventory: object()}
@@ -72,10 +73,12 @@ def test_resolution_cardinality(mode):
     class TargetOrigin:
         def issue(self, source, inventory_admission, target, **kwargs):
             assert inventory_admission is inventory
+            target_calls.append(("issue", target))
             return target
 
         def read(self, admission, **kwargs):
             assert admission in handles.values()
+            target_calls.append(("read", admission))
             return TargetContextFields(
                 context.package_family, context.package_role, context.manifest_contract
             )
@@ -150,6 +153,36 @@ def test_resolution_cardinality(mode):
             result = runtime._resolve(object(), inventory, expected)
             assert len(result) == (0 if mode == "optional_absent" else 1)
             assert not runtime.records  # Selection alone issues no handle.
+            if mode == "unique":
+                assert [kind for kind, _ in target_calls] == ["issue", "read", "read"]
+                target_calls.clear()
+                current = runtime._resolve(object(), inventory, expected, original_targets=result)
+                assert current == result
+                assert current[0][2] is result[0][2]
+                assert [kind for kind, _ in target_calls] == ["read", "read"]
+                target_calls.clear()
+                with pytest.raises(SourceObservationUnavailable, match="original_target_ambiguous"):
+                    runtime._resolve(object(), inventory, expected, original_targets=result + result)
+                assert not target_calls
+                original_read = TargetOrigin.read
+                hostile_calls = []
+
+                def hostile(*args, **kwargs):
+                    hostile_calls.append(True)
+                    return original_read(*args, **kwargs)
+
+                try:
+                    TargetOrigin.read = hostile
+                    with pytest.raises(SourceObservationUnavailable, match="target_origin_substituted"):
+                        runtime._resolve(object(), inventory, expected, original_targets=result)
+                    assert not hostile_calls
+                finally:
+                    TargetOrigin.read = original_read
+                # Copied/substituted target identity cannot borrow its origin.
+                target_calls.clear()
+                changed = ((result[0][0], object(), *result[0][2:]),)
+                runtime._resolve(object(), inventory, expected, original_targets=changed)
+                assert [kind for kind, _ in target_calls] == ["issue", "read", "read"]
     finally:
         _revoke_code_semantic_contract_catalog(admitted)
 

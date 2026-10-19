@@ -15,3 +15,7 @@ distinguish delivery from review-checkpoint provenance. Historical
 [pins](canonical-reference-fs-v1/INSTRUCTIONS.json) and
 [freeze](canonical-reference-fs-v1/INSTRUCTION-FREEZE.md) remain unchanged.
 None grants operational authority or qualifies parallel capabilities.
+
+## Prepared a14 distribution
+
+[canonical-a14-fs-v1](canonical-a14-fs-v1/README.md) is prepared and unselected. Instructions remain draft. Existing selection and predecessor records are unchanged; complete whole-envelope carriage is required.

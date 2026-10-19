@@ -3400,3 +3400,60 @@ async def test_checkpoint_same_source_uses_original_terminal_bracket(tmp_path, m
                 assert enabled is True and issuer._semantic_source_window is not None
                 issuer.validate_semantic_input_source(value.selected, expected=expected)
             assert issuer._semantic_source_window is None
+
+
+@pytest.mark.parametrize("restore", [False, True, "late"])
+async def test_selected_identity_comparison_rechecks_original_expectation(tmp_path, restore):
+    from contextlib import nullcontext
+
+    from aware_code_semantic_contract_runtime import ContractViolation
+    from test_v3_source_admission import _original_selection
+
+    cleanup = (pytest.raises(SourceObservationUnavailable, match="original_pre_request_input_required")
+               if not restore else nullcontext())
+    with cleanup:
+        async with _original_selection(tmp_path, ontology=True) as value:
+            # The producer result is genuine. Mutate only after its original Code
+            # reader and the next original input check have completed.
+            issuer = value.issuer
+            member = type(issuer)._selected_input_values.__code__
+            record_check = type(issuer)._pre_request_record.__code__
+            source_check = type(issuer).validate_selected_package_source.__code__
+            call_check = type(issuer)._call.__code__
+            expected_package = value.expected.package_identity.package
+            prior = expected_package.package_ref
+            changed = []
+            restored = []
+            detached = []
+
+            def mutate(frame, event, result):
+                if event != "return" or frame.f_back is None or frame.f_back.f_code is not member:
+                    return
+                if frame.f_code is record_check and not changed and "selection" in frame.f_back.f_locals:
+                    selection = frame.f_back.f_locals["selection"]
+                    detached.append(selection.package)
+                    object.__setattr__(expected_package, "package_ref", "package:forged@1")
+                    object.__setattr__(selection.package, "package_ref", "package:forged@1")
+                    changed.append(True)
+                elif changed and (restore is True and frame.f_code is source_check
+                                  or restore == "late" and frame.f_code is call_check
+                                  and frame.f_locals.get("name") == "selected_package_evidence"):
+                    object.__setattr__(expected_package, "package_ref", prior)
+                    restored.append(True)
+
+            before = sys.getprofile()
+            sys.setprofile(mutate)
+            try:
+                with (
+                    pytest.raises((ContractViolation, SourceObservationUnavailable, BaseExceptionGroup)),
+                    issuer.original_selected_source_input(
+                        value.selected, use_ref="selected-identity-mutation", stage="fixture_inner", **value.arguments,
+                    ),
+                ):
+                    pytest.fail("changed original identity must not escape")
+            finally:
+                sys.setprofile(before)
+                object.__setattr__(expected_package, "package_ref", prior)
+            assert changed
+            if restore:
+                assert restored

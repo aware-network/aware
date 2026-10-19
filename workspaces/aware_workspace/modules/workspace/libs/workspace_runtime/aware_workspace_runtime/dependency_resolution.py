@@ -5,6 +5,8 @@ from __future__ import annotations
 import copy
 import inspect
 from dataclasses import dataclass, fields, replace
+from types import FunctionType
+from weakref import ref
 
 from aware_code_semantic_contract_runtime import (
     CodeSemanticContractCatalogResolver,
@@ -100,6 +102,44 @@ class _WorkspaceDependencyResolutionRuntime:
             self.entrances[name] = (descriptor, method)
         self.records = {}
         self.issued_operations = []
+        descriptor = inspect.getattr_static(issuer, "_dependency_inventory_checkpoint", None)
+        self._checkpoint_factory = None
+        if descriptor is not None:
+            if type(descriptor) is not FunctionType:
+                _unavailable("original_inventory_checkpoint_required")
+            cells = descriptor.__closure__
+            self._checkpoint_factory = (
+                descriptor, descriptor.__code__, descriptor.__defaults__,
+                descriptor.__kwdefaults__, tuple((descriptor.__kwdefaults__ or {}).items()),
+                cells, tuple(cell.cell_contents for cell in cells or ()),
+            )
+
+    def _check_checkpoint_factory(self):
+        retained = self._checkpoint_factory
+        if retained is None:
+            return
+        descriptor, code, defaults, keywords, items, cells, contents = retained
+        if (inspect.getattr_static(self.issuer, "_dependency_inventory_checkpoint", None) is not descriptor
+            or descriptor.__code__ is not code or descriptor.__defaults__ is not defaults
+            or descriptor.__kwdefaults__ is not keywords
+            or (len(keywords or {}) != len(items) or any(key is not original_key or value is not original_value for (key, value), (original_key, original_value) in zip((keywords or {}).items(), items, strict=True))) or descriptor.__closure__ is not cells
+            or any(cell.cell_contents is not value
+                   for cell, value in zip(cells or (), contents, strict=True))):
+            _unavailable("original_inventory_checkpoint_changed")
+
+    def _inventory_checkpoint(self, operation, inventory, expected, *, _verify):
+        _verify(self)
+        retained = self._checkpoint_factory
+        if retained is None:
+            return None
+        descriptor, code, defaults, _, items, cells, contents = retained
+        frozen = FunctionType(code, descriptor.__globals__, argdefs=defaults,
+            closure=None if cells is None else tuple(type(cell)(value)
+                for cell, value in zip(cells, contents, strict=True)))
+        frozen.__kwdefaults__ = dict(items) or None
+        scope = frozen(self.issuer, operation, inventory, expected)
+        _verify(self)
+        return scope
 
     def _call(self, name, *args, **kwargs):
         descriptor, method = self.entrances[name]
@@ -111,16 +151,15 @@ class _WorkspaceDependencyResolutionRuntime:
         return value
 
     def _inventory(self, operation, inventory, expected):
+        raise NotImplementedError("definition-time original inventory dispatcher required")
+
+    def _inventory_impl(self, operation, inventory, expected, *, _catalog_read):
         record = self.issuer._validate_dependency_inventory(
             operation, inventory, expected=expected
         )
-        catalog = self.resolver.catalog
+        coordinates = _catalog_read(self)
         admission = expected.catalog_match_admission
-        if (
-            catalog.catalog_ref,
-            catalog.catalog_generation,
-            catalog.catalog_root_digest,
-        ) != (
+        if coordinates != (
             admission.catalog_ref,
             admission.catalog_generation,
             admission.catalog_root_digest,
@@ -235,7 +274,7 @@ class _WorkspaceDependencyResolutionRuntime:
         self._inventory(operation, inventory, expected)
         return tuple(result)
 
-    def _resolve(self, operation, inventory, expected):
+    def _resolve(self, operation, inventory, expected, *, original_targets=()):
         record, authored = self._inventory(operation, inventory, expected)
         context = self.issuer._contexts[inventory]
         retained = []
@@ -276,11 +315,17 @@ class _WorkspaceDependencyResolutionRuntime:
                 target = self.issuer.select_dependency_target_admission(
                     inventory_admission=inventory, expected=expectation
                 )
-                origin_admission = self._call(
-                    "issue",
-                    context,
-                    inventory,
-                    target,
+                originals = tuple(
+                    row[2] for row in original_targets
+                    if row[0] == demand.demand_digest and row[1] is target
+                )
+                if len(originals) > 1:
+                    _unavailable("dependency_original_target_ambiguous")
+                # Validation retains the original owner admission. Its read
+                # still derives/checks current fields on both sides of matching;
+                # there is no cached context and no new owner issuance to discard.
+                origin_admission = originals[0] if originals else self._call(
+                    "issue", context, inventory, target,
                     target_source_identity_digest=expectation.target_source_identity_digest,
                     target_package=candidate.package,
                 )
@@ -354,6 +399,12 @@ class _WorkspaceDependencyResolutionRuntime:
         return tuple(retained)
 
     def issue(self, operation, inventory, expected):
+        raise NotImplementedError("definition-time original dispatcher required")
+
+    def validate(self, handle, expected):
+        raise NotImplementedError("definition-time original dispatcher required")
+
+    def _issue(self, operation, inventory, expected):
         if any(value is operation for value in self.issued_operations):
             _unavailable("dependency_resolution_replay")
         if len(self.records) >= 128:
@@ -370,7 +421,7 @@ class _WorkspaceDependencyResolutionRuntime:
         self.issued_operations.append(operation)
         return handle
 
-    def validate(self, handle, expected):
+    def _validate(self, handle, expected):
         if (
             type(handle) is not WorkspaceDependencyResolutionAdmission
             or handle not in self.records
@@ -381,8 +432,9 @@ class _WorkspaceDependencyResolutionRuntime:
         self._resolve_relationships(
             record.operation, record.inventory, record.expected, record.relationships
         )
-        current = self._resolve(record.operation, record.inventory, record.expected)
         original = record.targets
+        current = self._resolve(record.operation, record.inventory, record.expected,
+                                original_targets=original)
         # Match origin handles stay original; fresh selection must agree on every
         # target identity, exact context and catalog-bound match admission.
         if len(current) != len(original) or any(
@@ -407,3 +459,178 @@ class _WorkspaceDependencyResolutionRuntime:
     def close(self):
         self.records.clear()
         self.issued_operations.clear()
+
+
+def _bind_checkpoint_runtime(kind):
+    """Keep constructor evidence independent of mutable runtime records."""
+    namespace = type.__getattribute__(kind, "__dict__")
+    dictionary = namespace["__dict__"]
+    native_get = dict.get
+    function_kind, weak = FunctionType, ref
+    catalog_kind = CodeSemanticContractCatalogResolver
+    catalog_namespace = type.__getattribute__(catalog_kind, "__dict__")
+    catalog_dictionary = catalog_namespace["__dict__"]
+    catalog_reader = catalog_namespace["read_catalog_coordinate"]
+    reader_code, reader_defaults, reader_keywords, reader_cells = (
+        catalog_reader.__code__, catalog_reader.__defaults__,
+        catalog_reader.__kwdefaults__, catalog_reader.__closure__)
+    reader_items = tuple((reader_keywords or {}).items())
+    reader_contents = tuple(cell.cell_contents for cell in reader_cells or ())
+    reader_frozen = function_kind(reader_code, catalog_reader.__globals__, argdefs=reader_defaults,
+        closure=None if reader_cells is None else tuple(type(cell)(value)
+            for cell, value in zip(reader_cells, reader_contents, strict=True)))
+    reader_frozen.__kwdefaults__ = dict(reader_items) or None
+    names = ("__init__", "_check_checkpoint_factory", "_inventory_checkpoint", "_inventory_impl", "_issue", "_validate", "close")
+    origins = tuple((name, namespace[name], namespace[name].__code__,
+        namespace[name].__defaults__, namespace[name].__kwdefaults__,
+        tuple((namespace[name].__kwdefaults__ or {}).items()), namespace[name].__closure__,
+        tuple(cell.cell_contents for cell in namespace[name].__closure__ or ())) for name in names)
+    frozen = {}
+    for name, function, code, defaults, _, items, cells, contents in origins:
+        clone = function_kind(code, dict(function.__globals__), argdefs=defaults,
+            closure=None if cells is None else tuple(type(cell)(value)
+                for cell, value in zip(cells, contents, strict=True)))
+        clone.__kwdefaults__ = dict(items) or None
+        frozen[name] = clone
+    rows = []
+
+    def binding(value):
+        if type(value) is not kind or namespace.get("__dict__") is not dictionary:
+            raise ContractViolation("original resolution runtime required")
+        for name in ("issuer", "_checkpoint_factory"):
+            if namespace.get(name) is not None:
+                raise ContractViolation("original resolution storage changed")
+        instance = dictionary.__get__(value, kind)
+        for name, function, code, defaults, keywords, items, cells, contents in origins:
+            if (name not in ("__init__", "close") and (
+                    namespace.get(name) is not function
+                    or native_get(instance, name, function) is not function)
+                or function.__code__ is not code or function.__defaults__ is not defaults
+                or function.__kwdefaults__ is not keywords
+                or (len(keywords or {}) != len(items) or any(key is not original_key or value is not original_value for (key, value), (original_key, original_value) in zip((keywords or {}).items(), items, strict=True))) or function.__closure__ is not cells
+                or any(cell.cell_contents is not item
+                    for cell, item in zip(cells or (), contents, strict=True))):
+                raise ContractViolation("original resolution checkpoint dispatch changed")
+        row = next((row for row in rows if row[0]() is value), None)
+        instance = dictionary.__get__(value, kind)
+        if (row is None or native_get(instance, "_checkpoint_factory") is not row[2]
+            or row[1] is not None and native_get(instance, "issuer") is not row[1]()):
+            raise ContractViolation("original resolution checkpoint binding changed")
+        if native_get(instance, "resolver") is not row[3]():
+            raise ContractViolation("original resolution catalog resolver changed")
+        return row
+
+    def read_catalog(value):
+        row = resolver = result = None
+        try:
+            row = binding(value)
+            resolver = row[3]()
+            def check():
+                if (type(resolver) is not catalog_kind
+                    or catalog_namespace.get("__dict__") is not catalog_dictionary
+                    or catalog_namespace.get("__getattribute__", object.__getattribute__) is not object.__getattribute__
+                    or catalog_namespace.get("read_catalog_coordinate") is not catalog_reader
+                    or catalog_reader.__code__ is not reader_code
+                    or catalog_reader.__defaults__ is not reader_defaults
+                    or catalog_reader.__kwdefaults__ is not reader_keywords
+                    or (len(reader_keywords or {}) != len(reader_items) or any(key is not original_key or item is not original_item for (key, item), (original_key, original_item) in zip((reader_keywords or {}).items(), reader_items, strict=True)))
+                    or catalog_reader.__closure__ is not reader_cells
+                    or any(cell.cell_contents is not original
+                           for cell, original in zip(reader_cells or (), reader_contents, strict=True))):
+                    raise ContractViolation("original Code catalog reader changed")
+                state = catalog_dictionary.__get__(resolver, catalog_kind)
+                if (row is None or "read_catalog_coordinate" in state or state.get("_admission") is not row[4]()):
+                    raise ContractViolation("original Code catalog reader binding changed")
+            check()
+            result = reader_frozen(resolver)
+            check()
+            binding(value)
+            return result
+        finally:
+            value = row = resolver = result = None
+
+    def inventory(self, operation, inventory, expected):
+        binding(self)
+        return frozen["_inventory_impl"](self, operation, inventory, expected, _catalog_read=read_catalog)
+
+    def verify(value):
+        binding(value)
+        frozen["_check_checkpoint_factory"](value)
+        binding(value)
+
+    def create(self, *args, **kwargs):
+        frozen["__init__"](self, *args, **kwargs)
+        instance = dictionary.__get__(self, kind)
+        factory = native_get(instance, "_checkpoint_factory")
+        rows[:] = [row for row in rows if row[0]() is not None]
+        resolver = native_get(instance, "resolver")
+        if type(resolver) is not CodeSemanticContractCatalogResolver:
+            raise ContractViolation("original Code catalog resolver required")
+        rows.append((weak(self), None if factory is None else weak(native_get(instance, "issuer")), factory,
+                     weak(resolver), weak(resolver._admission)))
+
+    def issue(self, operation, inventory, expected):
+        if type(self) is not kind or not any(row[0]() is self for row in rows):
+            raise ContractViolation("original resolution runtime required")
+        scope = handle = None
+        try:
+            binding(self)
+            scope = frozen["_inventory_checkpoint"](self, operation, inventory, expected, _verify=verify)
+            if scope is None:
+                return frozen["_issue"](self, operation, inventory, expected)
+            with scope:
+                handle = frozen["_issue"](self, operation, inventory, expected)
+                verify(self)
+            verify(self)
+            return handle
+        except BaseException:
+            if handle is not None:
+                self.records.pop(handle, None)
+            if not any(original is operation for original in self.issued_operations):
+                self.issued_operations.append(operation)
+            raise
+        finally:
+            scope = handle = operation = inventory = expected = None
+
+    def validate(self, handle, expected):
+        if type(self) is not kind:
+            raise ContractViolation("original resolution runtime required")
+        instance = dictionary.__get__(self, kind)
+        records = native_get(instance, "records")
+        if type(records) is not dict:
+            raise ContractViolation("original resolution records required")
+        record = next((value for original, value in dict.items(records) if original is handle), None)
+        scope = None
+        try:
+            binding(self)
+            if type(handle) is not WorkspaceDependencyResolutionAdmission or record is None:
+                raise ContractViolation("foreign dependency resolution")
+            scope = frozen["_inventory_checkpoint"](self, record.operation, record.inventory, expected, _verify=verify)
+            if scope is None:
+                return frozen["_validate"](self, handle, expected)
+            with scope:
+                frozen["_validate"](self, handle, expected)
+                verify(self)
+            verify(self)
+        except BaseException:
+            if record is not None and dict.get(records, handle) is record:
+                dict.pop(records, handle, None)
+            raise
+        finally:
+            scope = record = records = handle = expected = None
+
+    def close(self):
+        try:
+            frozen["close"](self)
+        finally:
+            rows[:] = [row for row in rows if row[0]() is not self and row[0]() is not None]
+
+    return create, issue, validate, close, inventory
+
+
+(_WorkspaceDependencyResolutionRuntime.__init__, _WorkspaceDependencyResolutionRuntime.issue,
+ _WorkspaceDependencyResolutionRuntime.validate, _WorkspaceDependencyResolutionRuntime.close,
+ _WorkspaceDependencyResolutionRuntime._inventory) = (
+    _bind_checkpoint_runtime(_WorkspaceDependencyResolutionRuntime)
+)
+del _bind_checkpoint_runtime

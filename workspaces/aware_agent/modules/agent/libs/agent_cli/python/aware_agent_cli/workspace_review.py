@@ -566,6 +566,35 @@ def _retention_summary(label: str, carrier: dict[str, Any]) -> str:
     )
 
 
+def _resource_release_summary(payload: dict[str, Any]) -> tuple[str, str]:
+    """Display original release rows without completing any owner ledger."""
+    failure = payload.get("error") or {}
+    retention = (failure.get("retention") or {}).get("value") or {}
+    physical = (retention.get("physical_refusal") or {}).get("value") or {}
+    physical_cleanup = (physical.get("cleanup") or {}).get("value") or {}
+    sequence = (physical_cleanup.get("sequence") or {}).get("value") or {}
+    client = (payload.get("client_cleanup") or {}).get("value") or {}
+    directory = (client.get("directory") or {}).get("value") or {}
+    observation = (directory.get("observation") or {}).get("value") or {}
+
+    def release_text(row: dict[str, Any]) -> str:
+        value = row.get("release")
+        return (
+            _terminal_text(value) if isinstance(value, str) else "unknown/not returned"
+        )
+
+    return (
+        "Private evidence directory release: "
+        + release_text(directory)
+        + "; family ledger complete: "
+        + _completion_text(observation.get("ledger_complete")),
+        "Original failed-sequence release: "
+        + release_text(sequence)
+        + "; sequence ledger complete: "
+        + _completion_text(sequence.get("ledger_complete")),
+    )
+
+
 def _next_observation(payload: dict[str, Any]) -> str:
     """Descriptive guidance from existing owner fields, never a next-action grant."""
     failure = payload.get("error") or {}
@@ -780,6 +809,11 @@ def _summary(payload: dict[str, Any], *, focus: str | None = None) -> str:
         lines.append(_retention_summary("Issue scope evidence retention", scope))
     if failure:
         lines.append(_retention_summary("Evidence retention", failure))
+        lines.extend(_resource_release_summary(payload))
+        lines.append(
+            "A confirmed resource release does not establish complete retention, "
+            "composite cleanup or historical Workspace completion."
+        )
         if failure.get("cleanup") is not None:
             lines.append(
                 "Original owner cleanup complete: "

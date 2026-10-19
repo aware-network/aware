@@ -24,3 +24,7 @@ by this delivery.
 Stdin/focus does not automate Issue guards, select work or
 activate a service. Useful-task instructions and frozen evaluations are preserved.
 Review provenance grants no operation authority; whole-envelope carriage is mandatory.
+
+## Prepared a14 distribution
+
+Resource closes are distinct from ledger completeness and historical unknowns. A14 remains unselected; optional Goal and positive create-first are unqualified. Existing Issue-first useful-work instructions, contributor governance and frozen evaluations remain unchanged.

@@ -618,3 +618,150 @@ async def test_participant_group_original_code_restamp_never_executes(
         assert fired and calls == []
         with pytest.raises((ContractViolation, RuntimeError)):
             execution._execution_participant(command, source, product)
+
+
+async def test_source_window_binding_uses_original_commitment_without_rehash(tmp_path, monkeypatch, owners):
+    from aware_code_semantic_contract_runtime.retained_declaration_scope import (
+        CodeSelectedPackageSourceBinding,
+    )
+
+    async with product_demand(tmp_path, monkeypatch, owners) as (_, _, issuer, _, _, _, operation, expected, _):
+        inventory = issuer.issue_product_dependency_inventory(operation, expected=expected)
+        selected = issuer._semantic[inventory].selected
+        declaration = issuer._selected_record(selected).declaration
+        digest_code = CodeSelectedPackageSourceBinding.binding_digest.fget.__code__
+        calls = []
+        previous = sys.getprofile()
+        with issuer._original_participant_source_window(declaration, selected):
+            binding = issuer._semantic_source_window.binding
+            def count(frame, event, value):
+                if event == "call" and frame.f_code is digest_code:
+                    calls.append(True)
+            try:
+                sys.setprofile(count)
+                for _ in range(3):
+                    detached = issuer.read_selected_package_source(selected)
+                    assert detached == binding and detached is not binding
+                    assert detached.expectation is not binding.expectation
+            finally:
+                sys.setprofile(previous)
+        assert not calls and issuer._semantic_source_window is None
+
+
+@pytest.mark.parametrize("when", ["before", "after_copy", "transient_copy"])
+async def test_source_window_binding_rejects_coherent_original_mutation(tmp_path, monkeypatch, owners, when):
+    from aware_code_semantic_contract_runtime import (
+        retained_declaration_scope_validation as values,
+    )
+
+    copier_code = values.copy_selected_source_binding.__code__
+
+    async with product_demand(tmp_path, monkeypatch, owners) as (_, _, issuer, _, _, _, operation, expected, _):
+        inventory = issuer.issue_product_dependency_inventory(operation, expected=expected)
+        selected = issuer._semantic[inventory].selected
+        record = issuer._selected_record(selected)
+        declaration = record.declaration
+        digest = record.digest
+        saved = binding = None
+        fired = []
+        previous = sys.getprofile()
+        try:
+            with (
+                pytest.raises((ContractViolation, SourceObservationUnavailable)),
+                issuer._original_participant_source_window(declaration, selected),
+            ):
+                binding = issuer._semantic_source_window.binding
+                candidate = binding.candidates.candidates[-1]
+                saved = candidate.content_digest
+                def change():
+                    fired.append(True)
+                    object.__setattr__(candidate, "content_digest", ContentDigest.of_bytes(b"coherent replacement"))
+                    object.__setattr__(record, "digest", binding.binding_digest)
+                copy_frames = []
+                def late(frame, event, value):
+                    if frame.f_code is not copier_code:
+                        return
+                    if event == "call" and frame.f_locals.get("value") is binding:
+                        copy_frames.append(id(frame))
+                        if when == "transient_copy":
+                            change()
+                    elif event == "return" and id(frame) in copy_frames:
+                        if not fired:
+                            change()
+                        elif when == "transient_copy":
+                            object.__setattr__(candidate, "content_digest", saved)
+                            object.__setattr__(record, "digest", digest)
+                if when == "before":
+                    change()
+                else:
+                    sys.setprofile(late)
+                issuer.read_selected_package_source(selected)
+        finally:
+            sys.setprofile(previous)
+            if saved is not None:
+                object.__setattr__(binding.candidates.candidates[-1], "content_digest", saved)
+            object.__setattr__(record, "digest", digest)
+        assert fired == [True] and issuer._semantic_source_window is None
+        method = vars(type(issuer))["read_selected_package_source"]
+        private = dict(zip(method.__code__.co_freevars,
+                           (cell.cell_contents for cell in method.__closure__), strict=True))
+        assert not private["source_window_bindings"]
+
+
+async def test_source_window_binding_commitment_releases_on_interruption(tmp_path, monkeypatch, owners):
+    async with product_demand(tmp_path, monkeypatch, owners) as (_, _, issuer, _, _, _, operation, expected, _):
+        inventory = issuer.issue_product_dependency_inventory(operation, expected=expected)
+        selected = issuer._semantic[inventory].selected
+        declaration = issuer._selected_record(selected).declaration
+        with (
+            pytest.raises(KeyboardInterrupt),
+            issuer._original_participant_source_window(declaration, selected),
+        ):
+            issuer.read_selected_package_source(selected)
+            raise KeyboardInterrupt("bounded binding-copy interruption")
+        assert issuer._semantic_source_window is None
+        method = vars(type(issuer))["read_selected_package_source"]
+        private = dict(zip(method.__code__.co_freevars,
+                           (cell.cell_contents for cell in method.__closure__), strict=True))
+        assert not private["source_window_bindings"]
+        assert issuer.read_selected_package_source(selected).expectation.package_id
+
+
+@pytest.mark.parametrize("kind", ["participant", "semantic"])
+async def test_source_window_binding_setup_interruption_releases_commitment(tmp_path, monkeypatch, owners, kind):
+    async with product_demand(tmp_path, monkeypatch, owners) as (_, _, issuer, _, _, _, operation, expected, _):
+        inventory = issuer.issue_product_dependency_inventory(operation, expected=expected)
+        selected = issuer._semantic[inventory].selected
+        declaration = issuer._selected_record(selected).declaration
+        if kind == "participant":
+            name = "_original_participant_source_window"
+            arguments = (declaration, selected)
+        else:
+            name = "_original_semantic_source_window"
+            original_input = issuer._original_product_dependency_source_input(expected.source_planning)
+            arguments = (selected, original_input)
+        method = vars(type(issuer))[name]
+        target_code = method.__wrapped__.__code__
+        lines = Path(inspect.getsourcefile(method.__wrapped__)).read_text().splitlines()
+        read = vars(type(issuer))["read_selected_package_source"]
+        private = dict(zip(read.__code__.co_freevars,
+                           (cell.cell_contents for cell in read.__closure__), strict=True))
+        registry = private["source_window_bindings"]
+        fired = []
+        previous = sys.gettrace()
+        def interrupt(frame, event, value):
+            if (not fired and event == "line" and frame.f_code is target_code
+                and lines[frame.f_lineno - 1].strip() == "self._semantic_source_window = current"):
+                assert len(registry) == 1
+                fired.append(True)
+                raise KeyboardInterrupt("after original commitment registration")
+            return interrupt
+        try:
+            sys.settrace(interrupt)
+            with pytest.raises(KeyboardInterrupt), getattr(issuer, name)(*arguments):
+                pytest.fail("interrupted setup must not yield")
+        finally:
+            sys.settrace(previous)
+        assert fired == [True] and not registry
+        assert issuer._semantic_source_window is None
+        assert issuer.read_selected_package_source(selected).expectation.package_id

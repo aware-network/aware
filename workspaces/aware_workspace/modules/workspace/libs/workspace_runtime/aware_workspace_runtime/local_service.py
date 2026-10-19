@@ -1608,13 +1608,19 @@ class WorkspaceRepositoryLocalServiceParticipant:
                 LocalFailureCode.INVALID_REQUEST,
                 "Workspace source exceeds the bounded document budget",
             )
-        content, after = _read_confined_bytes(
+        offset = cast(int, values["offset_bytes"])
+        chunk_index = cast(int, values["chunk_index"])
+        maximum_chunk = min(
+            cast(int, values["chunk_size_bytes"]), self._source_read_max_bytes
+        )
+        chunk, after, content_digest = _read_confined_source_bytes(
             root=self._session.binding.root_path,
             relative_path=relative_path,
             maximum=maximum_document,
             entry=entry,
+            offset_bytes=offset,
+            chunk_size_bytes=maximum_chunk,
         )
-        content_digest = f"sha256:{hashlib.sha256(content).hexdigest()}"
         expected_digest = cast(str | None, values["expected_content_digest"])
         if expected_digest is not None and expected_digest != content_digest:
             raise WorkspaceLocalSourceReadError(
@@ -1622,21 +1628,16 @@ class WorkspaceRepositoryLocalServiceParticipant:
                 "Workspace source content changed between query chunks",
                 retryable=True,
             )
-        offset = cast(int, values["offset_bytes"])
-        chunk_index = cast(int, values["chunk_index"])
-        maximum_chunk = min(
-            cast(int, values["chunk_size_bytes"]), self._source_read_max_bytes
-        )
+        document_size = after.st_size
         if (
             offset != chunk_index * maximum_chunk
-            or offset > len(content)
-            or (offset == len(content) and len(content) != 0)
+            or offset > document_size
+            or (offset == document_size and document_size != 0)
         ):
             raise WorkspaceLocalSourceReadError(
                 LocalFailureCode.INVALID_REQUEST,
                 "Workspace source query chunk coordinate is invalid",
             )
-        chunk = content[offset : offset + maximum_chunk]
         next_offset = offset + len(chunk)
         return (
             {
@@ -1648,7 +1649,7 @@ class WorkspaceRepositoryLocalServiceParticipant:
                 "query_digest": snapshot.query_digest,
                 "snapshot_digest": snapshot.snapshot_digest,
                 "path": relative_path,
-                "document_size_bytes": len(content),
+                "document_size_bytes": document_size,
                 "modified_ns": after.st_mtime_ns,
                 "content_digest": content_digest,
                 "chunk_index": chunk_index,
@@ -1656,7 +1657,7 @@ class WorkspaceRepositoryLocalServiceParticipant:
                 "chunk_size_bytes": len(chunk),
                 "chunk_size_limit_bytes": maximum_chunk,
                 "next_offset_bytes": next_offset,
-                "complete": next_offset == len(content),
+                "complete": next_offset == document_size,
                 "encoding": "base64",
                 "content": base64.b64encode(chunk).decode("ascii"),
             },
@@ -3046,6 +3047,26 @@ def _read_confined_bytes(
     maximum: int,
     entry: RepositorySnapshotEntry,
 ) -> tuple[bytes, os.stat_result]:
+    content, after, _digest = _read_confined_source_bytes(
+        root=root, relative_path=relative_path, maximum=maximum, entry=entry
+    )
+    return content, after
+
+
+def _read_confined_source_bytes(
+    *,
+    root: os.PathLike[str],
+    relative_path: str,
+    maximum: int,
+    entry: RepositorySnapshotEntry,
+    offset_bytes: int = 0,
+    chunk_size_bytes: int | None = None,
+) -> tuple[bytes, os.stat_result, str]:
+    """Hash the entire fresh source while retaining only the requested range.
+
+    Full reads keep their existing byte-returning contract. Chunk reads never
+    retain the full document, and never reuse a previous request's hash.
+    """
     if not all(hasattr(os, name) for name in ("O_DIRECTORY", "O_NOFOLLOW")):
         raise WorkspaceLocalSourceReadError(
             LocalFailureCode.INTERNAL_FAILURE,
@@ -3075,12 +3096,22 @@ def _read_confined_bytes(
                 retryable=True,
             )
         chunks: list[bytes] = []
+        digest = hashlib.sha256()
+        scanned = 0
         remaining = maximum + 1
         while remaining:
             chunk = os.read(source, min(64 * 1024, remaining))
             if not chunk:
                 break
-            chunks.append(chunk)
+            digest.update(chunk)
+            if chunk_size_bytes is None:
+                chunks.append(chunk)
+            else:
+                first = max(0, offset_bytes - scanned)
+                last = min(len(chunk), offset_bytes + chunk_size_bytes - scanned)
+                if first < last:
+                    chunks.append(chunk[first:last])
+            scanned += len(chunk)
             remaining -= len(chunk)
         content = b"".join(chunks)
         after = os.fstat(source)
@@ -3096,8 +3127,8 @@ def _read_confined_bytes(
         for descriptor in reversed(descriptors):
             os.close(descriptor)
     if (
-        len(content) != entry.size_bytes
-        or len(content) > maximum
+        scanned != entry.size_bytes
+        or scanned > maximum
         or after.st_size != before.st_size
         or after.st_mtime_ns != before.st_mtime_ns
     ):
@@ -3106,4 +3137,4 @@ def _read_confined_bytes(
             "Workspace source changed during read",
             retryable=True,
         )
-    return content, after
+    return content, after, f"sha256:{digest.hexdigest()}"

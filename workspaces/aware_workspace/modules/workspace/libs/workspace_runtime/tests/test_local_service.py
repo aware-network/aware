@@ -2514,3 +2514,134 @@ async def test_large_query_chunk_read_rejects_mid_read_source_movement(tmp_path:
         assert second.failure.retryable
     finally:
         await host.stop()
+
+
+def test_streaming_confined_chunk_retains_range_not_document(tmp_path: Path) -> None:
+    import os
+    import tracemalloc
+
+    from aware_workspace_runtime import local_service as local
+
+    source = tmp_path / "large.md"
+    block = b"x" * (1024 * 1024)
+    with source.open("wb") as output:
+        for _ in range(8):
+            output.write(block)
+    before = source.stat()
+    entry = RepositorySnapshotEntry(source.name, before.st_size, before.st_mtime_ns)
+    expected = hashlib.sha256()
+    for _ in range(8):
+        expected.update(block)
+    assert not tracemalloc.is_tracing()
+    descriptors = set(os.listdir("/proc/self/fd"))
+    tracemalloc.start()
+    try:
+        chunk, after, digest = local._read_confined_source_bytes(
+            root=tmp_path, relative_path=source.name, maximum=before.st_size,
+            entry=entry, offset_bytes=65537, chunk_size_bytes=128 * 1024,
+        )
+        _current, peak = tracemalloc.get_traced_memory()
+    finally:
+        tracemalloc.stop()
+    assert chunk == b"x" * (128 * 1024)
+    assert digest == "sha256:" + expected.hexdigest()
+    assert after.st_size == before.st_size
+    assert peak < 1024 * 1024
+    assert set(os.listdir("/proc/self/fd")) == descriptors
+
+
+@pytest.mark.parametrize("offset,length", [(0, 0), (0, 1), (17, 5), (4090, 100)])
+def test_streaming_confined_chunk_matches_full_read(
+    tmp_path: Path, offset: int, length: int,
+) -> None:
+    from aware_workspace_runtime import local_service as local
+
+    source = tmp_path / "source.md"
+    content = bytes(range(256)) * 16
+    source.write_bytes(content)
+    before = source.stat()
+    entry = RepositorySnapshotEntry(source.name, before.st_size, before.st_mtime_ns)
+    chunk, after, digest = local._read_confined_source_bytes(
+        root=tmp_path, relative_path=source.name, maximum=len(content),
+        entry=entry, offset_bytes=offset, chunk_size_bytes=length,
+    )
+    full, full_after = local._read_confined_bytes(
+        root=tmp_path, relative_path=source.name, maximum=len(content), entry=entry,
+    )
+    assert chunk == content[offset:offset + length]
+    assert full == content
+    assert after.st_size == full_after.st_size == len(content)
+    assert digest == "sha256:" + hashlib.sha256(content).hexdigest()
+
+
+def test_streaming_confined_chunk_hashes_mutation_outside_range(tmp_path: Path) -> None:
+    import os
+
+    from aware_workspace_runtime import local_service as local
+
+    source = tmp_path / "source.md"
+    original = b"a" * (256 * 1024)
+    source.write_bytes(original)
+    before = source.stat()
+    entry = RepositorySnapshotEntry(source.name, before.st_size, before.st_mtime_ns)
+    first, _after, digest = local._read_confined_source_bytes(
+        root=tmp_path, relative_path=source.name, maximum=len(original),
+        entry=entry, offset_bytes=0, chunk_size_bytes=128 * 1024,
+    )
+    changed = original[:-1] + b"b"
+    source.write_bytes(changed)
+    os.utime(source, ns=(before.st_atime_ns, before.st_mtime_ns))
+    again, _after, changed_digest = local._read_confined_source_bytes(
+        root=tmp_path, relative_path=source.name, maximum=len(original),
+        entry=entry, offset_bytes=0, chunk_size_bytes=128 * 1024,
+    )
+    assert first == again == original[:128 * 1024]
+    assert digest != changed_digest
+    assert changed_digest == "sha256:" + hashlib.sha256(changed).hexdigest()
+
+
+@pytest.mark.parametrize("poison", ["short", "growth", "early-eof", "read-error"])
+def test_streaming_confined_chunk_short_reads_and_failures_close_fds(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, poison: str,
+) -> None:
+    import os
+
+    from aware_workspace_runtime import local_service as local
+
+    source = tmp_path / "source.md"
+    content = b"abcdef" * 1024
+    source.write_bytes(content)
+    before = source.stat()
+    entry = RepositorySnapshotEntry(source.name, before.st_size, before.st_mtime_ns)
+    original_read = os.read
+    calls = 0
+
+    def read(fd: int, count: int) -> bytes:
+        nonlocal calls
+        calls += 1
+        if poison == "read-error":
+            raise OSError("injected read refusal")
+        if poison == "early-eof" and calls > 1:
+            return b""
+        block = original_read(fd, min(count, 17))
+        if poison == "growth" and calls == 1:
+            with source.open("ab") as output:
+                output.write(b"x")
+        return block
+
+    descriptors = set(os.listdir("/proc/self/fd"))
+    monkeypatch.setattr(local.os, "read", read)
+    if poison == "short":
+        chunk, _after, digest = local._read_confined_source_bytes(
+            root=tmp_path, relative_path=source.name, maximum=len(content),
+            entry=entry, offset_bytes=101, chunk_size_bytes=37,
+        )
+        assert chunk == content[101:138]
+        assert digest == "sha256:" + hashlib.sha256(content).hexdigest()
+    else:
+        with pytest.raises(local.WorkspaceLocalSourceReadError):
+            local._read_confined_source_bytes(
+                root=tmp_path, relative_path=source.name, maximum=len(content),
+                entry=entry, offset_bytes=101, chunk_size_bytes=37,
+            )
+    assert set(os.listdir("/proc/self/fd")) == descriptors

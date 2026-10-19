@@ -446,3 +446,9 @@ Read [the entrance](../README.md) and retain complete source/notice carriage.
 The a12 [stdin and focused-history guide](workspace/REFERENCE-NAVIGATION.md)
 retains two explicit decisions and manual Issue guards. Its instruction pins
 bind reviewed bytes, not a new admission or renewed current-use authority.
+
+## Prepared a14 summaries
+
+The unselected [resource-summary guide](workspace/RESOURCE-RELEASES.md) explains
+returned release evidence without completing ledgers or renewing authority.
+Instructions remain draft; both reviews, original guards and explicit apply stay.

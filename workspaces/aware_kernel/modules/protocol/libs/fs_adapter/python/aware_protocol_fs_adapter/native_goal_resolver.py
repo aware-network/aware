@@ -7,8 +7,8 @@ Goal owns committed-file/Goal identity, carrier, Gate and Git-epoch checks.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from typing import NoReturn, SupportsIndex, final, override
 from weakref import WeakKeyDictionary
@@ -18,7 +18,9 @@ from aware_protocol_runtime import ProtocolAdmissionOutcomeKind, ProtocolContrac
 from .goal_templates import canonical_relative_path, match_native_goal_path
 from .manifest import (
     COLLABORATION_NATIVE_FS_PROFILE,
+    COLLABORATION_PLANNING_FS_PROFILE,
     COLLABORATION_PROJECT_FS_PROFILE,
+    PLANNING_GOAL_RECORD_PROFILE,
     FilesystemProtocolAdmissionResult,
     FilesystemProtocolProfile,
     admit_protocol_manifest,
@@ -102,6 +104,18 @@ class NativeGoalResolverCapability:
     def protocol_digest(self) -> str:
         return _retained(self).profile.protocol_manifest.digest
 
+    @property
+    def protocol_profile(self) -> str:
+        """Exact retained admission profile; not a caller-selected mode."""
+        return _retained(self).profile.protocol_manifest.protocol.profile
+
+    @property
+    def goal_record_profile(self) -> str:
+        return next(
+            item.profile for item in _retained(self).profile.protocol_manifest.records
+            if item.record_key == "goal"
+        )
+
     def revalidate(self) -> None:
         retained = _retained(self)
         try:
@@ -173,12 +187,36 @@ def _retained(capability: object) -> _RetainedAdmission:
     return retained
 
 
-def require_native_goal_resolver(capability: object) -> NativeGoalResolverCapability:
-    """Validate actual issuance and freshness, not just nominal type/digest."""
+def _require_current_resolver(capability: object) -> NativeGoalResolverCapability:
     _ = _retained(capability)
     assert isinstance(capability, NativeGoalResolverCapability)
     capability.revalidate()
     return capability
+
+
+def require_native_goal_resolver(capability: object) -> NativeGoalResolverCapability:
+    """Retain the existing fs_v2/fs_v3 Phase-reader consumption contract."""
+    selected = _require_current_resolver(capability)
+    if selected.protocol_profile not in {
+        COLLABORATION_NATIVE_FS_PROFILE, COLLABORATION_PROJECT_FS_PROFILE,
+    }:
+        raise NativeGoalResolverError("native_goal_reader_profile_required")
+    return selected
+
+
+def require_planning_goal_resolver(capability: object) -> NativeGoalResolverCapability:
+    """Require fresh fs_v4 location admission, never an older-profile fallback.
+
+    This does not read a Goal variant or authenticate its origin/publication.
+    Goal still owns all concrete source, epoch and semantic verification.
+    """
+    selected = _require_current_resolver(capability)
+    if (
+        selected.protocol_profile != COLLABORATION_PLANNING_FS_PROFILE
+        or selected.goal_record_profile != PLANNING_GOAL_RECORD_PROFILE
+    ):
+        raise NativeGoalResolverError("planning_goal_profile_required")
+    return selected
 
 
 @dataclass(frozen=True, slots=True)
@@ -195,6 +233,7 @@ def admit_native_goal_resolver(*, repository_root: Path, manifest_path: Path) ->
         return NativeGoalResolverAdmission(admission, None)
     if profile.protocol_manifest.protocol.profile not in {
         COLLABORATION_NATIVE_FS_PROFILE, COLLABORATION_PROJECT_FS_PROFILE,
+        COLLABORATION_PLANNING_FS_PROFILE,
     }:
         raise NativeGoalResolverError("native_goal_profile_required")
     try:

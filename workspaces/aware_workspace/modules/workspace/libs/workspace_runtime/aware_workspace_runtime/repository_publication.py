@@ -59,6 +59,27 @@ class _InitialConfigurationAuthorization:
     profile = "initial_configuration"
 
 
+@dataclass(frozen=True)
+class _InitialProjectAuthorization:
+    receipt_ref: str
+    request_ref: str
+    profile = "initial_project"
+
+
+@dataclass(frozen=True)
+class _InitialGoalAuthorization:
+    receipt_ref: str
+    request_ref: str
+    profile = "initial_goal"
+
+
+@dataclass(frozen=True)
+class _InitialMembershipAuthorization:
+    receipt_ref: str
+    request_ref: str
+    profile = "initial_membership"
+
+
 def spend_repository_physical_claim(physical, transaction, claim):
     state = _PHYSICAL_CLAIMS.get(claim) if type(claim) is _ExecutionClaim else None
     if state is None:
@@ -236,7 +257,14 @@ class WorkspaceRepositoryPublicationRuntime:
         )
 
     def _plan_repository_operation(
-        self, request, *, reconciliation=None, initial_configuration=None
+        self,
+        request,
+        *,
+        reconciliation=None,
+        initial_configuration=None,
+        initial_project=None,
+        initial_goal=None,
+        initial_membership=None,
     ):
         from aware_workspace_sdk.repository_publication.codec import (
             repository_publication_value_from_payload,
@@ -259,15 +287,43 @@ class WorkspaceRepositoryPublicationRuntime:
                 )
             # Own physical port supplies observations only. No authority is
             # constructed from capture values and no Git writer is invoked.
-            captured = (
-                self._physical.capture_initial_configuration(
-                    request, initial_configuration
+            if (
+                sum(
+                    item is not None
+                    for item in (
+                        reconciliation,
+                        initial_configuration,
+                        initial_project,
+                        initial_goal,
+                        initial_membership,
+                    )
                 )
-                if initial_configuration is not None
+                > 1
+            ):
+                raise ValueError("workspace_publication_profiles_conflict")
+            captured = (
+                self._physical.capture_initial_membership(request, initial_membership)
+                if initial_membership is not None
                 else (
-                    self._physical.capture_candidate(request)
-                    if reconciliation is None
-                    else self._physical.capture_reconciliation(request, reconciliation)
+                    self._physical.capture_initial_goal(request, initial_goal)
+                    if initial_goal is not None
+                    else (
+                        self._physical.capture_initial_project(request, initial_project)
+                        if initial_project is not None
+                        else (
+                            self._physical.capture_initial_configuration(
+                                request, initial_configuration
+                            )
+                            if initial_configuration is not None
+                            else (
+                                self._physical.capture_candidate(request)
+                                if reconciliation is None
+                                else self._physical.capture_reconciliation(
+                                    request, reconciliation
+                                )
+                            )
+                        )
+                    )
                 )
             )
             self._current()
@@ -298,7 +354,13 @@ class WorkspaceRepositoryPublicationRuntime:
                 binding,
                 observation,
                 capture=captured,
-                purpose="initial_configuration"
+                purpose="initial_membership"
+                if initial_membership is not None
+                else "initial_goal"
+                if initial_goal is not None
+                else "initial_project"
+                if initial_project is not None
+                else "initial_configuration"
                 if initial_configuration is not None
                 else "repository_publication"
                 if reconciliation is None
@@ -496,7 +558,12 @@ class WorkspaceRepositoryPublicationRuntime:
 
         if type(issue_client) is not IssueRepositoryPublicationClient:
             raise TypeError("Original supplying Issue SDK client required")
-        if self._snapshot_handle(plan).purpose == "initial_configuration":
+        if self._snapshot_handle(plan).purpose in {
+            "initial_membership",
+            "initial_configuration",
+            "initial_project",
+            "initial_goal",
+        }:
             raise WorkspacePublicationHandleRefusal("initial_plan_is_not_issue_work")
         self._current()
         with self._lock:
@@ -657,11 +724,64 @@ class WorkspaceRepositoryPublicationRuntime:
         )
 
     def _execute_repository_operation(
-        self, plan, admission, *, reconciliation=False, initial_configuration=False
+        self,
+        plan,
+        admission,
+        *,
+        reconciliation=False,
+        initial_configuration=False,
+        initial_project=False,
+        initial_goal=False,
+        initial_membership=False,
     ):
+        membership_plan = (
+            self._plans.get(plan)
+            if type(plan) is WorkspaceRepositoryCommitPlan
+            else None
+        )
+        if (
+            membership_plan is not None
+            and membership_plan.purpose == "initial_membership"
+            and not initial_membership
+        ):
+            self._snapshot_handle(plan)
+            raise WorkspacePublicationHandleRefusal(
+                "initial_membership_writer_not_enabled"
+            )
+        if (
+            sum(
+                (
+                    initial_project,
+                    initial_configuration,
+                    initial_goal,
+                    initial_membership,
+                    reconciliation,
+                )
+            )
+            > 1
+        ):
+            raise ValueError("workspace_publication_profiles_conflict")
+        initial = (
+            initial_configuration
+            or initial_project
+            or initial_goal
+            or initial_membership
+        )
         self._current()
         with self._lock:
-            if initial_configuration:
+            if initial_membership:
+                from .initial_membership import require_initial_membership_work
+
+                state = require_initial_membership_work(self, admission)
+            elif initial_goal:
+                from .initial_goal_publication import require_initial_goal_work
+
+                state = require_initial_goal_work(self, admission)
+            elif initial_project:
+                from .initial_authoring import require_initial_project_work
+
+                state = require_initial_project_work(self, admission)
+            elif initial_configuration:
                 from .initial_authoring import require_initial_configuration_work
 
                 state = require_initial_configuration_work(self, admission)
@@ -675,6 +795,9 @@ class WorkspaceRepositoryPublicationRuntime:
                 or (original.purpose == "index_reconciliation") != reconciliation
                 or (original.purpose == "initial_configuration")
                 != initial_configuration
+                or (original.purpose == "initial_project") != initial_project
+                or (original.purpose == "initial_goal") != initial_goal
+                or (original.purpose == "initial_membership") != initial_membership
             ):
                 raise WorkspacePublicationHandleRefusal(
                     "workspace_original_enrolled_plan_required"
@@ -688,15 +811,19 @@ class WorkspaceRepositoryPublicationRuntime:
         report = None
         diagnostics = ()
         try:
-            if initial_configuration:
+            if initial:
                 # Durable dispatch precedes physical begin. Missing result after
                 # interruption remains uncertain; recovery never republishes.
-                state.lease = state.enrollment.consume()
+                state.lease = (
+                    state.enrollment.consume(admission)
+                    if initial_membership
+                    else state.enrollment.consume()
+                )
             # Own physical revalidation holds the actual repository lock before
             # fresh Issue consumption. Consumption never calls back here.
             state.transaction = self._physical.begin(original.capture, binding)
             self._current()
-            if not initial_configuration:
+            if not initial:
                 from aware_issue_sdk.repository_publication import (
                     IssueRepositoryPublicationConsumeRequest,
                 )
@@ -722,7 +849,19 @@ class WorkspaceRepositoryPublicationRuntime:
                     state,
                     self._physical,
                     state.transaction,
-                    _InitialConfigurationAuthorization(
+                    _InitialMembershipAuthorization(
+                        state.lease.receipt_ref, binding.attempt_ref
+                    )
+                    if initial_membership
+                    else _InitialGoalAuthorization(
+                        state.lease.receipt_ref, binding.attempt_ref
+                    )
+                    if initial_goal
+                    else _InitialProjectAuthorization(
+                        state.lease.receipt_ref, binding.attempt_ref
+                    )
+                    if initial_project
+                    else _InitialConfigurationAuthorization(
                         state.lease.receipt_ref, binding.attempt_ref
                     )
                     if initial_configuration
@@ -820,7 +959,7 @@ class WorkspaceRepositoryPublicationRuntime:
         if state.lease is None:
             return original.result
         try:
-            if initial_configuration:
+            if initial:
                 original.result = state.enrollment.finish(original.result)
                 return original.result
             return self.finish_repository_publication(admission)

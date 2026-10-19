@@ -19,11 +19,13 @@ if TYPE_CHECKING:
 def register_init_command(registry: AwareCommandRegistry) -> None:
     registry.register_command(
         name="init",
-        help="Preview or explicitly initialize an Issue-only filesystem repository.",
+        help="Preview Issue-first setup or explicitly opt into create-first bootstrap.",
         description=(
             "Preview by default. --create-repository admits an empty repository; "
             "--apply requests effects. Both SDK owners retain separate evidence. "
-            "No seed commit, staging, remote, Issue or service is created."
+            "Default issue-first creates no seed commit, staging, remote, Issue or service. "
+            "Explicit create-first commits one Protocol manifest after interactive confirmation; "
+            "it creates no Project, Goal, Issue or AGENTS.md."
         ),
         configure_parser=_configure_parser,
         handle=_handle_init,
@@ -37,11 +39,25 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
         "--repo-root", "--repository-root", dest="repository_root", required=True
     )
     parser.add_argument("--create-repository", action="store_true")
+    parser.add_argument(
+        "--profile", choices=("issue-first", "create-first"), default="issue-first"
+    )
     parser.add_argument("--issue-root", default="docs/issues")
+    parser.add_argument(
+        "--goal-root", help="Create-first only; default belongs to Protocol."
+    )
+    parser.add_argument(
+        "--project-root", help="Create-first only; default belongs to Protocol."
+    )
     parser.add_argument("--no-agent-contract", action="store_true")
     intent = parser.add_mutually_exclusive_group()
     intent.add_argument("--dry-run", action="store_true")
     intent.add_argument("--apply", action="store_true")
+    intent.add_argument(
+        "--recover",
+        action="store_true",
+        help="Create-first only: read the original retained configuration result; never retry or repair.",
+    )
     parser.add_argument(
         "--format",
         choices=("json", "summary"),
@@ -470,6 +486,29 @@ def _report_init_output(value: str, stream: Any) -> bool:
 
 
 def _handle_init(invocation: AwareCommandInvocation) -> int:
+    if getattr(invocation.args, "profile", "issue-first") == "create-first":
+        from .create_first_initialization import handle_create_first_init
+
+        return handle_create_first_init(
+            invocation, execution=_execution, report=_report_init_output
+        )
+    if getattr(invocation.args, "recover", False):
+        print(
+            json.dumps({"error": "recovery_requires_create_first", "effect": "none"}),
+            file=sys.stderr,
+        )
+        return 2
+    if (
+        getattr(invocation.args, "goal_root", None) is not None
+        or getattr(invocation.args, "project_root", None) is not None
+    ):
+        print(
+            json.dumps(
+                {"error": "planning_roots_require_create_first", "effect": "none"}
+            ),
+            file=sys.stderr,
+        )
+        return 2
     payload, exit_code = initialization_payload(invocation.args)
     if invocation.args.format == "json":
         print(json.dumps(payload, indent=2, sort_keys=True))

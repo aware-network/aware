@@ -1,6 +1,6 @@
 [project]
 name = "aware-agent-cli"
-version = "0.2.0a12"
+version = "0.2.0a14"
 description = "Neutral Agent CLI composition over canonical Aware family registrars."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -16,7 +16,7 @@ dependencies = [
   "aware-issue-sdk[workspace_setup_admission]>=0.10.6,<0.11.0",
   "aware-issue-fs-adapter>=0.9.6,<0.10.0",
   "aware-protocol-sdk>=0.3.2,<0.4.0",
-  "aware-protocol-fs-adapter>=0.6.5,<0.7.0",
+  "aware-protocol-fs-adapter>=0.6.6,<0.7.0",
   "aware-protocol-runtime>=0.1.1,<0.2.0",
   "aware-specification-sdk>=0.3.3,<0.4.0",
   "aware-specification-fs-sdk-adapter[governed]>=0.4.3,<0.5.0",
@@ -27,7 +27,7 @@ dependencies = [
 aware = "aware_agent_cli.main:main"
 
 [project.optional-dependencies]
-goal = ["aware-goal-native-cli>=0.1.1,<0.2.0"]
+goal = ["aware-goal-native-cli>=0.1.2,<0.2.0"]
 
 [build-system]
 requires = ["hatchling>=1.27.0"]

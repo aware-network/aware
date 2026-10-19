@@ -14,6 +14,8 @@ _STATE_TYPES = set()
 _CONFIGURATION_STATES = WeakKeyDictionary()
 _CONFIGURATION_TYPES = set()
 _RESERVATIONS = WeakKeyDictionary()
+_PROJECT_SOURCES = WeakKeyDictionary()
+_PROJECT_SOURCE_BINDINGS = WeakKeyDictionary()
 
 
 class InitialAuthoringEnrollment:
@@ -64,6 +66,57 @@ class InitialConfigurationPlan(InitialAuthoringEnrollment):
 
 class InitialConfigurationAdmission(InitialAuthoringEnrollment):
     __slots__ = ()
+
+
+class InitialProjectPlan(InitialAuthoringEnrollment):
+    __slots__ = ()
+
+    @property
+    def request(self):
+        from .values import InitialProjectRequest
+
+        state = (
+            _CONFIGURATION_STATES.get(self)
+            if type(self) is InitialProjectPlan
+            else None
+        )
+        if state is None:
+            raise ValueError("original_initial_project_plan_required")
+        state.validate()
+        return InitialProjectRequest.from_wire(state.request.to_wire())
+
+
+class InitialProjectAdmission(InitialAuthoringEnrollment):
+    __slots__ = ()
+
+
+class InitialProjectSource(InitialAuthoringEnrollment):
+    """Original Workspace exact-byte context, not a Project semantic verdict."""
+
+    __slots__ = ()
+
+
+def _issue_initial_project_source(owner, state):
+    runtime = importlib.import_module("aware_workspace_runtime.initial_authoring")
+
+    if (
+        not _selected_owner(owner)
+        or type(state) is not runtime.InitialProjectSourceState
+        or state.owner is not owner
+    ):
+        raise ValueError("original_initial_project_source_required")
+    handle = object.__new__(InitialProjectSource)
+    _PROJECT_SOURCES[handle] = state
+    _PROJECT_SOURCE_BINDINGS[handle] = (
+        state.workspace,
+        state.capability,
+        state.protocol_plan,
+        state.configuration_key,
+        state.pid,
+        state.sealed,
+    )
+    state.observe(owner._physical, current=True)
+    return handle
 
 
 class _ConfigurationReservation(InitialAuthoringEnrollment):
@@ -120,11 +173,23 @@ def _configuration_state(owner, handle, kind):
 
 
 def _issue_configuration_handle(owner, state, kind):
+    from .values import InitialProjectRequest
+
     if (
         not _selected_owner(owner)
         or not any(type(state) is selected for selected in _CONFIGURATION_TYPES)
         or state.owner is not owner
-        or kind not in (InitialConfigurationPlan, InitialConfigurationAdmission)
+        or kind
+        not in (
+            InitialConfigurationPlan,
+            InitialConfigurationAdmission,
+            InitialProjectPlan,
+            InitialProjectAdmission,
+        )
+        or (
+            (kind in (InitialProjectPlan, InitialProjectAdmission))
+            != (type(state.request) is InitialProjectRequest)
+        )
     ):
         raise ValueError("original_initial_configuration_state_required")
     handle = object.__new__(kind)

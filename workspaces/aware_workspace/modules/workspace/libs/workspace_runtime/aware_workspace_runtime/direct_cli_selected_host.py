@@ -199,7 +199,7 @@ def compose_direct_cli_selected_product(
     binding = issuer.read_selected_package_source(selected)
     started_ns = time.perf_counter_ns()
     with composition.compose_direct_workspace_selected_host(
-        product_factory_admissions=tuple(factories.values()),
+        product_factory_admissions=tuple(factories[key] for key in sorted(factories, key=str.encode)),
         session=sources.observation_runtime._session,
         store=sources.observation_runtime._store,
         workspace_manifest_path=binding.expectation.scope_key,
