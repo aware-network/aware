@@ -16,3 +16,19 @@ clean seven-case replay. The documentation failure remains retained.
 Generic merge/migration and unassisted customer adoption remain unqualified.
 Whole-envelope carriage remains required. Public delivery and real customer
 trials require separate authorization; Project/Goal remains parallel.
+
+## Local implementation checkpoint
+
+Implementation: `656d01ff7cce3b0cfa6c504925814c0e7b807a48` (exact eight paths).
+Original dry-run/apply used the same Issue digest and request arguments;
+reference update and shared-index projection both applied without reconciliation debt.
+Ten read-only integration controls pass before and after publication. Three
+accepted instruction checks pass without repeating owner mutations. Counts overlap.
+Retained verification checks 42 package versions, dependencies and thirteen help
+entrances using fifteen read-only commands, not a new installation.
+
+An initial metadata comparison used unnormalized distribution names and failed
+after the read-only calls; the corrected comparison normalizes names and passes.
+Its empty initial output remains retained. No product or instruction correction
+was required. Independent integration review remains next; this record does not
+authorize remote publication or either real customer trial.
