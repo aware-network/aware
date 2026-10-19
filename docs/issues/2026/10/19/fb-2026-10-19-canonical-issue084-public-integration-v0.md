@@ -2,7 +2,7 @@
 
 - Slug: canonical-issue084-public-integration-v0
 - Tag: fb/2026-10-19/canonical-issue084-public-integration-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -57,6 +57,7 @@
 
 
 
+
 ## Problem
 1. Accepted Issue CLI 0.8.4 layout is not integrated against freshly observed public54252d539ded; no baseline movement is present.
 
@@ -64,8 +65,10 @@
 
 
 
+
 ## Goal
 1. Project the reviewed 38-path delta preserving complete carriage, metadata overlays/preimages, useful-task branches, contributor governance and predecessor selection.
+
 
 
 
@@ -80,8 +83,17 @@
 
 
 
+
+## Verified-by
+- Independent /tmp/aware-issue084-integration-review.kvTek68N/REVIEW.md sha256:c398d0656dbee4c6cf2aba0570b92e6116c184f5b8c0ad447d7f6af6648b63df;30controls+8integration passes;zero skipped. Git executable modes,not POSIX privacy. No begin/argv identity claim. Initial failure,legal/native limits andGC holds retained.
+- git:3bab4e287a784afda3deaf75c9558a717632c40c
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - 30 original/receiving controls and8 integration checks pass; exact1860accepted bodies/modes,38layout changes+4records. Retained42package versions,13help entrances,dependencies,missing-identity no-effect refusal and156original origins verify. Initial7pass/one missing-private-capture-root failure retained; no consumer command had launched. Corrected setup changes no tests/software. Whole-envelope required; six gaps,twelve findings,native limitations and historical unknowns retained. No selection,freeze,new installation,customer replay,GC action orpush. Independent review before closeout. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Implementation c1a4c74636fa62c868e9093abc34352b765930af applied exact42paths,original guard,CAS/index without debt.30controls+8integration checks pass; all1860layout postimages/modes and complete carriage preserved. LOCAL-INTEGRATION review checkpoint names original receipts and retained-read limits. Both Issues In Progress pending independent review; no closeout,selection,freeze,remote publication,new installation,GC change orcustomer replay. (outcome: info) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Complete independently accepted local CLI0.8.4 integration: exact42-path implementation/two-path handoff and1860accepted Git postimages. Selection,freeze andexplicit publication remain separate; whole-envelope only.
