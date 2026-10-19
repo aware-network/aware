@@ -20,7 +20,7 @@
   "installer": "protocols/install.py",
   "instruction_alignment_publication_authorized": false,
   "instruction_record": "canonical-reference-fs-v1/PUBLIC-INSTRUCTIONS.json",
-  "instruction_status": "status_alignment_review_pending",
+  "instruction_status": "navigation_guidance_review_pending",
   "package_selection_owner": "Workspace authored profile; this record is not a package catalog",
   "payload_sha256": "8c804765c0aae2ee8ffe72768158867eab29dae93c669ec6c259421103eaf0e8",
   "public_delivery_authorized": true,

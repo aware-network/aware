@@ -23,8 +23,8 @@
       "sha256": "526919899c486912c3d40d3a33344a47b9220d7729e58d1d97e6f16b2d915d2e"
     },
     "protocols/FIRST-USEFUL-TASK.md": {
-      "bytes": 12001,
-      "sha256": "cde271ae009c8cd0b62a80d6b51b6428d9ff2c45900b3e96e1f2a8c19def69f7"
+      "bytes": 12596,
+      "sha256": "73540f34404d77c8199242ab49f0dcd0449547cc51f70dfdb46c2549318411ce"
     },
     "protocols/INIT.md": {
       "bytes": 3741,
@@ -99,7 +99,7 @@
   "source_index_sha256": "19497ad59946415d7edc737381735e9f666ec74884275d4d3ec7688924c38113",
   "source_is_composite": true,
   "stable_consumer_bridge_qualified": false,
-  "status": "status_alignment_review_pending",
+  "status": "navigation_guidance_review_pending",
   "tooling_activation_performed": false,
   "tree_completion_admitted": false,
   "unassisted_onboarding_proven": false,

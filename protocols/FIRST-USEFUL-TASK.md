@@ -103,10 +103,18 @@ into a customer repository or replace an existing selected command implicitly.
    report verified but unpublished work, not completed publication.
 
 Use existing pinned instructions and installed help for syntax; this contract
-adds no commands, package selector, writer or authority. In this release reviewed
-Workspace references still use the original inline `--reference` JSON.
-`--reference-from-stdin` and `show --focus` are proposed parallel successors,
-not available commands or prerequisites here.
+adds no commands, package selector, writer or authority. Agent **0.2.0a12**
+supports both the original inline `--reference` JSON and explicit
+`--reference-from-stdin` input for Workspace review. Optional historical
+`show --focus` views help inspect scope or files; they grant no current-use
+authority. Follow [reference navigation](workspace/REFERENCE-NAVIGATION.md)
+for exact syntax, input limits and original-result pairing: scope consumes the
+original prepare result; apply consumes the original second-preview result.
+Keep the separate scope and final-file review decisions. These Workspace
+helpers do not automate Issue guard extraction, publication or closeout, and
+are not prerequisites for an Issue-only implementation task. Keep reviewed
+guards unchanged; staleness requires a new explicit observation and review,
+never automatic guard refresh or mutation retry.
 
 ## Stop without hiding what happened
 

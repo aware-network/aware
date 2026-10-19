@@ -1,0 +1,74 @@
+{
+  "accepted_handoff_revision": "d801637504c114fa188c15f8e12d924141f897bf",
+  "accepted_postimages": {
+    "protocols/FIRST-USEFUL-TASK.md": {
+      "after_sha256": "73540f34404d77c8199242ab49f0dcd0449547cc51f70dfdb46c2549318411ce",
+      "before_sha256": "cde271ae009c8cd0b62a80d6b51b6428d9ff2c45900b3e96e1f2a8c19def69f7",
+      "bytes": 12596,
+      "git_mode": "100644"
+    },
+    "releases/SELECTED.json": {
+      "after_sha256": "100a2cdadcb9405e8ecac2dc3b7b4d5f2de56d7a31faf776bdd8d1cfde8d18cb",
+      "before_sha256": "f10d2340f852a80d479fe55345f5bf545be321c32c54fe6de9148370cbae101b",
+      "bytes": 1905,
+      "git_mode": "100644"
+    },
+    "releases/canonical-reference-fs-v1/PUBLIC-INSTRUCTIONS.json": {
+      "after_sha256": "732ab268cab489800abeb39d64d3c21f4a0a2878724c3db38779cdf84f3d6ba2",
+      "before_sha256": "6b062b1b59174c5930d959ef15eb71949ca4fc3328d20559772e2e866acfb2e5",
+      "bytes": 4531,
+      "git_mode": "100644"
+    }
+  },
+  "accepted_source_revision": "d189a2452e48974d509eecfb4ecbaf6637e0dffd",
+  "accepted_sources": {
+    "docs/specs/aware-portable-protocol/first-useful-task-v1/navigation/project_guidance.py": "4d8bd88cbcacdd53b55f5877d6378056c75b3371aff72458c102b3fbb3476429",
+    "docs/specs/aware-portable-protocol/first-useful-task-v1/navigation/test_guidance.py": "d9cac7f3925db4fb3dbfa9e1d94429bc4e1905ae1f7b6255b121e48a61b934ef"
+  },
+  "admitted_issue_source_sha256": "sha256:a4efaa7237d1a52777cbc6f62768356ddceb02dc10ecfa96b1cf3aaf43dbef93",
+  "authority": {
+    "command": "/tmp/aware-a1-public-integration.IaOlJZAE/contributor-a6/bin/aware",
+    "contract": "1.2.1",
+    "launcher_sha256": "af79e9ca85fadde18f5bd53da815dff287ec23113f277e0b02de10064dd1710d",
+    "version": "0.1.0a6"
+  },
+  "baseline_file_count": 1760,
+  "baseline_revision": "c9edbd9816118a6b6ebe70041c08ecc5da88924e",
+  "expected_file_count": 1763,
+  "fresh_remote_revision": "c9edbd9816118a6b6ebe70041c08ecc5da88924e",
+  "gc_change": false,
+  "independent_integration_acceptance": false,
+  "independent_receipt_sha256": "272918b0644a450e0fbf0cc928b7e9e3e537e6ff8c94cb19c98c8a1f95fd7f0d",
+  "instruction_pins": 19,
+  "integration_extra_paths": [
+    "docs/issues/2026/10/19/fb-2026-10-19-public-a12-navigation-guidance-integration.md",
+    "releases/canonical-reference-fs-v1/NAVIGATION-GUIDANCE-INTEGRATION.json",
+    "releases/canonical-reference-fs-v1/test_navigation_guidance_integration.py"
+  ],
+  "new_installation": false,
+  "protected_inputs": {
+    ".aware/agent-bootstrap.json": "2d924a85725872ee4161a9757eecb893145c9d7898430820f28c9fc72e1349d5",
+    "AGENTS.md": "2515aaed324f1f03c5d709bccde06c930987c369092f2bc223bfe9a9371af8e9",
+    "aware.protocol.toml": "924735fd1bab9479765d3f118a6b41c5ed0ad15f1c10cbac10706b4f9f6ae902",
+    "protocols/install.py": "5f73994afd4fcb0a6f5b71cb50eeabd120cdd1d08447a2c2a2854528139bc103",
+    "releases/canonical-reference-fs-v1/INSTRUCTION-FREEZE.md": "86121f1509c8a24aa57ba716a5a0a218f7ef3119db8a1b7a1efb81071df011ff",
+    "releases/canonical-reference-fs-v1/INSTRUCTIONS.json": "3d1d836a501600cb5014f0cfe3d02baf8e4be835369c3dd7a0ab2032720b7188",
+    "releases/canonical-reference-fs-v1/canonical-reference-source-notice-review-v1.tar.gz": "afca86cad0fe96c40250819a37b3ab7284236b30d12db919e6596c2aae6a9d30"
+  },
+  "public_issue_path": "docs/issues/2026/10/19/fb-2026-10-19-public-a12-navigation-guidance-integration.md",
+  "public_issue_ref": "fb/2026-10-19/public-a12-navigation-guidance-integration",
+  "push_authorized": false,
+  "qualification": "Guidance integration only; retained reads, no customer/evaluation replay or new install. Source acceptance excludes broader feedback and V2 outcomes.",
+  "receiver_sha256": "3eae31a0359d6f15f0692f80326413cf93fe0051b3d1ddd98b48742669ca7b32",
+  "record_kind": "local_navigation_guidance_integration",
+  "scope_paths": [
+    "docs/issues/2026/10/19/fb-2026-10-19-public-a12-navigation-guidance-integration.md",
+    "protocols/FIRST-USEFUL-TASK.md",
+    "releases/SELECTED.json",
+    "releases/canonical-reference-fs-v1/NAVIGATION-GUIDANCE-INTEGRATION.json",
+    "releases/canonical-reference-fs-v1/PUBLIC-INSTRUCTIONS.json",
+    "releases/canonical-reference-fs-v1/test_navigation_guidance_integration.py"
+  ],
+  "source_acceptance": "465f8290513494bcb44e5f537b4969030d2bdd14",
+  "source_closeout": "96f68acfbaf05ec6fb1fc65191c1415751c360db"
+}
