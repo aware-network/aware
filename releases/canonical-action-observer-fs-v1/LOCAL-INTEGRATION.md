@@ -29,3 +29,23 @@ activation and customer evaluations require separate admissions; this local
 integration authorizes no push. Contributor governance, existing useful-task
 and adoption instructions, prior selections, GC holds and frozen evaluations
 remain unchanged.
+
+## Applied local checkpoint
+
+Implementation `833e1a1fa11ccde9ecdce5e1ce78660c41f99bba` applied the exact
+88-path scope with original Issue guard and successful CAS/index projection;
+no reconciliation debt remains. Thirty pre-effect controls and the final
+unchanged eight-case integration replay passed. Complete 1,935-file postimages
+and Git executable modes remain exact.
+
+The first reviewer run generated six bytecode cache files. Three early
+exact-tree failures are retained; those exact generated files were quarantined
+as evidence. Bytecode-disabled final replay passes without a product, fixture,
+assertion or projection change. Original installed release uncertainty and all
+historical candidate failures remain explicit.
+
+The original applied publication receipt is
+`git:833e1a1fa11ccde9ecdce5e1ce78660c41f99bba`. This handoff changes only this
+note and the admitted public Issue. Independent review and both governed
+closeouts remain pending. The successor is still draft/unselected; no remote
+publication, customer evaluation, new installation or GC disposition occurred.
