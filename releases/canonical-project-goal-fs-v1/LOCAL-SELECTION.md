@@ -37,3 +37,18 @@ ledgers, client cleanup and historical release uncertainty remain separate.
 Independent selection review, instruction freeze, publication and fresh client
 evaluation are separate. No productivity, real-customer adoption, A2, activation
 or stable-bridge claim follows. Retained reads are not a fresh installation.
+
+## Applied local checkpoint
+
+Implementation `9618d8596e884d8a237be60f5b2f31909e135518` applied the exact
+eight-path scope through original contributor Issue/publication owners. Seven
+selection checks passed using retained49-payload software;2292 unaffected
+baseline files and Git executable modes remain preserved. Original Issue guard
+and CAS/index receipts agree without reconciliation debt.
+
+The actual implementation receipt is
+`git:9618d8596e884d8a237be60f5b2f31909e135518`. This handoff changes only this
+note and the admitted public Issue. Independent review precedes both governed
+closeouts. Instruction freeze, publication and client trials remain separate;
+whole-envelope carriage, nine legal gaps, thirteen findings, all prior failures
+and qualification limits remain. No installation, activation, GC action or push.
