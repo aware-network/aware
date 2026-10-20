@@ -36,3 +36,12 @@ Keep [complete sources and notices](README.md); no detached-wheel or stripped ro
 Commands, software, source/notices, historical records and contributor a6 remain
 unchanged. Retained reads are not a fresh installation or customer replay.
 No activation, payload copy, GC change or push follows from this alignment.
+
+## Local alignment checkpoint
+
+Implementation `437fa0e6f711fe383e21abf6d58a0a46ece66559` changes exactly the
+twenty-one admitted paths. Nine checks pass; all twenty-three successor pins
+match. Original Issue guards and completed CAS/index receipts remain with the
+producer. Historical freezes and software remain exact. Independent alignment
+review is pending; any additional publication needs explicit target/range
+authorization. No new customer evaluation or productivity claim follows.
