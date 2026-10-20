@@ -1,11 +1,15 @@
 # Complete a first useful task with Aware
 
-Agent **0.2.0a16**, with Issue CLI **0.8.4**, was published at `704b5943931fcac23bcc748a574e112d20884017`.
-Acquire that exact revision and retain the complete source/notice envelope.
-Issue-first useful work and optional SPEC remain independent of optional fresh
-Project/Goal direction. Both reviews and original guards remain required.
-This current-wording alignment changes neither software nor operation authority;
-its additional publication needs independent review and separate authorization.
+For a fresh installation, acquire corrected revision `55de18317dcb77ed879b36aaeed43691ce4d3342`
+or a separately approved successor carrying the same corrected installer.
+Use its original `protocols/install.py` and retain complete sources/notices.
+Agent **0.2.0a16** / Issue CLI **0.8.4** software was first delivered at
+`704b5943931fcac23bcc748a574e112d20884017`; that is historical software provenance, not a fresh-install target.
+Older guide preambles at the acquisition revision may still name that software
+checkpoint: do not follow them back to its broken installer. This current guide
+supplies the corrected acquisition coordinate; both reviews and original guards remain.
+This additional guidance/pin alignment requires independent review and separate
+publication authorization. It changes no software, command or operation authority.
 
 Consumer guidance for delivered Agent 0.2.0a16 with Issue CLI 0.8.4.
 Earlier trial evidence remains version-bound; this is not a new evaluation or
@@ -54,8 +58,8 @@ Earlier evaluated guidance `379cd5dcbe26c256be82c760b73fc100fdfc0fc6` ran agains
 
 ## Follow one installed consumer rail
 
-Use the [pinned public acquisition and installation instructions](https://github.com/aware-network/aware/blob/704b5943931fcac23bcc748a574e112d20884017/README.md)
-and [complete distribution terms](https://github.com/aware-network/aware/blob/704b5943931fcac23bcc748a574e112d20884017/releases/canonical-project-goal-fs-v1/README.md).
+Use the [pinned public acquisition and installation instructions](../README.md#acquire-and-install-the-exact-delivered-revision)
+and [complete distribution terms](../releases/canonical-project-goal-fs-v1/README.md).
 This release requires Linux x86-64, Git and Python 3.12. Retain the whole
 source/notice envelope. Six detached-wheel legal gaps remain unresolved;
 detached wheels, stripped bundles and registry delivery are not accepted.
@@ -81,7 +85,7 @@ into a customer repository or replace an existing selected command implicitly.
 1. Read the [coherence rules](https://github.com/aware-network/aware/blob/08a598fdeb8f960bf30fb8e85229e820286e67be/protocols/COHERENCE.md).
    Use exactly one genuine supported harness identity. Declared actors and
    receipts do not authenticate every action or provide filesystem isolation.
-2. Follow [initialization](https://github.com/aware-network/aware/blob/704b5943931fcac23bcc748a574e112d20884017/protocols/INIT.md).
+2. Follow [initialization](INIT.md).
    Inspect preview, then separately choose apply. Capture both original streams:
    summary mode keeps full JSON on stderr in the same invocation. Init supplies
    configuration, not Issue admission, scope approval or apply authority. It
