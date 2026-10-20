@@ -2,7 +2,7 @@
 
 - Slug: canonical-action-observer-public-status-v0
 - Tag: fb/2026-10-20/canonical-action-observer-public-status-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -36,8 +36,10 @@
 
 
 
+
 ## Problem
 1. Delivered observer software5af88a6b95b9 is still described as a local draft; historical freezes must remain unchanged.
+
 
 
 
@@ -50,6 +52,7 @@
 
 
 
+
 ## Acceptance Checklist
 - [ ] Exact21-path implementation/two-path handoff; nine receiving checks,original Issue guards/CAS/index and conservation; commands/software/notices/history unchanged. No new installation,customertrial,activation,GC orpush. Independent review before closeout.
 
@@ -57,8 +60,17 @@
 
 
 
+
+## Verified-by
+- Human independent PASS: nine checks,23pins,21/2path receipt scopes,guards,CAS/index,1929unaffected files/Git modes.
+- git:8ec3247ff3766f349abb47859f0cca59d0bbbb43
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Pre-effect source freeze87922b57959e and pure20postimage proposal15fcba324e39658cf1ce5bf666eea1bdf3e861f17ba5f487d7a27d78ec154127 projected exactly. Nine receiving checks pass;23successor pins,stale-wording/missing-revision andbyte controls,original shellblocks/history preserved. Retained16read commands verify42versions/dependencies/13helps/missing-identity effectnone/156origins. Fresh anonymous remote main remains5af88a6b95b928811022e5cd0255e4bb5c77bd87. Wording separates delivered software from this separately unpublished alignment. (outcome: Ready for exact21path local publication and independent review. No new installation,customertrial,payloadcopy,activation,GC orpush.) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Exact21path implementation437fa0e6f711fe383e21abf6d58a0a46ece66559 applied via original contributor owner with CAS/index complete. Nine checks,23successor pins and retained read-only client verification pass. Commands/software/installer/source/notices/historical freezes unchanged. Two-path Issue/status-note handoff records this local checkpoint only. (outcome: Independent bounded review pending; this alignment needs separate additional-publication authorization. Customer trials separately admitted; no installation,customerreplay,activation,GC orpush.) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independent bounded wording PASS for478e6c47f374,implementation437fa0e6f711/handoff8ec3247ff376. Nine checks,23successor pins,exact21/2path deltas,Issue guards and CAS/index receipts verified. All1929unaffected files/Git modes,historical freezes,commands,software,notices,evaluation limits preserved. Delivered software distinct from unpublished alignment. Additional-range publication needs explicit authorization; no customer replay orpush during closeout.
