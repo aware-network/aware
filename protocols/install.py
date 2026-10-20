@@ -83,7 +83,7 @@ def main() -> int:
         raise ValueError("regular_packet_required")
     packet_root, outer = verifier.verified_archive(archive.read_bytes(), PACKET_SHA)
     inner_root, inner = verifier.verified_archive(
-        outer["payload/aware-canonical-neutral-fs-internal-v1.tar.gz"], PAYLOAD_SHA
+        outer["payload/aware-canonical-project-goal-fs-internal-v1.tar.gz"], PAYLOAD_SHA
     )
     retained = Path(tempfile.mkdtemp(prefix="aware-specification-install-"))
     for prefix, files in ((packet_root, outer), ("installation/" + inner_root, inner)):
