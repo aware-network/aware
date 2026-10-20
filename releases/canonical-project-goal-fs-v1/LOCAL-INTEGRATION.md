@@ -39,3 +39,18 @@ Independent integration review precedes both governed closeouts. Instructions
 remain draft/unselected. Selection, freeze, remote publication and evaluations
 are separate. Existing GC holds, contributor governance and earlier evidence
 remain unchanged; no push is authorized by this integration.
+
+## Applied local implementation
+
+Implementation `39bf725ab928dd11cffa07d1eb1627240f357bf8` applied the exact
+372-path scope through original contributor Issue/publication owners. The Issue
+byte guard matches its committed body; CAS/index completed without debt.
+All 2,293 accepted postimages and Git executable modes verify. Thirty-one
+pre-effect controls and eight accounting/retained-read checks passed.
+
+The actual implementation receipt is
+`git:39bf725ab928dd11cffa07d1eb1627240f357bf8`. This handoff changes only this
+note and the admitted public Issue. Independent review and both governed
+closeouts remain pending. Draft/unselected status, whole-envelope carriage,
+nine legal gaps, thirteen findings, matrix/composition/native qualifications
+and prior GC/evaluation holds remain unchanged. No remote push is authorized.

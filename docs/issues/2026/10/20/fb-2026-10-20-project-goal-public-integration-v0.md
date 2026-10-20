@@ -385,13 +385,16 @@
 - `workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/tests/test_initial_configuration_successor.py`
 
 
+
 ## Problem
 1. Accepted expanded layout is not integrated against freshly observed matching local and remote3f70fcf57e56; no baseline movement.
 
 
 
+
 ## Goal
 1. Project exact368-path delta with complete49-package carriage, overlays/preimages, borrowed modules and declarations, preserving useful Issue-first work, contributor governance and predecessor selection.
+
 
 
 
@@ -402,6 +405,8 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Implementation39bf725ab928 applied exact372-path scope with matching original Issue guard and completed CAS/index; all2293 accepted postimages/Git modes verified.31 pre-effect controls and eight original integration/retained-read cases passed. Whole envelope,9gaps/13findings, primary1213pass/16fail and composition qualifications preserved. No selection/freeze/installation/customer replay/GC/push. Independent review before closeout; actual publication receipt git:39bf725ab928dd11cffa07d1eb1627240f357bf8. (outcome: bounded_local_integration_pending_independent_review) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
