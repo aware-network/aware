@@ -1,13 +1,14 @@
 # Specification drafts
 
-Agent **0.2.0a15**, with Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
-Acquire that exact revision and retain its complete source/notice envelope.
-This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required. Additional publication of this
-wording alignment requires independent review and separate authorization.
+Agent **0.2.0a16**, with Issue CLI **0.8.4**, was published at `704b5943931fcac23bcc748a574e112d20884017`.
+Acquire that exact revision and retain the complete source/notice envelope.
+Issue-first useful work and optional SPEC remain independent of optional fresh
+Project/Goal direction. Both reviews and original guards remain required.
+This current-wording alignment changes neither software nor operation authority;
+its additional publication needs independent review and separate authorization.
 
 [Current instruction pins](../../releases/canonical-action-observer-fs-v1/PUBLIC-INSTRUCTIONS.json)
-and [delivery provenance](../../releases/canonical-action-observer-fs-v1/PUBLIC-STATUS.md)
+and [delivery provenance](../../releases/canonical-project-goal-fs-v1/PUBLIC-STATUS.md)
 are separate from unchanged historical records below.
 
 Specifications make intended behavior and constraints explicit for cooperating

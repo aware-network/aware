@@ -1,12 +1,11 @@
 # Issue coordination
 
-Agent **0.2.0a16**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not a predecessor's acquisition path. Issue-first
-useful work and optional SPEC stay independent; optional fresh Project/Goal
-creates direction, not work authority. Byte pins grant no operation or retry
-authority. The delivered a15 predecessor remains historical at
-`5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Both reviews and original guards remain.
+Agent **0.2.0a16**, with Issue CLI **0.8.4**, was published at `704b5943931fcac23bcc748a574e112d20884017`.
+Acquire that exact revision and retain the complete source/notice envelope.
+Issue-first useful work and optional SPEC remain independent of optional fresh
+Project/Goal direction. Both reviews and original guards remain required.
+This current-wording alignment changes neither software nor operation authority;
+its additional publication needs independent review and separate authorization.
 
 An Issue records an outcome, responsible execution, exact scope and durable
 progress evidence. Shared rules let another execution continue genuinely
@@ -27,4 +26,4 @@ not be automatically retried. A new execution needs fresh admission, not a
 borrowed actor or serialized capability. Planned handoff is not crash recovery.
 See [repository publication](../repository/README.md) and [coherence](../COHERENCE.md).
 
-[Delivered observation input](OBSERVATION-INPUT.md) keeps explicit target and actor inputs, original SDK requests and fresh apply planning. Current instructions describe the delivered software at predecessor revision `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`; no automatic guard refresh or retry.
+[Delivered observation input](OBSERVATION-INPUT.md) keeps explicit target and actor inputs, original SDK requests and fresh apply planning. The predecessor software was delivered at revision `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`; no automatic guard refresh or retry.

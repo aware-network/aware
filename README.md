@@ -1,12 +1,11 @@
 # Aware
 
-Agent **0.2.0a16**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not a predecessor's acquisition path. Issue-first
-useful work and optional SPEC stay independent; optional fresh Project/Goal
-creates direction, not work authority. Byte pins grant no operation or retry
-authority. The delivered a15 predecessor remains historical at
-`5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Both reviews and original guards remain.
+Agent **0.2.0a16**, with Issue CLI **0.8.4**, was published at `704b5943931fcac23bcc748a574e112d20884017`.
+Acquire that exact revision and retain the complete source/notice envelope.
+Issue-first useful work and optional SPEC remain independent of optional fresh
+Project/Goal direction. Both reviews and original guards remain required.
+This current-wording alignment changes neither software nor operation authority;
+its additional publication needs independent review and separate authorization.
 
 Coherent work between agents in your Git repository.
 
@@ -26,13 +25,12 @@ criteria, not a prewritten implementation or mandatory task.
 
 Today's path is **Issue → optional SPEC → bounded work → verification → local
 publication and closeout**. A generated manifest is setup, not completion of the
-customer's application. Optional locally selected Project/Goal direction is a separate fresh-repository branch.
+customer's application. Optional delivered Project/Goal direction is a separate fresh-repository branch.
 Language/Meta elevation remains parallel; neither is a prerequisite for this path.
 
-## Locally frozen optional Project/Goal and original-intent presentation
+## Delivered optional Project/Goal and original-intent presentation
 
-Agent **0.2.0a16** / Issue CLI **0.8.4**, 49 payload distributions, is selected locally;
-public delivery is not yet authorized. Instructions are frozen locally pending independent review. Start with
+Agent **0.2.0a16** / Issue CLI **0.8.4**, 49 payload distributions, was published at `704b5943931fcac23bcc748a574e112d20884017`. Start with
 [useful customer code](protocols/FIRST-USEFUL-TASK.md); Issue-first and optional
 SPEC remain independent. For a fresh repository only, see the separate
 [optional Project/Goal branch](protocols/PROJECT-GOAL.md). It creates direction,
@@ -40,11 +38,11 @@ not work authority, and does not provide Goal-to-Issue, decomposition or RUN.
 
 The delivered predecessor is Agent a15 at
 `5af88a6b95b928811022e5cd0255e4bb5c77bd87`; local wording baseline is
-`3f70fcf57e56708a1e1f8c0b52a10e2eb812da6d`. This private proposal does not replace that published evidence.
-The proposed installer targets this successor and retains its entire envelope.
+`3f70fcf57e56708a1e1f8c0b52a10e2eb812da6d` remains historical.
+The current delivery is pinned explicitly above; the original installer retains its entire envelope.
 The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
 [local selection](releases/canonical-project-goal-fs-v1/LOCAL-SELECTION.md) records its limits.
-Independent instruction review, publication and new client trials remain separate.
+Independent current-wording review and additional publication remain separate from new client trials.
 
 ## Delivered historical action observation
 
@@ -62,7 +60,7 @@ Independent wording review and additional publication are separate; no automatic
 Issue CLI **0.8.4** was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
 The original local selection and freeze records remain historical checkpoints.
 The [predecessor selection](releases/canonical-issue084-fs-v1/LOCAL-SELECTION.md)
-records that historical delivery; that is historical delivery; the current pointer selects local a16, not public availability or operation authority.
+records that historical delivery; that is historical delivery; the current pointer identifies delivered a16, not operation authority.
 [Observation input](protocols/issues/OBSERVATION-INPUT.md) carries one explicit
 Issue snapshot into original scope, progress and publish-close commands.
 The same observation does not freeze previewed HEAD or source bytes; apply plans
@@ -78,7 +76,7 @@ That historical delivery is distinct from the Issue CLI 0.8.4 successor publishe
 The original local selection and freeze records remain historical checkpoints.
 The [predecessor selection record](releases/canonical-a14-fs-v1/LOCAL-SELECTION.md)
 records that historical distribution. The [current delivery pointer](releases/SELECTED.json)
-selects local a16, not public availability. Explicit predecessor publication pins remain historical evidence.
+identifies delivered a16; the explicit publication pin establishes delivery. Explicit predecessor publication pins remain historical evidence.
 [Resource summaries](protocols/workspace/RESOURCE-RELEASES.md) distinguish reported
 closes from ledger completeness and historical unknowns. Optional Goal and positive
 create-first remain unqualified; useful work, optional SPEC, both explicit reviews
@@ -96,12 +94,13 @@ the limits. Existing useful-task and implementation/draft branches are unchanged
 Workspace stdin/focus does not automate Issue guards. Review provenance does not
 grant authority; do not overlay installations or migrate contributor commands.
 
-## Install the reviewed local successor
+## Acquire and install the exact delivered revision
 
-The unchanged operational block below targets the prepared a16 envelope through
-the original installer. Do not run it during layout review. Verify exact
+Acquire exact revision `704b5943931fcac23bcc748a574e112d20884017`.
+The unchanged operational block below targets its delivered a16 envelope through
+the original installer. Verify exact
 envelope/payload provenance before reusing an installation; version labels alone
-are insufficient. Do not mix predecessor installations with this proposal.
+are insufficient. Do not mix predecessor installations with this distribution.
 
 Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Inspect
 [complete terms and sources](releases/canonical-project-goal-fs-v1/README.md)

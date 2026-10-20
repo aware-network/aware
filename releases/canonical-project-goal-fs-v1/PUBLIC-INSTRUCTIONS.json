@@ -1,0 +1,129 @@
+{
+  "a2_admitted": false,
+  "activation_core_p1_reviewed": true,
+  "activation_included_in_this_delivery": false,
+  "baseline_revision": "704b5943931fcac23bcc748a574e112d20884017",
+  "bounded_positive_ab_proof_reviewed": true,
+  "canonical_profile": "portable_protocols",
+  "catalog_revision": "abc78e80ffd0bf4893766cd6b545eef8a78693ad",
+  "detached_wheels_accepted": false,
+  "envelope_sha256": "edaab985f57541928effb038c825fa3af6ec6afbffda45249099a64bf1120898",
+  "failure_interruption_qualified": false,
+  "files": {
+    "README.md": {
+      "bytes": 11420,
+      "sha256": "20fc32236e3eadcb90d2eac71053298b0802bcbf069c6b430002b91bf3efac5e"
+    },
+    "protocols/COHERENCE.md": {
+      "bytes": 2584,
+      "sha256": "d643dd349141001b71d910ee326e081d3031dc05b070421e9a4fad3d17d1e925"
+    },
+    "protocols/EVIDENCE-MAP.json": {
+      "bytes": 6934,
+      "sha256": "526919899c486912c3d40d3a33344a47b9220d7729e58d1d97e6f16b2d915d2e"
+    },
+    "protocols/EXISTING-REPOSITORY.md": {
+      "bytes": 8398,
+      "sha256": "f11c6e0dce8d820760c0e0c24059f4a9c4e636ce25462aba38ad785f5c952a71"
+    },
+    "protocols/FIRST-USEFUL-TASK.md": {
+      "bytes": 12982,
+      "sha256": "f20166f0d71cfc412430e5dfed4ea90a1862d0ba3339b08a444d24fe0a78698f"
+    },
+    "protocols/INIT.md": {
+      "bytes": 3953,
+      "sha256": "a17135409673ac9164fc51e4907ab51db02c4dc72222874dfc493745ebff93f5"
+    },
+    "protocols/INITIALIZATION.md": {
+      "bytes": 1295,
+      "sha256": "7514305b3f73da328c499fc1ea60aab0bba16fd9103f322154078f7e2bc434b3"
+    },
+    "protocols/PROJECT-GOAL.md": {
+      "bytes": 7724,
+      "sha256": "0138bd09398a908d44f7978a2bfe40e15f9fc8b5975cc354c766e1e1212048ca"
+    },
+    "protocols/README.md": {
+      "bytes": 1328,
+      "sha256": "e7ad1cb82f48a644005d9ed3102899dd33f128d753363532a3eef9f133e8f1a7"
+    },
+    "protocols/WORKFLOW.md": {
+      "bytes": 26121,
+      "sha256": "9144f4e4f3468161631f97ffcc174788944fc6be3f4e59b15a4e3463ab5b36e0"
+    },
+    "protocols/issues/FIRST-ISSUE.md": {
+      "bytes": 18207,
+      "sha256": "c9b1546327f9c61f401fd67501a9913c8288eba110bd65caa06927f1622032e0"
+    },
+    "protocols/issues/OBSERVATION-INPUT.md": {
+      "bytes": 2821,
+      "sha256": "e96f55218a01e8fdc30105fc78c46220a04436d3a3aaa147f2ab33ec6483110f"
+    },
+    "protocols/issues/README.md": {
+      "bytes": 1955,
+      "sha256": "e06936e14d19c9b8e21c55e9e19d7c4997747987af3df75882439ebbac7e432e"
+    },
+    "protocols/repository/README.md": {
+      "bytes": 1351,
+      "sha256": "ae476cb23bb59d4117a074f47654b2708137ef32707f758bc534967dc69785d5"
+    },
+    "protocols/specification/README.md": {
+      "bytes": 4104,
+      "sha256": "767148c7914d64d8609c55a148427e0580b369ee5194dfea53c9b30d6e99b801"
+    },
+    "protocols/tasks/JSON-CHECKER.md": {
+      "bytes": 2977,
+      "sha256": "d78ebce65c148761f9074f2627548c62e92258d62e72f2386ea15d1bab544e46"
+    },
+    "protocols/workspace/ACTION-OBSERVATION.md": {
+      "bytes": 4280,
+      "sha256": "f71e8840edd135424ab01296bd475dbe6ec16ec6a9a56e04908e09db702cb0c3"
+    },
+    "protocols/workspace/README.md": {
+      "bytes": 1887,
+      "sha256": "084b045ac371aeaa92b8a0351bb52f520b25e6f1b5c11969df1b2db44aaa3c7b"
+    },
+    "protocols/workspace/REFERENCE-NAVIGATION.md": {
+      "bytes": 4767,
+      "sha256": "8f824576a93c56cdc52f4abe2d5fb315229e53218a8d3d06210383b6b410531e"
+    },
+    "protocols/workspace/RESOURCE-RELEASES.md": {
+      "bytes": 1740,
+      "sha256": "5a9848234f1d3043c46d56362a8201199058a35ebdfdf9dd1ec2c68d6c9f2e54"
+    },
+    "protocols/workspace/REVIEWED-SETUP.md": {
+      "bytes": 9473,
+      "sha256": "40b5c18a6694f547e91338eb195544c213ce5fb43c54cd1d286a7efa85df0070"
+    },
+    "releases/README.md": {
+      "bytes": 5276,
+      "sha256": "7e5cfac95250c1a23ed5a0f3361e218eba154c474648924f768938aefbe24e15"
+    },
+    "releases/canonical-project-goal-fs-v1/README.md": {
+      "bytes": 2652,
+      "sha256": "a6b78847a12e6c73d841b5eb9ee2ccadfa42c4e73d7a85681a8724cd639efda3"
+    },
+    "workspaces/aware_kernel/modules/specification/sdks/specification/python/cli/examples/prepare_draft_input.py": {
+      "bytes": 2081,
+      "sha256": "21e1bea900ae75e47be2ff889e87d514cba08ba9f325681dcc0ee3f1df68bcb5"
+    }
+  },
+  "historical_instruction_sha256": "8c5266131f0a176373fe17fc1d35967d8e3e8644ef3f056cd8e456716284833d",
+  "independent_control_installation_reviewed": true,
+  "init_supplies_configuration_not_admission": true,
+  "instruction_alignment_publication_authorized": false,
+  "package_selection_owner": "Workspace authored profile; this record is not a package catalog",
+  "payload_sha256": "f5b5062aeefec2db2ce660e533342ef9b0df59b9ef7a1b02661d467239da4522",
+  "public_delivery_authorized": true,
+  "published_software_revision": "704b5943931fcac23bcc748a574e112d20884017",
+  "record_kind": "candidate_instruction_byte_pins",
+  "source_index_sha256": "b2fa5ff4b46366d20ddc086aa66b5ee05dcf27fff0ea02a4d324ef00aef3ca51",
+  "source_is_composite": true,
+  "stable_consumer_bridge_qualified": false,
+  "status": "status_alignment_review_pending",
+  "tooling_activation_performed": false,
+  "tree_completion_admitted": false,
+  "unassisted_onboarding_proven": false,
+  "whole_envelope_required": true,
+  "workspace_agent_mount_admitted": true,
+  "workspace_mount_profile": "Issue_first_independent_optional_fresh_create_first_fs_v4_separate"
+}

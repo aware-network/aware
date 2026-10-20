@@ -1,12 +1,11 @@
 # Aware filesystem workflow
 
-Agent **0.2.0a16**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not a predecessor's acquisition path. Issue-first
-useful work and optional SPEC stay independent; optional fresh Project/Goal
-creates direction, not work authority. Byte pins grant no operation or retry
-authority. The delivered a15 predecessor remains historical at
-`5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Both reviews and original guards remain.
+Agent **0.2.0a16**, with Issue CLI **0.8.4**, was published at `704b5943931fcac23bcc748a574e112d20884017`.
+Acquire that exact revision and retain the complete source/notice envelope.
+Issue-first useful work and optional SPEC remain independent of optional fresh
+Project/Goal direction. Both reviews and original guards remain required.
+This current-wording alignment changes neither software nor operation authority;
+its additional publication needs independent review and separate authorization.
 
 Historical freezes remain unchanged; installation does not admit customer work.
 Read [init summary streams and decisions](INIT.md); full receipts remain
@@ -445,7 +444,7 @@ Carried code does not admit A2/tree completion, services, objects,
 materialization, Goal-to-work workflows or broader native performance. Optional fresh Project/Goal direction is bounded separately below.
 Read [the entrance](../README.md) and retain complete source/notice carriage.
 
-## Reference navigation in the local candidate
+## Reference navigation in the delivered distribution
 
 The original [stdin and focused-history guide](workspace/REFERENCE-NAVIGATION.md)
 retains two explicit decisions. Workspace references do not replace original Issue observations. Its instruction pins
@@ -475,6 +474,6 @@ unassisted customer adoption. Project and Goal are not prerequisites.
 
 [Observe retained intent](workspace/ACTION-OBSERVATION.md) using the original review and intent references. The delivered predecessor was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Observation is not completion, current admission or retry authority. Both explicit reviews remain separate.
 
-## Optional direction branch with locally frozen instructions
+## Optional delivered direction branch
 
-[Fresh Project/Goal direction](PROJECT-GOAL.md) has locally frozen instructions pending independent review; it is not a prerequisite for useful Issue-first work or optional SPEC. No Goal-to-work authority is created.
+[Fresh Project/Goal direction](PROJECT-GOAL.md) is delivered as a separately bounded direction branch; it is not a prerequisite for useful Issue-first work or optional SPEC. No Goal-to-work authority is created.
