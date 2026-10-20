@@ -1,0 +1,24 @@
+[project]
+name = "aware-goal-operational-runtime"
+version = "0.1.0"
+description = "Materialization-independent Workflow Goal operation authority for Aware."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+requires-python = ">=3.12"
+authors = [{ name = "AWARE Team" }]
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8.4.2,<10.0.0"]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["aware_goal_operational_runtime"]
+include = ["aware_goal_operational_runtime/py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

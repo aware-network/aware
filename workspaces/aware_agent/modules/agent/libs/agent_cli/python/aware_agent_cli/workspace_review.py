@@ -592,6 +592,95 @@ def _terminal_text(value: str) -> str:
     return json.dumps(value, ensure_ascii=True)
 
 
+class _IntentPresentationError(Exception):
+    """Human rendering failed; the original operation payload stays untouched."""
+
+    def __init__(self, summary: str, original: BaseException) -> None:
+        super().__init__("original_intent_presentation_incomplete")
+        self.summary = summary
+        self.original = original
+        self.__cause__ = original
+
+
+def _intent_reference_lines(
+    payload: dict[str, Any],
+) -> tuple[list[str], BaseException | None]:
+    """Only declared original carriers; never read, search, pair or authorize."""
+    from aware_workspace_sdk.architecture_setup_review_codec import (
+        review_value_from_payload,
+        review_value_to_json,
+    )
+    from aware_workspace_sdk.architecture_setup_review_values import SetupEvidenceRef
+
+    candidates: dict[str, list[str]] = {}
+    try:
+        # These three paths are presentation inputs, not a reference discovery policy.
+        outcome = payload.get("outcome")
+        error = payload.get("error")
+        nested = None if error is None else error.get("outcome")
+        if payload.get("action") != "apply" and all(
+            carrier is None or carrier.get("retention") is None
+            for carrier in (outcome, error, nested)
+        ):
+            # Do not add intent instructions to ordinary preview/review output.
+            return [], None
+        for origin, carrier in (
+            ("outcome.retention.value.intent_ref", outcome),
+            ("error.retention.value.intent_ref", error),
+            ("error.outcome.retention.value.intent_ref", nested),
+        ):
+            if carrier is None:
+                continue
+            retention = carrier.get("retention")
+            if retention is None:
+                continue
+            body = retention["value"]
+            candidate = body.get("intent_ref")
+            if candidate is None:
+                continue
+            original = review_value_from_payload(SetupEvidenceRef, candidate)
+            serialized = review_value_to_json(original)
+            # ASCII terminal escaping only. Decoded JSON remains the exact SDK value.
+            displayed = json.dumps(
+                json.loads(serialized),
+                ensure_ascii=True,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            candidates.setdefault(displayed, []).append(origin)
+    except BaseException as error:  # noqa: BLE001 -- presentation cannot replace original effects/failure or hide interruption
+        return [
+            "Original retained intent reference presentation: incomplete; malformed or unrenderable known carrier.",
+            "Preserve full original values and stop reference selection. No observation request or mutation is authorized.",
+            "Presentation failure type: " + _terminal_text(type(error).__name__),
+        ], error
+    if not candidates:
+        return [
+            "Original retained intent reference: unavailable in this result.",
+            "Unavailable is not proof of non-admission, non-dispatch or safe retry. Stop this observation for missing original inputs.",
+            "Preserve original output; never repeat apply, refresh a guard, search filenames or invent a reference to recover it.",
+        ], None
+    if len(candidates) != 1:
+        return [
+            "Original retained intent references disagree; preserve full values and stop reference selection.",
+            *(
+                "Candidate from " + ", ".join(origins) + ": " + displayed
+                for displayed, origins in candidates.items()
+            ),
+            "No pair is selected and no observation or mutation command is built from these candidates.",
+        ], None
+    displayed, origins = next(iter(candidates.items()))
+    return [
+        "Original retained intent reference candidate (exact SDK JSON; pairing/action not validated by this display):",
+        displayed,
+        "Original source fields: " + ", ".join(origins),
+        "Preserve this candidate and the saved original second-review result that preceded this exact apply attempt, under the original repository/evidence roots.",
+        "An explicit observe-admission uses that second-review reference plus this candidate; the original owner validates all joins. This display validates no action or pairing.",
+        "--reference-from-stdin selects top-level /reference from the saved original second-review output, never the saved apply result. Apply/failure/outcome references are not the review; the candidate alone does not supply a missing review.",
+        "Do not automatically read, scan or refresh inputs. Observation establishes no completion, current admission or retry authority; never repeat apply for discovery.",
+    ], None
+
+
 def _action_observation_payload(
     value: Any, result: dict[str, Any] | None = None
 ) -> dict[str, Any]:
@@ -1015,12 +1104,17 @@ def _summary(payload: dict[str, Any], *, focus: str | None = None) -> str:
         lines.append(
             "No SDK evidence reference was returned here. Do not invent one or redispatch to manufacture a receipt."
         )
+    intent_lines, intent_error = _intent_reference_lines(payload)
+    lines.extend(intent_lines)
     lines.append(
         "No automatic retry or guard refresh. show accepts historical review records only; evidence reads retained refusals/outcomes and other supported kinds."
     )
     if payload.get("action") == "observe-admission":
         lines.append(_action_observation_summary(payload))
-    return "\n".join(lines)
+    summary = "\n".join(lines)
+    if intent_error is not None:
+        raise _IntentPresentationError(summary, intent_error)
+    return summary
 
 
 def _emit_review_output(text: str, stream: Any, *, end: str = "\n") -> bool:
@@ -1070,6 +1164,22 @@ def _handle(invocation: AwareCommandInvocation) -> int:
             if not raw_ok or not cleanup_ok:
                 return 130 if code == 130 else 3
         else:
+            summary = ""
+            presentation_failed = False
+            if not invocation.args.json:
+                try:
+                    summary = human_summary()
+                except _IntentPresentationError as error:
+                    summary = (
+                        error.summary
+                        + f"\nOriginal operation exit: {code}; intent-reference presentation is independently incomplete."
+                    )
+                    code = (
+                        130
+                        if code == 130 or not isinstance(error.original, Exception)
+                        else 3
+                    )
+                    presentation_failed = True
             failure = payload.get("error", {})
             outcome = payload.get("outcome") or payload.get("error", {}).get("outcome")
             scope = payload.get("scope_completion") or payload.get("error", {}).get(
@@ -1093,15 +1203,17 @@ def _handle(invocation: AwareCommandInvocation) -> int:
                     and not failed_retention.get("ledger_complete")
                 )
             )
-            unavailable_capture = unavailable_capture or _incomplete_owner_evidence(
-                payload
+            unavailable_capture = (
+                unavailable_capture
+                or presentation_failed
+                or _incomplete_owner_evidence(payload)
             )
             if unavailable_capture and not invocation.args.json:
                 # Each stream gets one independent attempt. A summary-channel
                 # failure must not suppress the available original full values.
                 human_ok = _emit_review_output(
                     f"Operation exit before reporting: {code}\n"
-                    + human_summary()
+                    + summary
                     + "\nFull available values for this invocation follow on stdout. "
                     "An earlier reference need not contain this failure/cleanup; "
                     "do not repeat the operation with --json to recover it.",
@@ -1120,7 +1232,7 @@ def _handle(invocation: AwareCommandInvocation) -> int:
             output_ok = _emit_review_output(
                 json.dumps(payload, sort_keys=True)
                 if invocation.args.json
-                else f"Operation exit before reporting: {code}\n" + human_summary(),
+                else f"Operation exit before reporting: {code}\n" + summary,
                 sys.stdout,
             )
             if not output_ok:

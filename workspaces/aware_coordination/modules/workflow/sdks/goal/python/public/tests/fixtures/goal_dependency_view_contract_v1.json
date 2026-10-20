@@ -1,0 +1,43 @@
+{
+  "schema_id": "aware.goal.dependency_view.v1",
+  "presentation_states": [
+    "not_evaluated",
+    "pending",
+    "satisfied",
+    "stale",
+    "unresolved"
+  ],
+  "lane_relationships": [
+    {
+      "prerequisite_goal_tag": "goal/example",
+      "prerequisite_lane_key": "foundation",
+      "dependent_goal_tag": "goal/example",
+      "dependent_lane_key": "delivery",
+      "dependency_keys": ["dependency-0"]
+    },
+    {
+      "prerequisite_goal_tag": "goal/external",
+      "prerequisite_lane_key": "review",
+      "dependent_goal_tag": "goal/example",
+      "dependent_lane_key": "delivery",
+      "dependency_keys": [
+        "dependency-1",
+        "dependency-2",
+        "dependency-3",
+        "dependency-4"
+      ]
+    }
+  ],
+  "cross_goal_relationships": [
+    {
+      "prerequisite_goal_tag": "goal/external",
+      "dependent_goal_tag": "goal/example",
+      "dependency_keys": [
+        "dependency-1",
+        "dependency-2",
+        "dependency-3",
+        "dependency-4"
+      ]
+    }
+  ]
+}

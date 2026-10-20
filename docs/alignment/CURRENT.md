@@ -65,3 +65,7 @@ pointer is not a package catalog or operation authority. Historical intent does
 not prove completion, current admission or retry authority. Preserve original
 uncertainty and both review decisions. Independent wording review and additional publication remain
 separate; no automatic refresh, approval or retry.
+
+## Prepared optional Project/Goal successor
+
+Agent a16 is prepared and unselected, not publicly available through this proposal. Issue-first remains independent. Original intent is not completion or retry authority; historical evaluations remain version-bound.

@@ -129,6 +129,26 @@ class FilesystemRepositoryCandidatePort:
 
         return reserve_configuration(self, claim)
 
+    def observe_initial_configuration_predecessor(self):
+        from .initial_configuration_successor import observe_predecessor
+
+        return observe_predecessor(self)
+
+    def reserve_initial_configuration_successor(self, claim):
+        from .initial_configuration_successor import reserve
+
+        return reserve(self, claim)
+
+    def initial_configuration_successor_attempt(self, request):
+        from .initial_configuration_successor import attempt
+
+        return attempt(self, request)
+
+    def observe_initial_configuration_origin(self, *, current=False):
+        from .initial_configuration_successor import origin
+
+        return origin(self, current=current)
+
     def initial_configuration_attempt(self, request):
         from .initial_authoring import configuration_attempt
 
@@ -457,6 +477,11 @@ class FilesystemRepositoryCandidatePort:
             raise ValueError("initial_configuration_candidate_invalid")
         return self._capture_initial_creation(request, content, configuration=True)
 
+    def capture_initial_configuration_successor(self, request, source):
+        from .initial_configuration_successor import capture
+
+        return capture(self, request, source)
+
     def capture_initial_project(self, request, source):
         from .initial_authoring import project_preimage
 
@@ -685,6 +710,10 @@ class FilesystemRepositoryCandidatePort:
                 from .initial_membership import verify_capture
 
                 verify_capture(self, capture)
+            if capture.initial_profile == "initial_configuration_successor":
+                from .initial_configuration_successor import staging_snapshot
+
+                staging_snapshot(self, capture, binding)
             if (
                 capture.preimages is not None
                 and capture.initial_profile != "initial_membership"
@@ -693,7 +722,8 @@ class FilesystemRepositoryCandidatePort:
                         "ls-files", "--stage", "--", *capture.request.target_paths
                     )
                     or (
-                        capture.initial_profile == "initial_configuration"
+                        capture.initial_profile
+                        in {"initial_configuration", "initial_configuration_successor"}
                         and self._git(
                             "for-each-ref", "--count=1", "--format=%(refname)"
                         )
@@ -738,6 +768,12 @@ class FilesystemRepositoryCandidatePort:
             repository_admission_ref=authorization.receipt_ref,
         )
         runner = writer._SubprocessGitRunner()
+        if authorization.profile == "initial_configuration_successor":
+            from .initial_configuration_successor import attributed_runner
+
+            runner = attributed_runner(
+                json.loads(state.capture.initial_source_json)["source"]
+            )
         command_log = []
         try:
             membership_snapshot = None
@@ -745,11 +781,16 @@ class FilesystemRepositoryCandidatePort:
                 from .initial_membership import staging_snapshot
 
                 membership_snapshot = staging_snapshot(state.capture, binding)
+            if authorization.profile == "initial_configuration_successor":
+                from .initial_configuration_successor import staging_snapshot
+
+                membership_snapshot = staging_snapshot(self, state.capture, binding)
             index = state.index = writer._prepare_repository_index_transaction(
                 repo_root=self._root, runner=runner, report=report
             )
             if authorization.profile in {
                 "initial_configuration",
+                "initial_configuration_successor",
                 "initial_project",
                 "initial_goal",
                 "initial_membership",
@@ -837,6 +878,7 @@ class FilesystemRepositoryCandidatePort:
             report.staged_paths = list(staged)
             if authorization.profile in {
                 "initial_configuration",
+                "initial_configuration_successor",
                 "initial_project",
                 "initial_goal",
                 "initial_membership",
@@ -845,7 +887,8 @@ class FilesystemRepositoryCandidatePort:
                     authorization.request_ref is None
                     or state.capture.initial_profile != authorization.profile
                     or (
-                        authorization.profile == "initial_configuration"
+                        authorization.profile
+                        in {"initial_configuration", "initial_configuration_successor"}
                         and binding.target_paths != ("aware.protocol.toml",)
                     )
                 ):
@@ -888,7 +931,17 @@ class FilesystemRepositoryCandidatePort:
             else:
                 raise ValueError("workspace_publication_authority_profile_invalid")
             publication_options = {}
-            if membership_snapshot is not None:
+            if authorization.profile == "initial_configuration_successor":
+                from .initial_configuration_successor import (
+                    staging_snapshot,
+                    verify_staged_index,
+                )
+
+                staging_snapshot(self, state.capture, binding)
+                publication_options["expected_tree_oid"] = verify_staged_index(
+                    self, index, runner, command_log, membership_snapshot
+                )
+            elif membership_snapshot is not None:
                 from .initial_membership import verify_capture, verify_staged_index
 
                 verify_capture(self, state.capture)

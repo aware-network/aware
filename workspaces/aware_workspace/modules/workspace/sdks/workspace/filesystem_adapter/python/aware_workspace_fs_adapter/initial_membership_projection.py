@@ -165,14 +165,21 @@ def _participants(attempt):
             record, intent, goal.source["content_utf8"].encode()
         )
         goal_record, goal_intent = record, intent
-    config = InitialConfigurationRequest.from_wire(
-        project.source["configuration_request"]
+    from aware_workspace_sdk.initial_authoring.configuration_successor import (
+        project_configuration_request,
     )
+
+    config = project_configuration_request(project.source)
     config_claim = config.to_wire()["configuration"]
     if type(config_claim) is not dict:
         raise ValueError("initial_membership_manifest_source_invalid")
     config_body = config_claim["content_utf8"].encode()
-    with configuration_attempt(attempt.port, config) as original:
+    manager = (
+        configuration_attempt(attempt.port, config)
+        if type(config) is InitialConfigurationRequest
+        else attempt.port.initial_configuration_successor_attempt(config)
+    )
+    with manager as original:
         record = _read_record(original.directory, "projection-result.json")
         intent = _read_record(original.directory, "projection-start.json")
         original._verify_projection(record, intent, config_body)

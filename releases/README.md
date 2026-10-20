@@ -58,3 +58,7 @@ pointer is not a package catalog or operation authority. Historical intent does
 not prove completion, current admission or retry authority. Preserve original
 uncertainty and both review decisions. Independent wording review and additional publication remain
 separate; no automatic refresh, approval or retry.
+
+## Prepared optional Project/Goal successor
+
+[canonical-project-goal-fs-v1](canonical-project-goal-fs-v1/README.md) is draft/unselected. Integration, selection, freeze and publication remain separate.

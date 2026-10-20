@@ -217,7 +217,7 @@ def test_original_public_handler_identities_are_mounted(family):
 
 def _assert_owned_metadata(project):
     assert project["project"]["name"] == "aware-agent-cli"
-    assert project["project"]["version"] == "0.2.0a15"
+    assert project["project"]["version"] == "0.2.0a16"
     assert project["project"]["optional-dependencies"] == {
         "goal": ["aware-goal-native-cli>=0.1.2,<0.2.0"],
     }

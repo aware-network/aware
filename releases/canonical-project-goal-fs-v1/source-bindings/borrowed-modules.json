@@ -1,0 +1,181 @@
+{
+  "modules": [
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/goal_customer.py",
+      "bytes": 25344,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_goal_fs_adapter/python/hatch_build.py",
+      "member": "aware_workflow/goal_customer.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/goal_customer.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "c30236f352a2c12610bbb1ca3487778a32f7ce4edab738e3c0c20e940106c90e",
+      "supplier": "aware-project-goal-fs-adapter"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/goal_planning_initial_intent.py",
+      "bytes": 1666,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_goal_fs_adapter/python/hatch_build.py",
+      "member": "aware_workflow/goal_planning_initial_intent.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/goal_planning_initial_intent.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "240c970b0290c62c2e91b03544246910818a47b291a43fab60b6c2a6766dbd07",
+      "supplier": "aware-project-goal-fs-adapter"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/goal_planning_initial_plan.py",
+      "bytes": 7294,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_goal_fs_adapter/python/hatch_build.py",
+      "member": "aware_workflow/goal_planning_initial_plan.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/goal_planning_initial_plan.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "ab8485c6563f98cc8d974e76fdd524b9315e749288549180781f18fe6a6c9a51",
+      "supplier": "aware-project-goal-fs-adapter"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/goal_planning_initial_publication.py",
+      "bytes": 790,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_goal_fs_adapter/python/hatch_build.py",
+      "member": "aware_workflow/goal_planning_initial_publication.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/goal_planning_initial_publication.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "b08f732454cac6a94ff6a24d30572511a5de1a61ecbc28f0720c81bee9a47b3a",
+      "supplier": "aware-project-goal-fs-adapter"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/goal_planning_initial_read.py",
+      "bytes": 7504,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_goal_fs_adapter/python/hatch_build.py",
+      "member": "aware_workflow/goal_planning_initial_read.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/goal_planning_initial_read.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "f51f63139fed23493d96c528cd6c7d597c31d4671a3590147006200f1d45c38b",
+      "supplier": "aware-project-goal-fs-adapter"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/goal_planning_initial_source.py",
+      "bytes": 5578,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_goal_fs_adapter/python/hatch_build.py",
+      "member": "aware_workflow/goal_planning_initial_source.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/goal_planning_initial_source.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "ab73c82c56d916249bf5dfd135ef0d930a5eb5d0f0cb9a0463f4de3852c86d8d",
+      "supplier": "aware-project-goal-fs-adapter"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_create_contract.py",
+      "bytes": 2307,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_runtime/python/hatch_build.py",
+      "member": "aware_workflow/project_create_contract.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_create_contract.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "08b403e3529acb2c01ee55552b2bd1ac382abd348ccfc697648fe016a04d5bb6",
+      "supplier": "aware-project-runtime"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_create_runtime.py",
+      "bytes": 2243,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_runtime/python/hatch_build.py",
+      "member": "aware_workflow/project_create_runtime.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_create_runtime.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "77abb9d1a8130c138a6d41b7330f9de3f1b9c6ddf3ff4b0a1c65046b30f2063e",
+      "supplier": "aware-project-runtime"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_customer.py",
+      "bytes": 16509,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_goal_fs_adapter/python/hatch_build.py",
+      "member": "aware_workflow/project_customer.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_customer.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "72e5ce278e58d3931e9011de72ba3b6c43c6868e2a593bbfe190d65a22ed4157",
+      "supplier": "aware-project-goal-fs-adapter"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_initial_membership.py",
+      "bytes": 13734,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_goal_fs_adapter/python/hatch_build.py",
+      "member": "aware_workflow/project_initial_membership.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_initial_membership.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "676962073379658039f7754d7b6594a03745f7bf71f2bec7056d3a94083b6092",
+      "supplier": "aware-project-goal-fs-adapter"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_initial_source.py",
+      "bytes": 11613,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_goal_fs_adapter/python/hatch_build.py",
+      "member": "aware_workflow/project_initial_source.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_initial_source.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "5bbc0d2d1fa7f7884340d17616f5e2cd8b96ea1bf0803af3bdc8e87aabe407fa",
+      "supplier": "aware-project-goal-fs-adapter"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_membership_contract.py",
+      "bytes": 6583,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_runtime/python/hatch_build.py",
+      "member": "aware_workflow/project_membership_contract.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_membership_contract.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "b1410fa9a24b032337b7eac565a4beaf10eb292d53ea13c1559c50c8a415cd18",
+      "supplier": "aware-project-runtime"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_membership_read.py",
+      "bytes": 6704,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_goal_fs_adapter/python/hatch_build.py",
+      "member": "aware_workflow/project_membership_read.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_membership_read.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "668814c7f7e0c9b722421f4e589c64eb13c9858c6c205d45a5d880ccdebecee3",
+      "supplier": "aware-project-goal-fs-adapter"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_read_contract.py",
+      "bytes": 9586,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_runtime/python/hatch_build.py",
+      "member": "aware_workflow/project_read_contract.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_read_contract.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "1593c0f206de4337a1dbefb38451ca88c3c58cdbfc7bed3eda2c16cb9c10bc85",
+      "supplier": "aware-project-runtime"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_read_runtime.py",
+      "bytes": 5453,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_runtime/python/hatch_build.py",
+      "member": "aware_workflow/project_read_runtime.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_read_runtime.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "cd0bf4a360608638d57d74aa15c78e18fc5e5212c73acce28a93deb0d084ed29",
+      "supplier": "aware-project-runtime"
+    },
+    {
+      "attached_path": "source/workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_source_codec.py",
+      "bytes": 1727,
+      "hook": "workspaces/aware_coordination/modules/workflow/libs/project_runtime/python/hatch_build.py",
+      "member": "aware_workflow/project_source_codec.py",
+      "mode": "100644",
+      "path": "workspaces/aware_coordination/modules/workflow/ontology/runtime/python/aware_workflow/project_source_codec.py",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "5200f621d5bb3ce14a18f8d6fc4aea133ac6889cc64c6a2b890183b8e15dabdd",
+      "supplier": "aware-project-runtime"
+    }
+  ],
+  "qualification": "Exact original namespace-fragment modules selected by original supplier hatch hooks; broad aware-workflow distribution is not selected."
+}

@@ -1,0 +1,343 @@
+// Authored Workspace A1 descriptive contracts; no decoded value issues authority.
+// Numeric/path constraints are enforced by the original strict owner codec.
+
+enum ClientReleaseOutcome {
+    not_attempted
+    confirmed
+    failed
+    unknown
+}
+
+enum Confinement {
+    descriptor_walk_v1
+}
+
+enum DispatchState {
+    not_attempted
+    attempted
+    returned
+}
+
+enum DurabilityState {
+    not_confirmed
+    confirmed
+    unknown
+}
+
+enum EffectState {
+    none
+    applied
+    unknown
+}
+
+enum FileKind {
+    create
+    update
+}
+
+enum ModePolicy {
+    legacy_kernel_umask_restore_existing_v1
+}
+
+enum ObservationState {
+    not_observed
+    observed
+    unavailable
+}
+
+enum Operation {
+    repository
+    workspace
+    module
+    python_package
+    package_manager
+}
+
+enum Ownership {
+    owned
+    borrowed
+    released
+    unknown
+}
+
+enum PackageOwner {
+    repository
+    workspace
+    module
+}
+
+enum Phase {
+    preparing
+    prepared
+    admitted
+    enrolled
+    spent
+    executing
+    completed
+    retired
+}
+
+enum PrimaryFailureState {
+    none
+    observed
+    unknown
+}
+
+enum ReceiptStatus {
+    succeeded
+    unchanged
+    rejected
+    uncertain
+}
+
+enum ReleaseOutcome {
+    confirmed
+    failed
+    unknown
+}
+
+enum ResourceKind {
+    root_descriptor
+    directory_descriptor
+    file_descriptor
+    scratch_descriptor
+    lease
+    logical_keeper
+    temporary_buffer
+}
+
+enum ScratchCleanup {
+    original_identity_only_no_rollback
+}
+
+enum ScratchCollision {
+    retire_without_reselection
+}
+
+enum ScratchNameSelection {
+    prepared_once_v1
+}
+
+enum StepKind {
+    ancestor_create
+    ancestor_sync
+    scratch_create
+    scratch_write
+    scratch_restore_mode
+    scratch_sync
+    scratch_close
+    target_link
+    scratch_unlink
+    target_replace
+    parent_sync
+    resource_release
+}
+
+class WorkspaceAuthorizedSetupResult : inline_value {
+    binding WorkspaceSetupPlanBinding
+    original_receipt ArchitectureSetupReceipt
+    effects WorkspaceSetupPhysicalEffect[]
+    remaining_effects WorkspaceSetupPhysicalStep[]
+    scratch_residue String[]
+    release ReleaseOutcome
+    durability DurabilityState
+    diagnostics String[]
+    ledger_complete Bool
+    resources WorkspaceSetupResourceEvidence[]
+    primary_failure WorkspaceSetupPrimaryFailure
+}
+
+class WorkspaceSetupAncestorGuard : inline_value {
+    path String
+    observation WorkspaceSetupDirectoryObservation
+}
+
+class WorkspaceSetupCleanup : inline_value {
+    binding WorkspaceSetupPlanBinding? required
+    phase Phase
+    resources WorkspaceSetupResourceEvidence[]
+    scratch_residue String[]
+    release ReleaseOutcome
+    diagnostics String[]
+    ledger_complete Bool
+}
+
+class WorkspaceSetupClientCleanup : inline_value {
+    provider_ref String? required
+    provider_generation String? required
+    client_ref String? required
+    resources WorkspaceSetupResourceEvidence[]
+    attempted Bool
+    outcome ClientReleaseOutcome
+    primary_failure WorkspaceSetupPrimaryFailure
+    diagnostics String[]
+    ledger_complete Bool
+}
+
+class WorkspaceSetupDirectoryObservation : inline_value {
+    state ObservationState
+    exists Bool? required
+    device Int? required
+    inode Int? required
+    mode Int? required
+    mtime_ns Int? required
+    ctime_ns Int? required
+}
+
+class WorkspaceSetupFileObservation : inline_value {
+    state ObservationState
+    exists Bool? required
+    device Int? required
+    inode Int? required
+    mode Int? required
+    size_bytes Int? required
+    mtime_ns Int? required
+    ctime_ns Int? required
+    content_sha256 String? required
+}
+
+class WorkspaceSetupFileTransition : inline_value {
+    file_ordinal Int
+    kind FileKind
+    path String
+    before WorkspaceSetupFileObservation
+    candidate_sha256 String
+    candidate_size_bytes Int
+    scratch_path String
+    mode_policy ModePolicy
+}
+
+class WorkspaceSetupInputBinding : inline_value {
+    path String
+    observation WorkspaceSetupFileObservation
+}
+
+class WorkspaceSetupLimits : inline_value {
+    ancestor_guards Int
+    binding_metadata_bytes Int
+    created_ancestor_paths Int
+    file_bytes Int
+    file_transitions Int
+    input_files Int
+    path_components Int
+    path_utf8_bytes Int
+    physical_step_count Int
+    retained_before_and_after_bytes Int
+    scratch_paths Int
+    simultaneous_live_scratch Int
+    simultaneous_owned_descriptors Int
+}
+
+class WorkspaceSetupPhysicalEffect : inline_value {
+    ordinal Int
+    kind StepKind
+    primary_path String
+    auxiliary_paths String[]
+    dispatch_state DispatchState
+    effect_state EffectState
+    before WorkspaceSetupFileObservation
+    after WorkspaceSetupFileObservation
+    requested_mode Int? required
+    observed_mode Int? required
+    durability DurabilityState
+    original_error String? required
+}
+
+class WorkspaceSetupPhysicalStep : inline_value {
+    ordinal Int
+    file_ordinal Int
+    kind StepKind
+    primary_path String
+    auxiliary_paths String[]
+    preconditions WorkspaceSetupPreconditions
+    mode_policy ModePolicy
+    requested_mode Int? required
+    candidate_sha256 String
+    candidate_size_bytes Int
+    resource_refs String[]
+    cleanup_refs String[]
+}
+
+class WorkspaceSetupPlanBinding : inline_value {
+    provider_ref String
+    provider_generation String
+    repository_root String
+    repository_identity Int[]
+    plan_ref String
+    attempt_ref String
+    operation Operation
+    request_sha256 String
+    plan_sha256 String
+    input_bindings WorkspaceSetupInputBinding[]
+    file_transitions WorkspaceSetupFileTransition[]
+    ancestor_guards WorkspaceSetupAncestorGuard[]
+    ordered_effects WorkspaceSetupPhysicalStep[]
+    scratch_policy WorkspaceSetupScratchPolicy
+    limits WorkspaceSetupLimits
+    physical_provider_ref String
+    physical_provider_generation String
+    physical_preparation_ref String
+    process_id Int
+    thread_id Int
+    confinement_profile Confinement
+    mode_policy ModePolicy
+}
+
+class WorkspaceSetupPlanObservation : inline_value {
+    binding WorkspaceSetupPlanBinding? required
+    phase Phase
+    next_effect_ordinal Int
+    resources WorkspaceSetupResourceEvidence[]
+    primary_failure WorkspaceSetupPrimaryFailure
+    ledger_complete Bool
+}
+
+class WorkspaceSetupPreconditions : inline_value {
+    root_identity Int[]
+    ancestor_guards WorkspaceSetupAncestorGuard[]
+    target WorkspaceSetupFileObservation? required
+    scratch WorkspaceSetupFileObservation? required
+}
+
+
+class WorkspaceSetupResourceEvidence : inline_value {
+    resource_ref String
+    provider_ref String
+    kind ResourceKind
+    path String? required
+    ownership Ownership
+    release_attempted Bool
+    release_outcome ReleaseOutcome
+    diagnostics String[]
+}
+
+class WorkspaceSetupScratchPolicy : inline_value {
+    name_selection ScratchNameSelection
+    collision ScratchCollision
+    cleanup ScratchCleanup
+    simultaneous_live_scratch Int
+}
+
+class ArchitectureSetupRequest : inline_value {
+    operation Operation
+    name String
+    workspace String
+    module String
+    path String
+    distribution String
+    import_root String
+    version String
+    requires_python String
+    dependencies String[]
+    license_expression String
+    owner PackageOwner
+}
+
+class ArchitectureSetupReceipt : inline_value {
+    operation Operation
+    plan_sha256 String
+    status ReceiptStatus
+    written_paths String[]
+    remaining_paths String[]
+    diagnostics String[]
+}

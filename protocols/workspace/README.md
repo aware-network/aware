@@ -21,3 +21,5 @@ decisions and original guards. It does not automate Issue guard handling.
 [A14 resource summaries](RESOURCE-RELEASES.md) are included in the delivered a14 software. Both reviews and original Issue guards remain.
 
 [Delivered historical action observation](ACTION-OBSERVATION.md) validates original intent, not completion or current-use authority. Current instructions describe the software delivered at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
+
+The draft a16 successor adds original-intent candidate discovery; candidates are not validated pairs or retry permission. See [observation](ACTION-OBSERVATION.md) and [optional direction](../PROJECT-GOAL.md).

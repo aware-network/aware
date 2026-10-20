@@ -1,0 +1,3 @@
+// Original command v1 declarations remain in architecture_setup_admission_ports.aware.
+// The Python classes moved once to architecture_setup_command_values; the old
+// command module reexports those same objects. Do not duplicate their declarations.

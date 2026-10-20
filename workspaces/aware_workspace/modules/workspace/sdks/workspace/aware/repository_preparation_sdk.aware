@@ -1,0 +1,20 @@
+// Canonical operation identity is independent of the Workspace type namespace.
+sdk repository_sdk {
+    surface repository {
+        method prepare {
+            operation prepare_repository;
+            method_family ensure;
+            effect write;
+            mutation_scope local_filesystem;
+            confirmation_policy required;
+            execution_mode request_response;
+            runtime_binding_kind provider;
+        }
+    }
+    operation prepare_repository {
+        request_type aware_workspace_sdk.RepositoryPrepareRequest;
+        result_type aware_workspace_sdk.RepositoryPrepareResult;
+        error_type aware_workspace_sdk.RepositoryPreparationErrorEvidence;
+        provider_operation repository.prepare;
+    }
+}

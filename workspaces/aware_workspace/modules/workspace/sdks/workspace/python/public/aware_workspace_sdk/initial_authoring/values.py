@@ -250,6 +250,17 @@ def configuration_request(enrollment, config, idempotency_key):
     )
 
 
+def _project_configuration_request(source):
+    if source.get("schema_id") == "aware.project.initial-source.v2":
+        # Optional versioned codec entrance; no static values/successor cycle.
+        import importlib
+
+        return importlib.import_module(
+            "aware_workspace_sdk.initial_authoring.configuration_successor"
+        ).project_configuration_request(source)
+    return InitialConfigurationRequest.from_wire(source["configuration_request"])
+
+
 @dataclass(frozen=True, slots=True)
 class InitialProjectRequest:
     """Exact first-Project byte effect, not a Project semantic verdict.
@@ -273,6 +284,10 @@ class InitialProjectRequest:
         ):
             raise ValueError("initial_project_request_types_invalid")
         source = json.loads(self.source_json)
+        successor = (
+            type(source) is dict
+            and source.get("schema_id") == "aware.project.initial-source.v2"
+        )
         if (
             type(source) is not dict
             or set(source)
@@ -280,7 +295,7 @@ class InitialProjectRequest:
                 "schema_id",
                 "repository_root",
                 "execution_id",
-                "configuration_request",
+                "configuration_origin" if successor else "configuration_request",
                 "configuration_publication_ref",
                 "configuration_projection_ref",
                 "expected_head",
@@ -294,7 +309,7 @@ class InitialProjectRequest:
             or len(self.source_json.encode("utf-8")) > 524288
         ):
             raise ValueError("initial_project_source_shape_invalid")
-        config = InitialConfigurationRequest.from_wire(source["configuration_request"])
+        config = _project_configuration_request(source)
         configuration = config.to_wire()["configuration"]
         if type(configuration) is not dict:
             raise ValueError("initial_project_configuration_invalid")
@@ -310,7 +325,12 @@ class InitialProjectRequest:
         content = plan["content_utf8"]
         path = source["target_path"]
         if (
-            source["schema_id"] != "aware.project.initial-source.v1"
+            source["schema_id"]
+            != (
+                "aware.project.initial-source.v2"
+                if successor
+                else "aware.project.initial-source.v1"
+            )
             or source["repository_root"] != configuration["repository_root"]
             or source["execution_id"] != config.execution_id
             or type(path) is not str
@@ -358,10 +378,17 @@ class InitialProjectRequest:
             else:
                 raise ValueError("initial_project_parent_inventory_invalid")
         for key, domain in (
-            ("configuration_publication_ref", "workspace-initial-publication"),
+            (
+                "configuration_publication_ref",
+                "workspace-initial-configuration-successor-publication"
+                if successor
+                else "workspace-initial-publication",
+            ),
             (
                 "configuration_projection_ref",
-                "workspace-initial-configuration-projection",
+                "workspace-initial-configuration-successor-projection"
+                if successor
+                else "workspace-initial-configuration-projection",
             ),
             ("manifest_sha256", ""),
         ):
@@ -385,8 +412,21 @@ class InitialProjectRequest:
             {k: v for k, v in source.items() if k != "source_ref"},
         ):
             raise ValueError("initial_project_source_reference_invalid")
+        if successor:
+            effective = source["configuration_origin"]["effective"]
+            if (
+                source["configuration_publication_ref"]
+                != effective["publication"]["publication_ref"]
+                or source["configuration_projection_ref"]
+                != effective["projection"]["projection_ref"]
+                or source["expected_head"]
+                != effective["publication"]["original_result"]["commit_hash"]
+            ):
+                raise ValueError("initial_project_successor_epoch_mismatch")
         body = {
-            "schema_id": "aware.workspace.initial-project-request.v1",
+            "schema_id": "aware.workspace.initial-project-request.v2"
+            if successor
+            else "aware.workspace.initial-project-request.v1",
             "profile": PROFILE,
             "operation_key": "publish_initial_project_context",
             "source": source,
@@ -404,9 +444,7 @@ class InitialProjectRequest:
 
     @property
     def enrollment_ref(self):
-        return InitialConfigurationRequest.from_wire(
-            self.source["configuration_request"]
-        ).enrollment_ref
+        return _project_configuration_request(self.source).enrollment_ref
 
     @property
     def execution_id(self):
@@ -435,7 +473,9 @@ class InitialProjectRequest:
 
 def project_request(source, idempotency_key):
     body = {
-        "schema_id": "aware.workspace.initial-project-request.v1",
+        "schema_id": "aware.workspace.initial-project-request.v2"
+        if source.get("schema_id") == "aware.project.initial-source.v2"
+        else "aware.workspace.initial-project-request.v1",
         "profile": PROFILE,
         "operation_key": "publish_initial_project_context",
         "source": source,

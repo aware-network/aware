@@ -60,6 +60,13 @@ class _InitialConfigurationAuthorization:
 
 
 @dataclass(frozen=True)
+class _InitialConfigurationSuccessorAuthorization:
+    receipt_ref: str
+    request_ref: str
+    profile = "initial_configuration_successor"
+
+
+@dataclass(frozen=True)
 class _InitialProjectAuthorization:
     receipt_ref: str
     request_ref: str
@@ -262,6 +269,7 @@ class WorkspaceRepositoryPublicationRuntime:
         *,
         reconciliation=None,
         initial_configuration=None,
+        initial_configuration_successor=None,
         initial_project=None,
         initial_goal=None,
         initial_membership=None,
@@ -293,6 +301,7 @@ class WorkspaceRepositoryPublicationRuntime:
                     for item in (
                         reconciliation,
                         initial_configuration,
+                        initial_configuration_successor,
                         initial_project,
                         initial_goal,
                         initial_membership,
@@ -302,24 +311,34 @@ class WorkspaceRepositoryPublicationRuntime:
             ):
                 raise ValueError("workspace_publication_profiles_conflict")
             captured = (
-                self._physical.capture_initial_membership(request, initial_membership)
-                if initial_membership is not None
+                self._physical.capture_initial_configuration_successor(
+                    request, initial_configuration_successor
+                )
+                if initial_configuration_successor is not None
                 else (
-                    self._physical.capture_initial_goal(request, initial_goal)
-                    if initial_goal is not None
+                    self._physical.capture_initial_membership(
+                        request, initial_membership
+                    )
+                    if initial_membership is not None
                     else (
-                        self._physical.capture_initial_project(request, initial_project)
-                        if initial_project is not None
+                        self._physical.capture_initial_goal(request, initial_goal)
+                        if initial_goal is not None
                         else (
-                            self._physical.capture_initial_configuration(
-                                request, initial_configuration
+                            self._physical.capture_initial_project(
+                                request, initial_project
                             )
-                            if initial_configuration is not None
+                            if initial_project is not None
                             else (
-                                self._physical.capture_candidate(request)
-                                if reconciliation is None
-                                else self._physical.capture_reconciliation(
-                                    request, reconciliation
+                                self._physical.capture_initial_configuration(
+                                    request, initial_configuration
+                                )
+                                if initial_configuration is not None
+                                else (
+                                    self._physical.capture_candidate(request)
+                                    if reconciliation is None
+                                    else self._physical.capture_reconciliation(
+                                        request, reconciliation
+                                    )
                                 )
                             )
                         )
@@ -354,7 +373,9 @@ class WorkspaceRepositoryPublicationRuntime:
                 binding,
                 observation,
                 capture=captured,
-                purpose="initial_membership"
+                purpose="initial_configuration_successor"
+                if initial_configuration_successor is not None
+                else "initial_membership"
                 if initial_membership is not None
                 else "initial_goal"
                 if initial_goal is not None
@@ -561,6 +582,7 @@ class WorkspaceRepositoryPublicationRuntime:
         if self._snapshot_handle(plan).purpose in {
             "initial_membership",
             "initial_configuration",
+            "initial_configuration_successor",
             "initial_project",
             "initial_goal",
         }:
@@ -730,6 +752,7 @@ class WorkspaceRepositoryPublicationRuntime:
         *,
         reconciliation=False,
         initial_configuration=False,
+        initial_configuration_successor=False,
         initial_project=False,
         initial_goal=False,
         initial_membership=False,
@@ -753,6 +776,7 @@ class WorkspaceRepositoryPublicationRuntime:
                 (
                     initial_project,
                     initial_configuration,
+                    initial_configuration_successor,
                     initial_goal,
                     initial_membership,
                     reconciliation,
@@ -763,13 +787,18 @@ class WorkspaceRepositoryPublicationRuntime:
             raise ValueError("workspace_publication_profiles_conflict")
         initial = (
             initial_configuration
+            or initial_configuration_successor
             or initial_project
             or initial_goal
             or initial_membership
         )
         self._current()
         with self._lock:
-            if initial_membership:
+            if initial_configuration_successor:
+                from .initial_configuration_successor import require_work
+
+                state = require_work(self, admission)
+            elif initial_membership:
                 from .initial_membership import require_initial_membership_work
 
                 state = require_initial_membership_work(self, admission)
@@ -795,6 +824,8 @@ class WorkspaceRepositoryPublicationRuntime:
                 or (original.purpose == "index_reconciliation") != reconciliation
                 or (original.purpose == "initial_configuration")
                 != initial_configuration
+                or (original.purpose == "initial_configuration_successor")
+                != initial_configuration_successor
                 or (original.purpose == "initial_project") != initial_project
                 or (original.purpose == "initial_goal") != initial_goal
                 or (original.purpose == "initial_membership") != initial_membership
@@ -849,7 +880,11 @@ class WorkspaceRepositoryPublicationRuntime:
                     state,
                     self._physical,
                     state.transaction,
-                    _InitialMembershipAuthorization(
+                    _InitialConfigurationSuccessorAuthorization(
+                        state.lease.receipt_ref, binding.attempt_ref
+                    )
+                    if initial_configuration_successor
+                    else _InitialMembershipAuthorization(
                         state.lease.receipt_ref, binding.attempt_ref
                     )
                     if initial_membership

@@ -239,6 +239,41 @@ class WorkspaceRepositoryPublicationClient:
             self._provider, enrollment, protocol_plan, idempotency_key
         )
 
+    def prepare_initial_configuration_successor(self):
+        from aware_workspace_runtime.initial_configuration_successor import prepare
+
+        return prepare(self._provider)
+
+    def admit_initial_configuration_successor(self, plan):
+        from aware_workspace_runtime.initial_configuration_successor import admit
+
+        return admit(self._provider, plan)
+
+    def publish_initial_configuration_successor(self, admission):
+        from aware_workspace_runtime.initial_configuration_successor import publish
+
+        return publish(self._provider, admission)
+
+    def observe_initial_configuration_successor(self):
+        from aware_workspace_runtime.initial_configuration_successor import observe
+
+        return observe(self._provider)
+
+    def project_initial_configuration_successor(self):
+        from aware_workspace_runtime.initial_configuration_successor import observe
+
+        return observe(self._provider, project=True)
+
+    def observe_initial_configuration_successor_projection(self):
+        from aware_workspace_runtime.initial_configuration_successor import observe
+
+        return observe(self._provider, project=True, read_only=True)
+
+    def observe_initial_configuration_origin(self, *, current=False):
+        from aware_workspace_runtime.initial_configuration_successor import origin
+
+        return origin(self._provider, current=current)
+
     def admit_initial_configuration(self, plan):
         from aware_workspace_runtime.initial_authoring import (
             admit_initial_configuration,

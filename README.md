@@ -1,10 +1,6 @@
 # Aware
 
-Agent **0.2.0a15**, with Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
-Acquire that exact revision and retain its complete source/notice envelope.
-This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required. Additional publication of this
-wording alignment requires independent review and separate authorization.
+Draft instructions for prepared, unselected Agent a16; not public availability.
 
 Coherent work between agents in your Git repository.
 
@@ -24,8 +20,23 @@ criteria, not a prewritten implementation or mandatory task.
 
 Today's path is **Issue → optional SPEC → bounded work → verification → local
 publication and closeout**. A generated manifest is setup, not completion of the
-customer's application. Project/Goal direction and language/Meta materialization
-are parallel future elevations, not prerequisites for this path.
+customer's application. Optional prepared Project/Goal direction is a separate fresh-repository branch.
+Language/Meta elevation remains parallel; neither is a prerequisite for this path.
+
+## Prepared optional Project/Goal and original-intent presentation
+
+Agent **0.2.0a16** / Issue CLI **0.8.4**, 49 payload distributions, is prepared
+and unselected. Instructions are draft, not public availability. Start with
+[useful customer code](protocols/FIRST-USEFUL-TASK.md); Issue-first and optional
+SPEC remain independent. For a fresh repository only, see the separate
+[optional Project/Goal branch](protocols/PROJECT-GOAL.md). It creates direction,
+not work authority, and does not provide Goal-to-Issue, decomposition or RUN.
+
+The delivered predecessor is Agent a15 at
+`5af88a6b95b928811022e5cd0255e4bb5c77bd87`; local wording baseline is
+`3f70fcf57e56708a1e1f8c0b52a10e2eb812da6d`. This private proposal does not replace that published evidence.
+The proposed installer targets this successor and retains its entire envelope.
+Selection, instruction freeze, publication and new client trials are separate.
 
 ## Delivered historical action observation
 
@@ -77,21 +88,16 @@ the limits. Existing useful-task and implementation/draft branches are unchanged
 Workspace stdin/focus does not automate Issue guards. Review provenance does not
 grant authority; do not overlay installations or migrate contributor commands.
 
-## Acquire and install the exact delivered revision
+## Proposed whole-envelope installation (draft)
 
-Agent **0.2.0a11**, with its 42-package closure, was published at
-[`faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89`](https://github.com/aware-network/aware/tree/faed3f46668a3ec111d8fbf4cf1d5a287d5e1b89).
-That predecessor and the CLI 0.8.4/Agent a14 distribution at
-`813ab2e82f7ff0fa24403c6889bf82e2c8b121fb` remain available as history.
-For current Agent a15 acquire exact revision `5af88a6b95b928811022e5cd0255e4bb5c77bd87`
-and use its whole-envelope installer. Do not mix predecessor commands or
-acquisition paths with successor guidance.
-Verify exact payload/envelope provenance before reusing any installation;
-a matching version label alone is insufficient. No operation authority follows.
+The unchanged operational block below targets the prepared a16 envelope through
+the original installer. Do not run it during layout review. Verify exact
+envelope/payload provenance before reusing an installation; version labels alone
+are insufficient. Do not mix predecessor installations with this proposal.
 
 Requires Linux x86-64, Git and an actual Python 3.12 interpreter. Inspect
-[complete terms and sources](releases/canonical-action-observer-fs-v1/README.md)
-and keep the whole envelope. Six detached-wheel legal gaps remain unresolved;
+[complete terms and sources](releases/canonical-project-goal-fs-v1/README.md)
+and keep the whole envelope. Nine detached-wheel legal gaps remain unresolved;
 wheel-only delivery, stripped bundles and registry publication are unaccepted.
 From this reviewed checkout root, use the original installer once:
 

@@ -1,0 +1,356 @@
+// Authored closed tree-projection metadata; no live handle or raw-body codec.
+
+enum TreeKind {
+    CREATE
+    UPDATE
+    DELETE
+}
+
+enum AncestorIntent {
+    create
+    preserve
+}
+
+enum ConfinementProfile {
+    descriptor_walk_v1
+}
+
+enum ScratchRole {
+    replacement_body
+}
+
+enum ScratchKind {
+    create
+    mode
+    unlink
+    sync
+}
+
+enum PlanPhase {
+    prepared
+    enrolled
+    spending
+    spent
+    held
+    released
+}
+
+enum ResultPhase {
+    prepared
+    partial
+    complete
+    held
+    released
+}
+
+enum TransitionKind {
+    CREATE
+    UPDATE
+    DELETE
+    directory_create
+    directory_preserve
+}
+
+enum PhysicalEffectKind {
+    directory_create
+    file_create
+    file_replace
+    file_delete
+    mode_update
+    scratch_create
+    scratch_unlink
+    directory_sync
+    file_sync
+    descriptor_release
+}
+
+enum EffectState {
+    none
+    applied
+    unknown
+}
+
+enum CompletionState {
+    not_started
+    partial
+    complete
+    unknown
+}
+
+enum ConvergenceState {
+    not_verified
+    matched
+    mismatched
+    unknown
+}
+
+enum RetentionState {
+    not_attempted
+    retained
+    unavailable
+    unknown
+}
+
+enum IndexState {
+    not_attempted
+    persisted
+    unavailable
+    unknown
+}
+
+enum ResourceOwnership {
+    owned
+    borrowed
+    released
+    unknown
+}
+
+enum CleanupState {
+    not_attempted
+    completed
+    incomplete
+    unknown
+}
+
+enum VerificationState {
+    not_attempted
+    verified
+    refused
+    unknown
+}
+
+enum ResolutionState {
+    known
+    incomplete
+    unknown
+    historical_descriptive
+}
+
+enum RefusalCode {
+    malformed_request
+    source_unavailable
+    stale_source
+    stale_target
+    target_authority_mismatch
+    quota_exceeded
+    issue_unavailable
+    issue_refused
+    physical_unavailable
+    physical_refused
+    original_owner_required
+    retired
+    unsupported_profile
+    retention_unavailable
+    index_unavailable
+    cleanup_unknown
+}
+
+class WorkspaceTreeFileIntent : inline_value {
+    path String
+    kind TreeKind
+    source_output_path String?
+    requested_mode Int?
+}
+
+class WorkspaceTreeAncestorIntent : inline_value {
+    path String
+    intent AncestorIntent
+    requested_mode Int?
+}
+
+class WorkspaceTreeProjectionRequest : inline_value {
+    workflow_ref String
+    layout_ref String
+    invocation_ref String
+    expected_source_binding WorkspaceWorkflowSourceBinding
+    files WorkspaceTreeFileIntent[]
+    ancestors WorkspaceTreeAncestorIntent[]
+    confinement_profile ConfinementProfile
+    limits WorkspaceTreeLimits
+}
+
+class WorkspaceTreeLimits : inline_value {
+    maximum_file_transitions Int
+    maximum_ancestors Int
+    maximum_file_bytes Int
+    maximum_combined_body_bytes Int
+    maximum_metadata_bytes Int
+    maximum_path_utf8_bytes Int
+    maximum_live_descriptors Int
+    maximum_retained_bodies Int
+    maximum_retained_captures Int
+    maximum_retained_deltas Int
+}
+
+class WorkspaceTreeEntryPin : inline_value {
+    exists Bool
+    device Int?
+    inode Int?
+    size_bytes Int?
+    mtime_ns Int?
+    ctime_ns Int?
+    mode Int?
+    link_count Int?
+    content_digest String?
+}
+
+class WorkspaceTreeFileTransition : inline_value {
+    path String
+    kind TreeKind
+    source_output_path String?
+    source_path String?
+    before WorkspaceTreeEntryPin
+    before_body_ref String?
+    successor_body_ref String?
+    successor_digest String?
+    successor_size_bytes Int?
+    requested_mode Int?
+}
+
+class WorkspaceTreeAncestorTransition : inline_value {
+    path String
+    intent AncestorIntent
+    before WorkspaceTreeEntryPin
+    requested_mode Int?
+}
+
+class WorkspaceTreeScratchEffect : inline_value {
+    path String
+    role ScratchRole
+    ordinal Int
+    kind ScratchKind
+    requested_mode Int?
+}
+
+class WorkspaceTreeProjectionBinding : inline_value {
+    plan_ref String
+    provider_ref String
+    provider_generation String
+    execution_id String
+    process_id Int
+    thread_id Int
+    target_repository_binding_ref String
+    target_root_identity Int[]
+    source_binding WorkspaceWorkflowSourceBinding
+    observation_coordinate RepositoryObservationCoordinate
+    workflow_ref String
+    layout_ref String
+    invocation_ref String
+    request_digest String
+    physical_preparation_ref String
+    physical_request_ref String
+    physical_request_digest String
+    transition_sequence_digest String
+    transition_count Int
+    files WorkspaceTreeFileTransition[]
+    ancestors WorkspaceTreeAncestorTransition[]
+    scratch_effects WorkspaceTreeScratchEffect[]
+    effect_paths String[]
+    read_guard_paths String[]
+    limits WorkspaceTreeLimits
+    binding_ref String
+}
+
+class WorkspaceTreeProjectionPlanObservation : inline_value {
+    binding WorkspaceTreeProjectionBinding
+    phase PlanPhase
+    cleanup WorkspaceTreeProjectionCleanupObservation
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class WorkspaceTreePhysicalEffect : inline_value {
+    effect_ref String
+    ordinal Int
+    path String
+    role String
+    kind PhysicalEffectKind
+    state EffectState
+    before_identity Int[]?
+    after_identity Int[]?
+    before_digest String?
+    after_digest String?
+    before_size_bytes Int?
+    after_size_bytes Int?
+    before_mode Int?
+    after_mode Int?
+    durability_confirmed Bool
+    error_ref String?
+}
+
+class WorkspaceTreeTransitionReceipt : inline_value {
+    binding_ref String
+    invocation_ref String
+    consumption_ref String
+    physical_preparation_ref String
+    ordinal Int
+    path String
+    kind TransitionKind
+    physical_effects WorkspaceTreePhysicalEffect[]
+    before WorkspaceTreeEntryPin
+    after WorkspaceTreeEntryPin?
+    mutation_receipt_ref String?
+    capture_ref String?
+    delta_ref String?
+    effect_state EffectState
+    completion_state CompletionState
+    durability_confirmed Bool
+    convergence_state ConvergenceState
+    body_retention_state RetentionState
+    index_state IndexState
+    error_refs String[]
+    cleanup WorkspaceTreeProjectionCleanupObservation
+}
+
+class WorkspaceTreeResourceCleanup : inline_value {
+    resource_ref String
+    kind String
+    path String?
+    ownership ResourceOwnership
+    cleanup_attempted Bool
+    cleanup_state CleanupState
+    diagnostics String[]
+}
+
+class WorkspaceTreeProjectionCleanupObservation : inline_value {
+    binding_ref String?
+    resources WorkspaceTreeResourceCleanup[]
+    residual_scratch String[]
+    cleanup_state CleanupState
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class WorkspaceTreeProjectionObservation : inline_value {
+    result_ref String
+    binding WorkspaceTreeProjectionBinding
+    consumption_ref String?
+    receipts WorkspaceTreeTransitionReceipt[]
+    completed_prefix Int
+    pending_ordinal Int?
+    phase ResultPhase
+    final_entries WorkspaceTreeEntryPin[]
+    source_verification_state VerificationState
+    mode_verification_state VerificationState
+    ancestor_verification_state VerificationState
+    body_retention_state RetentionState
+    index_state IndexState
+    effect_state EffectState
+    cleanup WorkspaceTreeProjectionCleanupObservation
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class WorkspaceTreeProjectionResolution : inline_value {
+    observation WorkspaceTreeProjectionObservation
+    resolution_state ResolutionState
+    authorizes_retry Bool
+}
+
+class WorkspaceTreeProjectionRefusalEvidence : inline_value {
+    code RefusalCode
+    observation WorkspaceTreeProjectionObservation?
+    cleanup WorkspaceTreeProjectionCleanupObservation
+    diagnostics String[]
+    authorizes_retry Bool
+}

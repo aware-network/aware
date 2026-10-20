@@ -138,19 +138,25 @@ class GoalAttempt(_InitialCreationProjection):
                 != f"100644 {project_blob} 0\t{project_path}\0"
             ):
                 raise ValueError("initial_goal_project_index_mismatch")
+        from aware_workspace_sdk.initial_authoring.configuration_successor import (
+            project_configuration_request,
+        )
         from aware_workspace_sdk.initial_authoring.values import (
             InitialConfigurationRequest,
         )
 
         from .initial_authoring import configuration_attempt
 
-        config_request = InitialConfigurationRequest.from_wire(
-            project.source["configuration_request"]
-        )
+        config_request = project_configuration_request(project.source)
         config = config_request.to_wire()["configuration"]
         if type(config) is not dict:
             raise ValueError("initial_goal_manifest_source_invalid")
-        with configuration_attempt(self.port, config_request) as attempt:
+        manager = (
+            configuration_attempt(self.port, config_request)
+            if type(config_request) is InitialConfigurationRequest
+            else self.port.initial_configuration_successor_attempt(config_request)
+        )
+        with manager as attempt:
             record = _read_record(attempt.directory, "projection-result.json")
             intent = _read_record(attempt.directory, "projection-start.json")
             if (

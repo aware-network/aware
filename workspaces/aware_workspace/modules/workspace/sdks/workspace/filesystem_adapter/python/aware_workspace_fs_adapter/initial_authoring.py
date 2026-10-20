@@ -732,6 +732,12 @@ def configuration_attempt(
 
 
 class ConfigurationAttempt:
+    _dispatch_schema = "aware.workspace.initial-authoring-dispatch.v1"
+    _publication_schema = "aware.workspace.initial-authoring-publication.v1"
+    _publication_domain = "workspace-initial-publication"
+    _projection_schema = "aware.workspace.initial-configuration-projection"
+    _projection_domain = "workspace-initial-configuration-projection"
+
     def __init__(self, port, directory, record, parent_directory):
         self.port, self.directory, self.record = port, directory, record
         self.parent_directory = parent_directory
@@ -747,7 +753,7 @@ class ConfigurationAttempt:
 
     def consume(self):
         record = {
-            "schema_id": "aware.workspace.initial-authoring-dispatch.v1",
+            "schema_id": self._dispatch_schema,
             "admission_ref": self.receipt_ref,
             "request_ref": self.record["request"]["request_ref"],
         }
@@ -767,7 +773,7 @@ class ConfigurationAttempt:
             admission_completion="completed" if result.ledger_complete else "unknown",
         )
         body = {
-            "schema_id": "aware.workspace.initial-authoring-publication.v1",
+            "schema_id": self._publication_schema,
             "admission_ref": self.receipt_ref,
             "request_ref": self.record["request"]["request_ref"],
             "original_result": repository_publication_value_to_payload(result),
@@ -777,9 +783,7 @@ class ConfigurationAttempt:
             "result.json",
             {
                 **body,
-                "publication_ref": initial_reference(
-                    "workspace-initial-publication", body
-                ),
+                "publication_ref": initial_reference(self._publication_domain, body),
             },
         )
         return result
@@ -878,7 +882,7 @@ class ConfigurationAttempt:
             raise ValueError("initial_projection_original_result_required")
         content = self._projection_source(result)
         intent = {
-            "schema_id": "aware.workspace.initial-configuration-projection-intent.v1",
+            "schema_id": self._projection_schema + "-intent.v1",
             "publication_ref": publication["publication_ref"],
             "request_ref": self.record["request"]["request_ref"],
             "commit": result.commit_hash,
@@ -958,16 +962,14 @@ class ConfigurationAttempt:
                 effect = effects[0]
                 file = self._projection_file(content)
                 body = {
-                    "schema_id": "aware.workspace.initial-configuration-projection.v1",
+                    "schema_id": self._projection_schema + ".v1",
                     "intent": intent,
                     "file": file,
                     "effect": _projection_effect(effect),
                 }
                 record = {
                     **body,
-                    "projection_ref": initial_reference(
-                        "workspace-initial-configuration-projection", body
-                    ),
+                    "projection_ref": initial_reference(self._projection_domain, body),
                 }
                 self._verify_projection(record, intent, content)
                 self._projection_source(result)
@@ -1046,11 +1048,11 @@ class ConfigurationAttempt:
         }
         body = {key: value for key, value in record.items() if key != "projection_ref"}
         if (
-            record["schema_id"] != "aware.workspace.initial-configuration-projection.v1"
+            record["schema_id"] != self._projection_schema + ".v1"
             or _canonical(record["intent"]) != _canonical(intent)
             or _canonical(record["effect"]) != _canonical(expected_effect)
             or record["projection_ref"]
-            != initial_reference("workspace-initial-configuration-projection", body)
+            != initial_reference(self._projection_domain, body)
         ):
             raise ValueError("initial_projection_record_mismatch")
 
@@ -1068,7 +1070,7 @@ class ConfigurationAttempt:
         if "dispatch.json" in names:
             dispatch = _read_record(self.directory, "dispatch.json")
             if dispatch != {
-                "schema_id": "aware.workspace.initial-authoring-dispatch.v1",
+                "schema_id": self._dispatch_schema,
                 "admission_ref": self.receipt_ref,
                 "request_ref": self.record["request"]["request_ref"],
             }:
@@ -1095,11 +1097,11 @@ class ConfigurationAttempt:
             raise ValueError("initial_publication_record_invalid")
         body = {key: value for key, value in record.items() if key != "publication_ref"}
         if (
-            record["schema_id"] != "aware.workspace.initial-authoring-publication.v1"
+            record["schema_id"] != self._publication_schema
             or record["admission_ref"] != self.receipt_ref
             or record["request_ref"] != self.record["request"]["request_ref"]
             or record["publication_ref"]
-            != initial_reference("workspace-initial-publication", body)
+            != initial_reference(self._publication_domain, body)
         ):
             raise ValueError("initial_publication_record_mismatch")
         result = repository_publication_value_from_payload(
@@ -1340,6 +1342,24 @@ def _verify_project_origin(port, request):
 
     source = request.source
     _project_location(source)
+    if source.get("schema_id") == "aware.project.initial-source.v2":
+        import importlib
+
+        observed = importlib.import_module(
+            "aware_workspace_fs_adapter.initial_configuration_successor"
+        ).origin(port)
+        if (
+            _canonical(observed) != _canonical(source["configuration_origin"])
+            or observed["kind"] != "successor"
+            or observed["effective"]["publication"]["publication_ref"]
+            != source["configuration_publication_ref"]
+            or observed["effective"]["projection"]["projection_ref"]
+            != source["configuration_projection_ref"]
+            or observed["effective"]["publication"]["original_result"]["commit_hash"]
+            != source["expected_head"]
+        ):
+            raise ValueError("initial_project_successor_origin_mismatch")
+        return observed
     config_request = InitialConfigurationRequest.from_wire(
         source["configuration_request"]
     )
@@ -1409,11 +1429,11 @@ def _verify_project_origin(port, request):
 
 def _project_location(source):
     from aware_protocol_fs_adapter.project_templates import match_project_path
-    from aware_workspace_sdk.initial_authoring.values import InitialConfigurationRequest
+    from aware_workspace_sdk.initial_authoring.configuration_successor import (
+        project_configuration_request,
+    )
 
-    config = InitialConfigurationRequest.from_wire(
-        source["configuration_request"]
-    ).to_wire()["configuration"]
+    config = project_configuration_request(source).to_wire()["configuration"]
     if type(config) is not dict:
         raise ValueError("initial_project_configuration_invalid")
     prefix = config["project_root"] + "/"
@@ -1613,7 +1633,9 @@ class _InitialCreationProjection(ConfigurationAttempt):
                 parent for parent in observed["parents"] if parent["path"] == path
             )
             if current["mode"] != 0o700:
-                raise ValueError("initial_project_projection_created_parent_mode_changed")
+                raise ValueError(
+                    "initial_project_projection_created_parent_mode_changed"
+                )
         expected_effects = [
             {
                 "path": path,

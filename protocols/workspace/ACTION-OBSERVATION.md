@@ -1,6 +1,8 @@
 # Observe original retained action intent
 
-Agent **0.2.0a15**, with Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
+Draft for prepared, unselected Agent **0.2.0a16**, Workspace SDK **0.2.15** /
+Runtime **0.2.20**, FS adapter **0.1.12** and FileSystem **0.3.9**.
+Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
 Acquire that exact revision and retain its complete source/notice envelope.
 This alignment changes current wording and pins, not software or operation authority.
 Both reviews and original guards remain required. Additional publication of this
@@ -37,7 +39,22 @@ with incomplete retention; it is not a clean refusal. Interruption remains 130.
 Init supplies configuration, not Issue admission, scope approval or apply
 authority. Observation input does not freeze previewed HEAD or source bytes;
 apply plans afresh. No automatic refresh, retry, cleanup replay or approval.
-Optional Goal, positive create-first, A2/tree, Project/Goal, Meta/Object,
-activation and stable consumer bridge remain unqualified in this distribution.
+Optional fresh Project/Goal direction is separately bounded by its guide.
+Goal-to-Issue, A2/tree, Meta/Object, activation and stable consumer bridge remain
+unqualified in this distribution.
 Whole-envelope source/notice carriage is mandatory. Earlier evaluations remain
 version-bound; no new customer U/V/R or productivity claim follows from layout.
+
+## Prepared a16 candidate discovery (draft and unselected)
+
+For the prepared successor, human summaries expose owner-returned original
+intent candidates when available. A candidate is not a validated pair. Select
+only the exact original second-review result that preceded the same apply,
+never an apply/outcome reference. Missing, malformed or conflicting references
+stop selection: do not search, reconstruct, refresh or replay apply.
+Evidence reads may return command-capture bytes rather than wrapper metadata.
+The original owner validates correlation; not_established remains possible.
+Observation establishes neither completion, current admission nor retry authority.
+Resource closes, retention, client cleanup and historical uncertainty remain
+separate. The older capability limits above describe the delivered predecessor;
+the separate optional Project/Goal branch is bounded by its current guide.

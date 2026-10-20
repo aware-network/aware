@@ -457,7 +457,18 @@ class InitialProjectSourceState:
         physical.qualify_initial_project_source(
             self.descriptor, self.capability, current=current
         )
-        if current:
+        if (
+            current
+            and self.descriptor.get("schema_id") == "aware.project.initial-source.v2"
+        ):
+            from .initial_configuration_successor import origin
+
+            observed = origin(self.owner, current=True)
+            if _canonical(observed) != _canonical(
+                self.descriptor["configuration_origin"]
+            ):
+                raise ValueError("initial_project_successor_origin_changed")
+        elif current:
             observed = project_initial_configuration(
                 self.owner, self.protocol_plan, self.configuration_key, read_only=True
             )

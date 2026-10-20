@@ -1,0 +1,48 @@
+// Authored original workflow source metadata. No live admission or raw body codec.
+
+class WorkspaceWorkflowSourceBinding : inline_value {
+    delivery_ref String
+    workflow_ref String
+    attempt_ref String
+    binding_ref String
+    provider_generation String
+    execution_id String
+    process_id Int
+    thread_id Int
+    source_repository_binding_ref String
+    target_repository_binding_ref String
+    source_repository_root String
+    target_repository_root String
+    source_root_identity Int[]
+    target_root_identity Int[]
+    source_commit String
+    profile_key String
+    profile_digest String
+    marker_environment WorkspaceWorkflowMarker[]
+    selection_digest String
+    checkout_contract String
+    output_layout_digest String
+    captured_count Int
+    projected_count Int
+    captured_bytes Int
+    maximum_files Int
+    maximum_body_bytes Int
+    target_reference String
+    expected_target_head String?
+}
+
+class WorkspaceWorkflowSourceFile : inline_value {
+    source_path String
+    output_path String
+    content_digest String
+    size_bytes Int
+    git_mode String
+    projected_mode Int
+}
+
+class WorkspaceWorkflowSourceObservation : inline_value {
+    binding WorkspaceWorkflowSourceBinding
+    files WorkspaceWorkflowSourceFile[]
+    phase String
+    cleanup_state WorkflowCleanup
+}

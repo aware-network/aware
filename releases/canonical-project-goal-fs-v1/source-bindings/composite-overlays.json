@@ -1,0 +1,411 @@
+{
+  "overlays": [
+    {
+      "after_sha256": "5c4b601d2f39a398b9e3ffbfd2d9ba4c03ff9c3ed50f736ed349321d06a62cca",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/aware_workspace_runtime/architecture_setup_review.py",
+      "before_exists": true,
+      "before_sha256": "7bc3fdfdae21f93e3c83c6dab37dd5bf1944357c70d28c3bcf5a26a97e0d4e8b",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/aware_workspace_runtime/architecture_setup_review.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/aware_workspace_runtime/architecture_setup_review.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "76c720a68f6da9689b3889e4ed0411c413b26fa3fff2f3726af198928e2dda9f",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/aware_workspace_runtime/initial_authoring.py",
+      "before_exists": true,
+      "before_sha256": "87701dcbd07836d0329ab0a29fc057a311a7c77008bf84b68b838b5ef951e1c2",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/aware_workspace_runtime/initial_authoring.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/aware_workspace_runtime/initial_authoring.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "26f78e9d4ff51273829ec82793775e85c7e72a7cdc75a8272ad6af4f59c5b89d",
+      "before_attached_path": null,
+      "before_exists": false,
+      "before_sha256": null,
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/aware_workspace_runtime/initial_configuration_successor.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/aware_workspace_runtime/initial_configuration_successor.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "83f1b8c47ef452786f5a597474623ff677903033439d53feff098baa33aa0336",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/aware_workspace_runtime/repository_publication.py",
+      "before_exists": true,
+      "before_sha256": "eb794da4c1a4a5ac4928597e78047f35b461786577d6bf1088f6b59bf473ba73",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/aware_workspace_runtime/repository_publication.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/aware_workspace_runtime/repository_publication.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "fe1a6c580ee24382f1f6316fb50a92a24cd38f8f5d437d8b2e54dfde89e5346b",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/pyproject.toml",
+      "before_exists": true,
+      "before_sha256": "deadae9c24a6c84993c3bb9bace30e4787f65d4ca48a5e6eb1f3b6153b2696be",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/pyproject.toml",
+      "metadata_only": true,
+      "path": "workspaces/aware_workspace/modules/workspace/libs/workspace_runtime/pyproject.toml",
+      "postimage_revision": null,
+      "qualification": "Explicit inline metadata overlay",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "e1cd10a567da923ec650933887dd7d2d099ca854836154008a59f62738f94056",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/initial_authoring.py",
+      "before_exists": true,
+      "before_sha256": "30bfe3072b661fd1ac5ecf2a7ae6be004f83fa4aca9d137cfc51465a2f5f65f1",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/initial_authoring.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/initial_authoring.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "72f795d591f1f6ab0d92d51719ea6f0947fdfb55dfd689f6d4ccbd5dda7de74a",
+      "before_attached_path": null,
+      "before_exists": false,
+      "before_sha256": null,
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/initial_configuration_successor.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/initial_configuration_successor.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "276ebadadeda05b7042240033f4656d69fb875b51b11d1ba6396a005d59e1c2b",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/initial_goal_publication.py",
+      "before_exists": true,
+      "before_sha256": "0f63b08a1021ec99cf432188ceb4e07115547e501d261b515e4d56d219660608",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/initial_goal_publication.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/initial_goal_publication.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "c6d78d22fb56fa59b3c7a9896bd8381f087aa38d8fcd2bfa73fe41a9e32f2fd3",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/initial_membership_projection.py",
+      "before_exists": true,
+      "before_sha256": "db9a7ae0fb8940839c1730530098c26a2a28f1e9e0be7fde77a92dc8a4c2e33f",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/initial_membership_projection.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/initial_membership_projection.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "5704a45cb1b3c0112d800c958fc6c2a923744268cc8a9cc451ca0eae45182bcf",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/repository_publication.py",
+      "before_exists": true,
+      "before_sha256": "73be822282eb3e98ecdf0c8c2cca5940dfec772ea8e1e1a7658dc1c3e6f7fc5a",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/repository_publication.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/aware_workspace_fs_adapter/repository_publication.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "5eb986b7efbba9d71e2f8f8a21ad4cc989d456bad0047426ba2ef047eef0e069",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/pyproject.toml",
+      "before_exists": true,
+      "before_sha256": "f66adcbaa1f9b5a02fe82166703a4c508e7c5de07aff9c49fd8931383214e142",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/pyproject.toml",
+      "metadata_only": true,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python/pyproject.toml",
+      "postimage_revision": null,
+      "qualification": "Explicit inline metadata overlay",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "f213c64f15d9ef7c0f4cb7839117faff9543161f7380aab3dc717aeaa9503dd0",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/README.md",
+      "before_exists": true,
+      "before_sha256": "5a1a4de410a380b9db4b7d4277d1cc9c2faefc657eb55f936b37d0f1403a564a",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/README.md",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/README.md",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "6c107d213ddbd281c34cabd570da810afef62451dca7e5ab29287efb2da7f148",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/architecture_setup_review.py",
+      "before_exists": true,
+      "before_sha256": "b8c6ef2a9c67b7c3041b032bfdf04e1f443980f1f6c8c06fbc95fe4bb20e0b3b",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/architecture_setup_review.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/architecture_setup_review.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "9ae71476b37ca2df4b05e8315b1a65d740b16a1be1ee78c65892adfb73eb8c9b",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/architecture_setup_review_codec.py",
+      "before_exists": true,
+      "before_sha256": "c77a436029d839ca68d731c04515134dd8ff5ba8a5e8c9d07c8c935fa1ddfbc1",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/architecture_setup_review_codec.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/architecture_setup_review_codec.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "f97057632408a9c0b9b97d5c4e72e43310850b463535efc08d8c024d09e51598",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/architecture_setup_review_values.py",
+      "before_exists": true,
+      "before_sha256": "09f95d509c5b6996ee2f765101c45ac1298fee0b2822035c380ad9ee291c2df5",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/architecture_setup_review_values.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/architecture_setup_review_values.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "ac094f084705d006a1c73d49b82da16d50a06dd15b50ef5e469e2c4bc661196d",
+      "before_attached_path": null,
+      "before_exists": false,
+      "before_sha256": null,
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/initial_authoring/configuration_successor.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/initial_authoring/configuration_successor.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "6586639d656785b852bd308e2306ccc51f87c7678a28f7a4aa60fdaa3390cb55",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/initial_authoring/values.py",
+      "before_exists": true,
+      "before_sha256": "602c0e9ed2b3e974d24cdcc04823e548972b29dbbff13ca36743231a5668a9e7",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/initial_authoring/values.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/initial_authoring/values.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "6dd8bfeee2d3a86355e2f719fe7472a18696b0ec2be4e8a80c3c5c3168dff745",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/repository_publication/authority.py",
+      "before_exists": true,
+      "before_sha256": "38c2688ddbe52fe9b1b8090862664b217bae17b8702214a85a912bb5e902c331",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/repository_publication/authority.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/aware_workspace_sdk/repository_publication/authority.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "90052ce19314d03b8b065333f3ec728754df708fca8e8d33a01f83c89c0a8f2f",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/pyproject.toml",
+      "before_exists": true,
+      "before_sha256": "6e8edc660d6097b73255df566365815bd817502d30baa2f2bcda15efc0ec5c23",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/pyproject.toml",
+      "metadata_only": true,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/pyproject.toml",
+      "postimage_revision": null,
+      "qualification": "Explicit inline metadata overlay",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "ca2191af91c7c0053d4b90f7577ad4ad871886f9dc40c984e25a19ec044df3ec",
+      "before_attached_path": null,
+      "before_exists": false,
+      "before_sha256": null,
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/tests/test_action_admission_observation.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/tests/test_action_admission_observation.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "6112e9f2430a9c092df9bf9c6b6be8913c14256b7e9790624a81ef4011726394",
+      "before_attached_path": "source-bindings/preimages/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/tests/test_architecture_setup_review_codec.py",
+      "before_exists": true,
+      "before_sha256": "d85e7efd808c824bdbc91c15c528e318bf4ec425a309b07dbd430cccebabdfc8",
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/tests/test_architecture_setup_review_codec.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/tests/test_architecture_setup_review_codec.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    },
+    {
+      "after_sha256": "302f30d19298d058f778a6acf81a440eb91a1c1b6d7a46425aed105f3feea0e4",
+      "before_attached_path": null,
+      "before_exists": false,
+      "before_sha256": null,
+      "effective_attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/tests/test_initial_configuration_successor.py",
+      "metadata_only": false,
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public/tests/test_initial_configuration_successor.py",
+      "postimage_revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "qualification": "Exact committed source postimage over original base/preimage",
+      "source_revision": "3e0cde56adacd830d29295177d5400dea80635e4"
+    }
+  ],
+  "package_source_bindings": {
+    "aware-agent-cli": {
+      "revision": "181147282f62e8f22d75e02acfd1a5cfa89d14e9",
+      "root": "workspaces/aware_agent/modules/agent/libs/agent_cli/python"
+    },
+    "aware-code-module-manifest-contract-runtime": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/code/libs/module_manifest_contract_runtime"
+    },
+    "aware-code-package-delta-contract": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/code/libs/package_delta_contract/python"
+    },
+    "aware-code-retained-registry-policy-runtime": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/code/libs/retained_registry_policy_runtime"
+    },
+    "aware-code-semantic-contract-runtime": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/code/libs/semantic_contract_runtime/python"
+    },
+    "aware-command-runtime": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/libs/command_runtime/python"
+    },
+    "aware-file-system": {
+      "revision": "45e927a7305a69fc5ddfab61ac16526e1550963e",
+      "root": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python"
+    },
+    "aware-goal-native-cli": {
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "root": "workspaces/aware_coordination/modules/workflow/sdks/goal/python/native_cli"
+    },
+    "aware-goal-native-fs-adapter": {
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "root": "workspaces/aware_coordination/modules/workflow/sdks/goal/python/native_fs_adapter"
+    },
+    "aware-goal-operational-runtime": {
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "root": "workspaces/aware_coordination/modules/workflow/libs/goal_operational_runtime"
+    },
+    "aware-goal-sdk": {
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "root": "workspaces/aware_coordination/modules/workflow/sdks/goal/python/public"
+    },
+    "aware-issue-cli": {
+      "revision": "928973ad0fdd697edbbfb6b189ad2dbdb98dfbc0",
+      "root": "workspaces/aware_coordination/modules/workflow/sdks/issue/cli/python"
+    },
+    "aware-issue-fs-adapter": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_coordination/modules/workflow/sdks/issue/filesystem_adapter/python"
+    },
+    "aware-issue-operational-runtime": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_coordination/modules/workflow/libs/issue_operational_runtime"
+    },
+    "aware-issue-runtime": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_coordination/modules/workflow/libs/issue_runtime"
+    },
+    "aware-issue-sdk": {
+      "revision": "c6769538064fe285fb785cd4e317e4b923c51cef",
+      "root": "workspaces/aware_coordination/modules/workflow/sdks/issue/python"
+    },
+    "aware-meta-type-schema": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/meta/libs/type_schema/python"
+    },
+    "aware-ontology-object-facade-client": {
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "root": "workspaces/aware_kernel/modules/ontology/libs/object_facade_client/python"
+    },
+    "aware-project-goal-fs-adapter": {
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "root": "workspaces/aware_coordination/modules/workflow/libs/project_goal_fs_adapter/python"
+    },
+    "aware-project-runtime": {
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "root": "workspaces/aware_coordination/modules/workflow/libs/project_runtime/python"
+    },
+    "aware-protocol-cli": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/protocol/libs/cli/python"
+    },
+    "aware-protocol-fs-adapter": {
+      "revision": "3e0cde56adacd830d29295177d5400dea80635e4",
+      "root": "workspaces/aware_kernel/modules/protocol/libs/fs_adapter/python"
+    },
+    "aware-protocol-runtime": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/protocol/libs/runtime/python"
+    },
+    "aware-protocol-sdk": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/protocol/sdks/protocol/python"
+    },
+    "aware-sdk-contract-runtime": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/sdk/libs/contract_runtime/python"
+    },
+    "aware-specification-cli": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/specification/sdks/specification/python/cli"
+    },
+    "aware-specification-fs-adapter": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/specification/libs/fs_adapter/python"
+    },
+    "aware-specification-fs-sdk-adapter": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/specification/sdks/specification/python/fs_adapter"
+    },
+    "aware-specification-fs-source-contract": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/specification/libs/fs_source_contract/python"
+    },
+    "aware-specification-runtime": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/specification/libs/runtime/python"
+    },
+    "aware-specification-sdk": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_kernel/modules/specification/sdks/specification/python/public"
+    },
+    "aware-workspace-fs-adapter": {
+      "revision": "3e0cde56adacd830d29295177d5400dea80635e4",
+      "root": "workspaces/aware_workspace/modules/workspace/sdks/workspace/filesystem_adapter/python"
+    },
+    "aware-workspace-operator": {
+      "revision": "af6da0484805234b3285bb0c2bc50776cd9c622d",
+      "root": "workspaces/aware_workspace/modules/workspace/libs/workspace_operator/python"
+    },
+    "aware-workspace-runtime": {
+      "revision": "3e0cde56adacd830d29295177d5400dea80635e4",
+      "root": "workspaces/aware_workspace/modules/workspace/libs/workspace_runtime"
+    },
+    "aware-workspace-sdk": {
+      "revision": "3e0cde56adacd830d29295177d5400dea80635e4",
+      "root": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public"
+    }
+  },
+  "qualification": "Complete original35 package trees plus explicit supplier postimages/preimages or absence; not a single-revision source or authenticated build provenance."
+}

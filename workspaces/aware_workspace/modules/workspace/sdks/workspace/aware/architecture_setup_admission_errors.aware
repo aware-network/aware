@@ -1,0 +1,10 @@
+// Original typed failure evidence, not an exception constructor or retry right.
+
+class WorkspaceSetupPrimaryFailure : inline_value {
+    state PrimaryFailureState
+    owner_ref String? required
+    stage String? required
+    code String? required
+    cause_type String? required
+    interruption Bool
+}

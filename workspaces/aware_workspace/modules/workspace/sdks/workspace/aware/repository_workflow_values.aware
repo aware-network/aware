@@ -1,0 +1,200 @@
+// Authored descriptive workflow contracts. No serialized live admissions.
+
+enum WorkflowStage {
+    source_capture
+    qualification
+    envelope
+    tree_projection
+    local_publication
+    selection_freeze
+    remote_delivery
+    acquisition
+    evidence_closeout
+}
+
+enum WorkflowAvailability {
+    available
+    supplier_unavailable
+}
+
+enum WorkflowArtifactKind {
+    candidate
+    envelope
+    layout
+    instructions
+    selection
+    freeze
+    acquisition
+}
+
+enum WorkflowEvidenceGrade {
+    owner_observed
+    caller_reported
+}
+
+enum WorkflowDispatch {
+    not_dispatched
+    returned
+    unavailable
+}
+
+enum WorkflowEffect {
+    none
+    applied
+    unknown
+}
+
+enum WorkflowCleanup {
+    not_attempted
+    completed
+    incomplete
+    unknown
+}
+
+enum WorkflowPersistence {
+    not_written
+    persisted
+    unknown
+}
+
+enum WorkflowIntegrity {
+    verified
+    incomplete
+    corrupt
+    unknown
+}
+
+enum WorkflowAuthority {
+    descriptive_only
+}
+
+enum WorkflowRefusalCode {
+    malformed_binding
+    stale_source
+    stale_target
+    source_unavailable
+    issue_admission_unavailable
+    projection_capability_unavailable
+    evidence_conflict
+    evidence_corrupt
+    evidence_persistence_unknown
+    foreign_or_retired_handle
+    supplier_unavailable
+}
+
+class WorkspaceWorkflowMarker : inline_value {
+    key String
+    value String
+}
+
+class WorkspaceRepositoryWorkflowRequest : inline_value {
+    workflow_ref String
+    attempt_ref String
+    source_commit String
+    profile_key String
+    profile_digest String
+    marker_environment WorkspaceWorkflowMarker[]
+    target_reference String
+    expected_target_head String?
+}
+
+class WorkspaceRepositoryWorkflowStageObservation : inline_value {
+    stage WorkflowStage
+    availability WorkflowAvailability
+    diagnostics String[]
+}
+
+class WorkspaceRepositoryWorkflowPlanObservation : inline_value {
+    binding_ref String
+    source_repository_binding_ref String
+    target_repository_binding_ref String
+    source_commit String
+    profile_key String
+    profile_digest String
+    selection_digest String
+    target_reference String
+    expected_target_head String?
+    stages WorkspaceRepositoryWorkflowStageObservation[]
+    diagnostics String[]
+}
+
+class WorkspaceRepositoryWorkflowArtifactBinding : inline_value {
+    kind WorkflowArtifactKind
+    coordinate String
+    sha256 String
+    size_bytes Int
+    owner_ref String
+    receipt_ref String
+}
+
+class WorkspaceWorkflowEvidenceReference : inline_value {
+    owner_ref String
+    coordinate String
+    sha256 String
+    size_bytes Int
+}
+
+class WorkspaceRepositoryWorkflowEvidenceAppendRequest : inline_value {
+    attempt_binding_ref String
+    expected_cursor Int
+    expected_previous_digest String
+    stage WorkflowStage
+    invocation_ref String
+    artifact_bindings WorkspaceRepositoryWorkflowArtifactBinding[]
+    request_refs WorkspaceWorkflowEvidenceReference[]
+    result_refs WorkspaceWorkflowEvidenceReference[]
+    error_refs WorkspaceWorkflowEvidenceReference[]
+    evidence_grade WorkflowEvidenceGrade
+    dispatch_state WorkflowDispatch
+    effect_state WorkflowEffect
+    cleanup_state WorkflowCleanup
+    ledger_complete Bool
+    diagnostics String[]
+}
+
+class WorkspaceRepositoryWorkflowEvidenceWriteObservation : inline_value {
+    attempt_binding_ref String
+    prior_cursor Int
+    observed_cursor Int?
+    prior_digest String
+    observed_digest String?
+    persistence_state WorkflowPersistence
+    owner_observations WorkspaceWorkflowEvidenceReference[]
+    effect_state WorkflowEffect
+    cleanup_state WorkflowCleanup
+    diagnostics String[]
+}
+
+class WorkspaceRepositoryWorkflowAttemptObserveRequest : inline_value {
+    source_repository_binding_ref String
+    target_repository_binding_ref String
+    attempt_ref String
+    expected_binding_digest String
+}
+
+class WorkspaceRepositoryWorkflowAttemptObservation : inline_value {
+    plan WorkspaceRepositoryWorkflowPlanObservation
+    records WorkspaceRepositoryWorkflowEvidenceAppendRequest[]
+    last_verified_cursor Int
+    last_verified_digest String
+    persistence_state WorkflowPersistence
+    integrity_state WorkflowIntegrity
+    cleanup_state WorkflowCleanup
+    authority_state WorkflowAuthority
+    diagnostics String[]
+}
+
+class WorkspaceRepositoryWorkflowCleanupObservation : inline_value {
+    attempt_binding_ref String?
+    state WorkflowCleanup
+    diagnostics String[]
+}
+
+class WorkspaceRepositoryWorkflowRefusalEvidence : inline_value {
+    code WorkflowRefusalCode
+    stage WorkflowStage
+    original_evidence_refs WorkspaceWorkflowEvidenceReference[]
+    persistence_state WorkflowPersistence
+    cleanup WorkspaceRepositoryWorkflowCleanupObservation
+    diagnostics String[]
+}

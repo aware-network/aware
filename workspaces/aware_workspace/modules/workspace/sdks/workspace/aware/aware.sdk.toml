@@ -1,0 +1,41 @@
+aware_sdk = 1
+
+[sdk]
+package_name = "workspace-sdk"
+fqn_prefix = "aware_workspace_sdk"
+version_number = 1
+title = "Workspace SDK"
+description = "Canonical Workspace SDK operations over the Workspace service API."
+
+[build]
+sources_dir = "."
+include_paths = ["*.aware"]
+exclude_paths = []
+force_fresh_scan = false
+compilation_mode = "sdk_ontology"
+
+[targets.python]
+root_dir = "python/public"
+
+[targets.python.public_package]
+package_dir = "aware_workspace_sdk"
+
+[[object_config_graph_packages]]
+manifest = "db/aware.toml"
+role = "local_state"
+description = "Workspace SDK-owned local workspace state store."
+
+[[dependencies]]
+kind = "api_package"
+package_name = "workspace-service-api"
+version_number = 1
+
+[[dependencies]]
+kind = "api_package"
+package_name = "code-service-api"
+version_number = 1
+
+[[dependencies]]
+kind = "sdk_package"
+package_name = "filesystem-sdk"
+version_number = 1

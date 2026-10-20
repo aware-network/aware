@@ -1,10 +1,8 @@
 # Aware filesystem workflow
 
-Agent **0.2.0a15**, with Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
-Acquire that exact revision and retain its complete source/notice envelope.
-This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required. Additional publication of this
-wording alignment requires independent review and separate authorization.
+Draft for prepared/unselected Agent a16 with 49 payload distributions.
+Delivered predecessor a15 remains pinned at 5af88a6b95b928811022e5cd0255e4bb5c77bd87.
+This proposed installer is not public availability or operation authority.
 
 Historical freezes remain unchanged; installation does not admit customer work.
 Read [init summary streams and decisions](INIT.md); full receipts remain
@@ -17,8 +15,8 @@ inclusion follows from this instruction freeze.
 
 Qualified target: Linux x86-64 with `/usr/bin/python3.12`. Keep this entire
 envelope, including LICENSE, NOTICE, sources, upstream archives and indexes.
-Wheel-only acquisition is unsupported: six Code/Workspace wheels still lack
-package-local legal attachments. Do not discard the envelope after installation.
+Wheel-only acquisition is unsupported: nine package-local legal gaps remain
+unrepaired, including three wheels without license-expression metadata. Do not discard the envelope after installation.
 
 From the reviewed checkout root, use the same whole-envelope installer as the
 root entrance. It verifies all outer/inner checksums, retains complete source and
@@ -472,3 +470,7 @@ unassisted customer adoption. Project and Goal are not prerequisites.
 ## Delivered historical action observation
 
 [Observe retained intent](workspace/ACTION-OBSERVATION.md) using the original review and intent references. Current instructions describe the software delivered at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Observation is not completion, current admission or retry authority. Both explicit reviews remain separate.
+
+## Prepared optional direction branch
+
+[Fresh Project/Goal direction](PROJECT-GOAL.md) is draft and unselected; it is not a prerequisite for useful Issue-first work or optional SPEC. No Goal-to-work authority is created.

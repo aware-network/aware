@@ -1,0 +1,80 @@
+// Exact detached command port values. Live clients/plans remain nonserializable.
+// String/digest/path/constant bounds remain enforced by original owner codecs.
+
+enum CommandMode {
+    preview
+    apply
+}
+
+enum CommandOperation {
+    repository
+    workspace
+    module
+    python_package
+    package_manager
+    locks
+}
+
+enum CommandStatus {
+    preview_completed
+    apply_completed
+    refused
+    incomplete
+}
+
+enum OwnerFamily {
+    issue
+    workspace
+    filesystem_sequence
+    command
+}
+
+class WorkspaceSetupA1ClientCleanup : inline_value {
+    issue aware_issue_sdk.IssueWorkspaceSetupClientCleanup? required
+    workspace WorkspaceSetupClientCleanup? required
+}
+
+class WorkspaceSetupA1CommandEvidence : inline_value {
+    contract String
+    mode CommandMode
+    operation CommandOperation? required
+    command_status CommandStatus
+    completion_verified Bool
+    request WorkspaceSetupA1CommandRequest? required
+    review_guards WorkspaceSetupA1ReviewGuards
+    workspace_observation WorkspaceSetupPlanObservation? required
+    issue_sources_observation aware_issue_sdk.IssueWorkspaceSetupSourcesObservation? required
+    issue_observation aware_issue_sdk.IssueWorkspaceSetupObservation? required
+    workspace_result WorkspaceAuthorizedSetupResult? required
+    primary_failure WorkspaceSetupPrimaryFailure
+    plan_cleanup WorkspaceSetupCleanup? required
+    admission_cleanup aware_issue_sdk.IssueWorkspaceSetupCleanup? required
+    client_cleanup WorkspaceSetupA1ClientCleanup
+    unvalidated_reports WorkspaceSetupA1UnvalidatedReport[]
+    diagnostics String[]
+    ledger_complete Bool
+    authorizes_retry Bool
+}
+
+class WorkspaceSetupA1CommandRequest : inline_value {
+    architecture_request ArchitectureSetupRequest
+    issue_request aware_issue_sdk.IssueWorkspaceSetupRequest? required
+    repository_root String
+    authority_manifest_locator String
+    issue_ref String
+    execution_ref String
+    client_intent_id String
+}
+
+class WorkspaceSetupA1ReviewGuards : inline_value {
+    issue_source_sha256 String? required
+    authority_manifest_sha256 String? required
+    plan_sha256 String? required
+}
+
+class WorkspaceSetupA1UnvalidatedReport : inline_value {
+    owner OwnerFamily
+    expected_wire String
+    stage String
+    code String
+}

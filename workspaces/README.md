@@ -1,17 +1,16 @@
 # Canonical source workspaces
 
-`portable_protocols` alone selects the 28 Aware packages. The prepared observer
-snapshot has 1,394 selector source/build/legal files plus two exact supplier-authored
-`.aware` declarations outside those package roots. The declarations do not add
-packages or a second selector. Twelve explicit overlays retain eleven preimages
-and one recorded prior absence; effective metadata is not raw Git at its freeze.
-[Source index](../releases/canonical-action-observer-fs-v1/SOURCE-INDEX.json),
-[source map](../releases/canonical-action-observer-fs-v1/SOURCE-MAP.json),
-[supplemental declaration map](../releases/canonical-action-observer-fs-v1/SUPPLEMENTAL-SOURCE-MAP.json) and
-[overlay account](../releases/canonical-action-observer-fs-v1/source-bindings/observer-overlays.json)
-bind complete source bodies and modes. Catalog `ec4717726c3c7c822fa4fcc5cb7390fce4127f43` is not one source
-revision for every package. Full discovery inventory stays producer-side.
-Source READMEs are history, not customer guidance or operational authority.
-Use the [installed entrance](../README.md); keep complete terms and sources.
-Predecessor maps remain pinned historical coordinates. Instructions are draft;
-selection and contributor governance remain unchanged.
+`portable_protocols` remains the sole selector: 35 source packages / 49 payload
+distributions. The prepared composite has 1,698 indexed files: 1,665 selected,
+16 borrowed original namespace modules and 17 supplemental authored declarations.
+Borrowed fragments and declarations do not select another package or admit ABI
+or materialization. 22 overlays retain explicit preimages or recorded absence.
+Effective overlay bytes are not raw Git at their base revision.
+[Index](../releases/canonical-project-goal-fs-v1/SOURCE-INDEX.json), [map](../releases/canonical-project-goal-fs-v1/SOURCE-MAP.json),
+[overlay account](../releases/canonical-project-goal-fs-v1/source-bindings/composite-overlays.json),
+[borrowed modules](../releases/canonical-project-goal-fs-v1/source-bindings/borrowed-modules.json) and
+[declarations](../releases/canonical-project-goal-fs-v1/source-bindings/workspace-declarations.json)
+bind exact bodies/modes. Catalog `abc78e80ffd0bf4893766cd6b545eef8a78693ad` is not a single source revision.
+Historical source READMEs are not customer instructions. Start at the
+[entrance](../README.md); retain the entire source/notice envelope. Instructions
+remain draft/unselected; predecessor maps and contributor governance stay pinned.

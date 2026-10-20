@@ -1,0 +1,159 @@
+{
+  "files": [
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_admission_errors.aware",
+      "bytes": 304,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_admission_errors.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "96cc543c03ef6fd355fa569f38b28851196d9fca12eec5688c0054cf06b14003"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_admission_ports.aware",
+      "bytes": 2268,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_admission_ports.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "e5263f0b3a351cd6004022496083c772719e7373b22f6114ec067dd7da53a979"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_admission_values.aware",
+      "bytes": 7367,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_admission_values.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "559d020b40ba2093b940b46ee19916502323597328441c335906ccc2e3bbbac1"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_command_values.aware",
+      "bytes": 252,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_command_values.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "bd78a9e6d25bc6e0fb92ade4ff2a73167f837743b26dd6be97d2d459c199dbef"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_ports.aware",
+      "bytes": 2312,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_ports.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "4570b9b7c2c85be4fcdd7cde273729c5dda60b8184851489e4d591a3890340c2"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_values.aware",
+      "bytes": 7636,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/architecture_setup_review_values.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "2f8a286337cc43f8199f91009c83322226c3919d9c39f5c7c36f1fdff4245f5b"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/aware.sdk.toml",
+      "bytes": 886,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/aware.sdk.toml",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "f79b11711d49a5b6e5fdae5b10703fb9bee593ea9ee93510cb695f34ff23f0d7"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_delta_retention_values.aware",
+      "bytes": 1037,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_delta_retention_values.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "7f6afe9a1dab4cce6a9e488b46d0e38d52d9022646ca1ed4ab4cb208654ce02e"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_preparation_sdk.aware",
+      "bytes": 741,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_preparation_sdk.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "10a80c80b94e0e2c488aa0cedfd2c078aeb6ce133819d5c7cdef2e39d75b1a3f"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_preparation_values.aware",
+      "bytes": 2166,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_preparation_values.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "deaeb23628b5a9c2f2069c8cdc63a57b1cc77a7747432a45cd7771ac94b87d55"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_publication_ports.aware",
+      "bytes": 2001,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_publication_ports.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "fd30ad62e62e4bbce8172b24524be23cd80ee06bb16e7cc08aa0ac952905eaca"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_publication_values.aware",
+      "bytes": 7256,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_publication_values.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "ba07600c5b007ba99c49b78da7ba46cccde595fdd9e458d332453269287d6a7b"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_source_projection_values.aware",
+      "bytes": 5177,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_source_projection_values.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "ec6aa3b93d80876ec09a07027bc33b0aedc4206da2ee1c7cffb25ac32adc1733"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_tree_projection_values.aware",
+      "bytes": 7495,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_tree_projection_values.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "c356cc042865f17601a2e096080a76c43b378fedea3bc122e1c97259a9f5881f"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_workflow_source_values.aware",
+      "bytes": 1314,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_workflow_source_values.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "6a8bb4e13d4cc6f18a751141952fb0342d071f8f984caf3ad8aec1a81f0b56c2"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_workflow_values.aware",
+      "bytes": 4701,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/repository_workflow_values.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "855ff132dd254bf54d3ba397855ae938c3a3f55e29098c59ec4dc71739bca142"
+    },
+    {
+      "attached_path": "source/workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/workspace_sdk.aware",
+      "bytes": 10739,
+      "mode": "100644",
+      "path": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware/workspace_sdk.aware",
+      "qualification": "Complete supplemental authored Workspace declaration directory at supplier source revision; not ABI/materialization or native provenance acceptance.",
+      "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+      "sha256": "9ef9e7b994254fe70669069da9f8702de94a5c8792f45f33abf99b948d4d4269"
+    }
+  ],
+  "revision": "bddff56673f2d80177dc800c90f58fdbe16091b3",
+  "root": "workspaces/aware_workspace/modules/workspace/sdks/workspace/aware"
+}

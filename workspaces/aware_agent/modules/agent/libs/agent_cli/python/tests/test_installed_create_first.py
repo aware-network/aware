@@ -232,7 +232,7 @@ def test_installed_origins_entrypoint_and_isolation():
         )
     distributions = list(importlib.metadata.distributions())
     assert "aware-workflow" not in {d.metadata["Name"] for d in distributions}
-    assert importlib.metadata.version("aware-agent-cli") == "0.2.0a15"
+    assert importlib.metadata.version("aware-agent-cli") == "0.2.0a16"
     assert importlib.metadata.version("aware-protocol-fs-adapter") == "0.6.6"
     entries = [e for d in distributions for e in d.entry_points if e.name == "aware"]
     assert len(entries) == 1 and entries[0].value == "aware_agent_cli.main:main"

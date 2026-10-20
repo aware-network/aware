@@ -1,0 +1,84 @@
+// Authored neutral repository-preparation evidence. Values never authorize.
+enum RepositoryPreparationOutcome {
+    created
+    existing
+    planned
+    refused
+}
+
+enum RepositoryPreparationEffectState {
+    none
+    applied
+    unknown
+}
+
+enum RepositoryPreparationCleanupState {
+    not_attempted
+    completed
+    incomplete
+    unknown
+}
+
+class RepositoryPrepareRequest : inline_value {
+    repository_root String
+    create_if_missing Bool = false
+    dry_run Bool = false
+}
+
+class RepositoryPreparationEffect : inline_value {
+    path String
+    kind String
+    state RepositoryPreparationEffectState
+    durability_confirmed Bool
+    before_sha256 String?
+    after_sha256 String?
+    after_device Int?
+    after_inode Int?
+    mode Int?
+}
+
+class RepositoryPreparationPlanObservation : inline_value {
+    request RepositoryPrepareRequest
+    plan_ref String
+    plan_sha256 String
+    execution_id String
+    phase String
+    ordered_effect_paths String[]
+    diagnostics String[]
+}
+
+class RepositoryPrepareResult : inline_value {
+    contract String = "aware.repository.prepare-result.v1"
+    operation_ref String = "repository_sdk.prepare_repository"
+    request RepositoryPrepareRequest
+    outcome RepositoryPreparationOutcome
+    repository_root String
+    head String?
+    diagnostics String[]
+    execution_id String
+    attempt_ref String?
+    authority_mode String = "filesystem"
+    effects RepositoryPreparationEffect[]
+    cleanup_state RepositoryPreparationCleanupState
+    ledger_complete Bool
+    provider_invoked Bool
+    authorizes_retry Bool = false
+}
+
+class RepositoryPreparationErrorEvidence : inline_value {
+    contract String = "aware.repository.prepare-error.v1"
+    operation_ref String = "repository_sdk.prepare_repository"
+    request RepositoryPrepareRequest
+    code String
+    phase String
+    execution_id String
+    attempt_ref String?
+    effects RepositoryPreparationEffect[]
+    cleanup_state RepositoryPreparationCleanupState
+    ledger_complete Bool
+    provider_invoked Bool
+    reported_result Json?
+    evidence_grade String = "unvalidated_provider_report"
+    diagnostics String[]
+    authorizes_retry Bool = false
+}

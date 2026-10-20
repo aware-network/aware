@@ -1,0 +1,316 @@
+sdk workspace_sdk {
+    "Canonical Workspace SDK operations over the Workspace service API."
+
+    api workspace
+
+    surface local_status {
+        "Workspace SDK local status read surface."
+
+        method retrieve {
+            "Read the current Workspace lifecycle/source summary."
+            operation load_status
+            method_family retrieve
+            effect read
+            mutation_scope none
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind local_handler
+        }
+    }
+
+    surface local_state {
+        "Workspace SDK local SQLite state health surface."
+
+        method retrieve {
+            "Read Workspace SDK local SQLite state health."
+            operation load_local_state_health
+            method_family retrieve
+            effect read
+            mutation_scope none
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind local_handler
+        }
+    }
+
+    surface local_checkout {
+        "Workspace SDK checkout-local initialization surface."
+
+        method ensure {
+            "Initialize checkout-local Workspace SDK state without Workspace service mutation."
+            operation initialize_local_checkout
+            method_family ensure
+            effect write
+            mutation_scope local_filesystem
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind local_handler
+        }
+    }
+
+    surface materialization_receipt {
+        "Workspace SDK local materialization receipt surface."
+
+        method retrieve {
+            "Verify the latest local materialization receipt against the checkout."
+            operation verify_materialization_receipt
+            method_family retrieve
+            effect read
+            mutation_scope none
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind local_handler
+        }
+    }
+
+    surface remote_delta_status {
+        "Workspace SDK local-delta and remote branch/session status surface."
+
+        method retrieve {
+            "Read local code-package deltas with Workspace branch/session context."
+            operation describe_remote_delta_status
+            method_family retrieve
+            effect read
+            mutation_scope none
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind composed
+        }
+    }
+
+    surface code_package_source_read {
+        "Workspace SDK read-only CodePackage source file surface."
+
+        method retrieve {
+            "Read real CodePackage source files from the checkout with Workspace branch/session evidence."
+            operation read_code_package_sources
+            method_family retrieve
+            effect read
+            mutation_scope none
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind local_handler
+        }
+    }
+
+    surface materialized_language_packages {
+        "Workspace materialized language package summary surface."
+
+        method retrieve {
+            "Read latest materialized language package CodePackage refs."
+            operation load_materialized_language_package_summary
+            method_family retrieve
+            effect read
+            mutation_scope none
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind local_handler
+        }
+    }
+
+    surface workspace_materialization {
+        "Workspace materialization execution surface."
+
+        method invoke {
+            "Materialize the Workspace bundle/package plan."
+            operation materialize_workspace
+            method_family invoke
+            effect write
+            mutation_scope local_filesystem
+            confirmation_policy required
+            execution_mode request_response
+            runtime_binding_kind api_client
+        }
+    }
+
+    surface workspace_delta_materialization {
+        "Workspace SDK delta materialization and local mirror-apply surface."
+
+        method invoke {
+            "Send code-package deltas to Workspace Service, receive materialized outputs, and apply them locally."
+            operation materialize_and_apply_delta
+            method_family invoke
+            effect write
+            mutation_scope local_filesystem
+            confirmation_policy required
+            execution_mode request_response
+            runtime_binding_kind composed
+        }
+    }
+
+    surface workspace_revision {
+        "Workspace SDK local WorkspaceRevision candidate surface."
+
+        method create {
+            "Create a WorkspaceRevision and advance checkout-local HEAD."
+            operation commit_workspace_revision
+            method_family create
+            effect write
+            mutation_scope remote_service
+            confirmation_policy required
+            execution_mode request_response
+            runtime_binding_kind composed
+        }
+    }
+
+    surface shared_branch_publication {
+        "Workspace SDK shared branch publish/CAS surface."
+
+        method invoke {
+            "Publish checkout-local HEAD to the shared WorkspaceBranch by CAS."
+            operation publish_local_head
+            method_family invoke
+            effect write
+            mutation_scope remote_service
+            confirmation_policy required
+            execution_mode request_response
+            runtime_binding_kind composed
+        }
+    }
+
+    surface shared_branch_fetch {
+        "Workspace SDK shared branch/profile fetch surface."
+
+        method retrieve {
+            "Fetch shared branch/profile head metadata without applying checkout files."
+            operation fetch_shared_branch_head
+            method_family retrieve
+            effect read
+            mutation_scope local_filesystem
+            confirmation_policy none
+            execution_mode request_response
+            runtime_binding_kind composed
+        }
+    }
+
+    surface revision_checkout {
+        "Workspace SDK revision checkout apply surface."
+
+        method invoke {
+            "Request a portable WorkspaceRevision checkout payload and apply it locally."
+            operation checkout_workspace_revision
+            method_family invoke
+            effect write
+            mutation_scope local_filesystem
+            confirmation_policy required
+            execution_mode request_response
+            runtime_binding_kind composed
+        }
+    }
+
+    operation load_status {
+        "Read the current Workspace lifecycle/source summary."
+        endpoint workspace.status.status
+        view workspace.revision_selector
+        view workspace.representation_selector
+        view workspace.control
+        view workspace.terminal_console
+    }
+
+    operation load_local_state_health {
+        "Read Workspace SDK local SQLite state health."
+        endpoint workspace.status.status
+    }
+
+    operation initialize_local_checkout {
+        "Initialize checkout-local Workspace SDK state without Workspace service mutation."
+        operation workspace_sdk.load_local_state_health
+    }
+
+    operation verify_materialization_receipt {
+        "Verify the latest local materialization receipt against the checkout."
+        endpoint workspace.status.status
+    }
+
+    operation describe_remote_delta_status {
+        "Read local code-package deltas with Workspace branch/session context."
+        endpoint workspace.status.status
+        endpoint workspace.semantic_provider.catalog
+        view workspace.revision_selector
+        view workspace.representation_selector
+        view workspace.package_selector
+        view workspace.package_inspector
+        view workspace.control
+        view workspace.terminal_console
+    }
+
+    operation read_code_package_sources {
+        "Read real CodePackage source files from the checkout with Workspace branch/session evidence."
+    }
+
+    operation load_semantic_source {
+        "Read committed semantic package/source summary for one Workspace root."
+        endpoint workspace.semantic_source.semantic_source
+        view workspace.package_selector
+        view workspace.package_inspector
+    }
+
+    operation load_semantic_event_aggregate {
+        "Read one Workspace semantic dirty-status aggregate from provider event envelopes."
+        endpoint workspace.semantic_events.aggregate
+    }
+
+    operation load_materialized_language_package_summary {
+        "Read latest materialized language package CodePackage refs for one Workspace root."
+        endpoint workspace.materialized_language_packages.summary
+    }
+
+    operation inspect_semantic_object_config_graph {
+        "Read one selected committed semantic package preview graph."
+        endpoint workspace.semantic_object_config_graph.semantic_object_config_graph
+        view workspace.semantic_graph_preview
+    }
+
+    operation materialize_workspace {
+        "Materialize the Workspace bundle/package plan."
+        endpoint workspace.materialize.materialize
+        view workspace.control
+        view workspace.terminal_console
+    }
+
+    operation materialize_and_apply_delta {
+        "Send code-package deltas to Workspace Service, receive materialized outputs, and apply them locally."
+        endpoint workspace.materialize.materialize
+        view workspace.control
+        view workspace.terminal_console
+    }
+
+    operation commit_workspace_revision {
+        "Create a WorkspaceRevision and advance checkout-local HEAD."
+        endpoint workspace.commit.commit
+    }
+
+    operation publish_local_head {
+        "Publish checkout-local HEAD to the shared WorkspaceBranch by CAS."
+        endpoint workspace.branch.publish
+    }
+
+    operation fetch_shared_branch_head {
+        "Fetch shared branch/profile head metadata without applying checkout files."
+        endpoint workspace.branch.fetch
+        view workspace.revision_selector
+    }
+
+    operation checkout_workspace_revision {
+        "Request a portable WorkspaceRevision checkout payload and apply it locally."
+        endpoint workspace.revision.checkout
+    }
+
+    operation test_revision {
+        "Execute Code-owned package tests for one committed WorkspaceRevision."
+        endpoint workspace.test.test
+        view workspace.control
+        view workspace.terminal_console
+    }
+
+    operation pin_code_module {
+        "Pin passive CodeModule source/layout truth for one Workspace."
+        endpoint workspace.code_module.pin
+    }
+
+    operation list_code_module_pins {
+        "List passive CodeModule pins visible for one Workspace registry."
+        endpoint workspace.code_module_registry.list_pins
+    }
+
+}

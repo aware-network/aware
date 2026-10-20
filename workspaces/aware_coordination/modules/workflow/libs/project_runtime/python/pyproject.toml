@@ -1,0 +1,40 @@
+[project]
+name = "aware-project-runtime"
+version = "0.1.0"
+description = "Neutral Project contracts, initial-state law and source codecs."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "aware-goal-operational-runtime>=0.1.0,<0.2.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+# Keep original canonical sources, class identities and verifier registries.
+# The broad aware-workflow wheel excludes these exact namespace-fragment files.
+[tool.hatch.build]
+ignore-vcs = true
+
+[tool.hatch.build.targets.wheel]
+bypass-selection = true
+only-include = ["aware_workflow"]
+
+[tool.hatch.build.hooks.custom]
+path = "hatch_build.py"
+modules = [
+  "project_read_contract.py",
+  "project_read_runtime.py",
+  "project_create_contract.py",
+  "project_create_runtime.py",
+  "project_source_codec.py",
+  "project_membership_contract.py",
+]
+
+# Self-contained source archives rebuild the same fragment without the monorepo.
+[tool.hatch.build.targets.sdist]
+include = ["pyproject.toml", "README.md", "hatch_build.py", "aware_workflow"]
+
+[tool.uv.sources]
+aware-goal-operational-runtime = { workspace = true }
