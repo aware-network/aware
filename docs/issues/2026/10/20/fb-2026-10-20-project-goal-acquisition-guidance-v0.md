@@ -2,7 +2,7 @@
 
 - Slug: project-goal-acquisition-guidance-v0
 - Tag: fb/2026-10-20/project-goal-acquisition-guidance-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -36,14 +36,17 @@
 
 
 
+
 ## Problem
 1. Currentguides sendfreshinstallation backto historical704b5943931f witholdbrokeninstaller despite corrected55de18317dcb.
 
 
 
 
+
 ## Goal
 1. Correct17currentguideacquisitiondirections,pointer and25successorpins includingexactcorrectedwrapper;preserve commands,software,oldrecords andallqualifications.
+
 
 
 
@@ -56,7 +59,16 @@
 
 
 
+
+## Verified-by
+- Human-relayed independent17check/25pin PASS;no tests,installation orcustomeroperations repeated atcloseout.
+- git:e65e9eba6a9ee2026068c1ec249d327832c4526f
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied exact22path implementationddabf2b9b880 after sourcefreeze60a25886c441. Eightcurrent acquisition/pin/conservation/readonly checks plusnineoriginalinstallerregressions pass;25pins include exactcorrectedwrapper3d6da7b29caf,priorrecords/software unchanged. 17guides separate corrected55de acquisition fromhistorical704software;currentusefultasklinks do not sendusersback tobrokenREADME. Retainedinstallation readonly,no secondinstall/customerreplay. Original16pass/1fail pin-helper receiving run retained;finiteexpectedset nowprior24plusinstaller,originalbyte/missingnegativecontrols preserved. Original Issueguards/CAS/index withoutdebt. Independent review beforeclosure;additionalpublication separatelyauthorized,originalfailure/fourunrun andallqualifications preserved. (outcome: bounded_acquisition_guidance_pending_independent_review) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independent bounded guidance PASS for1d4951ad3763:17checks,25pins includingcorrectedinstaller,currentguides route55de correctedacquisition anddistinguish704historicalsoftware. Exact22path implementation/two-path handoff,originalIssueguards/CAS/index verified;commands,software/history preserved. Originalfailure/allfourunrun unchanged;no newinstallation orclientretry. This acceptance doesnot accept separatepublicationevidence. CurrentHuman explicitly approves publication ofthisreviewedguidance;record exactrange/checkpoint before anypush.
