@@ -61,4 +61,16 @@ separate; no automatic refresh, approval or retry.
 
 ## Prepared optional Project/Goal successor
 
-[canonical-project-goal-fs-v1](canonical-project-goal-fs-v1/README.md) is draft/unselected. Integration, selection, freeze and publication remain separate.
+[canonical-project-goal-fs-v1](canonical-project-goal-fs-v1/README.md) is selected locally; public delivery is not yet authorized. Instructions remain draft; instruction freeze and publication remain separate.
+
+## Local optional Project/Goal delivery selection
+
+Agent **0.2.0a16** is selected locally; public delivery is not yet authorized.
+Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+The artifact-derived pointer is not a package selector or operation authority.
+Issue-first useful work and optional SPEC remain independent; fresh Project/Goal
+creates direction only, not Issue/work, decomposition or RUN authority. Exact
+original second-review pairing remains required for historical intent; observation
+is not completion, current admission or retry permission. Whole-envelope carriage,
+nine legal gaps, thirteen findings and matrix/native qualifications remain.
+Instruction freeze, publication and client trials are separate. Nothing activates.

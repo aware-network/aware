@@ -1,6 +1,6 @@
 # Aware
 
-Draft instructions for prepared, unselected Agent a16; not public availability.
+Draft instructions for locally selected Agent a16; public delivery is not yet authorized.
 
 Coherent work between agents in your Git repository.
 
@@ -20,13 +20,13 @@ criteria, not a prewritten implementation or mandatory task.
 
 Today's path is **Issue → optional SPEC → bounded work → verification → local
 publication and closeout**. A generated manifest is setup, not completion of the
-customer's application. Optional prepared Project/Goal direction is a separate fresh-repository branch.
+customer's application. Optional locally selected Project/Goal direction is a separate fresh-repository branch.
 Language/Meta elevation remains parallel; neither is a prerequisite for this path.
 
-## Prepared optional Project/Goal and original-intent presentation
+## Locally selected optional Project/Goal and original-intent presentation
 
-Agent **0.2.0a16** / Issue CLI **0.8.4**, 49 payload distributions, is prepared
-and unselected. Instructions are draft, not public availability. Start with
+Agent **0.2.0a16** / Issue CLI **0.8.4**, 49 payload distributions, is selected locally;
+public delivery is not yet authorized. Instructions remain draft. Start with
 [useful customer code](protocols/FIRST-USEFUL-TASK.md); Issue-first and optional
 SPEC remain independent. For a fresh repository only, see the separate
 [optional Project/Goal branch](protocols/PROJECT-GOAL.md). It creates direction,
@@ -36,7 +36,9 @@ The delivered predecessor is Agent a15 at
 `5af88a6b95b928811022e5cd0255e4bb5c77bd87`; local wording baseline is
 `3f70fcf57e56708a1e1f8c0b52a10e2eb812da6d`. This private proposal does not replace that published evidence.
 The proposed installer targets this successor and retains its entire envelope.
-Selection, instruction freeze, publication and new client trials are separate.
+The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
+[local selection](releases/canonical-project-goal-fs-v1/LOCAL-SELECTION.md) records its limits.
+Instruction freeze, publication and new client trials remain separate.
 
 ## Delivered historical action observation
 

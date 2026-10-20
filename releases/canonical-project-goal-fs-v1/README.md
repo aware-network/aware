@@ -1,6 +1,6 @@
 # Prepared optional Project/Goal whole distribution
 
-Draft and unselected. Envelope `canonical-project-goal-source-notice-review-v1.tar.gz` SHA256 `edaab985f57541928effb038c825fa3af6ec6afbffda45249099a64bf1120898`;
+Selected locally; public delivery is not yet authorized. Instructions remain draft. Envelope `canonical-project-goal-source-notice-review-v1.tar.gz` SHA256 `edaab985f57541928effb038c825fa3af6ec6afbffda45249099a64bf1120898`;
 software `f5b5062aeefec2db2ce660e533342ef9b0df59b9ef7a1b02661d467239da4522`. Use [the entrance](../../README.md),
 [useful customer work](../../protocols/FIRST-USEFUL-TASK.md),
 [optional direction](../../protocols/PROJECT-GOAL.md) and the
@@ -17,3 +17,15 @@ NOTICE references resolve through source-history and retained source history.
 [Qualification bounds](REVIEW-STATUS.md) preserve nine gaps, thirteen findings,
 native limits and matrix/replay qualifications. No detached-wheel or stripped
 route is accepted. Publication and customer evaluation remain separately admitted.
+
+## Local optional Project/Goal delivery selection
+
+Agent **0.2.0a16** is selected locally; public delivery is not yet authorized.
+Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+The artifact-derived pointer is not a package selector or operation authority.
+Issue-first useful work and optional SPEC remain independent; fresh Project/Goal
+creates direction only, not Issue/work, decomposition or RUN authority. Exact
+original second-review pairing remains required for historical intent; observation
+is not completion, current admission or retry permission. Whole-envelope carriage,
+nine legal gaps, thirteen findings and matrix/native qualifications remain.
+Instruction freeze, publication and client trials are separate. Nothing activates.
