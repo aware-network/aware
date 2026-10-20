@@ -2,7 +2,7 @@
 
 - Slug: project-goal-public-integration-v0
 - Tag: fb/2026-10-20/project-goal-public-integration-v0
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6
 - Priority: P1
 - Goal: TBD
@@ -386,14 +386,17 @@
 
 
 
+
 ## Problem
 1. Accepted expanded layout is not integrated against freshly observed matching local and remote3f70fcf57e56; no baseline movement.
 
 
 
 
+
 ## Goal
 1. Project exact368-path delta with complete49-package carriage, overlays/preimages, borrowed modules and declarations, preserving useful Issue-first work, contributor governance and predecessor selection.
+
 
 
 
@@ -406,7 +409,16 @@
 
 
 
+
+## Verified-by
+- Human relayed independent31controls+8checks PASS; no test/customer replay at closeout.
+- git:5460952d5596fe131019edd24a0a435148060a70
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Implementation39bf725ab928 applied exact372-path scope with matching original Issue guard and completed CAS/index; all2293 accepted postimages/Git modes verified.31 pre-effect controls and eight original integration/retained-read cases passed. Whole envelope,9gaps/13findings, primary1213pass/16fail and composition qualifications preserved. No selection/freeze/installation/customer replay/GC/push. Independent review before closeout; actual publication receipt git:39bf725ab928dd11cffa07d1eb1627240f357bf8. (outcome: bounded_local_integration_pending_independent_review) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+
+## Resolution
+Independent bounded integration PASS for parentafa28b7f39c4/d8224b51bd03:31controls plus8integration checks, all2293 postimages/Git modes, exact372-path implementation and2-path handoff, matching original Issue guards and completed CAS/index without debt. Whole carriage,9legal gaps/13findings and matrix/native/composition limits preserved. Selection/freeze/publication remain separate; no push.
