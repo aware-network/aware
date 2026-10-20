@@ -1,10 +1,10 @@
 # Current collaboration alignment
 
-Agent **0.2.0a15**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not a delivered predecessor's acquisition path.
-Instruction pins grant no operation authority. Both reviews and original guards
-remain; historical intent is not completion, current admission or retry authority.
+Agent **0.2.0a15**, with Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
+Acquire that exact revision and retain its complete source/notice envelope.
+This alignment changes current wording and pins, not software or operation authority.
+Both reviews and original guards remain required. Additional publication of this
+wording alignment requires independent review and separate authorization.
 
 [One installed entrance](../../README.md) composes the original SDK owners.
 Coherence means shared rules, bounded work and recoverable evidence, not speed
@@ -52,16 +52,16 @@ pointer is not a package catalog or operation authority. Same observation is not
 frozen preview bytes; apply plans afresh. No automatic refresh, approval or retry.
 This wording alignment requires independent review and separate publication authorization.
 
-## Locally frozen historical action observer
+## Delivered historical action observer
 
-Agent a15 is selected locally; public delivery is not yet authorized. Historical intent is not completion, current admission or retry authority. Original Issue-first useful work, optional SPEC, both explicit reviews, contributor governance and frozen evaluations remain unchanged. No service or higher-workflow activation follows.
+Agent a15 was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Historical intent is not completion, current admission or retry authority. Original Issue-first useful work, optional SPEC, both explicit reviews, contributor governance and frozen evaluations remain unchanged. No service or higher-workflow activation follows.
 
-## Local historical action observation selection
+## Observer delivery and historical selection
 
-Agent **0.2.0a15** is selected locally; public delivery is not yet authorized.
-Instructions are frozen locally pending independent review. Use this reviewed checkout, not unchanged public main.
+Agent **0.2.0a15** was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
+The original local selection and freeze records remain historical checkpoints.
 Complete whole-envelope source and notice carriage remains required. The delivery
 pointer is not a package catalog or operation authority. Historical intent does
 not prove completion, current admission or retry authority. Preserve original
-uncertainty and both review decisions. Independent instruction review and publication remain
+uncertainty and both review decisions. Independent wording review and additional publication remain
 separate; no automatic refresh, approval or retry.

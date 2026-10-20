@@ -1,10 +1,10 @@
 # Filesystem distributions
 
-Agent **0.2.0a15**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not a delivered predecessor's acquisition path.
-Instruction pins grant no operation authority. Both reviews and original guards
-remain; historical intent is not completion, current admission or retry authority.
+Agent **0.2.0a15**, with Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
+Acquire that exact revision and retain its complete source/notice envelope.
+This alignment changes current wording and pins, not software or operation authority.
+Both reviews and original guards remain required. Additional publication of this
+wording alignment requires independent review and separate authorization.
 
 Historical freezes remain unchanged.
 
@@ -45,16 +45,16 @@ pointer is not a package catalog or operation authority. Same observation is not
 frozen preview bytes; apply plans afresh. No automatic refresh, approval or retry.
 This wording alignment requires independent review and separate publication authorization.
 
-## Locally frozen historical action observer
+## Delivered historical action observer
 
-[canonical-action-observer-fs-v1](canonical-action-observer-fs-v1/README.md) is selected locally; public delivery is not yet authorized. Instructions are frozen locally pending independent review; independent instruction review and publication are separate. Whole-envelope carriage remains required.
+[canonical-action-observer-fs-v1](canonical-action-observer-fs-v1/README.md) was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Current instructions describe the software delivered at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`; independent wording review and additional publication are separate. Whole-envelope carriage remains required.
 
-## Local historical action observation selection
+## Observer delivery and historical selection
 
-Agent **0.2.0a15** is selected locally; public delivery is not yet authorized.
-Instructions are frozen locally pending independent review. Use this reviewed checkout, not unchanged public main.
+Agent **0.2.0a15** was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
+The original local selection and freeze records remain historical checkpoints.
 Complete whole-envelope source and notice carriage remains required. The delivery
 pointer is not a package catalog or operation authority. Historical intent does
 not prove completion, current admission or retry authority. Preserve original
-uncertainty and both review decisions. Independent instruction review and publication remain
+uncertainty and both review decisions. Independent wording review and additional publication remain
 separate; no automatic refresh, approval or retry.

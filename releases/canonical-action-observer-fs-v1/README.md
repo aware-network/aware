@@ -1,12 +1,12 @@
 # Historical action observer whole distribution
 
-Agent **0.2.0a15**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not a delivered predecessor's acquisition path.
-Instruction pins grant no operation authority. Both reviews and original guards
-remain; historical intent is not completion, current admission or retry authority.
+Agent **0.2.0a15**, with Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
+Acquire that exact revision and retain its complete source/notice envelope.
+This alignment changes current wording and pins, not software or operation authority.
+Both reviews and original guards remain required. Additional publication of this
+wording alignment requires independent review and separate authorization.
 
-Selected locally; public delivery is not yet authorized. Instructions are frozen locally pending independent review. Exact envelope `canonical-action-observer-source-notice-review-v1.tar.gz`
+Published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Exact envelope `canonical-action-observer-source-notice-review-v1.tar.gz`
 has SHA256 `a21ef71179c055fa87e4ffde7ede35b87246deceb4a4d1039c6b7fa17e23292f` and software `a2e468dfdcdd8c6b9a6d8187f3eded2db2465c3ddf15ee44309beb1cf9c97533`.
 Use [the entrance](../../README.md), [useful work](../../protocols/FIRST-USEFUL-TASK.md),
 [historical action observation](../../protocols/workspace/ACTION-OBSERVATION.md)
@@ -30,12 +30,12 @@ header/toolchain provenance or exact linkage proof. Source READMEs remain histor
 Integration, selection, instruction freeze, publication and customer trials are
 separately governed; this proposal is not public availability.
 
-## Local historical action observation selection
+## Observer delivery and historical selection
 
-Agent **0.2.0a15** is selected locally; public delivery is not yet authorized.
-Instructions are frozen locally pending independent review. Use this reviewed checkout, not unchanged public main.
+Agent **0.2.0a15** was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
+The original local selection and freeze records remain historical checkpoints.
 Complete whole-envelope source and notice carriage remains required. The delivery
 pointer is not a package catalog or operation authority. Historical intent does
 not prove completion, current admission or retry authority. Preserve original
-uncertainty and both review decisions. Independent instruction review and publication remain
+uncertainty and both review decisions. Independent wording review and additional publication remain
 separate; no automatic refresh, approval or retry.

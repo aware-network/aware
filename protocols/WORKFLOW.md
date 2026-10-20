@@ -1,10 +1,10 @@
 # Aware filesystem workflow
 
-Agent **0.2.0a15**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
-public delivery is not yet authorized. Use this reviewed checkout and its
-whole-envelope installer, not a delivered predecessor's acquisition path.
-Instruction pins grant no operation authority. Both reviews and original guards
-remain; historical intent is not completion, current admission or retry authority.
+Agent **0.2.0a15**, with Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
+Acquire that exact revision and retain its complete source/notice envelope.
+This alignment changes current wording and pins, not software or operation authority.
+Both reviews and original guards remain required. Additional publication of this
+wording alignment requires independent review and separate authorization.
 
 Historical freezes remain unchanged; installation does not admit customer work.
 Read [init summary streams and decisions](INIT.md); full receipts remain
@@ -469,6 +469,6 @@ compatible configuration reuse and preserving existing guidance and foreign work
 They qualify a scripted installed workflow, not generic migration or
 unassisted customer adoption. Project and Goal are not prerequisites.
 
-## Locally frozen historical action observation
+## Delivered historical action observation
 
-[Observe retained intent](workspace/ACTION-OBSERVATION.md) using the original review and intent references. Instructions are frozen locally pending independent review. Observation is not completion, current admission or retry authority. Both explicit reviews remain separate.
+[Observe retained intent](workspace/ACTION-OBSERVATION.md) using the original review and intent references. Current instructions describe the software delivered at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Observation is not completion, current admission or retry authority. Both explicit reviews remain separate.
