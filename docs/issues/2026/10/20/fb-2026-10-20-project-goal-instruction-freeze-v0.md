@@ -33,13 +33,16 @@
 - `releases/canonical-project-goal-fs-v1/test_instruction_freeze.py`
 
 
+
 ## Problem
 1. Locally selected a16/49-package delivery lacks exact current instruction pins and retains stale predecessor guidance.
 
 
 
+
 ## Goal
 1. Align current prose/status and derive24 exact instruction/example pins while preserving operational blocks,software,notices,contributor governance and historical freezes.
+
 
 
 
@@ -50,6 +53,8 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Instruction implementation787c3a32a297 applied exact20-path scope with original Issue guard and completed CAS/index without debt. All24 pins match; eight receiving checks passed using retained49-payload installation. Separate pure installed example1142-byte exact roundtrip,six in-memory members,cleanup closed,wrote one input only,no documents/authority. Operational shell blocks,software,notices,source/history and contributor governance preserved;2284 unaffected files/modes expected and verified by receiving checks. Whole carriage,9gaps/13findings and matrix/native/composition limits explicit. Actual receipt git:787c3a32a2978f10ec04e7b92918e1f6046b5b13. Independent review before closeout; public delivery unauthorized, no new installation,customer journey,activation,GC or push. (outcome: bounded_instruction_freeze_pending_independent_review) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)

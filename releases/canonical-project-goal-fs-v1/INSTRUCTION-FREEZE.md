@@ -39,3 +39,18 @@ A2,activation,stable bridge,real-customer adoption or productivity claim follows
 Independent review precedes both governed closeouts. Publication needs explicit
 target/outgoing-range authorization and pinned acquisition. Fresh client trials
 remain separate. GC holds and frozen evaluations remain protected; no push.
+
+## Applied local checkpoint
+
+Implementation `787c3a32a2978f10ec04e7b92918e1f6046b5b13` applied the exact
+twenty-path scope through original contributor Issue/publication owners. All24
+instruction pins match. Eight receiving checks passed; the separate installed
+example round-tripped1142 bytes exactly, rendered six in-memory members and
+reported cleanup closed. Only the input snapshot was written.
+
+Actual implementation receipt:
+`git:787c3a32a2978f10ec04e7b92918e1f6046b5b13`. Original Issue guard and CAS/index
+receipts agree without reconciliation debt. This handoff changes only this note
+and the admitted public Issue. Independent review precedes both closeouts;
+public delivery remains unauthorized. No installation, customer journey,
+activation, GC changes or push; all carriage/qualification limits remain.
