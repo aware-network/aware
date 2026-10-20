@@ -41,3 +41,11 @@ unchanged. Native/header/toolchain/linkage qualifications remain explicit.
 Keep [complete sources and notices](README.md); no detached-wheel/stripped route.
 Commands, software, installer, contributor a6 and historical records stay unchanged.
 No installation, customer replay, activation, payload copy, GC change or push.
+
+## Local alignment review checkpoint
+
+Applied local wording implementation `9dd81fc18da7dea4b625bb2ee5d593e872f08715`
+changes exactly22 admitted paths. Nine checks passed;24 successor pins match.
+Original Issue guard and CAS/index receipts complete without debt. This is
+local review provenance, not another delivered revision or operation authority.
+Independent review precedes closeout; additional publication remains unauthorized.

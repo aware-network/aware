@@ -35,13 +35,16 @@
 - `releases/canonical-project-goal-fs-v1/test_public_status.py`
 
 
+
 ## Problem
 1. Current wording still describes accepted a16 as locally frozen despite704b5943931f delivery.
 
 
 
+
 ## Goal
 1. Align17 current guides and24 successor pins; preserve commands,software,historical freezes and qualifications; no additional publication.
+
 
 
 
@@ -52,6 +55,8 @@
 
 
 
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
+- Current wording implementation9dd81fc18da7 applies exact22path scope after source freeze8faf46f3db4a. Nine checks pass with24successor pins;2304baseline files,2286unaffected bytes/Git modes,2308final files conserved. Original Issue guard and CAS/index complete without debt. Delivered software704b5943931f distinct from this unpublished alignment. Both reviews,optional fresh direction non-authority,historical pairing and9gaps13findings,matrix/composition/native limits preserved. Retained49payload installation/156origins reused; no new installation,customer replay,activation,GC orpush. Independent review before closeout and separate publication authorization required. (outcome: bounded_status_alignment_pending_independent_review) (recorder: `codex-01a0e2c0-e9cd-7c83-969b-d9ab031d0ec6`)
