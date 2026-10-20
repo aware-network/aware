@@ -63,3 +63,11 @@ Nine regression tests pass. Initial six-pass/three-failure test evidence remains
 the test harness intercepted its own interpreter-version probe before reaching
 archive lookup. Its isolated version response was corrected; the actual single
 installation used the real Python interpreter. Earlier evidence is not erased.
+
+## Local review checkpoint
+
+Implementation `2fcb5c196188c4e390b76e24aae1fede124014b6` applies exactly
+four admitted paths with original Issue guards and completed CAS/index receipts.
+The wrapper hash above matches the actual installed invocation. This checkpoint
+is local provenance, not additional public availability or retry authority.
+Independent review and separate exact-range publication authorization remain required.
