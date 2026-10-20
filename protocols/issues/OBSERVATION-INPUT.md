@@ -1,14 +1,16 @@
 # Explicit Issue observation input
 
-Agent **0.2.0a15**, with Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
-Acquire that exact revision and retain its complete source/notice envelope.
-This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required. Additional publication of this
-wording alignment requires independent review and separate authorization.
+Agent **0.2.0a16**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not a predecessor's acquisition path. Issue-first
+useful work and optional SPEC stay independent; optional fresh Project/Goal
+creates direction, not work authority. Byte pins grant no operation or retry
+authority. The delivered a15 predecessor remains historical at
+`5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Both reviews and original guards remain.
 
 Issue CLI **0.8.4** was first delivered with Agent a14 at
 `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`; that is a predecessor software pin.
-Its original observation-input behavior remains included in this local a15 successor. Follow [the first Issue](FIRST-ISSUE.md),
+Its original observation-input behavior remains included in this locally selected a16 successor. Follow [the first Issue](FIRST-ISSUE.md),
 [useful customer work](../FIRST-USEFUL-TASK.md) and [the workflow](../WORKFLOW.md).
 Existing digest-argument commands remain supported and unchanged.
 

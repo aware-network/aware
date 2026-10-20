@@ -1,8 +1,12 @@
 # Aware filesystem workflow
 
-Draft for prepared/unselected Agent a16 with 49 payload distributions.
-Delivered predecessor a15 remains pinned at 5af88a6b95b928811022e5cd0255e4bb5c77bd87.
-This proposed installer is not public availability or operation authority.
+Agent **0.2.0a16**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not a predecessor's acquisition path. Issue-first
+useful work and optional SPEC stay independent; optional fresh Project/Goal
+creates direction, not work authority. Byte pins grant no operation or retry
+authority. The delivered a15 predecessor remains historical at
+`5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Both reviews and original guards remain.
 
 Historical freezes remain unchanged; installation does not admit customer work.
 Read [init summary streams and decisions](INIT.md); full receipts remain
@@ -438,13 +442,13 @@ Original release unknown remains unknown after client cleanup. Clean stale
 refusals exit 2; genuine incompleteness remains 3; interruption remains 130.
 
 Carried code does not admit A2/tree completion, services, objects,
-materialization, Project/Goal workflows or broader native performance.
+materialization, Goal-to-work workflows or broader native performance. Optional fresh Project/Goal direction is bounded separately below.
 Read [the entrance](../README.md) and retain complete source/notice carriage.
 
-## Reference navigation in the delivered candidate
+## Reference navigation in the local candidate
 
-The a12 [stdin and focused-history guide](workspace/REFERENCE-NAVIGATION.md)
-retains two explicit decisions and manual Issue guards. Its instruction pins
+The original [stdin and focused-history guide](workspace/REFERENCE-NAVIGATION.md)
+retains two explicit decisions. Workspace references do not replace original Issue observations. Its instruction pins
 bind reviewed bytes, not a new admission or renewed current-use authority.
 
 ## Historical a14 predecessor summaries
@@ -469,8 +473,8 @@ unassisted customer adoption. Project and Goal are not prerequisites.
 
 ## Delivered historical action observation
 
-[Observe retained intent](workspace/ACTION-OBSERVATION.md) using the original review and intent references. Current instructions describe the software delivered at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Observation is not completion, current admission or retry authority. Both explicit reviews remain separate.
+[Observe retained intent](workspace/ACTION-OBSERVATION.md) using the original review and intent references. The delivered predecessor was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Observation is not completion, current admission or retry authority. Both explicit reviews remain separate.
 
-## Prepared optional direction branch
+## Optional direction branch with locally frozen instructions
 
-[Fresh Project/Goal direction](PROJECT-GOAL.md) is draft and unselected; it is not a prerequisite for useful Issue-first work or optional SPEC. No Goal-to-work authority is created.
+[Fresh Project/Goal direction](PROJECT-GOAL.md) has locally frozen instructions pending independent review; it is not a prerequisite for useful Issue-first work or optional SPEC. No Goal-to-work authority is created.

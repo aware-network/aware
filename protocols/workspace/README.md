@@ -1,14 +1,16 @@
 # Reviewed Workspace A1
 
-Agent **0.2.0a15**, with Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
-Acquire that exact revision and retain its complete source/notice envelope.
-This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required. Additional publication of this
-wording alignment requires independent review and separate authorization.
+Agent **0.2.0a16**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not a predecessor's acquisition path. Issue-first
+useful work and optional SPEC stay independent; optional fresh Project/Goal
+creates direction, not work authority. Byte pins grant no operation or retry
+authority. The delivered a15 predecessor remains historical at
+`5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Both reviews and original guards remain.
 
 Use the [two-review repository-manifest guide](REVIEWED-SETUP.md) through the
 original installed SDK owners. Init supplies configuration, not admission or
-apply authority. Use the locally selected a14 instructions for this reviewed checkout.
+apply authority. Use the locally selected a16 instructions for this reviewed checkout.
 Known effects, evidence retention and cleanup stay separate. Historical show
 and full evidence reads renew no authority; no retry or guard refresh is offered.
 The [manual guide](FIRST-SETUP.md) remains history, not broader acceptance.
@@ -22,4 +24,4 @@ decisions and original guards. It does not automate Issue guard handling.
 
 [Delivered historical action observation](ACTION-OBSERVATION.md) validates original intent, not completion or current-use authority. Current instructions describe the software delivered at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
 
-The draft a16 successor adds original-intent candidate discovery; candidates are not validated pairs or retry permission. See [observation](ACTION-OBSERVATION.md) and [optional direction](../PROJECT-GOAL.md).
+The locally selected a16 successor includes original-intent candidate discovery; candidates are not validated pairs or retry permission. See [observation](ACTION-OBSERVATION.md) and [optional direction](../PROJECT-GOAL.md).

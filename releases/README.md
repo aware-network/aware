@@ -1,10 +1,12 @@
 # Filesystem distributions
 
-Agent **0.2.0a15**, with Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
-Acquire that exact revision and retain its complete source/notice envelope.
-This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required. Additional publication of this
-wording alignment requires independent review and separate authorization.
+Agent **0.2.0a16**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not a predecessor's acquisition path. Issue-first
+useful work and optional SPEC stay independent; optional fresh Project/Goal
+creates direction, not work authority. Byte pins grant no operation or retry
+authority. The delivered a15 predecessor remains historical at
+`5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Both reviews and original guards remain.
 
 Historical freezes remain unchanged.
 
@@ -59,18 +61,18 @@ not prove completion, current admission or retry authority. Preserve original
 uncertainty and both review decisions. Independent wording review and additional publication remain
 separate; no automatic refresh, approval or retry.
 
-## Prepared optional Project/Goal successor
+## Locally frozen optional Project/Goal successor
 
-[canonical-project-goal-fs-v1](canonical-project-goal-fs-v1/README.md) is selected locally; public delivery is not yet authorized. Instructions remain draft; instruction freeze and publication remain separate.
+[canonical-project-goal-fs-v1](canonical-project-goal-fs-v1/README.md) is selected locally; public delivery is not yet authorized. Instructions are frozen locally pending independent review; independent instruction review and publication remain separate.
 
 ## Local optional Project/Goal delivery selection
 
 Agent **0.2.0a16** is selected locally; public delivery is not yet authorized.
-Instructions remain draft. Use this reviewed checkout, not unchanged public main.
+Instructions are frozen locally pending independent review. Use this reviewed checkout, not unchanged public main.
 The artifact-derived pointer is not a package selector or operation authority.
 Issue-first useful work and optional SPEC remain independent; fresh Project/Goal
 creates direction only, not Issue/work, decomposition or RUN authority. Exact
 original second-review pairing remains required for historical intent; observation
 is not completion, current admission or retry permission. Whole-envelope carriage,
 nine legal gaps, thirteen findings and matrix/native qualifications remain.
-Instruction freeze, publication and client trials are separate. Nothing activates.
+Independent instruction review, publication and client trials are separate. Nothing activates.

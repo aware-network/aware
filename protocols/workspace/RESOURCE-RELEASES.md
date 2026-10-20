@@ -1,14 +1,16 @@
 # Resource releases and incomplete evidence
 
-Agent **0.2.0a15**, with Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
-Acquire that exact revision and retain its complete source/notice envelope.
-This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required. Additional publication of this
-wording alignment requires independent review and separate authorization.
+Agent **0.2.0a16**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not a predecessor's acquisition path. Issue-first
+useful work and optional SPEC stay independent; optional fresh Project/Goal
+creates direction, not work authority. Byte pins grant no operation or retry
+authority. The delivered a15 predecessor remains historical at
+`5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Both reviews and original guards remain.
 
 Use the
 [two-review guide](REVIEWED-SETUP.md), [reference navigation](REFERENCE-NAVIGATION.md)
-and [workflow](../WORKFLOW.md). Keep both explicit decisions and manual Issue guards.
+and [workflow](../WORKFLOW.md). Keep both explicit decisions and original Issue observations.
 
 Human output separates reported resource releases, retention completeness,
 client cleanup and original Workspace uncertainty. Confirmed resource closes
@@ -22,5 +24,6 @@ Reading does not restore authority. Interruption remains 130; clean supported
 refusals remain 2. No automatic approval, guard refresh, retry or cleanup replay.
 
 Init supplies configuration, not Issue admission, scope approval or apply
-authority. Optional Goal and positive create-first CLI execution are unqualified
-in this delivery. Continue Issue first with optional SPEC and useful bounded work.
+authority. The optional [fresh Project/Goal branch](../PROJECT-GOAL.md) is separately
+bounded direction, not Goal-to-Issue/work or RUN authority. Continue Issue first
+with optional SPEC and useful bounded work when direction records are unnecessary.

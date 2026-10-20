@@ -1,6 +1,12 @@
 # Aware
 
-Draft instructions for locally selected Agent a16; public delivery is not yet authorized.
+Agent **0.2.0a16**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not a predecessor's acquisition path. Issue-first
+useful work and optional SPEC stay independent; optional fresh Project/Goal
+creates direction, not work authority. Byte pins grant no operation or retry
+authority. The delivered a15 predecessor remains historical at
+`5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Both reviews and original guards remain.
 
 Coherent work between agents in your Git repository.
 
@@ -23,10 +29,10 @@ publication and closeout**. A generated manifest is setup, not completion of the
 customer's application. Optional locally selected Project/Goal direction is a separate fresh-repository branch.
 Language/Meta elevation remains parallel; neither is a prerequisite for this path.
 
-## Locally selected optional Project/Goal and original-intent presentation
+## Locally frozen optional Project/Goal and original-intent presentation
 
 Agent **0.2.0a16** / Issue CLI **0.8.4**, 49 payload distributions, is selected locally;
-public delivery is not yet authorized. Instructions remain draft. Start with
+public delivery is not yet authorized. Instructions are frozen locally pending independent review. Start with
 [useful customer code](protocols/FIRST-USEFUL-TASK.md); Issue-first and optional
 SPEC remain independent. For a fresh repository only, see the separate
 [optional Project/Goal branch](protocols/PROJECT-GOAL.md). It creates direction,
@@ -38,7 +44,7 @@ The delivered predecessor is Agent a15 at
 The proposed installer targets this successor and retains its entire envelope.
 The [delivery pointer](releases/SELECTED.json) binds the complete envelope;
 [local selection](releases/canonical-project-goal-fs-v1/LOCAL-SELECTION.md) records its limits.
-Instruction freeze, publication and new client trials remain separate.
+Independent instruction review, publication and new client trials remain separate.
 
 ## Delivered historical action observation
 
@@ -56,7 +62,7 @@ Independent wording review and additional publication are separate; no automatic
 Issue CLI **0.8.4** was published at `813ab2e82f7ff0fa24403c6889bf82e2c8b121fb`.
 The original local selection and freeze records remain historical checkpoints.
 The [predecessor selection](releases/canonical-issue084-fs-v1/LOCAL-SELECTION.md)
-records that historical delivery; the current pointer identifies the delivered a15 successor, not operation authority.
+records that historical delivery; that is historical delivery; the current pointer selects local a16, not public availability or operation authority.
 [Observation input](protocols/issues/OBSERVATION-INPUT.md) carries one explicit
 Issue snapshot into original scope, progress and publish-close commands.
 The same observation does not freeze previewed HEAD or source bytes; apply plans
@@ -72,7 +78,7 @@ That historical delivery is distinct from the Issue CLI 0.8.4 successor publishe
 The original local selection and freeze records remain historical checkpoints.
 The [predecessor selection record](releases/canonical-a14-fs-v1/LOCAL-SELECTION.md)
 records that historical distribution. The [current delivery pointer](releases/SELECTED.json)
-identifies the delivered a15 successor; the explicit current publication pin establishes delivery. Predecessor pins remain historical evidence.
+selects local a16, not public availability. Explicit predecessor publication pins remain historical evidence.
 [Resource summaries](protocols/workspace/RESOURCE-RELEASES.md) distinguish reported
 closes from ledger completeness and historical unknowns. Optional Goal and positive
 create-first remain unqualified; useful work, optional SPEC, both explicit reviews
@@ -90,7 +96,7 @@ the limits. Existing useful-task and implementation/draft branches are unchanged
 Workspace stdin/focus does not automate Issue guards. Review provenance does not
 grant authority; do not overlay installations or migrate contributor commands.
 
-## Proposed whole-envelope installation (draft)
+## Install the reviewed local successor
 
 The unchanged operational block below targets the prepared a16 envelope through
 the original installer. Do not run it during layout review. Verify exact

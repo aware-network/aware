@@ -1,16 +1,18 @@
 # Reviewed repository setup
 
-Agent **0.2.0a15**, with Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
-Acquire that exact revision and retain its complete source/notice envelope.
-This alignment changes current wording and pins, not software or operation authority.
-Both reviews and original guards remain required. Additional publication of this
-wording alignment requires independent review and separate authorization.
+Agent **0.2.0a16**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not a predecessor's acquisition path. Issue-first
+useful work and optional SPEC stay independent; optional fresh Project/Goal
+creates direction, not work authority. Byte pins grant no operation or retry
+authority. The delivered a15 predecessor remains historical at
+`5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Both reviews and original guards remain.
 
 Use `aware workspace review` for one bounded
 A1 task: creating `aware.repo.toml` through the original Workspace, FileSystem
 and Issue owners. Start with [the entrance](../../README.md),
 [init guidance](../INIT.md) and [first Issue](../issues/FIRST-ISSUE.md).
-[Qualification bounds](../../releases/canonical-a14-fs-v1/REVIEW-STATUS.md)
+[Qualification bounds](../../releases/canonical-project-goal-fs-v1/REVIEW-STATUS.md)
 retain the exact candidate limits. This is not package creation, application
 implementation, A2/tree completion or unassisted onboarding acceptance.
 

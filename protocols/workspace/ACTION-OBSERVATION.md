@@ -1,6 +1,14 @@
 # Observe original retained action intent
 
-Draft for prepared, unselected Agent **0.2.0a16**, Workspace SDK **0.2.15** /
+Agent **0.2.0a16**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not a predecessor's acquisition path. Issue-first
+useful work and optional SPEC stay independent; optional fresh Project/Goal
+creates direction, not work authority. Byte pins grant no operation or retry
+authority. The delivered a15 predecessor remains historical at
+`5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Both reviews and original guards remain.
+
+Locally selected Agent **0.2.0a16**, Workspace SDK **0.2.15** /
 Runtime **0.2.20**, FS adapter **0.1.12** and FileSystem **0.3.9**.
 Issue CLI **0.8.4**, was published at `5af88a6b95b928811022e5cd0255e4bb5c77bd87`.
 Acquire that exact revision and retain its complete source/notice envelope.
@@ -45,9 +53,9 @@ unqualified in this distribution.
 Whole-envelope source/notice carriage is mandatory. Earlier evaluations remain
 version-bound; no new customer U/V/R or productivity claim follows from layout.
 
-## Prepared a16 candidate discovery (draft and unselected)
+## Original-intent candidate discovery in the locally frozen instructions
 
-For the prepared successor, human summaries expose owner-returned original
+For this locally selected successor, human summaries expose owner-returned original
 intent candidates when available. A candidate is not a validated pair. Select
 only the exact original second-review result that preceded the same apply,
 never an apply/outcome reference. Missing, malformed or conflicting references
@@ -56,5 +64,5 @@ Evidence reads may return command-capture bytes rather than wrapper metadata.
 The original owner validates correlation; not_established remains possible.
 Observation establishes neither completion, current admission nor retry authority.
 Resource closes, retention, client cleanup and historical uncertainty remain
-separate. The older capability limits above describe the delivered predecessor;
-the separate optional Project/Goal branch is bounded by its current guide.
+separate. The separate optional Project/Goal branch is bounded by its current guide;
+neither creates Goal-to-work or retry authority.

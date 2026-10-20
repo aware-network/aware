@@ -1,8 +1,16 @@
-# Internal Project/Goal and original-intent candidate
+# Optional fresh-repository Project/Goal direction
 
-This is a technical whole-envelope preparation, not public availability,
-clearance, an instruction freeze or unassisted customer acceptance. Software is
-the exact accepted 49-wheel candidate, Agent 0.2.0a16 and Issue CLI 0.8.4.
+Agent **0.2.0a16**, with Issue CLI **0.8.4**, instructions are frozen locally pending independent review;
+public delivery is not yet authorized. Use this reviewed checkout and its
+whole-envelope installer, not a predecessor's acquisition path. Issue-first
+useful work and optional SPEC stay independent; optional fresh Project/Goal
+creates direction, not work authority. Byte pins grant no operation or retry
+authority. The delivered a15 predecessor remains historical at
+`5af88a6b95b928811022e5cd0255e4bb5c77bd87`. Both reviews and original guards remain.
+
+This locally selected branch is not public availability, comprehensive
+clearance or unassisted customer acceptance. Software remains the exact accepted
+49-wheel candidate, Agent 0.2.0a16 and Issue CLI 0.8.4.
 Keep this complete source/notice envelope. Detached wheels and stripped payloads
 are not approved delivery forms. Use an existing host Python 3.12 on Linux
 x86_64; a supplied runtime/no-host-Python entrance is not established.
@@ -110,5 +118,7 @@ notice copies. It does not establish single-revision source, authenticated
 compiler provenance, exact native/header/toolchain reconstruction or exhaustive
 legal/disclosure clearance. Inspect current NOTICE-BINDINGS and raw CONTENT-AUDIT;
 old gap/finding counts do not automatically cover the expanded closure.
-`clearance=not_granted` remains mandatory. Notice sufficiency and disclosure
-decisions must bind these exact final envelope bytes separately.
+`clearance=not_granted` remains mandatory. Exact-envelope bounded engineering
+decisions are accepted, not comprehensive compliance or publication clearance.
+Nine package-local gaps remain unrepaired; thirteen raw findings remain visible:
+twelve relative fixture literals and one actual relative declaration coordinate.
