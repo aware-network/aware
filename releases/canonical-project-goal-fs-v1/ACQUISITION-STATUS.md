@@ -39,3 +39,12 @@ customer journey, activation, GC change, public push or productivity claim.
 
 Independent guidance review and separate exact-range publication authorization
 must precede fresh, separately admitted version-bound client evaluations.
+
+## Local guidance review checkpoint
+
+Applied implementation `ddabf2b9b88039b28c0fe89d02b0edcba6397311` changes exactly
+22 admitted paths. Eight current-guidance checks and nine existing installer
+regressions pass. All 25 successor pins include the corrected installer; prior
+records and software are unchanged. Original Issue guards and CAS/index complete
+without debt. This local provenance is not additional public availability or
+operation authority; independent review and separate publication remain required.
