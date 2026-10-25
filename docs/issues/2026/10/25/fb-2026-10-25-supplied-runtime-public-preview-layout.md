@@ -2,7 +2,7 @@
 
 - Slug: supplied-runtime-public-preview-layout
 - Tag: fb/2026-10-25/supplied-runtime-public-preview-layout
-- Status: In Progress
+- Status: Closed
 - Owner: codex-01a14c86-b376-7e90-a06c-557188bdf1e7
 - Priority: P1
 - Goal: TBD
@@ -79,13 +79,19 @@
 - `releases/canonical-bounded-runtime-fs-internal-v1/runtime-postimage.json`
 
 
+
+
 ## Problem
 1. Private no-host-Python operation is accepted, but this exact bundle has no public additive acquisition entrance.
 
 
 
+
+
 ## Goal
 1. Project the accepted original cold-entrance outputs into an additive named preview with whole-envelope release-asset bindings; preserve current default and contributor governance.
+
+
 
 
 
@@ -97,6 +103,17 @@
 
 
 
+
+
+## Verified-by
+- codex-01a17144-1068-7e83-8f61-a7c06c356593 (bounded fact-overlap disclosed) and 13 direct layout controls
+- git:fcb4362735885c3aa312113831782efb84d35c50
+
 ## Updates (append-only)
 - Ensured through `issue_sdk.ensure_issue_snapshot`. (recorder: `codex-01a14c86-b376-7e90-a06c-557188bdf1e7`)
 - Applied `issue_sdk.start_issue_progress`. (recorder: `codex-01a14c86-b376-7e90-a06c-557188bdf1e7`)
+- Bounded local layout accepted: 62 original byte-exact controls and three delivery documents, 8,862,547 bytes; exact 66-path implementation fcb4362735885c3aa312113831782efb84d35c50, CAS/index applied. Thirteen layout controls pass; bounded notice/disclosure claims confirmed. Reviewer addendum verifies the confirmed projection; initial stale-projection comparison remains retained. No source/default-selection changes, large asset copy, build, install, remote push/tag/upload/deploy or public/unassisted acceptance. Twenty legal gaps, fourteen metadata omissions, historical clearance and native qualifications remain. Close is preparation only; exact remote authorization and fresh pinned acquisition/use remain separate. (outcome: verified) (recorder: `codex-01a14c86-b376-7e90-a06c-557188bdf1e7`)
+- Applied `issue_sdk.close_issue`. (recorder: `codex-01a14c86-b376-7e90-a06c-557188bdf1e7`)
+
+## Resolution
+Prepared and independently checked the exact additive supplied-runtime public preview; remote delivery and external consumption remain separately authorized and unproved.
