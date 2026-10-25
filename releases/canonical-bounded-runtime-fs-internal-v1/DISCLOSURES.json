@@ -1,0 +1,206 @@
+{
+  "status": "bounded_engineering_disposition_confirmed_no_remote_authority",
+  "scope": "This exact whole-envelope preview; publication requires separately recorded explicit authorization.",
+  "binding": {
+    "envelope_sha256": "2e98f86045a516c697eb47dac2735bd64da68bc3a0fca4ab16716013eeb2e108",
+    "payload_sha256": "6222c0272c2481916e848a18cd869d50289a7b114bcc36acb88f70d2e5d77047",
+    "driver_sha256": "7d870533e8721b9b7316e0c2496c73ce30fc48ced923deea5a4176a6d3fbcf72"
+  },
+  "recorded_by": "codex-01a14c86-b376-7e90-a06c-557188bdf1e7",
+  "recorded_at_utc": "2026-10-25T12:18:00.149949+00:00",
+  "notice_sufficiency": "Accept complete source/license/notice carriage for this bounded preview under retained Aware-authored root terms and all attached component/file exceptions. Twenty wheel-local gaps and fourteen missing metadata expressions remain unrepaired. No detached-wheel or registry redistribution disposition is issued.",
+  "package_source_terms": [
+    {
+      "package": "aware-api-contract-runtime",
+      "version": "0.1.0",
+      "wheel_sha256": "d110825d7f97d165ca3d2802b0e310c3e56a0df37907cf584fd5d221cf384107",
+      "source_root": "workspaces/aware_kernel/modules/api/libs/contract_runtime/python",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-code-module-manifest-contract-runtime",
+      "version": "0.1.1",
+      "wheel_sha256": "ef54543de6fabd63680ce4c7fd3cf8b9bdd6a52cd5851d9c1942831bd6c0bbca",
+      "source_root": "workspaces/aware_kernel/modules/code/libs/module_manifest_contract_runtime",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-code-package-delta-contract",
+      "version": "0.1.0",
+      "wheel_sha256": "abfe38aa55bc6236c44d6b682931bf2dbc2cdfd26ce13f3ce9416cc4a1f77a4a",
+      "source_root": "workspaces/aware_kernel/modules/code/libs/package_delta_contract/python",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-code-retained-registry-policy-runtime",
+      "version": "0.1.2",
+      "wheel_sha256": "b177dfcfdc808a35c0e61c43d64b9a39ade040a663fdb52104e9dc3a0db5cfb3",
+      "source_root": "workspaces/aware_kernel/modules/code/libs/retained_registry_policy_runtime",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-code-semantic-contract-runtime",
+      "version": "0.2.0",
+      "wheel_sha256": "6aacdf3b4fb18881291a5c4a2e9c527d4fe6ec42cd1bca16b2f1800b15cbb81e",
+      "source_root": "workspaces/aware_kernel/modules/code/libs/semantic_contract_runtime/python",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-experience-runtime",
+      "version": "0.5.0",
+      "wheel_sha256": "3011c0c6af470d76df86bef1f92b65517be1aa9d84a63381ee97ac642e3cdb92",
+      "source_root": "workspaces/aware_network/modules/experience/libs/experience_runtime",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-experience-runtime-host",
+      "version": "0.3.1",
+      "wheel_sha256": "f0b0c5605cdfa8e504f7045c26ce5add6988f85e14f8542919fb0fd5a87ee8d3",
+      "source_root": "workspaces/aware_network/modules/experience/libs/experience_runtime_host",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-identity-action-submission-runtime",
+      "version": "0.1.0",
+      "wheel_sha256": "e2ecb88518494b481560a912e12b8486f8018e2c04098901bbf9834b4bb36b60",
+      "source_root": "workspaces/aware_network/modules/identity/libs/identity_action_submission_runtime",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-identity-runtime",
+      "version": "0.1.0",
+      "wheel_sha256": "2af1e92bc145956363ecfae8160bf8c42cca6056bc881e424c7a3c234f4343bb",
+      "source_root": "workspaces/aware_network/modules/identity/libs/identity_runtime",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-identity-sdk",
+      "version": "0.2.3",
+      "wheel_sha256": "6d4875ac4a9f8f4f9936267f186a310a1fce23c634bcdcb3973d4111575f2cb0",
+      "source_root": "workspaces/aware_network/modules/identity/sdks/identity/python/public",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-language-parsed-document-contract",
+      "version": "0.1.1",
+      "wheel_sha256": "a2e5c2179bfc45f35bdb76a729c56094d06614f9a93254037dbcc11dc853430f",
+      "source_root": "workspaces/aware_kernel/languages/aware/grammar/parsed_document_contract/python",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-ontology-object-facade-client",
+      "version": "0.1.0",
+      "wheel_sha256": "acf89c4f06624bb8e9f71e59af5fabb456f8d0ab097a92ccb1073f55b881dc67",
+      "source_root": "workspaces/aware_kernel/modules/ontology/libs/object_facade_client/python",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-ontology-runtime",
+      "version": "0.1.0",
+      "wheel_sha256": "3eb7368e5df749555f5a44e5c11293f1f06b3095218a50da9389bfb6b5667b36",
+      "source_root": "workspaces/aware_kernel/modules/ontology/libs/runtime/python",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-project-goal-fs-adapter",
+      "version": "0.2.1",
+      "wheel_sha256": "3c925752ddb3e5c255880a2e805483781d358e1877b9753699c1d3cdf4aef938",
+      "source_root": "workspaces/aware_coordination/modules/workflow/libs/project_goal_fs_adapter/python",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-project-runtime",
+      "version": "0.2.0",
+      "wheel_sha256": "6ccb1dfb484735686b625424178e3675ce8fdb3d85bde3d34fa5a94ed4cf769e",
+      "source_root": "workspaces/aware_coordination/modules/workflow/libs/project_runtime/python",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-reactivity-runtime",
+      "version": "0.1.0",
+      "wheel_sha256": "ec9699f9e19414163a6779403e016e087ab61e17dcf527f2369374401e5a2d0a",
+      "source_root": "workspaces/aware_network/modules/reactivity/libs/reactivity_runtime",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-sdk-core",
+      "version": "0.1.1",
+      "wheel_sha256": "174053c438eb1ae480213f7a967ce58316110c189c4cac5efcd47991d43e6a3f",
+      "source_root": "workspaces/aware_kernel/modules/sdk/libs/sdk/python",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-service-api-view-runtime",
+      "version": "0.1.0",
+      "wheel_sha256": "bf730f6910fc442b9395c24966f88f17c237482d0c016b9db7e3aea5ffa14701",
+      "source_root": "workspaces/aware_network/modules/service/libs/api_view_runtime/python",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-workspace-runtime",
+      "version": "0.2.21",
+      "wheel_sha256": "43ab7960bf0384dabbdad3d0d9c2c4c371422404581f0e522cfa22cc9ba44171",
+      "source_root": "workspaces/aware_workspace/modules/workspace/libs/workspace_runtime",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    },
+    {
+      "package": "aware-workspace-sdk",
+      "version": "0.2.18",
+      "wheel_sha256": "4d6ee8d3420811cd378cb07ad64424d4ded5961aed9d8727674f90ee98fd94bc",
+      "source_root": "workspaces/aware_workspace/modules/workspace/sdks/workspace/python/public",
+      "decision": "Aware-authored portion follows retained root Apache-2.0 default, subject to carried exceptions and upstream terms; whole-envelope sources/root notice retained instead of claiming wheel-local completeness. Lexical test/README licence strings are not used to relicense files. No exhaustive rights warranty."
+    }
+  ],
+  "finding_disclosure": "Accept the inventoried producer/caller path contexts and source fixture bytes as provenance/data in this whole-envelope preview. They are not consumer locations, authority, trust anchors or operational credentials. Eight fixture-member contexts in two unchanged upstream certificate-test archives remain carried; no credential liveness/safety inference or exhaustive secret scan is claimed.",
+  "bounded_current_coverage": "Historical90 rows, current19 delta path rows, and5 control path rows retain separate scopes; counts must not be added or relabelled exhaustive. Current producer records inside the whole envelope are knowingly carried with provenance-path qualification.",
+  "private_customer_material": "Current consumer reports, raw44-command streams, customer repository and synthetic Git-author fixture stay private and outside this release; no evaluation archive transfer is authorized.",
+  "native_limits": "Carry current compiler/header/toolchain/source-linkage accounts and their unknowns. Native success does not authenticate producer Git history, toolchain or exact binary provenance.",
+  "immutable_historical_clearance": "clearance=not_granted remains unchanged; private-purpose decisions and failed attempts remain byte-exact historical evidence.",
+  "not_granted": [
+    "legal warranty",
+    "exhaustive clearance",
+    "detached-wheel completeness",
+    "registry publication",
+    "remote push/tag/upload",
+    "website deployment",
+    "external unassisted acceptance",
+    "broader Linux/macOS/Windows support"
+  ],
+  "delivery_conditions": [
+    "Preserve exact whole envelope, all source/notice/native/runtime attachments and original checksums.",
+    "Additive named preview; preserve current Project/Goal default selection and contributor rail.",
+    "Publish an explicit disclosure/qualification guide and exact control/asset byte inventory.",
+    "Obtain current explicit remote target/range/tag/asset authorization after local review.",
+    "Verify pinned anonymous acquisition then fresh unassisted use at stable final roots; no completion inferred from private assisted run."
+  ],
+  "source_terms_audit": {
+    "record_sha256": "7cf433e25e652dee06ab2fcf8dd3c47c6cbee1720dc91859dfd317da8665db67",
+    "summary": {
+      "SPDX_header_files": 0,
+      "copyright_header_files": 0,
+      "local_legal_or_attribution_files": 0,
+      "packages": 20,
+      "packages_with_local_legal_or_attribution_files": 0,
+      "potential_exception_indicator_files": 10,
+      "recognized_identifier_header_files": 16,
+      "selected_header_bytes_inspected": 8555546,
+      "selected_source_bytes_verified": 24480795,
+      "selected_source_files_verified": 1307
+    },
+    "limits": [
+      "Only first8KiB per selected file inspected for header terms; entire member streams used for SHA/size/mapping verification only.",
+      "Identifiers/copyright/SPDX strings in tests or metadata are lexical indicators, not automatic applicable licences or confirmed file-level exceptions.",
+      "No root-relicensing, public-rights, legal/compliance or credential-safety warranty; wheel-local omissions remain unrepaired.",
+      "Zero header matches do not rule out terms beyond8KiB, parent/direct-root attachments, external declarations or differently worded legal text.",
+      "Any new discrepancy stops this invocation and retains partial evidence; no retry, extraction, repair, budget increase or artifact mutation."
+    ]
+  },
+  "remote_authorization": false,
+  "private_proof": "Assisted private installation and useful operation accepted; public unassisted acquisition/use not yet demonstrated. Consumer reports and capture data are not part of this delivery.",
+  "confirmation": {
+    "review_status": "PASS_bounded_engineering_claims_consistent",
+    "review_sha256": "f943917881792bd763ef251e0be86e606502e6deda1882f403a0404d945ee43b",
+    "reviewer_execution": "codex-01a17144-1068-7e83-8f61-a7c06c356593",
+    "overlap_disclosure": "Same execution authored the underlying fact, delta, control and source-header audits. This review separately assesses parent decision/claims; it is not a fresh-agent reproduction, organizational independence claim, or substitute for Hooke private aggregate review."
+  }
+}

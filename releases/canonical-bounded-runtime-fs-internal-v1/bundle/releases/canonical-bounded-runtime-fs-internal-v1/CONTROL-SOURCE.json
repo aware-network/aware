@@ -1,0 +1,235 @@
+{
+  "control_source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5",
+  "members": {
+    "filesystem._native_bootstrap_custody": {
+      "bytes": 27410,
+      "sha256": "e13c7e448092395fc8f933ed128ea1dbf3076d04f97429155d9ceacd2f7e2a1c",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/_native_bootstrap_custody.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem._native_library": {
+      "bytes": 2073,
+      "sha256": "7f0dabba2de22b0855f68325d1853b12e5c5fccf65c2ec7d44560eae0b7542f8",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/_native_library.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem._observation_receipt": {
+      "bytes": 18149,
+      "sha256": "be67af7b7d5e559f167ef3ced17103269b2ef4d833fc7714cdf13bc5be93f340",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/_observation_receipt.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem._staging_guard_history": {
+      "bytes": 51990,
+      "sha256": "478104bfbdff61ae136ed3f8a4199fe96ea13fd60e73b311262f7880975b7e3d",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/_staging_guard_history.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.confined_entry": {
+      "bytes": 46610,
+      "sha256": "ad7af5afc9d263856593d3622a44252bd98ee94c665d4516a60c03998f6ef407",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/confined_entry.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.confined_mutation": {
+      "bytes": 81393,
+      "sha256": "edd891cdf5141977641c8881e3555c404a0b51ca5809626d3179396612f25569",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/confined_mutation.py",
+      "source_revision": "697fc499a9b46509af77559280d48d8985aef92e"
+    },
+    "filesystem.cooperative_source": {
+      "bytes": 24318,
+      "sha256": "f4cd84b9a74ef97af442564565eb5e955a8769e54c8cd92c7a5fba75045b4e8f",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/cooperative_source.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.native_bootstrap_creation": {
+      "bytes": 22344,
+      "sha256": "933d0a9935f5e96445194ec32d23f4a46adc5a6b0cca1e99f9d9821bc2b01145",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/native_bootstrap_creation.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.native_read_cleanup": {
+      "bytes": 13154,
+      "sha256": "8e3baee924383e7555bab7c327938a099397bb37adb77ee3a3811a132a5b8d15",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/native_read_cleanup.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.private_directory": {
+      "bytes": 83982,
+      "sha256": "3b15b164e0ac3b75c43ac439b253c6a744286c41b80ae38300aa2e707a94a5d0",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/private_directory.py",
+      "source_revision": "1b8209ecc71bf6823a11881d39c603cc3d4da5ae"
+    },
+    "filesystem.private_namespace": {
+      "bytes": 60095,
+      "sha256": "859ee2353df029d1247dcd84dc7f6aa748478486951590bbc25d83919ccaf939",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/private_namespace.py",
+      "source_revision": "1b8209ecc71bf6823a11881d39c603cc3d4da5ae"
+    },
+    "filesystem.private_namespace_values": {
+      "bytes": 7917,
+      "sha256": "06167767b1ced5d682c44d4c6d21c4ae4c5e846b87b8e1901b35899f8c0e05c1",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/private_namespace_values.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.private_sequence_capacity": {
+      "bytes": 37728,
+      "sha256": "e59fee7fab339084c71b5b1f072d82d35df4a23100a2a87aef5472f186f920dd",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/private_sequence_capacity.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.retained_bootstrap": {
+      "bytes": 20889,
+      "sha256": "035650a21555eb5c92a35d680ec209b84316ce66817add6b5c5593d34c33ec66",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/retained_bootstrap.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.retained_file_sequence": {
+      "bytes": 55160,
+      "sha256": "e933a85ad8a37017b0015ff5b9ac3698011cddb9d70d24c22d36002a9f4e4985",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/retained_file_sequence.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.retained_mutation": {
+      "bytes": 23291,
+      "sha256": "feafda81873869daf4f29fa508e26ee1a7babb5d9cdcb8b6ecdb497562eae5b9",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/retained_mutation.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.staging_complete": {
+      "bytes": 31396,
+      "sha256": "f9d47a18eab5b341ab8cf9cc196fd1d978dd826443859905e1b21c0f1efcb057",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/staging_complete.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.staging_member": {
+      "bytes": 58543,
+      "sha256": "396ba210a064d855043a14e2be55474d7d0e571fb6d6453f73c974593dc17ea6",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/staging_member.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.staging_partitioned_plan": {
+      "bytes": 9803,
+      "sha256": "1a9733878bfd39d02b45a3c14ebeeafc78302a3e2650c708e84dd03fefdac292",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/staging_partitioned_plan.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.staging_plan": {
+      "bytes": 6365,
+      "sha256": "728264b2d2ac987db8d769ef6fcba336e36fc6a2133455d5416ddab01cbe36ad",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/staging_plan.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "filesystem.staging_root": {
+      "bytes": 27059,
+      "sha256": "d5a2a1b225392a6c0a0e2cfd648886f1c054d8c52011a3fa8386c958e49f2a32",
+      "source_path": "workspaces/aware_kernel/modules/filesystem/libs/file_system/python/aware_file_system/staging_root.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_bulk_consumption": {
+      "bytes": 7692,
+      "sha256": "d12e45022bd59f162be8753aff97cdf43528f66964609dc3ecea171e31fd2458",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_bulk_consumption.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_capture_mount": {
+      "bytes": 9302,
+      "sha256": "851eddb33d55ee0da617dee59513da930dccdcafd162ceb9a31f09c111d5ef36",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_capture_mount.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_catalog_flow": {
+      "bytes": 13681,
+      "sha256": "d0be5dd6c63da4ee46673cfa6e1f95025c93a94f14b7da5a98b5d8e73f72f47c",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_catalog_flow.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_catalog_receiving": {
+      "bytes": 21408,
+      "sha256": "7316b50d9d63136294c84c7bd42b5473b3a799324e0e5c4a1e3518e94459551c",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_catalog_receiving.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_member_capture": {
+      "bytes": 7121,
+      "sha256": "5267122f481995f5fed7a846866a72dc6f34cbb61d9cbecae196faa52c26284f",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_member_capture.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_member_consumption": {
+      "bytes": 13277,
+      "sha256": "3507af069ef47298836a2eeffa68df87d6c0e898eaad1de74adb2e1722e7f3cc",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_member_consumption.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_member_receiving": {
+      "bytes": 7104,
+      "sha256": "176b50011be23ab1bed6546e9af9f955abb40c8179b35bafd1841a614b125617",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_member_receiving.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_member_replay": {
+      "bytes": 7226,
+      "sha256": "38d5825f641822f62d7faaff00fe04b80595eb64c136585d02f8c22bbeb14983",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_member_replay.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_nested_bulk": {
+      "bytes": 6843,
+      "sha256": "3b5fa1a7896816cdb32c97a0c72f8a0dc69d9073933f4911baa852631d33f0e9",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_nested_bulk.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_nested_mount": {
+      "bytes": 15682,
+      "sha256": "1dd493f60de73c0270165681f7a7ee0cb1a6e5af7cb1a79a7448605072dae73a",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_nested_mount.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_parent_member_feed": {
+      "bytes": 12497,
+      "sha256": "a41933516086ccb845c286c2d46d8a797c06833d15fbbc5d72dd58c470a609d9",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_parent_member_feed.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_stream_catalog": {
+      "bytes": 24137,
+      "sha256": "a289cbf8e1678e9250e839930985e585431195968dea28f670f8f0a02377315c",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_stream_catalog.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_stream_flow": {
+      "bytes": 27437,
+      "sha256": "f681040c3d931d9ebea0b547bc67b72c5f4ca48374c2645645a2f57d4e26fa12",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_stream_flow.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_stream_receiving": {
+      "bytes": 12821,
+      "sha256": "7735ebb78a4625dc1f94220904848aff4e71748a26433681f1bcec7119cf06bf",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_stream_receiving.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release._product_tar_policy": {
+      "bytes": 6289,
+      "sha256": "aebfa34de7c14d4bedcb61b198a4460d600f503d4722f241820faacef23c8142",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/_product_tar_policy.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release.product_staging": {
+      "bytes": 20333,
+      "sha256": "3d328cdf79ca1f97d7d36b14415c43b2cf5738350bbd113ee9ea00b905225162",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/product_staging.py",
+      "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5"
+    },
+    "release.whole_envelope": {
+      "bytes": 45981,
+      "sha256": "c5d8d499c18c5fd49110a1247b7f29a2021101bbd7f0b55cfb86e0bbc0ff29da",
+      "source_path": "workspaces/aware_network/modules/interface/libs/release_distribution/python/aware_release/install_distribution/whole_envelope.py",
+      "source_revision": "697fc499a9b46509af77559280d48d8985aef92e"
+    }
+  },
+  "profile": "aware.release.original-bootstrap-observation-receipts.v1",
+  "role": "bootstrap-control-source;not-package-catalog-or-authority"
+}

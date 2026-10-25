@@ -1,0 +1,16 @@
+{
+  "schema": "aware.product-envelope-materialization-qualification.v1",
+  "profile": "prequalified-pinned-product-regular-files-v1",
+  "verifier_sha256": "032febe109cf145c65f5edaf14403fc58e7b4e93397535d0327e5ce1a65c6ca9",
+  "outer_sha256": "2e98f86045a516c697eb47dac2735bd64da68bc3a0fca4ab16716013eeb2e108",
+  "outer_size_bytes": 341704230,
+  "payload_sha256": "6222c0272c2481916e848a18cd869d50289a7b114bcc36acb88f70d2e5d77047",
+  "payload_member": "payload/aware-canonical-bounded-install-fs-internal-v1.tar.gz",
+  "payload_size_bytes": 10305410,
+  "outer_file_count": 381,
+  "inner_file_count": 75,
+  "outer_expanded_bytes": 381373579,
+  "inner_expanded_bytes": 12410096,
+  "measured_peak_rss_bytes": 170999808,
+  "qualification_evidence_sha256": "67d2501607f11009040b1488ef86cdd9cce2f96da2549c74087db354d70e45c2"
+}

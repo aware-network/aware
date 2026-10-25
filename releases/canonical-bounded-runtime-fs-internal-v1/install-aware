@@ -1,0 +1,49 @@
+#!/bin/sh
+set -eu
+umask 077
+usage() {
+    printf '%s\n' 'Usage: install-aware runtime-preview RUNTIME_ROOT | runtime-apply RUNTIME_ROOT | install-preview INSTALL_ROOT RUNTIME_ROOT | install-apply INSTALL_ROOT RUNTIME_ROOT EXPECTED_PLAN_SHA256 | configure INSTALL_ROOT RUNTIME_ROOT EXPECTED_PLAN_SHA256 ORIGINAL_APPLY_LOG (creates two native-current datafiles once) | run INSTALL_ROOT [AWARE_ARGS...]'
+}
+case "${1-}" in
+    --help) usage; exit 0 ;;
+    runtime-preview|runtime-apply) test "$#" -eq 2 || { usage >&2; exit 2; } ;;
+    install-preview) test "$#" -eq 3 || { usage >&2; exit 2; } ;;
+    install-apply) test "$#" -eq 4 || { usage >&2; exit 2; } ;;
+    configure) test "$#" -eq 5 || { usage >&2; exit 2; } ;;
+    run) test "$#" -ge 2 || { usage >&2; exit 2; } ;;
+    *) usage >&2; exit 2 ;;
+esac
+action=$1
+target=$2
+reviewed_plan=${4-}
+runtime_root=${3-}
+case "$target" in /*) ;; *) printf '%s\n' 'An explicit absolute final root is required.' >&2; exit 2 ;; esac
+base=$(CDPATH= cd -P -- "$(/usr/bin/dirname -- "$0")" && pwd -P)
+cd "$base"
+/usr/bin/sha256sum --check --strict SHA256SUMS
+case "$action" in
+    runtime-preview|runtime-apply)
+        phase=--preview
+        if test "$action" = runtime-apply; then phase=--apply; fi
+        exec "$base/runtime-bootstrap" --profile runtime-stripped128-v1 --archive "$base/runtime.tar.gz" --root "$target" "$phase"
+        ;;
+    install-preview|install-apply)
+        case "$runtime_root" in /*) ;; *) printf '%s\n' 'An explicit absolute runtime root is required.' >&2; exit 2 ;; esac
+        runtime_python="$runtime_root/python/bin/python3.12"
+        observed_python=$(/usr/bin/sha256sum -- "$runtime_python") || exit 2
+        case "$observed_python" in "eaaa308032c4aa063df5880c4c293cd458b4629d503fbc2c03ec163d71f7f790  "*) ;; *) printf '%s\n' 'Supplied runtime executable digest refused.' >&2; exit 2 ;; esac
+        set -- "$runtime_root/python/bin/python3.12" -I -S -B -X utf8 "$base/bootstrap.pyz" --bundle-root "$base/bundle" --installation-root "$target" --python-executable "$runtime_root/python/bin/python3.12" --supplied-runtime-root "$runtime_root" --timeout-seconds 1800
+        if test "$action" = install-apply; then
+            set -- "$@" --apply --expected-plan-sha256 "$reviewed_plan"
+        fi
+        exec "$@"
+        ;;
+    configure)
+        case "$runtime_root" in /*) ;; *) printf '%s\n' 'An explicit absolute runtime root is required.' >&2; exit 2 ;; esac
+        exec "$target/env/bin/python" -I -B -X utf8 "$base/configure_native_current_v1.py" configure "$target" "$runtime_root" "$reviewed_plan" "$5" --descriptor "$base/native-current-descriptor.json" --cold-root "$base"
+        ;;
+    run)
+        shift 2
+        exec "$target/env/bin/python" -I -B "$target/env/bin/aware" "$@"
+        ;;
+esac

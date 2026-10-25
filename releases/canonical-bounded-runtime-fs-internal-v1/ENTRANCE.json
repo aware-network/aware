@@ -1,0 +1,60 @@
+{
+  "activation": "not_requested",
+  "artifact": {
+    "driver_sha256": "7d870533e8721b9b7316e0c2496c73ce30fc48ced923deea5a4176a6d3fbcf72",
+    "envelope_name": "aware-canonical-bounded-runtime-source-notice-v1.tar.gz",
+    "envelope_sha256": "2e98f86045a516c697eb47dac2735bd64da68bc3a0fca4ab16716013eeb2e108",
+    "envelope_size": 341704230,
+    "payload_sha256": "6222c0272c2481916e848a18cd869d50289a7b114bcc36acb88f70d2e5d77047",
+    "platform": "linux_x86_64",
+    "product_revision": "9a263cde51c24b96133b804d5ec45d6b7d334521",
+    "python_minor": "3.12",
+    "release_id": "canonical-bounded-runtime-fs-internal-v1",
+    "runtime_mode": "supplied",
+    "verifier_sha256": "032febe109cf145c65f5edaf14403fc58e7b4e93397535d0327e5ce1a65c6ca9"
+  },
+  "cold_execution_acceptance": false,
+  "installation_root_prerequisite": "Existing private owned installation root; runtime root is separate and original-port validated. No wrapper directory creation or runtime movement.",
+  "installed_command": "ROOT/env/bin/aware",
+  "platform": "Ubuntu24.04/glibc2.39/linux_x86_64 reference-host only",
+  "prepared_result_sha256": "a2546c6d5cb122fcc22b30e1214f51f7af5b58f7dd03302ccc6925340d5d9989",
+  "prerequisites": [
+    "/bin/sh",
+    "/usr/bin/dirname",
+    "/usr/bin/sha256sum",
+    "exact helper-pinned /usr/bin/tar and /usr/bin/gzip and qualified ELF dependencies",
+    "qualified CPython ELF dependencies",
+    "Git separately for repository operations"
+  ],
+  "profile": "runtime-stripped128-v1",
+  "public_revision": null,
+  "resource_acceptance": false,
+  "review_boundary": "After runtime-apply succeeds, install-preview returns original plan. Only install-apply with its exact reviewed fingerprint dispatches original installation.",
+  "runtime_preview": "Original roster validation only; not source/root observation or admission.",
+  "schema": "aware.ordinary-cold-entrance.local-candidate.v1",
+  "source_notice_disposition": "Private internal qualification only;20legal gaps and all findings/provenance limitations retained. Full envelope and both carriage maps required.",
+  "source_revision": "1f12c7b8b06c9075f770aad7f19d80d062e8b2b5",
+  "specification_example": {
+    "authored_path": "workspaces/aware_kernel/modules/specification/sdks/specification/python/cli/examples/prepare_draft_input.py",
+    "authorizes_operation": false,
+    "member": "examples/prepare_draft_input.py",
+    "sha256": "21e1bea900ae75e47be2ff889e87d514cba08ba9f325681dcc0ee3f1df68bcb5",
+    "size_bytes": 2081,
+    "source_path": "/home/aware/development/aware-dev/workspaces/aware_kernel/modules/specification/sdks/specification/python/cli/examples/prepare_draft_input.py",
+    "source_revision": "d09a66d78c9a537cca7ab31730fb5f9aef415add"
+  },
+  "supplied_runtime": {
+    "archive_sha256": "178d3d83b6e8e99285a65d3fce9c16b87952cc5efdb4d1a0e3ff3be18ff0fc9c",
+    "bootstrap_sha256": "ef12d2da398c0f449f770cd95ba3779967a9d8777972b97dd677dcb885bc4501",
+    "python_sha256": "eaaa308032c4aa063df5880c4c293cd458b4629d503fbc2c03ec163d71f7f790",
+    "python_version": [
+      3,
+      12,
+      15
+    ],
+    "roster_sha256": "2a2b824eb271428299cbdf5767f0a0dee7f6e6d6a7101a2d544db5973b15e7f2"
+  },
+  "supplier_two_root_acceptance": false,
+  "trusted_acquisition_origin": null,
+  "unassisted_acceptance": false
+}

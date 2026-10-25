@@ -1,0 +1,228 @@
+{
+  "schema": "aware.native-current.configure-descriptor.v1",
+  "initializer": {
+    "member": "bootstrap/initialize_native_current_v1.py",
+    "sha256": "b9b8f6c3794dabf8e5eff7cb9d06315f758765e0f45192e577d09e4fa9651dce",
+    "size_bytes": 8303
+  },
+  "layout": {
+    "outer_root_name": "aware-canonical-bounded-runtime-source-notice-v1",
+    "inner_root_name": "aware-canonical-bounded-install-fs-internal-v1",
+    "site_member": "lib/python3.12/site-packages"
+  },
+  "locations": {
+    "runtime_archive": {
+      "anchor": "cold_root",
+      "member": "runtime.tar.gz"
+    },
+    "runtime_inventory": {
+      "anchor": "retained_outer",
+      "member": "runtime/inventory.json"
+    },
+    "runtime_probe": {
+      "anchor": "installed_site",
+      "member": "aware_release/install_distribution/supplied_runtime_image_probe.py"
+    },
+    "verifier": {
+      "anchor": "cold_root",
+      "member": "bundle/releases/canonical-bounded-runtime-fs-internal-v1/archive_verifier.py"
+    },
+    "outer_archive": {
+      "anchor": "cold_root",
+      "member": "bundle/releases/canonical-bounded-runtime-fs-internal-v1/aware-canonical-bounded-runtime-source-notice-v1.tar.gz"
+    },
+    "resource_record": {
+      "anchor": "cold_root",
+      "member": "native-current-resource-record.json"
+    }
+  },
+  "supplied_runtime_profile": {
+    "archive_sha256": "178d3d83b6e8e99285a65d3fce9c16b87952cc5efdb4d1a0e3ff3be18ff0fc9c",
+    "bootstrap_sha256": "ef12d2da398c0f449f770cd95ba3779967a9d8777972b97dd677dcb885bc4501",
+    "python_sha256": "eaaa308032c4aa063df5880c4c293cd458b4629d503fbc2c03ec163d71f7f790",
+    "python_version": [
+      3,
+      12,
+      15
+    ],
+    "roster_sha256": "2a2b824eb271428299cbdf5767f0a0dee7f6e6d6a7101a2d544db5973b15e7f2"
+  },
+  "mount_template": {
+    "schema": "aware.workspace.native-consumer-inputs.v1",
+    "profile": "ordinary-supplied-runtime-linux-x86_64-catalog-v1",
+    "artifact": {
+      "driver_sha256": "7d870533e8721b9b7316e0c2496c73ce30fc48ced923deea5a4176a6d3fbcf72",
+      "envelope_name": "aware-canonical-bounded-runtime-source-notice-v1.tar.gz",
+      "envelope_sha256": "2e98f86045a516c697eb47dac2735bd64da68bc3a0fca4ab16716013eeb2e108",
+      "envelope_size": 341704230,
+      "payload_sha256": "6222c0272c2481916e848a18cd869d50289a7b114bcc36acb88f70d2e5d77047",
+      "platform": "linux_x86_64",
+      "product_revision": "9a263cde51c24b96133b804d5ec45d6b7d334521",
+      "python_minor": "3.12",
+      "release_id": "canonical-bounded-runtime-fs-internal-v1",
+      "runtime_mode": "supplied",
+      "verifier_sha256": "032febe109cf145c65f5edaf14403fc58e7b4e93397535d0327e5ce1a65c6ca9"
+    },
+    "supplied_runtime": null,
+    "receipt": {
+      "receipt_path": null,
+      "receipt_sha256": null,
+      "receipt_size_bytes": null,
+      "installation_root": null,
+      "retained_source_and_notices": null,
+      "expected_plan_sha256": null
+    },
+    "runtime": {
+      "archive_sha256": "178d3d83b6e8e99285a65d3fce9c16b87952cc5efdb4d1a0e3ff3be18ff0fc9c",
+      "inventory_sha256": "93e1b092dd0fef536bae78f18c06ad923525b0b6cffea27f1677e072829e3638",
+      "python_version": "3.12.15",
+      "runtime_root": null,
+      "stdlib_root": null,
+      "environment_prefix": null,
+      "launch_executable": null,
+      "expected_launch_flags": [
+        [
+          "isolated",
+          1
+        ],
+        [
+          "no_user_site",
+          1
+        ],
+        [
+          "dont_write_bytecode",
+          1
+        ],
+        [
+          "no_site",
+          0
+        ]
+      ],
+      "members": [
+        {
+          "member": "json/__init__.py",
+          "size_bytes": 14020,
+          "sha256": "d5d41e2c29049515d295d81a6d40b4890fbec8d8482cfb401630f8ef2f77e4d5"
+        },
+        {
+          "member": "json/encoder.py",
+          "size_bytes": 16075,
+          "sha256": "52bfb1b66029cc70fa3bd7fe11df9f2e03922d413407a341b387a22c987f24f8"
+        },
+        {
+          "member": "dataclasses.py",
+          "size_bytes": 62085,
+          "sha256": "d242aea5fcf6408b1c1f622442f88f68b9526ce1f8bd2890d74a144677c427d9"
+        }
+      ]
+    },
+    "native_artifact": {
+      "sdk_version": "0.2.18",
+      "source_revision": "d09a66d78c9a537cca7ab31730fb5f9aef415add",
+      "wheel_sha256": "4d6ee8d3420811cd378cb07ad64424d4ded5961aed9d8727674f90ee98fd94bc",
+      "native_member": "aware_workspace_sdk/_tree_native.cpython-312-x86_64-linux-gnu.so",
+      "native_sha256": "87a9b3a5e041c874c4af706eec1e6847d20cc70276b47760e5616b0be3471f0a",
+      "build_manifest_sha256": "f6be5d7c3e9a31945a7cd06571c7b87df58fb3a928e29841859f1e8c4015d844",
+      "profile_schema": "aware.workspace.runtime-profile.v2"
+    },
+    "coordinates": {
+      "retained_envelope_root": null,
+      "environment_prefix": null,
+      "wheel_member": "wheelhouse/aware_workspace_sdk-0.2.18-cp312-cp312-linux_x86_64.whl",
+      "build_manifest_member": "build-inputs/aware-workspace-sdk/build-a-native-build-record.json"
+    },
+    "native_envelope": {
+      "envelope_root": null,
+      "candidate_archive_sha256": "6222c0272c2481916e848a18cd869d50289a7b114bcc36acb88f70d2e5d77047",
+      "producer_source_revision": "d09a66d78c9a537cca7ab31730fb5f9aef415add",
+      "installed_native_path": null,
+      "runtime_profile": "runtime-owner-v3",
+      "manifest": {
+        "member": "component-evidence/native-input-manifest.json",
+        "sha256": "e919d0d901a5620adea08d1d24c7973992cca0efd733316f264ffa4ea432c15a",
+        "size_bytes": 2142234
+      },
+      "source_index": {
+        "member": "SOURCE-INDEX.json",
+        "sha256": "a8f695d1312a5d7c6498a291811a386c8b99781fef0506723aa2d58b6ef2ce7f",
+        "size_bytes": 2087402
+      },
+      "native_component": {
+        "member": "component-evidence/workspace-native.json",
+        "sha256": "30e57a379a4c2d99369dc14d182043c92b7eb50c03af3f3854023d44bd3e2eb1",
+        "size_bytes": 4667
+      }
+    },
+    "wheel": {
+      "wheel_path": null,
+      "wheel_sha256": "4d6ee8d3420811cd378cb07ad64424d4ded5961aed9d8727674f90ee98fd94bc",
+      "wheel_size": 302591,
+      "installed_site": null,
+      "member": "aware_workspace_sdk/_tree_native.cpython-312-x86_64-linux-gnu.so",
+      "member_sha256": "87a9b3a5e041c874c4af706eec1e6847d20cc70276b47760e5616b0be3471f0a",
+      "member_size": 319264,
+      "distribution_name": "aware-workspace-sdk",
+      "distribution_version": "0.2.18"
+    },
+    "runtime_tree": {
+      "runtime": {
+        "archive_path": null,
+        "archive_size": 34340172,
+        "archive_sha256": "178d3d83b6e8e99285a65d3fce9c16b87952cc5efdb4d1a0e3ff3be18ff0fc9c",
+        "inventory_path": null,
+        "inventory_size": 1002101,
+        "inventory_sha256": "93e1b092dd0fef536bae78f18c06ad923525b0b6cffea27f1677e072829e3638",
+        "extracted_root": null,
+        "runtime_root": null,
+        "interpreter_member": "python/bin/python3.12",
+        "expected_python_version": "3.12.15",
+        "expected_build_declaration": "3.12.15 (main, Oct 14 2026, 01:05:27) [Clang 23.1.3 ]",
+        "expected_soabi": "cpython-312-x86_64-linux-gnu",
+        "target": "linux_x86_64",
+        "probe_path": null,
+        "probe_size": 12555,
+        "probe_sha256": "bf79b2bfba268a0c176f84496e9961b498bc74469756881591dde4858929106b",
+        "stream_observer_sha256": "c5d8d499c18c5fd49110a1247b7f29a2021101bbd7f0b55cfb86e0bbc0ff29da",
+        "metadata_observer_sha256": "e1b4ce59aa447490b0cef109ced9660e0cb221a8ab30caf2f36cb36bdf2b429d",
+        "timeout_seconds": 30,
+        "max_stdout_bytes": 196608,
+        "max_stderr_bytes": 65536
+      },
+      "entry_observer_sha256": "4d3b85b44396f7192e78b1791855d4795ff201447bdecff35843269d5dfb3fb6"
+    },
+    "product": {
+      "verifier": {
+        "path": null,
+        "sha256": "032febe109cf145c65f5edaf14403fc58e7b4e93397535d0327e5ce1a65c6ca9",
+        "size_bytes": 5061
+      },
+      "outer_archive": {
+        "path": null,
+        "sha256": "2e98f86045a516c697eb47dac2735bd64da68bc3a0fca4ab16716013eeb2e108",
+        "size_bytes": 341704230
+      },
+      "inner_payload_member": "payload/aware-canonical-bounded-install-fs-internal-v1.tar.gz",
+      "resource": {
+        "record": {
+          "path": null,
+          "sha256": "0ec3684dec1e1dabc6dabdd70b8fd105190dd2415f76ec0fdf04832ced33bebb",
+          "size_bytes": 819
+        },
+        "qualification_evidence_sha256": "67d2501607f11009040b1488ef86cdd9cce2f96da2549c74087db354d70e45c2",
+        "maximum_input_bytes": 536870912,
+        "maximum_expanded_bytes": 536870912,
+        "maximum_file_count": 4096,
+        "maximum_measured_rss_bytes": 1073741824
+      },
+      "retained_inner_root": null,
+      "retained_tree": {
+        "private_root": null,
+        "directory_mode": 493,
+        "file_mode": 420,
+        "mode_profile": "canonical_staged_v1",
+        "entry_observer_sha256": "4d3b85b44396f7192e78b1791855d4795ff201447bdecff35843269d5dfb3fb6",
+        "stream_observer_sha256": "c5d8d499c18c5fd49110a1247b7f29a2021101bbd7f0b55cfb86e0bbc0ff29da"
+      }
+    }
+  }
+}
